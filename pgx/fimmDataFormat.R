@@ -1,16 +1,5 @@
 
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-if(!require('PharmacoGx')){
-  BiocManager::install("PharmacoGx")
-  library('PharmacoGx')
-}
-
-library(dplyr)
-library(tidyr)
-all.dsets<-PharmacoGx::availablePSets()
-
+source('loadPGXdata.R')
 
 dset<-PharmacoGx::downloadPSet('FIMM_2016')
 mapping <- sensitivityInfo(dset)%>%
@@ -19,7 +8,6 @@ mapping <- sensitivityInfo(dset)%>%
 ##get the raw data
 
 alldat <- sensitivityRaw(dset)
-
 
 doseDat<-alldat[,,1]%>%
   as.data.frame()%>%
@@ -42,5 +30,9 @@ doseRep<-doseDat%>%
   mutate(STUDY='FIMM')
 
 print(head(doseRep))
-write.table(doseRep,file='fimmDoseResponse.tsv',sep='\t',row.names=F,quote=F)
+write.table(doseRep,file='fimmDoseResponse',sep='\t',row.names=F,quote=F)
+
+##there are no other data files available, so we can write empty files
+
+
 
