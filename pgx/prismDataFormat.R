@@ -11,37 +11,35 @@ library(dplyr)
 library(tidyr)
 all.dsets<-PharmacoGx::availablePSets()
 
-dset<-PharmacoGx::downloadPSet('BeatAML_2018')
+dset<-PharmacoGx::downloadPSet('PRISM_2020')
 mapping <- sensitivityInfo(dset)%>%
   tibble::rownames_to_column('exp_id')
-
 ##get the raw data
 
 alldat <- sensitivityRaw(dset)
-
 
 doseDat<-alldat[,,1]%>%
   as.data.frame()%>%
   tibble::rownames_to_column('exp_id')%>%
   tidyr::pivot_longer(cols=starts_with('dose'),names_to='doseNum',values_to='Dose')
-
+#%>%
+#  tidyr::separate(experiment,int=c('drug1','cellline','drug2','drug3'),sep='::')
 
 respDat<-alldat[,,2]%>%
   as.data.frame()%>%
   tibble::rownames_to_column('exp_id')%>%
   tidyr::pivot_longer(cols=starts_with('dose'),names_to='doseNum',values_to='Response')
-
+#%>%
+ # 
  
 doseRep<-doseDat%>%
   dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
+  subset(!is.na(Dose))%>%
   left_join(mapping)%>%
-  dplyr::select(treatmentid,sampleid,Dose,Response)
-
-  
-#  tidyr::separate(experiment,int=c('DRUG','CELL'),sep='_')%>%
-#  dplyr::select(-doseNum)
+  dplyr::select(DRUG=treatmentid,CELL=sampleid,DOSE=Dose,
+                RESPONSE=Response)%>%
+  mutate(SOURCE='PharmacoGx', STUDY='PRISM',GROWTH=100-RESPONSE)
 
 print(head(doseRep))
-write.table(doseRep,file='beatAMLDoseResponse.tsv',sep='\t',row.names=F,quote=F)
-
+write.table(doseRep,file='prismDoseResponse.tsv',sep='\t',row.names=F,quote=F)
 

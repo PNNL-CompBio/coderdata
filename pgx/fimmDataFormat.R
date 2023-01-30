@@ -11,6 +11,7 @@ library(dplyr)
 library(tidyr)
 all.dsets<-PharmacoGx::availablePSets()
 
+
 dset<-PharmacoGx::downloadPSet('FIMM_2016')
 mapping <- sensitivityInfo(dset)%>%
   tibble::rownames_to_column('exp_id')
@@ -35,13 +36,11 @@ respDat<-alldat[,,2]%>%
 doseRep<-doseDat%>%
   dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
   left_join(mapping)%>%
-  dplyr::select(treatmentid,sampleid,Dose,Response)
-
-  
-#  tidyr::separate(experiment,int=c('DRUG','CELL'),sep='_')%>%
-#  dplyr::select(-doseNum)
+  dplyr::select(DRUG=treatmentid,CELL=sampleid,DOSE=Dose,RESPONSE=Response)%>%
+  mutate(GROWTH=100-RESPONSE)%>%
+  mutate(SOURCE='pharmacoGX')%>%
+  mutate(STUDY='FIMM')
 
 print(head(doseRep))
 write.table(doseRep,file='fimmDoseResponse.tsv',sep='\t',row.names=F,quote=F)
-
 
