@@ -7,7 +7,7 @@ Below is a list of datasets in the package |  and whether or not they have been 
 Already processed? | Dataset Name | Date Created | PSet Name | version | type | DOI | Download
 --- | --- | --- | --- | --- | --- |  --- | ---
 No | BeatAML | 2021-03-05T16:55:27.968Z | BeatAML_2018 | 2018 | sensitivity | 10.5281/zenodo.6027929 | https://zenodo.org/record/6027929/files/BeatAML.rds?download=1
-No | gCSI | 2021-06-11T21:58:16.390Z | gCSI_2019 | 2019 | NA | 10.5281/zenodo.4737437 | https://zenodo.org/record/4737437/files/gCSI2.rds?download=1
+N/A | gCSI | 2021-06-11T21:58:16.390Z | gCSI_2019 | 2019 | NA | 10.5281/zenodo.4737437 | https://zenodo.org/record/4737437/files/gCSI2.rds?download=1
 Yes | CTRPv2 | 2020-06-24T14:39:26.588Z | CTRPv2_2015 | 2015 | sensitivity | 10.5281/zenodo.3905470 | https://zenodo.org/record/3905470/files/CTRPv2.rds?download=1
 Yes | GDSC | 2021-12-16T19:58:28.388Z | GDSC_2020(v2-8.2) | 2020(v2-8.2) | sensitivity | 10.5281/zenodo.5787145 | https://zenodo.org/record/5787145/files/GDSC2.rds?download=1
 No | UHNBreast | 2020-06-24T14:39:26.588Z | UHNBreast_2019 | 2019 | both | 10.5281/zenodo.3905460 | https://zenodo.org/record/3905460/files/UHNBreast.rds?download=1
