@@ -5,8 +5,7 @@ This directory stores the data files and tools needed to wrangle the files. They
 ### Data Schema
 
 The data schema for the aggregated data is shown below.
-![](./origDataSchema.jpg)
-
+<img src="origDataSchema.jpg" width=50% height=50%>
 
 ### Data model generation
 
