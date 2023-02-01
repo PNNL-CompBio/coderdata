@@ -21,6 +21,12 @@ respDat<-alldat[,,2]%>%
   tidyr::pivot_longer(cols=starts_with('dose'),names_to='doseNum',values_to='Response')
 
  
+
+
+
+drug.tab<-buildDrugTable(doseRep$DRUG)
+
+
 doseRep<-doseDat%>%
   dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
   left_join(mapping)%>%
