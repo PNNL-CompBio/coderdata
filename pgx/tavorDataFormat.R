@@ -36,8 +36,12 @@ doseRep<-doseDat%>%
   left_join(mapping)%>%
   dplyr::select(treatmentid,sampleid,Dose,Response)
 
-#  tidyr::separate(experiment,int=c('DRUG','CELL'),sep='_')%>%
-#  dplyr::select(-doseNum)
+
+
+drug.tab<-buildDrugTable(unique(doseRep$DRUG))
+
+write.table(drug.tab,file='drugs.csv',sep=',')
+
 
 print(head(doseRep))
 write.table(doseRep,file='tavorDoseResponse.tsv',sep='\t',row.names=F,quote=F)
