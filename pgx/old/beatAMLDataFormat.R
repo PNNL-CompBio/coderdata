@@ -1,15 +1,6 @@
 
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+source("loadPGXdata.R")
 
-if(!require('PharmacoGx')){
-  BiocManager::install("PharmacoGx")
-  library('PharmacoGx')
-}
-
-library(dplyr)
-library(tidyr)
-all.dsets<-PharmacoGx::availablePSets()
 
 dset<-PharmacoGx::downloadPSet('BeatAML_2018')
 mapping <- sensitivityInfo(dset)%>%
