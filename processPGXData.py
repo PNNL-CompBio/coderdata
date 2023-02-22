@@ -12,7 +12,7 @@ import os
 datasets = ['ctrpv2','prism','tavor','fimm','beatAML','UHNBreast','gbm','gray','pdtx']
 
 #these are the files that are complete so far
-datasets = ['prism','fimm']
+datasets = ['prism','fimm','ctrpv2','nci60']
 #empty list of files
 
 #the following are experiment specific and can be duplicated
@@ -20,10 +20,6 @@ dose_files = []
 gex_files = []
 mut_files = []
 
-## the following refernece specific, and should be joined, not appended
-samp_file = './data/samples.csv'
-gene_file = './data/genes.csv'
-drug_file = './data/drugs.csv'
 
 '''
 Step 1: we iterate through every dataset and pull it from pharmacogx
@@ -40,9 +36,10 @@ for dat in datasets:
   ##run the commands
   print(rcmd)
   os.system(rcmd)
-  gex_files.append(dat+'geneExpression.csv')
+  if(os.path.exists(dat+'geneExpression.csv')):
+    gex_files.append(dat+'geneExpression.csv')
  # cnv_files.append(dat+'copyNumber.csv')
-  mut_files.append(dat+'mutations.tsv')
+#  mut_files.append(dat+'mutations.tsv')
   
   print('Now fitting curves...')
   print(dose_rep)
@@ -51,5 +48,6 @@ for dat in datasets:
   ##add the files to the list
   dose_files.append(dat+'drugSummaryStats.csv')
 
-  
+##now we must append everything into a single file - one for gex
+##and one for dose response stats
   
