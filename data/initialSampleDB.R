@@ -16,7 +16,7 @@ library(dplyr)
 
 
 ##the only thing that Priyanka has here is TRP identifiers, so collecting those
-tab<-read.table('data/DepMap_Argonne_Mapping.csv',sep=',',header=T)%>%
+tab<-read.table('DepMap_Argonne_Mapping.csv',sep=',',header=T)%>%
   dplyr::select(Argonne_ID,DepMap_ID)%>%
   distinct()%>%
   tidyr::separate(Argonne_ID,into=c('id_source','other_id'),sep='\\.')%>%
@@ -26,11 +26,11 @@ tab<-read.table('data/DepMap_Argonne_Mapping.csv',sep=',',header=T)%>%
 
 
 ##here are all the models in depmap, downloded on 1/31/2023
-depmap_models<-read.table('data/Model.csv',sep=',',header=T)
+depmap_models<-read.table('Model.csv',sep=',',header=T)
 
 ##query for cellosaurus automagically
 url='https://ftp.expasy.org/databases/cellosaurus/cellosaurus.xml'
-curl_download(url,'cell.xml',quiet=TRUE)#curl(url, "r", h)
+#curl_download(url,'cell.xml',quiet=TRUE)#curl(url, "r", h)
 cello<-XML::xmlParse('cell.xml')
 cdf<-XML::xmlToList(cello)
 
@@ -88,12 +88,12 @@ has_id<-subset(full.df,Cellosaurus!="")
 no_id<-subset(full.df,Cellosaurus=="")
 
 samp_ids<-data.frame(Cellosaurus=unique(has_id$Cellosaurus))
-samp_ids$candle_sample_id<-seq(1,nrow(samp_ids))
+samp_ids$improve_sample_id<-seq(1,nrow(samp_ids))
 
 #now we need to add in the missing ones
 extra_ids<-data.frame(DepMap=no_id$DepMap)
-extra_ids$candle_sample_id<-seq(max(samp_ids$candle_sample_id)+1,
-                                max(samp_ids$candle_sample_id)+nrow(extra_ids))
+extra_ids$improve_sample_id<-seq(max(samp_ids$improve_sample_id)+1,
+                                max(samp_ids$improve_sample_id)+nrow(extra_ids))
 
 full.df<-rbind(left_join(has_id,samp_ids),
                left_join(no_id,extra_ids))
@@ -102,8 +102,9 @@ long.df<-full.df%>%
   tidyr::pivot_longer(cols=c(DepMap,Sanger,CCLE,COSMIC,WTSI,CTRP,Cellosaurus),names_to='id_source',
                       values_to='other_id')%>%
   mutate(model_type='cell line')%>%
-  subset(!is.na(other_id))
+  subset(!is.na(other_id))%>%
+  subset(other_id!="")
 
 
-write.table(long.df,'data/samples.csv',sep=',',row.names=F,col.names=T)
+write.table(long.df,'samples.csv',sep=',',row.names=F,col.names=T)
 
