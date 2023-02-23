@@ -20,11 +20,6 @@ all.dsets<-PharmacoGx::availablePSets()
 ##load existing gene/sample/drug files
 
 ##initialize experimental files
-doseRep<-data.frame(DRUG=c(),CELL=c(),DOSE=c(),RESPONSE=c(),
-                    GROWTH=c(),SOURCE=c(),STUDY=c())
-gex<-data.frame()
-copy_number<-data.frame()
-muts<-data.frame()
 
 ##load in gene/sample files
 if(!exists('improve_genes'))
@@ -48,7 +43,7 @@ buildDrugTable<-function(druglist){
   #drug.map<-data.frame()
   
   if(file.exists('data/drugs.csv')){
-      improve_drugs<<-read.csv('data/drugs.csv',sep=',')
+      improve_drugs<<-read.csv('data/drugs.tsv',sep='\t')
     
       new_drugs<-setdiff(tolower(druglist),tolower(improve_drugs$chem_name))
       print(paste('of those drugs',length(new_drugs),'are not in database'))
@@ -137,7 +132,7 @@ buildDrugTable<-function(druglist){
       
       ##get max impid
       imp_id<-subset(matched,source=='IMP')
-      maxval<-max(imp_id$value,na.rm=T)
+      maxval<-max(as.numeric(imp_id$value),na.rm=T)
       if(is.na(maxval))
         maxval=0
       
@@ -147,7 +142,7 @@ buildDrugTable<-function(druglist){
       improve_drugs<<-rbind(matched,unmatched)%>%
         tidyr::unite(col='improve_chem_id','source','value',sep='_')
       ##write new table on every iteration in case it fails
-      write.table(improve_drugs,file='data/drugs.csv',sep=',',col.names=T,row.names=F)
+      write.table(improve_drugs,file='data/drugs.tsv',sep='\t',quote=F,col.names=T,row.names=F)
     }
     
   }
@@ -155,83 +150,6 @@ buildDrugTable<-function(druglist){
   
 }
 
-
-#' getDoseRespData
-#' Generic function to get dose and response data
-#' out of dataset object, and store with dataset name
-getDoseRespData<-function(dset,studyName){
-
-  mapping <- sensitivityInfo(dset)
-  if(!'exp_id'%in%names(mapping))
-    mapping<-mapping%>%
-      tibble::rownames_to_column('exp_id')
-  
-  if("drugid"%in%names(mapping))
-    mapping<-dplyr::rename(mapping,treatmentid='drugid')
-  if('cellid'%in%names(mapping))
-    mapping<-dplyr::rename(mapping,sampleid='cellid')
-  
-  ##now get the drug ids
-  drug.map<-buildDrugTable(unique(mapping$treatmentid))%>%
-    dplyr::select(common_drug_name='common_name',improve_drug_id)%>%
-    distinct()
-  
-  ##first get the sample id
-  samp.map<-mapping%>%
-    dplyr::select(sampleid,exp_id,treatmentid)%>%distinct()
-  
-  comm.map<-samp.map%>%
-    dplyr::rename(other_names='sampleid')%>%
-    left_join(improve_samples)%>%
-    subset(!is.na(improve_sample_id))
-  
-  print(paste('By common name, found',length(unique(comm.map$improve_sample_id)),
-              'matches out of',length(unique(mapping$sampleid)),'for study',studyName))
-  
-  
-  ##then join the sample id
-  full.map<-comm.map%>%
-    dplyr::select(exp_id,improve_sample_id,common_drug_name='treatmentid')%>%
-    distinct()%>%
-    left_join(drug.map)
-  
-  #all_ids<-unique(samps$other_id)
-  #  dplyr::rename(other_id='sampleid')%>%##this maps it to the file
-  
-  ##now map the sample information to sample file. here, grep is hte most reliable
-  
-  
-  ##get the raw data
-  ##now 
-  alldat <- sensitivityRaw(dset)
-  
-  doseDat<-alldat[,,1]%>%
-    as.data.frame()%>%
-    tibble::rownames_to_column('exp_id')%>%
-    tidyr::pivot_longer(cols=starts_with('dose'),names_to='doseNum',values_to='Dose')
-  
-  
-  respDat<-alldat[,,2]%>%
-    as.data.frame()%>%
-    tibble::rownames_to_column('exp_id')%>%
-    tidyr::pivot_longer(cols=starts_with('dose'),names_to='doseNum',values_to='Response')
-  
-  
-  doseRep<-doseDat%>%
-    dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
-    left_join(full.map)%>%
-    dplyr::select(DRUG=improve_drug_id,CELL=improve_sample_id,DOSE=Dose,RESPONSE=Response)%>%
-    mutate(GROWTH=100-RESPONSE)%>%
-    mutate(SOURCE='pharmacoGX')%>%
-    mutate(STUDY=studyName)
-  
-  print(head(doseRep))
-  
-  ##now map  drugs, samples, genes to ids in database files
-  
-  write.table(doseRep,file=paste0(tolower(studyName),'DoseResponse'),sep='\t',row.names=F,quote=F)
-  
-}
 
 
                                                
