@@ -1,12 +1,93 @@
 ###Here is a script that runs through all the data files one by one. 
 
 #this is a helper file that loads the data
-source("loadPGXdata.R")
+source("improveDataFiles.R")
 
+
+##first define a generic dose response function
+
+#' getDoseRespData
+#' Generic function to get dose and response data from PGX object
+#' out of dataset object, and store with dataset name
+getDoseRespData<-function(dset,studyName){
+  
+  mapping <- sensitivityInfo(dset)
+  if(!'exp_id'%in%names(mapping))
+    mapping<-mapping%>%
+      tibble::rownames_to_column('exp_id')
+  
+  if("drugid"%in%names(mapping))
+    mapping<-dplyr::rename(mapping,treatmentid='drugid')
+  if('cellid'%in%names(mapping))
+    mapping<-dplyr::rename(mapping,sampleid='cellid')
+  
+  ##now get the drug ids
+  drug.map<-buildDrugTable(unique(mapping$treatmentid))%>%
+    dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
+    distinct()
+  
+  ##first get the sample id
+  samp.map<-mapping%>%
+    dplyr::select(sampleid,exp_id,treatmentid)%>%distinct()
+  
+  comm.map<-samp.map%>%
+    dplyr::rename(other_names='sampleid')%>%
+    left_join(improve_samples)%>%
+    subset(!is.na(improve_sample_id))
+  
+  print(paste('By common name, found',length(unique(comm.map$improve_sample_id)),
+              'matches out of',length(unique(mapping$sampleid)),'for study',studyName))
+  
+  
+  ##then join the sample id
+  full.map<-comm.map%>%
+    dplyr::select(exp_id,improve_sample_id,treatment_id)%>%
+    mutate(chem_name=tolower(treatment_id))%>%
+    distinct()%>%
+    left_join(mutate(drug.map,chem_name=tolower(chem_name)))
+  
+  #all_ids<-unique(samps$other_id)
+  #  dplyr::rename(other_id='sampleid')%>%##this maps it to the file
+  
+  ##now map the sample information to sample file. here, grep is hte most reliable
+  
+  
+  ##get the raw data
+  ##now 
+  alldat <- sensitivityRaw(dset)
+  
+  doseDat<-alldat[,,1]%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('exp_id')%>%
+    tidyr::pivot_longer(cols=starts_with('dose'),names_to='doseNum',values_to='Dose')
+  
+  
+  respDat<-alldat[,,2]%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('exp_id')%>%
+    tidyr::pivot_longer(cols=starts_with('dose'),names_to='doseNum',values_to='Response')
+  
+  
+  doseRep<-doseDat%>%
+    dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
+    left_join(full.map)%>%
+    dplyr::select(DRUG=improve_drug_id,CELL=improve_sample_id,DOSE=Dose,RESPONSE=Response)%>%
+    mutate(GROWTH=100-RESPONSE)%>%
+    mutate(SOURCE='pharmacoGX')%>%
+    mutate(STUDY=studyName)
+  
+  print(head(doseRep))
+  
+  ##now map  drugs, samples, genes to ids in database files
+  
+  write.table(doseRep,file=paste0(tolower(studyName),'DoseResponse'),sep='\t',row.names=F,quote=F)
+  
+}
+
+###################################################################
 ##now we iterate through the drug files one by one
-
+####
 cell.lines<-c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')
-
 others<-c('BeatAML','PDTX','GBM','UHNBreast','Tavor','GRAY')###skip these for now
 
 ###first get cell lines
@@ -19,10 +100,6 @@ all.dose.rep<-do.call(rbind,lapply(cell.lines,function(cel){
   
   res<-do.call(rbind,lapply(files,function(f){
     print(f)
-     ##get file
-    #download.file(f,destfile='tmp.rds')
-    #dset<-readRDS('tmp.rds')%>%
-    #    updateObject()
     dset<<-downloadPSet(f)  
     tmpfile<-paste0(cel,'doseResponse')
     if(file.exists(tmpfile))
@@ -41,6 +118,7 @@ if(getExp){
   gex<-c('CCLE','NCI60','GDSCv2','BeatAML') ##these are the dsets with expression data
   
   dset<-downloadPset('CCLE')
+  
   ##CCLE only
   edat<-molecularProfiles(dset)$Kallisto_0.46.1.rnaseq.counts
   sampmap<-colData(edat)%>%
@@ -63,7 +141,7 @@ if(getExp){
     distinct()
   
   ##now we map samples
-  geneExp2<-geneExp%>%
+  ccleExp<-geneExp%>%
     dplyr::rename(other_id='sampleid')%>%
     left_join(cmap)%>%
     subset(!is.na(candle_sample_id))%>%
@@ -76,7 +154,7 @@ if(getExp){
     mutate(source='PharmacoGX',study='CCLE')
   
   #now we map gene names
-  write.table(geneExp2,file='ccleGeneExp.csv',sep=',',row.names=F,quote=F)
+ # write.table(geneExp2,file='ccleGeneExp.csv',sep=',',row.names=F,quote=F)
   
   
   dset<-PharmacoGx::downloadPSet('NCI60_2021')
@@ -92,7 +170,7 @@ if(getExp){
                         values_to='counts')
   
   ##now we map samples
-  geneExp<-geneExp%>%
+  nciExp<-geneExp%>%
     dplyr::rename(other_names='samples')%>%
     left_join(candle_samples)%>%
     subset(!is.na(candle_sample_id))%>%
@@ -105,7 +183,7 @@ if(getExp){
     mutate(source='PharmacoGX',study='NCI60')
   
   #now we map gene names
-  write.table(doseRep,file='nci60GeneExp.csv',sep=',',row.names=F,quote=F)
+#  write.table(doseRep,file='nci60GeneExp.csv',sep=',',row.names=F,quote=F)
   
 }
  
