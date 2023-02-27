@@ -4,6 +4,12 @@
 source("improveDataFiles.R")
 
 
+if(!require('PharmacoGx')){
+  BiocManager::install("PharmacoGx",force=TRUE)
+  library('PharmacoGx')
+}
+
+all.dsets<-PharmacoGx::availablePSets()
 ##first define a generic dose response function
 
 #' getDoseRespData
@@ -23,7 +29,7 @@ getDoseRespData<-function(dset,studyName){
   
   ##now get the drug ids
   drug.map<-buildDrugTable(unique(mapping$treatmentid))%>%
-    dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
+    dplyr::select(common_drug_name='chem_name',improve_chem_id)%>%
     distinct()
   
   ##first get the sample id
@@ -38,13 +44,14 @@ getDoseRespData<-function(dset,studyName){
   print(paste('By common name, found',length(unique(comm.map$improve_sample_id)),
               'matches out of',length(unique(mapping$sampleid)),'for study',studyName))
   
-  
+  ldmap<-drug.map%>%
+    mutate(chem_name=tolower(common_drug_name))
   ##then join the sample id
   full.map<-comm.map%>%
-    dplyr::select(exp_id,improve_sample_id,treatment_id)%>%
-    mutate(chem_name=tolower(treatment_id))%>%
+    dplyr::select(exp_id,improve_sample_id,treatmentid)%>%
+    mutate(chem_name=tolower(treatmentid))%>%
     distinct()%>%
-    left_join(mutate(drug.map,chem_name=tolower(chem_name)))
+    left_join(ldmap)
   
   #all_ids<-unique(samps$other_id)
   #  dplyr::rename(other_id='sampleid')%>%##this maps it to the file
@@ -71,7 +78,7 @@ getDoseRespData<-function(dset,studyName){
   doseRep<-doseDat%>%
     dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
     left_join(full.map)%>%
-    dplyr::select(DRUG=improve_drug_id,CELL=improve_sample_id,DOSE=Dose,RESPONSE=Response)%>%
+    dplyr::select(DRUG=improve_chem_id,CELL=improve_sample_id,DOSE=Dose,RESPONSE=Response)%>%
     mutate(GROWTH=100-RESPONSE)%>%
     mutate(SOURCE='pharmacoGX')%>%
     mutate(STUDY=studyName)
@@ -87,35 +94,43 @@ getDoseRespData<-function(dset,studyName){
 ###################################################################
 ##now we iterate through the drug files one by one
 ####
-cell.lines<-c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')
-others<-c('BeatAML','PDTX','GBM','UHNBreast','Tavor','GRAY')###skip these for now
 
-###first get cell lines
-all.dose.rep<-do.call(rbind,lapply(cell.lines,function(cel){
+
+
+#' getCellLineData - gets cell line dose response data
+getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')){
+  ###first get cell lines
+  all.dose.rep<-do.call(rbind,lapply(cell.lines,function(cel){
   
-  print(cel)
-  files<-subset(all.dsets,`Dataset Name`==cel)%>%
-    dplyr::select(`PSet Name`)%>%
-    unlist()
+   print(cel)
+   files<-subset(all.dsets,`Dataset Name`==cel)%>%
+      dplyr::select(`PSet Name`)%>%
+      unlist()
   
-  res<-do.call(rbind,lapply(files,function(f){
-    print(f)
-    dset<<-downloadPSet(f)  
-    tmpfile<-paste0(cel,'doseResponse')
-    if(file.exists(tmpfile))
-      return(read.table(tmpfile,sep='\t',header=T))
-    else
-      getDoseRespData(dset,cel)
+   tmpfile<-paste0(cel,'doseResponse')
+   if(file.exists(tmpfile))
+     res<-read.table(tmpfile,sep='\t',header=T)
+   else
+     
+    res<-do.call(rbind,lapply(files,function(f){
+      print(f)
+      dset<<-downloadPSet(f)  
+           getDoseRespData(dset,cel)
+    }))
+    return(res)
   }))
-  return(res)
-}))
 
-write.table(all.dose.rep,file='allDoseRepPreCalc.tsv',sep='\t')
+  write.table(all.dose.rep,file='allDoseRepPreCalc.tsv',sep='\t')
+}
 
-##second get cell line expression
-if(getExp){
+getCellLineDoseData()
+#' get cell line expression
+getCellLineExpData<-function(cell.lines=c('gCSI','PRISM','GDSC','NCI60','CCLE')){
   
-  gex<-c('CCLE','NCI60','GDSCv2','BeatAML') ##these are the dsets with expression data
+
+  gex_val<-list(gCSI='',PRISM='',GDSC='',NCI60='',CCLE='Kallisto_0.46.1.rnaseq.counts')
+  gene_val<-list(gCSI='',PRISM='',GDSC='',NCI60='',CCLE='ensgene')
+  
   
   dset<-downloadPset('CCLE')
   
@@ -182,8 +197,13 @@ if(getExp){
     subset(!is.na(entrez_id))%>%
     mutate(source='PharmacoGX',study='NCI60')
   
-  #now we map gene names
-#  write.table(doseRep,file='nci60GeneExp.csv',sep=',',row.names=F,quote=F)
+  ##rbind data and then save
+}
+
+#' getModelSysData - a bit different from cell line data as we need to modify
+#' samples.csv file to include additional model types
+getModelSysData<-function(dsets=c('BeatAML','PDTX','GBM','UHNBreast','Tavor','GRAY')){
+  
   
 }
  
