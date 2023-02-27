@@ -8,6 +8,7 @@ To date we have the datasets included in the [data](../data/) directory.
 We are in the process of developing customized scripts for the following models.
 
 | Model Name | Data Types | Script | External data/tools?|
+| --- | --- | ---- | ---
 | [DeepTTC](https://github.com/jianglikun/DeepTTC) | gene expression, AUC, SMILES | [./deep_ttc.py]()| None|
 | [PathDSP](https://github.com/TangYiChing/PathDSP) | gene expression, AUC, mutation data | | GSEA analysis of expression, network analysis of mutations |
 | [Paccman_MCA](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7319576/) |IC50, drug smiles | | |
