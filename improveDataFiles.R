@@ -1,25 +1,12 @@
 ##get all the pgx info here.
 
-if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-
-if(!require('PharmacoGx')){
-  BiocManager::install("PharmacoGx",force=TRUE)
-  library('PharmacoGx')
-}
-
 require(webchem)
-
 library(dplyr)
 library(tidyr)
 
 options(timeout=10000)
 
-all.dsets<-PharmacoGx::availablePSets()
-
 ##load existing gene/sample/drug files
-
-##initialize experimental files
 
 ##load in gene/sample files
 if(!exists('improve_genes'))
@@ -31,19 +18,25 @@ if(!exists('improve_drugs')){
 }
 
 
+#' buildSampleTable
+#' After initial build based on cellosaurus, we'll need to be able
+#' to expand sample table to accomodate additional 
+buildSampleTable<-function(sampnames){
+  
+  
+}
 
 
-#' buidlDrugTable - appends drug table by querying
-#' pubChem for any available matches, and then adds them to
-#' the general list of all drugs
-#' @return drug mapping table
+#' buildDrugTable - This is a generic drug search function that
+#' returns the improve_chem_id for the specific drug of interest 
+#' by either identifying it in the database, or querying it in 
+#' pubchem and then appending it
+#' @return drug mapping table 
 buildDrugTable<-function(druglist){
   print(paste("Finding ids for",length(druglist),'drugs'))
   
-  #drug.map<-data.frame()
-  
-  if(file.exists('data/drugs.csv')){
-      improve_drugs<<-read.csv('data/drugs.tsv',sep='\t')
+  if(file.exists('data/drugs.tsv')){
+      improve_drugs<<-read.table('data/drugs.tsv',sep='\t',header=T,comment.char = '',quote='')
     
       new_drugs<-setdiff(tolower(druglist),tolower(improve_drugs$chem_name))
       print(paste('of those drugs',length(new_drugs),'are not in database'))
@@ -94,11 +87,7 @@ buildDrugTable<-function(druglist){
         mutate(improve_chem_id=paste0('PC_',pubchem_id))%>%
         left_join(syntab)%>%
         dplyr::select(-pubchem_id)
-      
-      ##now we join them together
-     # joined.df<-pubchem_id%>%
-    #    left_join(props)
-      
+
       ##now append the missing
       missing<-setdiff(tolower(newlist),tolower(props$chem_name))
     
@@ -114,12 +103,9 @@ buildDrugTable<-function(druglist){
                                   InChIKey=rep(NA,length(missing))))
     
       if(!exists('improve_drugs')){
-        #joined.df$improve_drug_id<-seq(1,nrow(joined.df))
         improve_drugs<<-joined.df
       }
       else{
-        #joined.df$improve_drug_id<-seq(max(improve_drugs$improve_drug_id)+1,
-        #                              max(improve_drugs$improve_drug_id)+nrow(joined.df))
         improve_drugs<<-rbind(improve_drugs,joined.df)
       }
       
@@ -130,18 +116,21 @@ buildDrugTable<-function(druglist){
       matched<-subset(idfix,!is.na(source))
       unmatched<-subset(idfix,is.na(source))
       
-      ##get max impid
-      imp_id<-subset(matched,source=='IMP')
-      maxval<-max(as.numeric(imp_id$value),na.rm=T)
-      if(is.na(maxval))
-        maxval=0
+      if(nrow(unmatched)>0){
+        ##get max impid
+        imp_id<-subset(matched,source=='IMP')
+        maxval<-0
+        try(maxval<-max(as.numeric(imp_id$value),na.rm=T))
+        if(!is.finite(maxval))
+          maxval<-0
       
-      unmatched$source<-rep("IMP",nrow(unmatched))
-      unmatched$value<-seq(maxval+1,maxval+nrow(unmatched))
+        unmatched$source<-rep("IMP",nrow(unmatched))
+        unmatched$value<-seq(maxval+1,maxval+nrow(unmatched))
       
-      improve_drugs<<-rbind(matched,unmatched)%>%
-        tidyr::unite(col='improve_chem_id','source','value',sep='_')
-      ##write new table on every iteration in case it fails
+        improve_drugs<<-rbind(matched,unmatched)%>%
+          tidyr::unite(col='improve_chem_id','source','value',sep='_')
+        ##write new table on every iteration in case it fails
+      }
       write.table(improve_drugs,file='data/drugs.tsv',sep='\t',quote=F,col.names=T,row.names=F)
     }
     
