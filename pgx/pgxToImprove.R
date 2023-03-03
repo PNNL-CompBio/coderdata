@@ -119,17 +119,29 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
     }))
     return(res)
   }))
-
-  write.table(all.dose.rep,file='allDoseRepPreCalc.tsv',sep='\t')
+  all.dose.rep%>%
+    subset(!is.na(DOSE))
+  #write.table(all.dose.rep,file='allDoseRepPreCalc.tsv',sep='\t')
 }
 
-getCellLineDoseData()
+if(FALSE){
+
+  cl1<-c('CTRPv2','FIMM','gCSI','PRISM')
+  cl2<-c('GDSC','NCI60','CCLE')
+  dl1<-getCellLineDoseData(cl1)
+  dl2<-getCellLineDoseData(cl2)
+
+  write.table(dl1,'doseRep1.tsv',sep='\t',row.names=F,quote=F)
+  write.table(dl2,'doseRep2.tsv',sep='\t',row.names=F,quote=F)
+}
 #' get cell line expression
 getCellLineExpData<-function(cell.lines=c('gCSI','PRISM','GDSC','NCI60','CCLE')){
   
 
-  gex_val<-list(gCSI='',PRISM='',GDSC='',NCI60='',CCLE='Kallisto_0.46.1.rnaseq.counts')
+  gex_val<-list(gCSI='',PRISM='',GDSC='',NCI60='rnaseq.iso',CCLE='Kallisto_0.46.1.rnaseq.counts')
   gene_val<-list(gCSI='',PRISM='',GDSC='',NCI60='',CCLE='ensgene')
+  
+  
   
   
   dset<-downloadPset('CCLE')
