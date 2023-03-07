@@ -10,11 +10,12 @@ options(timeout=10000)
 
 ##load in gene/sample files
 if(!exists('improve_genes'))
-  improve_genes<<-read.csv('https://github.com/sgosline/candleDataProcessing/raw/main/data/genes.csv')
+  improve_genes<<-read.csv('data/genes.csv')
 if(!exists('improve_samples'))
-  improve_samples<<-read.csv('https://github.com/sgosline/candleDataProcessing/raw/main/data/samples.csv')
+  improve_samples<<-read.csv('data/samples.csv')
 if(!exists('improve_drugs')){
   ##load in initial drug file
+  improve_drugs<<-read.table(gzfile('data/drugs.tsv.gz'),sep='\t',comment.char='')
 }
 
 
