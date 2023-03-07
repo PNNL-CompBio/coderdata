@@ -4,10 +4,10 @@
 source("improveDataFiles.R")
 
 
-if(!require('PharmacoGx')){
-  BiocManager::install("PharmacoGx",force=TRUE)
+#if(!require('PharmacoGx')){
+#  BiocManager::install("PharmacoGx",force=TRUE)
   library('PharmacoGx')
-}
+#}
 
 all.dsets<-PharmacoGx::availablePSets()
 ##first define a generic dose response function
@@ -135,16 +135,50 @@ if(FALSE){
   write.table(dl2,'doseRep2.tsv',sep='\t',row.names=F,quote=F)
 }
 #' get cell line expression
-getCellLineExpData<-function(cell.lines=c('gCSI','PRISM','GDSC','NCI60','CCLE')){
+getCellLineExpData<-function(cell.lines=c('gCSI','GDSC','NCI60','CCLE')){
   
 
-  gex_val<-list(gCSI='',PRISM='',GDSC='',NCI60='rnaseq.iso',CCLE='Kallisto_0.46.1.rnaseq.counts')
-  gene_val<-list(gCSI='',PRISM='',GDSC='',NCI60='',CCLE='ensgene')
+  gex_val<-list(gCSI='Kallisto_0.46.1.rnaseq.counts',GDSCv2='Kallisto_0.46.1.rnaseq.counts',NCI60='rnaseq.iso',CCLE='Kallisto_0.46.1.rnaseq.counts')
+  gene_val<-list(gCSI='ensgene',GDSCv2='ensgene',NCI60='gene_symbol',CCLE='ensgene')
   
   
   
+  cmap<-improve_samples%>%
+    dplyr::select(other_id,improve_sample_id)%>%
+    distinct()
   
-  dset<-downloadPset('CCLE')
+  ##GDSCv2
+  dset<-downloadPSet('GDSC_2020(v2-8.2)')
+  edat<-molecularProfiles(dset)$Kallisto_0.46.1.rnaseq.counts
+  sampmap<-colData(edat)%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('samples')%>%
+    dplyr::select('samples','sampleid')%>%
+    distinct()
+  ##now we want to get the rna expression
+  geneExp<-assays(edat)$exprs%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('ensgene')%>%
+    tidyr::separate(ensgene,into=c('gene','vers'),'\\.')%>%
+    tidyr::pivot_longer(cols=seq(3,2+ncol(assays(edat)$exprs)),
+                        names_to='samples',
+                        values_to='counts')%>%
+    left_join(sampmap)
+  
+  ##now we map samples
+  gdscV2Exp<-geneExp%>%
+    dplyr::rename(other_id='sampleid')%>%
+    left_join(cmap)%>%
+    subset(!is.na(improve_sample_id))%>%
+    select(gene,counts,improve_sample_id)%>%
+    distinct()%>%
+    dplyr::rename(other_id='gene')%>%
+    left_join(improve_genes)%>%
+    dplyr::select(entrez_id,improve_sample_id,counts)%>%
+    subset(!is.na(entrez_id))%>%
+    mutate(source='PharmacoGX',study='GDSCv2')
+  
+  dset<-downloadPSet('CCLE_2015')
   
   ##CCLE only
   edat<-molecularProfiles(dset)$Kallisto_0.46.1.rnaseq.counts
@@ -163,20 +197,16 @@ getCellLineExpData<-function(cell.lines=c('gCSI','PRISM','GDSC','NCI60','CCLE'))
                         values_to='counts')%>%
     left_join(sampmap)
   
-  cmap<-candle_samples%>%
-    dplyr::select(other_id,candle_sample_id)%>%
-    distinct()
-  
   ##now we map samples
   ccleExp<-geneExp%>%
     dplyr::rename(other_id='sampleid')%>%
     left_join(cmap)%>%
-    subset(!is.na(candle_sample_id))%>%
-    select(gene,counts,candle_sample_id)%>%
+    subset(!is.na(improve_sample_id))%>%
+    select(gene,counts,improve_sample_id)%>%
     distinct()%>%
     dplyr::rename(other_id='gene')%>%
-    left_join(candle_genes)%>%
-    dplyr::select(entrez_id,candle_sample_id,counts)%>%
+    left_join(improve_genes)%>%
+    dplyr::select(entrez_id,improve_sample_id,counts)%>%
     subset(!is.na(entrez_id))%>%
     mutate(source='PharmacoGX',study='CCLE')
   
@@ -184,9 +214,8 @@ getCellLineExpData<-function(cell.lines=c('gCSI','PRISM','GDSC','NCI60','CCLE'))
  # write.table(geneExp2,file='ccleGeneExp.csv',sep=',',row.names=F,quote=F)
   
   
+  ##NCI60 expression data
   dset<-PharmacoGx::downloadPSet('NCI60_2021')
-  
-  getDoseRespData(dset,'NCI60')
   
   ##now we want to get the rna expression
   geneExp<-assays(molecularProfiles(dset)$rnaseq.iso)$exprs%>%
@@ -199,17 +228,54 @@ getCellLineExpData<-function(cell.lines=c('gCSI','PRISM','GDSC','NCI60','CCLE'))
   ##now we map samples
   nciExp<-geneExp%>%
     dplyr::rename(other_names='samples')%>%
-    left_join(candle_samples)%>%
-    subset(!is.na(candle_sample_id))%>%
-    select(gene,counts,candle_sample_id)%>%
+    left_join(improve_samples)%>%
+    subset(!is.na(improve_sample_id))%>%
+    select(gene,counts,improve_sample_id)%>%
     distinct()%>%
     dplyr::rename(gene_symbol='gene')%>%
-    left_join(candle_genes)%>%
-    dplyr::select(entrez_id,candle_sample_id,counts)%>%
+    left_join(improve_genes)%>%
+    dplyr::select(entrez_id,improve_sample_id,counts)%>%
     subset(!is.na(entrez_id))%>%
     mutate(source='PharmacoGX',study='NCI60')
   
   ##rbind data and then save
+  
+  
+  ##gCSI expression data
+  dset<-downloadPSet('gCSI_2019')
+  edat<-molecularProfiles(dset)$Kallisto_0.46.1.rnaseq.counts
+  sampmap<-colData(edat)%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('samples')%>%
+    dplyr::select('samples','sampleid')%>%
+    distinct()
+  ##now we want to get the rna expression
+  geneExp<-assays(edat)$exprs%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('ensgene')%>%
+    tidyr::separate(ensgene,into=c('gene','vers'),'\\.')%>%
+    tidyr::pivot_longer(cols=seq(3,2+ncol(assays(edat)$exprs)),
+                        names_to='samples',
+                        values_to='counts')%>%
+    left_join(sampmap)
+
+  
+  ##now we map samples
+  gCSIExp<-geneExp%>%
+    dplyr::rename(other_id='sampleid')%>%
+    left_join(cmap)%>%
+    subset(!is.na(improve_sample_id))%>%
+    select(gene,counts,improve_sample_id)%>%
+    distinct()%>%
+    dplyr::rename(other_id='gene')%>%
+    left_join(improve_genes)%>%
+    dplyr::select(entrez_id,improve_sample_id,counts)%>%
+    subset(!is.na(entrez_id))%>%
+    mutate(source='PharmacoGX',study='gCSI')
+  
+  cellLineGex<-rbind(gdscV2Exp,ccleExp,nciExp,gCSIExp)
+  write.table(cellLineGex,file='expression.csv',sep=',',quote=F)
+  return(cellLineGex)
 }
 
 #' getModelSysData - a bit different from cell line data as we need to modify
