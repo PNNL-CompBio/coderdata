@@ -187,8 +187,8 @@ def process_df(df, fname, sep='\t', ngroups=None):
         xdata = group.DOSE.astype(float)
         ##added the following 3 lines to acocunt for data normalized between 0 and 100 instead of 0 and 1
         ydata = group.GROWTH
-        if max(ydata)>10:
-            ydata = ydata/100.0
+      #  if max(ydata)>10:
+      #      ydata = ydata/100.0
         ydata.clip(lower=0, upper=1.0).astype(float)
         popt, pcov = response_curve_fit(xdata, ydata)
         metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
@@ -215,13 +215,9 @@ def process_df_part(df, fname, sep='\t', start=0, count=None):
         #print(name)
         name = [str(n) for n in name]
         xdata = group.DOSE.astype(float)
-        #xdata = -1 * np.log10(xdata) ##added to process pharmacodb data
-        ##added the following 3 lines to acocunt for data normalized between 0 and 100 instead of 0 and 1
-        ydata = group.GROWTH
-        if len(pd.notna(ydata)>0) and max(ydata)>10:
-            ydata = ydata/100.0
-        ydata.clip(lower=0, upper=1.0).astype(float)
-#        ydata = group.GROWTH.clip(lower=0, upper=1.0).astype(float)
+#        ydata = group.GROWTH
+#        ydata.clip(lower=0, upper=1.0).astype(float)
+        ydata = group.GROWTH.clip(lower=0, upper=1.0).astype(float)
 #        print(ydata)
         popt, pcov = response_curve_fit(xdata, ydata)
         metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
@@ -390,8 +386,12 @@ def main():
     args = parser.parse_args()
     print(args.input)
     df_all = pd.read_table(args.input)
+    #drop nas
     df_all = df_all.dropna()
+    ##pharmacoGX data is NOT log transformed, need to alter that
     df_all.DOSE = -1*np.log10(df_all.DOSE)
+    ##need data to be between 0 and 1, not 0 and 100
+    df_all.GROWTH=df_all.GROWTH/100.00
     
     fname = args.output or 'combined_single_response_agg'
     process_df_part(df_all, fname)#, start=args.start, count=args.count)
