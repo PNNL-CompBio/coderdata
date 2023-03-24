@@ -79,6 +79,7 @@ getDoseRespData<-function(dset,studyName){
     dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
     left_join(full.map)%>%
     dplyr::select(DRUG=improve_chem_id,CELL=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
+    #dplyr::mutate(DOSE=-log10(Dose/1000))###curve fitting code requires -log10(M), these are mM
     #rename(GROWTH=RESPONSE)%>%
     mutate(SOURCE='pharmacoGX')%>%
     mutate(STUDY=studyName)
@@ -108,38 +109,38 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
       dplyr::select(`PSet Name`)%>%
       unlist()
   
-   tmpfile<-paste0(cel,'doseResponse')
-   if(file.exists(tmpfile))
-     res<-read.table(tmpfile,sep='\t',header=T)
-   else
-      res<-do.call(rbind,lapply(files,function(f){
-        print(f)
-        url=subset(all.dsets,`PSet Name`==f)$Download
-        print(url)
-        dset<<-downloadPSet(f)
-    #    download.file(url,destfile=paste0(f,'.rds'))
-    #    dset<<-readRDS(paste0(f,'.rds'))%>%
-    #      updateObject()
-        
-        if(f=='GDSC_2020(v2-8.2)')
-          cel='GDSCv2'
-        if(f=='GDSC_2020(v1-8.2)')
-          cel='GDSCv1'
-        dres<-getDoseRespData(dset,cel)
-       # if(cel%in%c('FIMM','CTRPv2','CCLE','GDSC','gCSI','NCI60','PRISM'))
-      #    dres<-dres%>%
-      #      dplyr::select(-GROWTH)%>%
-      #      dplyr::rename(GROWTH='RESPONSE')
-        return(dres)
-    }))
+    res<-do.call(rbind,lapply(files,function(f){
+    print(f)
+    if(f=='GDSC_2020(v2-8.2)')
+      cel='GDSCv2'
+    if(f=='GDSC_2020(v1-8.2)')
+      cel='GDSCv1'
+    tmpfile<-paste0(cel,'doseResponse')
+
+    if(file.exists(tmpfile))
+      dres<-read.table(tmpfile,sep='\t',header=T)
+    else{
+      dset<<-downloadPSet(f)
+    
+      url=subset(all.dsets,`PSet Name`==f)$Download
+    #print(url)
+
+      dres<-getDoseRespData(dset,cel)
+      #print(dres)
+    }  
+    return(dres)
+    
+  }))
+    #print(res)
     return(res)
   }))
+  #print(head(all.dose.rep))
   all.dose.rep%>%
     subset(!is.na(DOSE))
   #write.table(all.dose.rep,file='allDoseRepPreCalc.tsv',sep='\t')
 }
 
-if(TRUE){
+if(FALSE){
 
   cl1<-c('CTRPv2','FIMM','gCSI','PRISM')
   cl2<-c('GDSC','NCI60','CCLE')
@@ -152,6 +153,36 @@ if(TRUE){
 
 #' get cell line mutation data
 getCellLineMutData<-function(){
+  ##GDSCv1
+  dset<-downloadPSet('GDSC_2020(v2-8.2)')
+  edat<-molecularProfiles(dset)$Kallisto_0.46.1.rnaseq.counts
+  sampmap<-colData(edat)%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('samples')%>%
+    dplyr::select('samples','sampleid')%>%
+    distinct()
+  ##now we want to get the rna expression
+  geneExp<-assays(edat)$exprs%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('ensgene')%>%
+    tidyr::separate(ensgene,into=c('gene','vers'),'\\.')%>%
+    tidyr::pivot_longer(cols=seq(3,2+ncol(assays(edat)$exprs)),
+                        names_to='samples',
+                        values_to='counts')%>%
+    left_join(sampmap)
+  
+  ##now we map samples
+  gdscV1Exp<-geneExp%>%
+    dplyr::rename(other_id='sampleid')%>%
+    left_join(cmap)%>%
+    subset(!is.na(improve_sample_id))%>%
+    select(gene,counts,improve_sample_id)%>%
+    distinct()%>%
+    dplyr::rename(other_id='gene')%>%
+    left_join(improve_genes)%>%
+    dplyr::select(entrez_id,improve_sample_id,counts)%>%
+    subset(!is.na(entrez_id))%>%
+    mutate(source='PharmacoGX',study='GDSCv2')
   
   
 }
