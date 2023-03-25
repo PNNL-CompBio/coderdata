@@ -155,7 +155,7 @@ if(FALSE){
 getCellLineMutData<-function(){
   ##GDSCv1
   dset<-downloadPSet('GDSC_2020(v2-8.2)')
-  edat<-molecularProfiles(dset)$Kallisto_0.46.1.rnaseq.counts
+  edat<-molecularProfiles(dset)$mutation
   sampmap<-colData(edat)%>%
     as.data.frame()%>%
     tibble::rownames_to_column('samples')%>%
@@ -164,12 +164,12 @@ getCellLineMutData<-function(){
   ##now we want to get the rna expression
   geneExp<-assays(edat)$exprs%>%
     as.data.frame()%>%
-    tibble::rownames_to_column('ensgene')%>%
-    tidyr::separate(ensgene,into=c('gene','vers'),'\\.')%>%
-    tidyr::pivot_longer(cols=seq(3,2+ncol(assays(edat)$exprs)),
+    tibble::rownames_to_column('symb')%>%
+     tidyr::pivot_longer(cols=seq(2,1+ncol(assays(edat)$exprs)),
                         names_to='samples',
-                        values_to='counts')%>%
-    left_join(sampmap)
+                        values_to='mutation')%>%
+    left_join(sampmap)%>%
+    subset(!is.na(mutation))
   
   ##now we map samples
   gdscV1Exp<-geneExp%>%
