@@ -153,7 +153,8 @@ if(FALSE){
 
 #' get cell line mutation data
 getCellLineMutData<-function(){
-  ##GDSCv1
+
+    ##GDSCv1
   dset<-downloadPSet('GDSC_2020(v2-8.2)')
   edat<-molecularProfiles(dset)$mutation
   sampmap<-colData(edat)%>%
@@ -184,7 +185,99 @@ getCellLineMutData<-function(){
     subset(!is.na(entrez_id))%>%
     mutate(source='PharmacoGX',study='GDSCv2')
   
+  ##nci60
+  dset<-downloadPSet('NCI60_2021')
+  edat<-molecularProfiles(dset)$mutation
+  sampmap<-colData(edat)%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('samples')%>%
+    dplyr::select('samples','sampleid')%>%
+    distinct()
+  ##now we want to get the rna expression
+  geneExp<-assays(edat)$exprs%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('symb')%>%
+    tidyr::pivot_longer(cols=seq(2,1+ncol(assays(edat)$exprs)),
+                        names_to='samples',
+                        values_to='mutation')%>%
+    left_join(sampmap)%>%
+    subset(!is.na(mutation))
   
+  ##now we map samples
+  nci60V1Exp<-geneExp%>%
+    dplyr::rename(other_id='sampleid')%>%
+    left_join(cmap)%>%
+    subset(!is.na(improve_sample_id))%>%
+    select(gene,counts,improve_sample_id)%>%
+    distinct()%>%
+    dplyr::rename(other_id='gene')%>%
+    left_join(improve_genes)%>%
+    dplyr::select(entrez_id,improve_sample_id,counts)%>%
+    subset(!is.na(entrez_id))%>%
+    mutate(source='PharmacoGX',study='NCI60')
+ 
+  
+  ##gcsi
+  dset<-downloadPSet('gCSI_2019')
+  edat<-molecularProfiles(dset)$mutation
+  sampmap<-colData(edat)%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('samples')%>%
+    dplyr::select('samples','sampleid')%>%
+    distinct()
+  ##now we want to get the rna expression
+  geneExp<-assays(edat)$exprs%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('symb')%>%
+    tidyr::pivot_longer(cols=seq(2,1+ncol(assays(edat)$exprs)),
+                        names_to='samples',
+                        values_to='mutation')%>%
+    left_join(sampmap)%>%
+    subset(!is.na(mutation))
+  
+  ##now we map samples
+  nci60V1Exp<-geneExp%>%
+    dplyr::rename(other_id='sampleid')%>%
+    left_join(cmap)%>%
+    subset(!is.na(improve_sample_id))%>%
+    select(gene,counts,improve_sample_id)%>%
+    distinct()%>%
+    dplyr::rename(other_id='gene')%>%
+    left_join(improve_genes)%>%
+    dplyr::select(entrez_id,improve_sample_id,counts)%>%
+    subset(!is.na(entrez_id))%>%
+    mutate(source='PharmacoGX',study='gCSI') 
+  
+  ##CCLE
+  dset<-downloadPSet('CCLE_2015')
+  edat<-molecularProfiles(dset)$mutation
+  sampmap<-colData(edat)%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('samples')%>%
+    dplyr::select('samples','sampleid')%>%
+    distinct()
+  ##now we want to get the rna expression
+  geneExp<-assays(edat)$exprs%>%
+    as.data.frame()%>%
+    tibble::rownames_to_column('symb')%>%
+    tidyr::pivot_longer(cols=seq(2,1+ncol(assays(edat)$exprs)),
+                        names_to='samples',
+                        values_to='mutation')%>%
+    left_join(sampmap)%>%
+    subset(!is.na(mutation))
+  
+  ##now we map samples
+  ccleExp<-geneExp%>%
+    dplyr::rename(other_id='sampleid')%>%
+    left_join(cmap)%>%
+    subset(!is.na(improve_sample_id))%>%
+    select(gene,counts,improve_sample_id)%>%
+    distinct()%>%
+    dplyr::rename(other_id='gene')%>%
+    left_join(improve_genes)%>%
+    dplyr::select(entrez_id,improve_sample_id,counts)%>%
+    subset(!is.na(entrez_id))%>%
+    mutate(source='PharmacoGX',study='CCLE') 
 }
 
 #' get cell line copy number data
