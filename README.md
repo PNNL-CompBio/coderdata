@@ -48,7 +48,7 @@ This set of scripts pulls data from pharmacoGX R package and formats each datase
 The sample mapping file is derived from the DepMap identifiers and cellosaurus for now. 
 
 #### Curve fitting
-The curve fitting is all run through a modified version of the code at the [curve repository](). 
+The curve fitting is all run through a modified version of the code at the [curve repository](https://github.com/levinas/curve). 
 
 # Model-specific data files
 
