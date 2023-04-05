@@ -1,7 +1,7 @@
 ###Here is a script that runs through all the data files one by one. 
 
 #this is a helper file that loads the data
-source("improveDataFiles.R")
+source("../improveDataFiles.R")
 
 
 #if(!require('PharmacoGx')){
@@ -335,7 +335,7 @@ getCellLineExpData<-function(cell.lines=c('gCSI','GDSC','NCI60','CCLE')){
     subset(!is.na(improve_sample_id))%>%
     select(gene,counts,improve_sample_id)%>%
     distinct()%>%
-    dplyr::rename(other_id='gene')%>%
+#    dplyr::rename(other_id='gene')%>%
     left_join(improve_genes)%>%
     dplyr::select(entrez_id,improve_sample_id,counts)%>%
     subset(!is.na(entrez_id))%>%
