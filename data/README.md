@@ -10,6 +10,16 @@ The data schema for the aggregated data is shown above. There are three scripts 
 1- [initialSampleDB.R](./initialSampleDB.R): This script pulls from Cellosaurus and DepMap files to create an additional mapping of cell line data. Once initially created, each experiment measurement will append to this table if the sample is not already in the file.
 2- [initialGeneDB.R](./initialSampleDB.R): This script pulls from 
 
+### Data quality control
+
+We are currently evaulating the data quality and updating the figures monitoring this below.
+
+_Missing Smiles_: some drugs are missing smiles
+<img src="drugNumbers.png">
+
+_Missing ic50s_: some dose response curves could not be fit
+
+_Duplicate measuresments_: various drugs and cell lines were tested more than once. 
 
 
 ### Data model generation
