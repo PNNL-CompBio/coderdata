@@ -110,30 +110,31 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
       unlist()
   
     res<-do.call(rbind,lapply(files,function(f){
-    print(f)
-    if(f=='GDSC_2020(v2-8.2)')
-      cel='GDSCv2'
-    if(f=='GDSC_2020(v1-8.2)')
-      cel='GDSCv1'
-    tmpfile<-paste0(cel,'doseResponse')
+      print(f)
+      if(f=='GDSC_2020(v2-8.2)')
+        cel='GDSCv2'
+      if(f=='GDSC_2020(v1-8.2)')
+        cel='GDSCv1'
+      tmpfile<-paste0(cel,'doseResponse')
 
-    if(file.exists(tmpfile))
-      dres<-read.table(tmpfile,sep='\t',header=T)
-    else{
-      dset<<-downloadPSet(f)
+      if(file.exists(tmpfile))
+        dres<-read.table(tmpfile,sep='\t',header=T)
+      else{
+        dset<<-downloadPSet(f)
     
-      url=subset(all.dsets,`PSet Name`==f)$Download
-    #print(url)
+        url=subset(all.dsets,`PSet Name`==f)$Download
+      #print(url)
 
-      dres<-getDoseRespData(dset,cel)
-      #print(dres)
-    }  
-    return(dres)
-    
+        dres<-getDoseRespData(dset,cel)
+      #p  rint(dres)
+      }  
+      return(dres)
+      
+    }))
+      #print(res)
+      return(res)
   }))
-    #print(res)
-    return(res)
-  }))
+  
   #print(head(all.dose.rep))
   all.dose.rep%>%
     subset(!is.na(DOSE))
@@ -310,7 +311,7 @@ getCellLineExpData<-function(cell.lines=c('gCSI','GDSC','NCI60','CCLE')){
   
   
   ##GDSCv1
-  dset<-downloadPSet('GDSC_2020(v2-8.1)')
+  dset<-downloadPSet('GDSC_2020(v1-8.2)')
   edat<-molecularProfiles(dset)$Kallisto_0.46.1.rnaseq.counts
   sampmap<-colData(edat)%>%
     as.data.frame()%>%
@@ -467,17 +468,13 @@ getCellLineExpData<-function(cell.lines=c('gCSI','GDSC','NCI60','CCLE')){
     subset(!is.na(entrez_id))%>%
     mutate(source='PharmacoGX',study='gCSI')
   
-  cellLineGex<-rbind(gdscV2Exp,ccleExp,nciExp,gCSIExp)
-  write.table(cellLineGex,file='expression.csv',sep=',',quote=F)
+  cellLineGex<-rbind(gdscV2Exp,ccleExp,nciExp,gCSIExp)%>%
+    unique()
+  
+  write.table(cellLineGex,file='expression.csv',sep=',',quote=F,row.names=F)
   return(cellLineGex)
 }
 
-#' getModelSysData - a bit different from cell line data as we need to modify
-#' samples.csv file to include additional model types
-getModelSysData<-function(dsets=c('BeatAML','PDTX','GBM','UHNBreast','Tavor','GRAY')){
-  
-  
-}
  
 
 #third get other data
