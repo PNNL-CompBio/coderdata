@@ -335,7 +335,7 @@ getCellLineExpData<-function(cell.lines=c('gCSI','GDSC','NCI60','CCLE')){
     subset(!is.na(improve_sample_id))%>%
     select(gene,counts,improve_sample_id)%>%
     distinct()%>%
-#    dplyr::rename(other_id='gene')%>%
+    dplyr::rename(other_id='gene')%>%
     left_join(improve_genes)%>%
     dplyr::select(entrez_id,improve_sample_id,counts)%>%
     subset(!is.na(entrez_id))%>%
