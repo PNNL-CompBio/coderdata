@@ -1,6 +1,6 @@
 ##this file creates a sample database table from Priyanka's depmap file
 ##and cellosaurus. it ONLY handles cell lines. ADditional samples must be added
-##subsequent to running this code. 
+##subsequent to running this code.
 
 ##author sara gosline
 ## email sara.gosline@pnnl.gov
@@ -26,7 +26,12 @@ tab<-read.table('DepMap_Argonne_Mapping.csv',sep=',',header=T)%>%
 
 
 ##here are all the models in depmap, downloded on 1/31/2023
-depmap_models<-read.table('Model.csv',sep=',',header=T)
+depmap_models_old<-read.table('Model.csv',sep=',',header=T)
+
+## add in sample_info.csv, downloaded on 5/2/2023 22q2, which is an older file that Priya used
+depmap_models<-read.table('sample_info.csv',header=T,sep=',',comment.char = '',fill = T)|>
+  dplyr::rename(ModelID='DepMap_ID')
+
 
 ##query for cellosaurus automagically
 url='https://ftp.expasy.org/databases/cellosaurus/cellosaurus.xml'
@@ -37,7 +42,9 @@ cdf<-XML::xmlToList(cello)
 
 
 ##these are the data we need
-##ok this command seems to have gotten file in appropriate state
+### file is super non-intuitive to parse
+###gahhhh
+##ok, this command seems to have gotten file in appropriate state
 cell.lines<-lapply(cdf$`cell-line-list`, function(x) unlist(x))
 
 ##now we need toe xtract columns
@@ -47,7 +54,7 @@ full.res<-do.call(rbind,lapply(cell.lines,function(x){
   x<-unlist(x)
   #should only be one acession
   acc<-x[grep('accession.text',names(x),fixed=T)]%>%unlist()
-  
+
   cn<-x[grep('name.text',names(x),fixed=T)]%>%unlist()
   #these will fail if no key found
   spec<-x[grep("species-list.cv-term.text",names(x),fixed=T)]%>%unlist()
@@ -57,30 +64,38 @@ full.res<-do.call(rbind,lapply(cell.lines,function(x){
              species=rep(spec,length(cn)))
    #          disease=rep(dis,length(cn)))
 }))%>%
-  subset(species=='Homo sapiens')
+  subset(species=='Homo sapiens (Human)')
 
 
-
+print(paste('Got',nrow(full.res),'human cellosaurus samples'))
 ######
 #now we join the depmap table, the cellosaurus table, and the CTRP identifiers
 
 joined.df<-depmap_models%>%
   full_join(full.res)%>%
   left_join(tab)%>%
-  dplyr::select(-c(PatientID,SourceType,GrowthPattern,
-                     PrimaryOrMetastasis,MolecularSubtype,
-                   CatalogNumber,PublicComments,SampleCollectionSite,
-                   Sex,Age,SourceDetail,OncotreeLineage,OncotreeCode,
-                   OncotreePrimaryDisease,DepmapModelType,StrippedCellLineName))
+  ##this for 22q2 data
+  dplyr::select(-c(patient_id,sample_collection_site,primary_or_metastasis,primary_disease,
+                   sex,age,source,depmap_public_comments,lineage,lineage_sub_subtype,Subtype,Cellosaurus_NCIt_id,lineage_subtype,
+                   lineage_molecular_subtype,default_growth_pattern,stripped_cell_line_name,alias,source,sample_collection_site,
+                   model_manipulation,model_manipulation_details,parent_depmap_id,Cellosaurus_issues))
+  ##use this for 22q4 data
+  #dplyr::select(-c(PatientID,SourceType,GrowthPattern,
+              #       PrimaryOrMetastasis,MolecularSubtype,
+              #     CatalogNumber,PublicComments,SampleCollectionSite,
+              #     Sex,Age,SourceDetail,OncotreeLineage,OncotreeCode,
+              #     OncotreePrimaryDisease,DepmapModelType,StrippedCellLineName))
 
 ##now lengethn the table to have the appopriate columns
 full.df<-joined.df%>%
-  dplyr::rename(DepMap='ModelID',Sanger='SangerModelID',
-                CCLE='CCLEName',Cellosaurus='RRID',
-                common_name='CellLineName',cancer_type='OncotreeSubtype',
+  dplyr::rename(DepMap='ModelID',Sanger='Sanger_Model_ID',##old file formatSanger='SangerModelID'
+                CCLE='CCLE_Name',#old file CCLE='CCLEName'
+                Cellosaurus='RRID',
+                common_name='cell_line_name',#common_name='CellLineName',
+                cancer_type='Cellosaurus_NCIt_disease',#'OncotreeSubtype',
                 other_names='accession')%>%
-  mutate(COSMIC=as.character(COSMICID),WTSI=as.character(WTSIMasterCellID))%>%
-  dplyr::select(-c(COSMICID,WTSIMasterCellID))%>%
+  mutate(COSMIC=as.character(COSMICID),WTSI=as.character(WTSI_Master_Cell_ID))|>#WTSIMasterCellID))%>%
+  dplyr::select(-c(COSMICID,WTSI_Master_Cell_ID))|>#WTSIMasterCellID))%>%
   distinct()
 
 #we add idnetifiers for everything that has a cellosaurus id and those that dont

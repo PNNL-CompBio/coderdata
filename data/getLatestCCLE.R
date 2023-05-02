@@ -14,7 +14,8 @@ basename='https://ftp.mcs.anl.gov/pub/candle/public/improve/Data/Omics/Curated_C
 filenames=paste0(basename,c('CCLE_AID_expression_full.csv',
                             'CCLE_AID_RRBS_TSS_1kb_20180614.csv',
                             'CCLE_AID_gene_cn.csv',
-                            'Mutation_AID_count.csv'))#,
+                            'Mutation_AID_binary2.csv'))
+#                            'Mutation_AID_count.csv'))#,
                             #'CCLE_AID_RPPA_20180123.csv' #wont' work because no gene identifiers
 
 newres<-lapply(filenames,function(fi){
