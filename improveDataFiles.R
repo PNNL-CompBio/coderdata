@@ -129,6 +129,7 @@ buildDrugTable<-function(druglist){
 
           improve_drugs<<-rbind(matched,unmatched)
          }
+         improve_drugs<<-unique(improve_drugs)
           ##write new table on every iteration that adds values in case it fails
         write.table(improve_drugs,file='../data/drugs.tsv',sep='\t',quote=F,col.names=T,row.names=F)
       }
