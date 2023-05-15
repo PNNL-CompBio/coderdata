@@ -24,6 +24,7 @@ newres<-lapply(filenames,function(fi){
 
   if(length(grep('cn',fi))>0){
     exp_file <- readr::read_csv(fi,skip=1)[-1,]
+
   }else if(length(grep('RRBS',fi))>0){
     exp_file <- readr::read_csv(fi,skip=3)
 
@@ -43,13 +44,14 @@ newres<-lapply(filenames,function(fi){
           subset(mutation!=0)
       })
       res<-do.call(rbind,res)
-      res<-res|>
+      full<-res|>
         dplyr::left_join(samples)|>
         dplyr::rename(entrez_id=Entrez_Gene_Id,alteration=Genome_Change)|>
         dplyr::select(entrez_id,improve_sample_id,alteration)|>
         dplyr::distinct()|>
         dplyr::mutate(source='DepMap',study='CCLE')
-
+      write_csv(full,file=fname)
+      return(fi)
       }else{ #if gene expression
     exp_file <- readr::read_csv(fi,skip=2)
   }
@@ -68,6 +70,15 @@ newres<-lapply(filenames,function(fi){
     dplyr::select(entrez_id,improve_sample_id,counts)|>
     dplyr::distinct()|>
     dplyr::mutate(source='DepMap',study='CCLE')
+
+  if(length(grep('cn',fi)>1)){
+    full<-dplyr::rename(full,alteration=counts)
+    full<-full|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
+      dplyr::mutate(copy_call=ifelse(alteration<0.5210507,'deep del',
+                               ifelse(alteration<0.7311832,'het loss',
+                                       ifelse(alteration<1.214125,'diploid',
+                                               ifelse(alteration<1.422233,'gain','amp')))))
+  }
 
   write_csv(full,file=fname)
   return(fi)
