@@ -19,6 +19,9 @@ filenames=paste0(basename,c('CCLE_AID_expression_full.csv',
                             #'CCLE_AID_RPPA_20180123.csv' #wont' work because no gene identifiers
 
 newres<-lapply(filenames,function(fi){
+
+  fname=stringr::str_replace(basename(fi),'AID','IID')
+
   if(length(grep('cn',fi))>0){
     exp_file <- readr::read_csv(fi,skip=1)[-1,]
   }else if(length(grep('RRBS',fi))>0){
@@ -26,11 +29,30 @@ newres<-lapply(filenames,function(fi){
 
     }else if(length(grep("Mutation",fi))>0){
       exp_file <- readr::read_csv(fi)[-1,]
-      res <-tidyr::pivot_longer(exp_file,cols=c(12:ncol(exp_file)),names_to='other_id',values_to='mutation')
+
+      ##current file has 1024 patient samples, so let's read them in ~100 at a time
+      npats<-length(grep('CVCL',colnames(exp_file)))
+      reps=seq(1,ceiling(npats/100))
+      res<-lapply(reps,function(x){
+        print(x)
+        cols<-seq(13+(x-1)*100,min(ncol(exp_file),12+(x)*100))
+        dres<-exp_file[,c(3,12,cols)]
+        ret <-tidyr::pivot_longer(dres,cols=c(3:ncol(dres)),names_to='other_id',values_to='mutation')
+        print(head(ret))
+        ret|>
+          subset(mutation!=0)
+      })
+      res<-do.call(rbind,res)
+      res<-res|>
+        dplyr::left_join(samples)|>
+        dplyr::rename(entrez_id=Entrez_Gene_Id,alteration=Genome_Change)|>
+        dplyr::select(entrez_id,improve_sample_id,alteration)|>
+        dplyr::distinct()|>
+        dplyr::mutate(source='DepMap',study='CCLE')
+
       }else{ #if gene expression
     exp_file <- readr::read_csv(fi,skip=2)
   }
-  fname=stringr::str_replace(basename(fi),'AID','IID')
 
   #colnames(exp_file)<-str(colnames(exp_file))
   ## reshape and rename
