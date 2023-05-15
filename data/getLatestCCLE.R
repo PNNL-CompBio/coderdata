@@ -19,12 +19,15 @@ filenames=paste0(basename,c('CCLE_AID_expression_full.csv',
                             #'CCLE_AID_RPPA_20180123.csv' #wont' work because no gene identifiers
 
 newres<-lapply(filenames,function(fi){
-  if(length(grep('cn',fi))>0||length(grep("Mutation",fi))>0){
+  if(length(grep('cn',fi))>0){
     exp_file <- readr::read_csv(fi,skip=1)[-1,]
   }else if(length(grep('RRBS',fi))>0){
     exp_file <- readr::read_csv(fi,skip=3)
 
-    }else{ #if gene expression
+    }else if(length(grep("Mutation",fi))>0){
+      exp_file <- readr::read_csv(fi)[-1,]
+      res <-tidyr::pivot_longer(exp_file,cols=c(12:ncol(exp_file)),names_to='other_id',values_to='mutation')
+      }else{ #if gene expression
     exp_file <- readr::read_csv(fi,skip=2)
   }
   fname=stringr::str_replace(basename(fi),'AID','IID')
