@@ -27,10 +27,26 @@ getDoseRespData<-function(dset,studyName){
   if('cellid'%in%names(mapping))
     mapping<-dplyr::rename(mapping,sampleid='cellid')
 
-  ##now get the drug ids
+  ##query to build the drug ids
   drug.map<-buildDrugTable(unique(mapping$treatmentid))%>%
-    dplyr::select(common_drug_name='chem_name',improve_chem_id)%>%
+    dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
     distinct()
+
+  #reduce drug ids to only one pubchem id, in case there are more!
+  red.drug.map<-drug.map|>
+    subset(tolower(common_drug_name)%in%tolower(unique(mapping$treatmentid)))|>
+    tidyr::separate(improve_drug_id,into=c('pc','num'),sep='_')
+
+  ##now for each PubChem/Improve duplicate, just get minimum id number
+  minvals<-red.drug.map|>
+    group_by(common_drug_name)|>
+    summarize(minVal=min(num))
+
+  ##now reduce drug map to those minvals
+  new.drug.map<-red.drug.map|>
+    subset(num%in%minvals$minVal)|>
+    tidyr::unite('pc','num',col='improve_drug_id')
+
 
   ##first get the sample id
   samp.map<-mapping%>%
@@ -44,7 +60,7 @@ getDoseRespData<-function(dset,studyName){
   print(paste('By common name, found',length(unique(comm.map$improve_sample_id)),
               'matches out of',length(unique(mapping$sampleid)),'for study',studyName))
 
-  ldmap<-drug.map%>%
+  ldmap<-new.drug.map%>%
     mutate(chem_name=tolower(common_drug_name))
   ##then join the sample id
   full.map<-comm.map%>%
@@ -78,7 +94,7 @@ getDoseRespData<-function(dset,studyName){
   doseRep<-doseDat%>%
     dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
     left_join(full.map)%>%
-    dplyr::select(DRUG=improve_chem_id,CELL=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
+    dplyr::select(DRUG=improve_drug_id,CELL=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
     #dplyr::mutate(DOSE=-log10(Dose/1000))###curve fitting code requires -log10(M), these are mM
     #rename(GROWTH=RESPONSE)%>%
     mutate(SOURCE='pharmacoGX')%>%
@@ -122,7 +138,7 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
       if(file.exists(tmpfile)){
         dres<-read.table(tmpfile,sep='\t',header=T)
       }else{
-        dset<<-downloadPSet(f)
+        dset<<-downloadPSet(f,saveDir='.',timeout=10000)
 
         url=subset(all.dsets,`PSet Name`==f)$Download
       #print(url)
@@ -145,9 +161,13 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
 
 if(FALSE){
 
-  cl1<-c('CTRPv2','FIMM','gCSI','PRISM')
-  cl2<-c('GDSC','NCI60','CCLE')
+  cl1<-c('CTRPv2','FIMM')
   dl1<-getCellLineDoseData(cl1)
+
+  cl2<-c('gCSI','PRISM')
+  dl2<-getCellLineDoseData(cl2)
+
+  cl2<-c('GDSC','CCLE','NCI60')
   dl2<-getCellLineDoseData(cl2)
 
 #  write.table(dl1,'doseRep1.tsv',sep='\t',row.names=F,quote=F)
