@@ -58,6 +58,14 @@ def compute_area(x1, x2, einf, ec50, hs, mode='trapz'):
 
 
 def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
+    '''
+    xdata: dose data in log10(M)
+    ydata: range from 0 to 1
+    popt: fit curve metrics
+    pcov: ??
+    d1: minimum fixed dose in log10(M)
+    d2: maximum fixed dose log10(M)
+    '''
     if popt is None:
         cols = 'AUC IC50 EC50 EC50se R2fit Einf HS AAC1 AUC1 DSS1'.split(' ')
         return pd.Series([np.nan] * len(cols), index=cols)
@@ -84,6 +92,11 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
 
 
 def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS):
+    '''
+     xdata: log10 molar concetnration
+     ydata: value between 0 and 1 for response
+     bounds: these are fixed in code, nto sure what they are for
+    '''
     ydata = ydata.clip(lower=0, upper=1.0)
     popt, pcov = None, None
     nfev = 100 * 3
@@ -388,8 +401,8 @@ def main():
     df_all = pd.read_table(args.input)
     #drop nas
     df_all = df_all.dropna()
-    ##pharmacoGX data is NOT log transformed, need to alter that
-    df_all.DOSE = -1*np.log10(df_all.DOSE)
+    ##pharmacoGX data is micromolar, we need log transformed molar
+    df_all.DOSE = np.log10(df_all.DOSE*1000000)
     ##need data to be between 0 and 1, not 0 and 100
     df_all.GROWTH=df_all.GROWTH/100.00
     
