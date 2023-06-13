@@ -19,25 +19,26 @@ import os
 
 
 ###########Step 1, build genes
-#os.system('Rscript initialGeneDB.R') ###requires data/genes.csv to exist for step 3
+os.system('Rscript initialGeneDB.R') ###requires data/genes.csv to exist for step 3
 
 
 ###########Step 2, build sample names
-#os.system('Rscript initialSampleDB.R') ###requires data/samples.csv to exist for step 3
+os.system('Rscript initialSampleDB.R') ###requires data/samples.csv to exist for step 3
 
 #########Step 3, get expression data
-#os.system('Rscript -e "setwd(".."); source("pgx/pgxToImprove.R"); getCellLineExpData()') ##makes expression csv
-#os.system('Rscript getLatestCCLE.R')
+os.system('Rscript -e "setwd(".."); source("pgx/pgxToImprove.R"); getCellLineExpData()') ##makes expression csv
+os.system('Rscript getLatestCCLE.R')
 ##move it to dta andnow zip it up
 
 
 #########Step 4a get dose response data from PGX
-#os.system('Rscript ../pgx/pgxToImprove.R')
+os.system('Rscript ../pgx/pgxToImprove.R')
+
+########Step 4b fit curves
 allfiles=[a for a in os.listdir('./') if 'DoseResponse' in a]
 print(allfiles)
 for a in allfiles:
     os.system('python fit_curve.py --input '+a+' --output '+a)
 
 
-########Step 4b fit curves
 
