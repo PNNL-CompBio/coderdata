@@ -22,6 +22,11 @@ getDoseRespData<-function(dset,studyName){
     mapping<-mapping%>%
       tibble::rownames_to_column('exp_id')
 
+  if('NSC'%in%names(mapping))
+    mapping<-mapping|>
+      dplyr::select(-treatmentid)|>
+      dplyr::mutate(treatmentid=paste0('NSC-',NSC))
+
   if("drugid"%in%names(mapping))
     mapping<-dplyr::rename(mapping,treatmentid='drugid')
   if('cellid'%in%names(mapping))
@@ -161,17 +166,16 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
 
 if(FALSE){
 
-  cl1<-c('CTRPv2','FIMM')
+  cl1<-c('CTRPv2','FIMM','GDSC')
   dl1<-getCellLineDoseData(cl1)
 
-  cl2<-c('gCSI','PRISM')
+  cl2<-c('gCSI','PRISM','CCLE')
   dl2<-getCellLineDoseData(cl2)
 
-  cl2<-c('GDSC','CCLE','NCI60')
+  cl2<-c('NCI60')
   dl2<-getCellLineDoseData(cl2)
 
-#  write.table(dl1,'doseRep1.tsv',sep='\t',row.names=F,quote=F)
-#  write.table(dl2,'doseRep2.tsv',sep='\t',row.names=F,quote=F)
+
 }
 
 #' get cell line mutation data
