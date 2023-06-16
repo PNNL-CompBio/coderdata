@@ -18,19 +18,19 @@ Sys.setenv(VROOM_CONNECTION_SIZE=10000000)
 ###PATH TO FILES
 ###THESE ARE FILES FROM THE DEPMAP repository from PRIAY
 basename='https://ftp.mcs.anl.gov/pub/candle/public/improve/Data/Omics/Curated_CCLE_Multiomics_files/'
-filenames=list(expression='CCLE_AID_expression_full.csv',
+filenames=list(#expression='CCLE_AID_expression_full.csv',
                             copy_number='CCLE_AID_gene_cn.csv',
                             mutations='Mutation_AID_binary.csv',
                             methylation='CCLE_AID_RRBS_TSS_1kb_20180614.csv',
-                            proteins='CCLE_AID_RPPA_20180123.csv',
-                            mirnas='CCLE_AID_miRNA_20180525.csv')#wont' work because no gene identifiers
+                            proteins='CCLE_AID_RPPA_20180123.csv', #wont' work well because no gene identifiers
+                            mirnas='CCLE_AID_miRNA_20180525.csv')
 
 ###run through each file and rewrite
 newres<-lapply(names(filenames),function(value){
 
   fi=paste0(basename,filenames[[value]])
   fname=paste0(value,'.csv')
-
+  print(paste('now reading',fi,'to store as',fname))
   ##now every data type is parsed slightly differently, so we need to change our formatting
   ##and mapping to get it into a unified 3 column schema
   if(value=='copy_number'){
@@ -38,18 +38,21 @@ newres<-lapply(names(filenames),function(value){
 
     res = exp_file|>
       tidyr::pivot_longer(cols=c(2:ncol(exp_file)),
-                          names_to='gene_symbol',values_to='alteration',
-                          values_transform=list(alteration=as.numeric))|>
+                          names_to='gene_symbol',values_to='copy_number',
+                          values_transform=list(copy_number=as.numeric))|>
       dplyr::distinct()
 
     res<-res|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
-      dplyr::mutate(copy_call=ifelse(alteration<0.5210507,'deep del',
-                                     ifelse(alteration<0.7311832,'het loss',
-                                            ifelse(alteration<1.214125,'diploid',
-                                                   ifelse(alteration<1.422233,'gain','amp')))))
+      dplyr::mutate(copy_call=ifelse(copy_number<0.5210507,'deep del',
+                                     ifelse(copy_number<0.7311832,'het loss',
+                                            ifelse(copy_number<1.214125,'diploid',
+                                                   ifelse(copy_number<1.422233,'gain','amp')))))|>
+      dplyr::left_join(genes)|>
+      dplyr::distinct()
+
 
     colnames(res)[1]<-'other_id'
-    vars=c('copy_number','alteration')
+    vars=c('copy_number','copy_call')
 
 
   }else if(value=='methylation'){ ###IF DATA REPRESENT RRBS###
@@ -62,7 +65,10 @@ newres<-lapply(names(filenames),function(value){
       dplyr::distinct()
 
     res<-res|>
-      tidyr::separate(gene_region,into=c('gene_symbol','num','start','end'),sep='_')
+      tidyr::separate(gene_region,into=c('gene_symbol','num','start','end'),sep='_')|>
+      dplyr::left_join(genes)|>
+      dplyr::distinct()
+
     colnames(res)[1]<-'other_id'
     vars=c('methylation','start','end')
 
@@ -90,7 +96,9 @@ newres<-lapply(names(filenames),function(value){
         dplyr::rename(entrez_id=Entrez_id,alteration=Genome_Change)|>
         dplyr::select(entrez_id,improve_sample_id,alteration)|>
         dplyr::distinct()|>
-        dplyr::mutate(source='DepMap',study='CCLE')
+        dplyr::mutate(source='DepMap',study='CCLE')|>
+        dplyr::left_join(genes)|>
+        dplyr::distinct()
 
         write_csv(full,file=fname)
         return(fi)
