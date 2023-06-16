@@ -26,8 +26,8 @@ os.system('Rscript initialGeneDB.R') ###requires data/genes.csv to exist for ste
 os.system('Rscript initialSampleDB.R') ###requires data/samples.csv to exist for step 3
 
 #########Step 3, get expression data
-os.system('Rscript -e "setwd(".."); source("pgx/pgxToImprove.R"); getCellLineExpData()') ##makes expression csv
-os.system('Rscript getLatestCCLE.R')
+#os.system('Rscript -e "setwd(".."); source("pgx/pgxToImprove.R"); getCellLineExpData()') ##makes expression csv
+os.system('Rscript getLatestCCLE.R') ###gets data from Priya's formatted data
 ##move it to dta andnow zip it up
 
 
@@ -40,5 +40,10 @@ print(allfiles)
 for a in allfiles:
     os.system('python fit_curve.py --input '+a+' --output '+a)
 
+###step 5 concatenate all files
+os.system('cat *.0 > experiments.tsv')
+
+##step 6 zip up all files
 
 
+### step 7 store files (figshare? ftp?
