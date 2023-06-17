@@ -69,8 +69,12 @@ def main():
     dat = getCancerObj(opts.type.lower())
   
     prot = dat.get_proteomics()
-    mrna
-    mutations
+    mrna = dat.get_transcriptomics()
+    mut = dat.get_somatic_mutation()
+    mirna = dat.get_mirna()
+    cnv = dat.get_cnv()
+    clin = dat.get_clinical()
+
     
     # Get the sample type specific dataframe
     if opts.sample.lower() != 'all':
