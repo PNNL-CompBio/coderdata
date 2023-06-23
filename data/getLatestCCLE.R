@@ -18,12 +18,12 @@ Sys.setenv(VROOM_CONNECTION_SIZE=10000000)
 ###PATH TO FILES
 ###THESE ARE FILES FROM THE DEPMAP repository from PRIAY
 basename='https://ftp.mcs.anl.gov/pub/candle/public/improve/Data/Omics/Curated_CCLE_Multiomics_files/'
-filenames=list(#expression='CCLE_AID_expression_full.csv',
+filenames=list(expression='CCLE_AID_expression_full.csv',
                             copy_number='CCLE_AID_gene_cn.csv',
-                            mutations='Mutation_AID_binary.csv',
                             methylation='CCLE_AID_RRBS_TSS_1kb_20180614.csv',
                             proteins='CCLE_AID_RPPA_20180123.csv', #wont' work well because no gene identifiers
-                            mirnas='CCLE_AID_miRNA_20180525.csv')
+                            mirnas='CCLE_AID_miRNA_20180525.csv',
+                            mutations='Mutation_AID_binary.csv')
 
 ###run through each file and rewrite
 newres<-lapply(names(filenames),function(value){
@@ -84,20 +84,18 @@ newres<-lapply(names(filenames),function(value){
         print(x)
         cols<-seq(min(pat)+(x-1)*100,min(ncol(exp_file),min(pat)-1+(x)*100)) ##this can keep changing!
         dres<-exp_file[,c('Entrez_id','Genome_Change',colnames(exp_file)[cols])]
-        ret <-tidyr::pivot_longer(dres,cols=c(3:ncol(dres)),names_to='other_id',values_to='mutations')
+        ret <-tidyr::pivot_longer(dres,cols=c(3:ncol(dres)),names_to='other_id',values_to='num_muts')
         #print(head(ret))
         ret|>
-          subset(mutations!=0)
+          subset(num_muts!=0)
       })
 
       res<-do.call(rbind,res)
       full<-res|>  ###since we're already in ENTREZ we skip the mapping below
         dplyr::left_join(samples)|>
-        dplyr::rename(entrez_id=Entrez_id,alteration=Genome_Change)|>
-        dplyr::select(entrez_id,improve_sample_id,alteration)|>
-        dplyr::distinct()|>
-        dplyr::mutate(source='DepMap',study='CCLE')|>
-        dplyr::left_join(genes)|>
+        dplyr::rename(entrez_id=Entrez_id,mutations=Genome_Change)|>
+        dplyr::select(entrez_id,improve_sample_id,mutations)|>
+         dplyr::mutate(source='DepMap',study='CCLE')|>
         dplyr::distinct()
 
         write_csv(full,file=fname)
@@ -122,7 +120,7 @@ newres<-lapply(names(filenames),function(value){
                                 names_to='gene_symbol',values_to='mirnas',values_transform=list(mirnas=as.numeric))|>
         dplyr::left_join(genes)|>
         dplyr::distinct()|>
-        mutate(gene_symbol=tolower(gene_symbol))
+        dplyr::mutate(gene_symbol=tolower(gene_symbol))
 
       colnames(res)[1]<-'other_id'
       vars=c('mirnas')
@@ -132,11 +130,11 @@ newres<-lapply(names(filenames),function(value){
       exp_file <- readr::read_csv(fi)
       ###WARNING: this will not match most genes!!! no gene names are provided!!!
       res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
-                                names_to='gene_symbol',values_to=proteins,
+                                names_to='gene_symbol',values_to='proteins',
                                 values_transform=list(proteins=as.numeric))|>
         dplyr::left_join(genes)|>
         dplyr::distinct()|>
-        mutate(gene_symbol=toupper(gene_symbol))
+        dplyr::mutate(gene_symbol=toupper(gene_symbol))
 
       colnames(res)[1]<-'other_id'
       vars=c('proteins')
