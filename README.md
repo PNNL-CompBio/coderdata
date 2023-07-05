@@ -31,6 +31,7 @@ The files are comma-delimited and named follows:
 7. copy_number.csv.gz
 8. methylation.csv.gz
 9. mirnas.csv.gz
+10. proteomics.csv.gz
 
 ## Building the data model
 The data model requires four steps, that need to be run in order
