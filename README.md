@@ -15,16 +15,22 @@ infrastructure.
 
 # IMPROVE Data Model
 
+The goal of the data model is to collate drug response data together with molecular data in a way that can be easily ingested by machine learning models. The overall schema is shown below.
+
+<img src="origDataSchema.jpg" width=25% height=25%>
+
 We will store the data in tables that are represented by the files below. Each data-specific model can be generated from a smaller set of these tables. The schema for these tables is represented below. 
 
 The files are comma-delimited and named follows:
 1. genes.csv
 2. drugs.tsv.gz --> Drug names have commas and quotes in them, therefore require tab delimited
 3. samples.csv
-4. experiments.tsv.gz --> compressed to fit on github
-5. expression.csv
-6. mutations.csv _TBD_
-7. copynumber.csv _TBD_
+4. experiments.csv.gz --> compressed to fit on github
+5. transcriptomics.csv.gz
+6. mutations.csv.gz 
+7. copy_number.csv.gz
+8. methylation.csv.gz
+9. mirnas.csv.gz
 
 ## Building the data model
 The data model requires four steps, that need to be run in order
