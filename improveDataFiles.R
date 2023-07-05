@@ -10,115 +10,22 @@ options(timeout=10000)
 
 ##load in gene/sample files
 if(!exists('improve_genes'))
-  improve_genes<<-read.csv('../data/genes.csv')
+  improve_genes<<-read.csv('../cell_line/genes.csv')
 if(!exists('improve_samples'))
-   improve_samples<<-read.csv('../data/samples.csv')
+   improve_samples<<-read.csv('../cell_line/samples.csv')
 if(!exists('improve_drugs')){
   ##load in initial drug file
- # improve_drugs<<-read.table('../data/drugs.tsv.gz',sep='\t',header=T,quote='',comment.char='')
+ # improve_drugs<<-read.table('../cell_line/drugs.tsv.gz',sep='\t',header=T,quote='',comment.char='')
 }
 
+#' lookupDrug
 
-#'
-#'
-#' #' find missing drugs
-#' #'
-#' findMissingDrugs<-function(druglist){
-#'   ##these are drugs that were missed the first time
-#'   ##lets divude queries into 500 because it's easier
-#'   qsize=500
-#'   res<-NULL
-#'   reps<-round(length(druglist)/qsize)
-#'   allvals<-do.call(rbind,lapply(1:max(reps,1),function(i,qsize,druglist){
-#' #  for(i in 1:max(reps,1)){
-#'     ##get a subset of the list
-#'     newlist=druglist[(1+qsize*(i-1)):min(qsize*i,length(druglist))]
-#'
-#'     #query pubchem for CIDs
-#'     pubchem_id<-webchem::get_cid(newlist)%>%
-#'       rbind(.,webchem::get_cid(newlist,domain='substance'))|>
-#'       dplyr::rename(common_name='query',pubchem_id='cid')%>%
-#'       subset(!is.na(pubchem_id))
-#'
-#'     missed_ids <-setdiff(newlist,pubchem_id$common_name)
-#'     print(paste('found',nrow(pubchem_id),'new drugs, missed',length(missed_ids),'trying to find NSC'))
-#'
-#'     nscs<-missed_ids[grep('NSC-',missed_ids)]
-#'     if(length(nscs)>0){
-#'       nsc_val=do.call(rbind,lapply(nscs, function(x){
-#'         data.frame(common_name=x,query=c(gsub('-','',x),gsub('-',' ',x)))
-#'       }))##first create substute values
-#'       ##do new query
-#'       new_id=webchem::get_cid(nsc_val$query)|>
-#'         rbind(.,webchem::get_cid(nsc_val$query,domain='substance'))|>
-#'         dplyr::rename(pubchem_id='cid')|>
-#'         subset(!is.na(pubchem_id))
-#'       if(nrow(new_id)>0){
-#'         print(paste('found',nrow(new_id),'missing ids'))
-#'         full_id<-nsc_val|>
-#'           dplyr::inner_join(new_id)|>
-#'           dplyr::select(-query)|>
-#'           distinct()
-#'         pubchem_id=rbind(pubchem_id,full_id)
-#'       }
-#'     }
-#'         # print(pubchem_id)
-#'
-#'
-#'     if(nrow(pubchem_id)==0){ ## if we found no new drugs in pubchem, we need to create some
-#'       print("no new drugs found in pubchem")
-#'      next
-#'       }
-#'        #now get chemical properties
-#'     qres<-webchem::pc_prop(pubchem_id$pubchem_id,
-#'                              properties=c('MolecularFormula','MolecularWeight',
-#'                                           'CanonicalSMILES','IsomericSMILES','InChIKey',
-#'                                           'IUPACName'))
-#'
-#'     #also get chemical synonyms
-#'     qsyn<-webchem::pc_synonyms(pubchem_id$pubchem_id,from='cid',match='all')
-#'     #keep all synonyms for future lookup
-#'     syntab<-do.call('rbind',lapply(names(qsyn),function(x)
-#'         return(data.frame(chem_name=tolower(qsyn[[x]]),pubchem_id=x))))
-#'
-#'     ##now add in the IUPAC names
-#'     names_only<-qres|>
-#'       dplyr::select(pubchem_id=CID,chem_name=IUPACName)|>
-#'       rbind(syntab)|>
-#'       distinct()
-#'
-#'       ##join toegether properties and synonyms
-#'     props<-qres%>%
-#'         subset(!is.na(CID))%>%
-#'         mutate(pubchem_id=as.character(CID))%>%
-#'         dplyr::select(pubchem_id,formula='MolecularFormula',
-#'                       weight='MolecularWeight',canSMILES='CanonicalSMILES',
-#'                       isoSMILES='IsomericSMILES',InChIKey='InChIKey')%>%
-#'         left_join(names_only)%>%
-#'         mutate(improve_drug_id=paste0('PC_',pubchem_id))%>%
-#'         dplyr::select(-pubchem_id)
-#'
-#'     ##now append the missing
-#'     #missing<-setdiff(tolower(newlist),tolower(props$chem_name))
-#'
-#'    # print(paste("still missing",length(missing),'drug names, creating ids'))
-#'     print(head(props))
-#'     print(paste("Found",nrow(props),'chem names and',length(unique(props$improve_drug_id)),'chemical'))
-#'
-#'
-#'     return(props)
-#'     },qsize,druglist)
-#'   )
-#'
-#'   return(allvals)
-#'
-#' }
-#'
+#' lookupSample
+
+#' getDrugData - this is a generic function that gets dose response data by drug or sample id
+#' or both
 
 
-#' loadNCI60data - nci60 dta has many many drugs thata re not searchable by pubchem
-#' Available at https://discover.nci.nih.gov/cellminerdata/download/NSC_QUERY_LIST.zip
-#' #
 
 #' buildDrugTable - This is a generic drug search function that
 #' returns the improve_drug_id for the specific drug of interest
@@ -129,8 +36,8 @@ buildDrugTable<-function(druglist){
   print(paste("Finding ids for",length(druglist),'drugs'))
 
   druglist<-unique(druglist)
-  if(file.exists('../data/drugs.tsv.gz')){
-      improve_drugs<<-read.table('../data/drugs.tsv.gz',sep='\t',header=T,comment.char = '',quote='')
+  if(file.exists('../cell_line/drugs.tsv.gz')){
+      improve_drugs<<-read.table('../cell_line/drugs.tsv.gz',sep='\t',header=T,comment.char = '',quote='')
 
       new_drugs<-setdiff(tolower(druglist),tolower(improve_drugs$chem_name))
       print(paste('of those drugs',length(new_drugs),'are not in database'))
