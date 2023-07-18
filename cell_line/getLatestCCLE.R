@@ -51,6 +51,10 @@ getProteomics<-function(){
     dplyr::distinct()
   write_csv(res,'proteomics.csv.gz')
 }
+
+
+
+
 ###run through each file and rewrite
 newres<-lapply(names(filenames),function(value){
 

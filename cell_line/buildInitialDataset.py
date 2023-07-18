@@ -43,7 +43,9 @@ for a in allfiles:
 ###step 5 concatenate all files
 os.system('cat *.0 > experiments.tsv')
 
-##step 6 zip up all files
+##step 6 zip up all files, upload them to fighsare
+
+##now fix drug identifiers
 
 
 ### step 7 store files (figshare? ftp?
