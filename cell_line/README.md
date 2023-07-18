@@ -13,7 +13,7 @@ Current expression data is pulled from DepMap.
 
 ### PharmacoGX processing
 
-One way to assemble these data is to use the PharmacoGX package and the curve fitting code. To do so, we have created custom scripts in the [../pgx](../pgx/) directory that collect the data available. Each dataset has slightly different data so we have collated it as needed and put it into the tables above.
+One way to assemble these data is to use the PharmacoGX package and the curve fitting code. To do so, we have created custom scripts in the [../pgx](../pgx/) directory that collect the data available. Since we are pulling molecular data from a single site, we 
 
 
 #### Curve fitting
