@@ -2,14 +2,18 @@
 
 This directory stores the data files and tools needed to wrangle the cell line files. We leverage CCLE data from DepMap for the gene expression data and PharmacoGX for the drug data
 
-### CCLE Data processing
-
 #### Sample mapping
 The sample mapping file is derived from the DepMap identifiers and cellosaurus for now. 
 
+### Cell line molecular data
+
+Current expression data is pulled from DepMap.
+
+
+
 ### PharmacoGX processing
 
-One way to assemble these data is to use the PharmacoGX package and the curve fitting code. To do so, we have created custom scripts in the [../pgx](../pgx/) directory that collect the data available. Each dataset has slightly different data so we have collated it as needed and put it into the tables above.
+One way to assemble these data is to use the PharmacoGX package and the curve fitting code. To do so, we have created custom scripts in the [../pgx](../pgx/) directory that collect the data available. Since we are pulling molecular data from a single site, we 
 
 
 #### Curve fitting
