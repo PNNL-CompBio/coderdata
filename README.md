@@ -39,8 +39,7 @@ Below is a description of how the data model is built.
 | Data model step | Description/Dependencies | Script | Destination | 
 | --- | --- | --- | --- |
 | Build cell line data | Runs through PGX and existing CCLE data to compile all values | [cell_line/buildInitialDataset.py](cell_line/buildInitialDataset.py) | [./cell_line] |
-| Build cptac data | This uses the genes files created in the [./cell_line] directory but generates additional samples. |
-[cptac/getCptacData.py](cptac/getCptacData.py) | [./cptac] |
+| Build cptac data | This uses the genes files created in the [./cell_line] directory but generates additional samples. | [cptac/getCptacData.py](cptac/getCptacData.py) | [./cptac] |
 | Get HCMI data | This uses a fixed manifest to download the data into the proper schema | TBD | [./hcmi] |
 
 
