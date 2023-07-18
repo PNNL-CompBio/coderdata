@@ -33,31 +33,18 @@ The files are comma-delimited and named follows:
 9. mirnas.csv.gz
 
 ## Building the data model
-The data model requires four steps, that need to be run in order
-because they depend on each other.
 
-| Data model step | Description/Dependencies| Script |
+| Data model step | Description/Dependencies| Script | Destination | 
 | --- | --- | --- |
-| Build gene table | Uses the BioConductor Entrez Gene DB Annotations to map identifiers| [data/initialGeneDB.R](./data/initialGeneDB.R) |
-| Build sample table | Uses DepMap and Cellosaurus to initialize cell line information. Other samples added later. | [data/initialSampleDB.R](./data/initialSampleDB.R) |
-| Add in drug data, gene-based data | drug data will run through PharmacoGX, being added on an as-needed basis | [processPGXData.py](./processPGXData.py)
+| Build cell line data | Runs through PGX and existing CCLE data to compile all values | [cell_line/buildInitialDataset.py](cell_line/buildInitialDataset.py)| [./cell_line]
+| Build cptac data | This uses tehe genes files created in the [./cell_line] directory but generates additional samples. |
+[cptac/getCptacData.py](cptac/getCptacData.py) | [./cptac]
+| Get HCMI data | This uses a fixed manifest to download the data into the proper schema | TBD | [./hcmi]
 | --- | --- | --- |
 
-### PharmacoGX processing
+## Current data 
+What data is stored here? 
 
-One way to assemble these data is to use the PharmacoGX package and the curve fitting code. To do so, we have created custom scripts in the [pgx](pgx/) directory that collect the data available. Each dataset has slightly different data so we have collated it as needed and put it into the tables above.
+## Using the data model
 
-#### Gene mapping 
-This set of scripts pulls data from pharmacoGX R package and formats each dataset to the schema above. 
-
-#### Sample mapping
-The sample mapping file is derived from the DepMap identifiers and cellosaurus for now. 
-
-#### Curve fitting
-The curve fitting is all run through a modified version of the code at the [curve repository](https://github.com/levinas/curve). 
-
-# Model-specific data files
-
-We then need to capture, for each deep learning model, the data necessary to train/build model. The code to do this should operate on the standard schema defined above so it can be re-run as we collect new data
-
-Once we get a basic schema assigned we can start to write this code.
+Files are stored on FigShare. We need to build a script that pulls those data as needed.
