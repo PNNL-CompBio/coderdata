@@ -1,6 +1,26 @@
 # Data Description
 
-This directory stores the data files and tools needed to wrangle the files. They can be easily downloaded from this GitHub site or the scripts can be run remotely. The data processing for CANDLE falls into two primary parts. The aggregated data schema, which stores all the data for training/test/validation and the model-specific data, which uses the aggregated data 
+This directory stores the data files and tools needed to wrangle the cell line files. We leverage CCLE data from DepMap for the gene expression data and PharmacoGX for the drug data
+
+### CCLE Data processing
+
+#### Sample mapping
+The sample mapping file is derived from the DepMap identifiers and cellosaurus for now. 
+
+### PharmacoGX processing
+
+One way to assemble these data is to use the PharmacoGX package and the curve fitting code. To do so, we have created custom scripts in the [../pgx](../pgx/) directory that collect the data available. Each dataset has slightly different data so we have collated it as needed and put it into the tables above.
+
+
+#### Curve fitting
+The curve fitting is all run through a modified version of the code at the [curve repository](https://github.com/levinas/curve). 
+
+# Model-specific data files
+
+We then need to capture, for each deep learning model, the data necessary to train/build model. The code to do this should operate on the standard schema defined above so it can be re-run as we collect new data
+
+Once we get a basic schema assigned we can start to write this code.
+
 
 ## Data Schema
 

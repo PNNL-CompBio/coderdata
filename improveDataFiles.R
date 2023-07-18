@@ -3,24 +3,39 @@
 require(webchem)
 library(dplyr)
 library(tidyr)
-
+library(readr)
 options(timeout=10000)
-
+library(rfigshare)
 ##load existing gene/sample/drug files
 
-##load in gene/sample files
+##load in gene/sample files directly from figshare
 if(!exists('improve_genes'))
   improve_genes<<-read.csv('../cell_line/genes.csv')
 if(!exists('improve_samples'))
-   improve_samples<<-read.csv('../cell_line/samples.csv')
+  # improve_samples<<-fs_download('40576103')#read.csv('../cell_line/samples.csv')
+  improve_samples<<-read_csv('cell_lines/samples.csv')
 if(!exists('improve_drugs')){
   ##load in initial drug file
- # improve_drugs<<-read.table('../cell_line/drugs.tsv.gz',sep='\t',header=T,quote='',comment.char='')
+  improve_drugs<<-read.table('cell_line/drugs.tsv.gz',sep='\t',header=T,quote='',comment.char='')
+}
+if(!exists('experiments')){
+  experiments <<-readr::read_tsv('cell_line/experiments.tsv.gz')
 }
 
+
 #' lookupDrug
+getDataForDrug<-function(drug_name){
+
+
+}
+
 
 #' lookupSample
+getDataForSample<-function(sample_name){
+
+
+}
+
 
 #' getDrugData - this is a generic function that gets dose response data by drug or sample id
 #' or both
