@@ -53,6 +53,8 @@ ct_vals={'brca':'Breast carcinoma','ccrcc':'Clear cell renal cell carcinoma','co
          'endometrial':'Endometrial carcinoma','gbm':'Glioblastoma','hnscc':'Head and neck squamous cell carcinoma',\
          'lscc':'Lung squamous cell carcinoma','luad':'Lung adenocarcinoma','ovarian':'Ovarian carcinoma',\
          'pdac': 'Pancreatic ductal adenocarcinoma'}
+
+
 def buildTumorSampleTable(sample_names,cancer_type):
     '''
     we have to read in existing sample information first to see if it is part of the samples
@@ -105,9 +107,20 @@ def formatData(df,dtype,ctype,samp_names):
 
     genes.index=genes.gene_symbol
     mlongdf = blongdf.join(genes,on='gene_symbol',how='left',lsuffix='.e',rsuffix='.m') ##fix this
-    return mlongdf[['entrez_id','improve_sample_id',dtype]].drop_duplicates()
-
-     
+    
+    mlongdf = mlongdf[['entrez_id','improve_sample_id',dtype]].drop_duplicates()
+    ##if its copy number we need to include copy number call
+    if ctype=='CNV': ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
+    #  mlongdf[['copy_call']] = 
+    #  dplyr::mutate(copy_call=ifelse(copy_number<0.5210507,'deep del',
+    #                                 ifelse(copy_number<0.7311832,'het loss',
+    #                                        ifelse(copy_number<1.214125,'diploid',
+    #                                               ifelse(copy_number<1.422233,'gain','amp')))))|>
+   
+    
+    mlongdf[['source']] = 'CPTAC'
+    mlongdf[['study']] = 'CPTAC3'
+    return mlongdf
 
      
 def main():
