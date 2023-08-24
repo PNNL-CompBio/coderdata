@@ -31,9 +31,9 @@ ggsave('cancerDataAvailable.pdf',fig1,height=5)
 ##now get molecular data
 
 gex<-readr::read_csv('cptac/transcriptomics.csv.gz')|>
-  dplyr::rename(expression='transcriptomics')|>
-  rbind(readr::read_csv('cell_line/expression.csv.gz')|>
-        dplyr::select(entrez_id,improve_sample_id,expression))|>
+ # dplyr::rename(expression='transcriptomics')|>
+  rbind(readr::read_csv('cell_line/transcriptomics.csv.gz')|>
+        dplyr::select(entrez_id,improve_sample_id,transcriptomics))|>
   subset(improve_sample_id%in%dual_dat$improve_sample_id)
 
 
@@ -41,8 +41,8 @@ mx<-function(x){  mean(x[is.finite(x)],na.rm=T)}
 
 gmat<-gex|>
   subset(!is.na(entrez_id))|>
-  tidyr::pivot_wider(names_from='improve_sample_id',values_from='expression',
-                     values_fn=list(expression=mx),values_fill=0.0)|>
+  tidyr::pivot_wider(names_from='improve_sample_id',values_from='transcriptomics',
+                     values_fn=list(transcriptomics=mx),values_fill=0.0)|>
   tibble::column_to_rownames('entrez_id')
 
 library(ggfortify)

@@ -1,28 +1,30 @@
 
 library(readr)
 library(tidyr)
-
+library(dplyr)
 ###first reqad in all gene information so we can map appropriately
-allgenes = read_csv("https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/data/genes.csv")
+allgenes = read_csv("https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/cell_line/genes.csv")
 genes = allgenes|>
   dplyr::select(gene_symbol,entrez_id)|>
   dplyr::distinct()
 
 
+
 ##here are the improve sample id indices
-samples = read_csv('https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/data/samples.csv',
+samples = read_csv('https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/cell_line/samples.csv',
                    quote='"')|>
-  dplyr::select(other_id,improve_sample_id)
+  dplyr::select(other_id,improve_sample_id)|>
+  unique()
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 ###PATH TO FILES
 ###THESE ARE FILES FROM THE DEPMAP repository from PRIAY
 basename='https://ftp.mcs.anl.gov/pub/candle/public/improve/Data/Omics/Curated_CCLE_Multiomics_files/'
-filenames=list(expression='CCLE_AID_expression_full.csv',
+filenames=list(transcriptomics='CCLE_AID_expression_full.csv',
                             copy_number='CCLE_AID_gene_cn.csv',
                             methylation='CCLE_AID_RRBS_TSS_1kb_20180614.csv',
                            # proteins='CCLE_AID_RPPA_20180123.csv', #wont' work well because no gene identifiers
-                            mirnas='CCLE_AID_miRNA_20180525.csv',
+                            miRNA='CCLE_AID_miRNA_20180525.csv',
                             mutations='Mutation_AID_binary.csv')
 
 
@@ -49,17 +51,28 @@ getProteomics<-function(){
     dplyr::left_join(genes)|>
     dplyr::select(improve_sample_id,entrez_id,proteomics)|>
     dplyr::distinct()
-  write_csv(res,'proteomics.csv.gz')
+  write_csv(res,file=gzfile('proteomics.csv.gz'))
 }
 
 
+mirnaFixing<-function(mirlist){
+
+  ##first let's get the prefix off
+  trimmed<-lapply(mirlist,function(x)
+    stringr::str_replace(x,'hsa-','')|>
+      stringr::str_replace_all('-','')|>
+      toupper())
+
+  newmap<-data.frame(old=mirlist,gene_symbol=unlist(trimmed))
+  return(newmap)
+}
 
 
 ###run through each file and rewrite
 newres<-lapply(names(filenames),function(value){
 
   fi=paste0(basename,filenames[[value]])
-  fname=paste0(value,'.csv')
+  fname=paste0(value,'.csv.gz')
   print(paste('now reading',fi,'to store as',fname))
   ##now every data type is parsed slightly differently, so we need to change our formatting
   ##and mapping to get it into a unified 3 column schema
@@ -113,8 +126,8 @@ newres<-lapply(names(filenames),function(value){
       res<-lapply(reps,function(x){
         print(x)
         cols<-seq(min(pat)+(x-1)*100,min(ncol(exp_file),min(pat)-1+(x)*100)) ##this can keep changing!
-        dres<-exp_file[,c('Entrez_id','Genome_Change',colnames(exp_file)[cols])]
-        ret <-tidyr::pivot_longer(dres,cols=c(3:ncol(dres)),names_to='other_id',values_to='num_muts')
+        dres<-exp_file[,c('Entrez_id','Genome_Change','Variant_Classification',colnames(exp_file)[cols])]
+        ret <-tidyr::pivot_longer(dres,cols=c(4:ncol(dres)),names_to='other_id',values_to='num_muts')
         #print(head(ret))
         ret|>
           subset(num_muts!=0)
@@ -123,52 +136,78 @@ newres<-lapply(names(filenames),function(value){
       res<-do.call(rbind,res)
       full<-res|>  ###since we're already in ENTREZ we skip the mapping below
         dplyr::left_join(samples)|>
-        dplyr::rename(entrez_id=Entrez_id,mutations=Genome_Change)|>
-        dplyr::select(entrez_id,improve_sample_id,mutations)|>
+        dplyr::rename(entrez_id=Entrez_id,mutations=Genome_Change,variant_classification=Variant_Classification)|>
+        dplyr::select(entrez_id,improve_sample_id,mutations,variant_classification)|>
          dplyr::mutate(source='DepMap',study='CCLE')|>
         dplyr::distinct()
 
         write_csv(full,file=fname)
         return(fi)
     }
-    else if(value=='expression'){ #if gene expression
+    else if(value=='transcriptomics'){ #if gene expression
       exp_file <- readr::read_csv(fi,skip=2)
 
       res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
-                                names_to='gene_symbol',values_to='expression',
+                                names_to='gene_symbol',values_to='transcriptomics',
                                 values_transform=list(expression=as.numeric))|>
         dplyr::left_join(genes)|>
         dplyr::distinct()
       colnames(res)[1]<-'other_id'
-      vars=c('expression')
+      vars=c('transcriptomics')
 
     }
-    else if(value=='mirnas'){ #if mirna expression
+    else if(value=='miRNA'){ #if mirna expression
       exp_file <- readr::read_csv(fi)
 
       res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
-                                names_to='gene_symbol',values_to='mirnas',values_transform=list(mirnas=as.numeric))|>
-        dplyr::left_join(genes)|>
-        dplyr::distinct()|>
-        dplyr::mutate(gene_symbol=tolower(gene_symbol))
+                                names_to='gene_symbol',values_to='miRNA',values_transform=list(mirnas=as.numeric))
+
+      gmod<-genes
+      gmod$gene_symbol<-tolower(gmod$gene_symbol)
+
+      res$gene_symbol<-tolower(res$gene_symbol)
+
+      res<-res|>
+        dplyr::left_join(gmod)|>
+        dplyr::distinct()
+        #dplyr::mutate(gene_symbol=tolower(gene_symbol))
+
+      missed<-subset(res,is.na(entrez_id))
+      notmissed<-subset(res,!is.na(entrez_id))
+      print(paste("matched",length(unique(notmissed$gene_symbol)),'miRNAs and missed',length(unique(missed$gene_symbol))))
+
+      ##mirfix
+      mirmap<-mirnaFixing(unique(missed$gene_symbol))
+      fixed<-missed|>
+        dplyr::rename(old='gene_symbol')|>
+        dplyr::select(-entrez_id)|>
+        left_join(mirmap)|>
+        left_join(genes)
+      notmissed<-fixed|>
+        subset(!is.na(entrez_id))|>
+        dplyr::select(-old)|>
+        rbind(notmissed)
+
+      missed<-subset(fixed,is.na(entrez_id))
+      print(paste("after second pass, matched",length(unique(notmissed$gene_symbol)),'miRNAs and missed',length(unique(missed$gene_symbol))))
 
       colnames(res)[1]<-'other_id'
-      vars=c('mirnas')
+      vars=c('miRNA')
 
     }
-    else if(value=='proteins'){ #if protein expression
-      exp_file <- readr::read_csv(fi)
-      ###WARNING: this will not match most genes!!! no gene names are provided!!!
-      res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
-                                names_to='gene_symbol',values_to='proteins',
-                                values_transform=list(proteins=as.numeric))|>
-        dplyr::left_join(genes)|>
-        dplyr::distinct()|>
-        dplyr::mutate(gene_symbol=toupper(gene_symbol))
-
-      colnames(res)[1]<-'other_id'
-      vars=c('proteins')
-    }
+    # else if(value=='proteins'){ #if protein expression
+    #   exp_file <- readr::read_csv(fi)
+    #   ###WARNING: this will not match most genes!!! no gene names are provided!!!
+    #   res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
+    #                             names_to='gene_symbol',values_to='proteins',
+    #                             values_transform=list(proteins=as.numeric))|>
+    #     dplyr::left_join(genes)|>
+    #     dplyr::distinct()|>
+    #     dplyr::mutate(gene_symbol=toupper(gene_symbol))
+    #
+    #   colnames(res)[1]<-'other_id'
+    #   vars=c('proteomics')
+    # }
 
   ##do the last join with samples
   full<-res|>
@@ -177,7 +216,7 @@ newres<-lapply(names(filenames),function(value){
     dplyr::distinct()|>
     dplyr::mutate(source='DepMap',study='CCLE')
 
-  write_csv(full,file=fname)
+  write_csv(full,file=gzfile(fname))
   return(fi)
 
 })
