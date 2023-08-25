@@ -14,6 +14,7 @@ import gzip
 genes = pd.read_csv('https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/cell_line/genes.csv')
 
 ##read in samples, get max value
+#global samples, maxval
 if os.path.exists('./samples.csv'):
     samples = pd.read_csv('./samples.csv')
     maxval = max(samples.improve_sample_id)
