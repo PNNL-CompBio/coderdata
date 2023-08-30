@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - JJ_hcmi_branch
 
 jobs:
   build:
