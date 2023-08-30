@@ -637,17 +637,21 @@ def main():
     metadata = use_gdc_tool(args.manifest, args.type, download_data=download_option)
 
     # Extract data files
+    print("running 'get_clean_files' function...")
     data_files = get_clean_files(args.type)
 
     # Retrieve figshare gene data for entrez map
+    print("running 'retrieve_figshare_data' function")
     gene_url = "https://figshare.com/ndownloader/files/40576109?private_link=525f7777039f4610ef47"
     entrez_map_file = retrieve_figshare_data(gene_url)
     
 
     # Combine the data
+    print("running 'map_and_combine' function")
     combined_data = map_and_combine(data_files, args.type, metadata, entrez_map_file)
 
     # Save to CSV
+    print("running 'write_dataframe_to_csv' function")
     write_dataframe_to_csv(combined_data, args.outname)
     
     
@@ -656,11 +660,8 @@ def main():
 #     url = upload_to_figshare(args.outname, args.outname, token)
 #     print(f"Article published at: {url}")
 
-    print("attempting to push")
-#     push_to_figshare(args.outname, args.outname, token)
-    
    
-
+    print("running 'upload_to_figshare' function")
     upload_to_figshare(token, args.outname, args.outname)
 
 
