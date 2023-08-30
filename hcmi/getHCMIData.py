@@ -378,6 +378,7 @@ def main():
     tc = ['transcriptomics', 'copy_number', 'mutations']
     parser.add_argument('-t', '--type', help='Type of data (e.g., transcriptomics, copy_number)',choices = tc, required=True)
     parser.add_argument('-o', '--outname', help='Output CSV Name', required=True)
+    parser.add_argument('-z', '--token', help='figshare token ID', required=True)
     args = parser.parse_args()
     
         
@@ -414,7 +415,7 @@ def main():
     
     
     print("Data processing complete!")
-    token = "f356c7e4b66b50867b279bd16b78d2d81e0c420e9bda39074573e7b9426dae01535f51ba03190177a90b22dda514423135aaa13bdd347917a023cd2fe25a832c"
+    token = args.token
 
    
     print("running 'upload_to_figshare' function")
