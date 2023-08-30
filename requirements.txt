@@ -1,0 +1,10 @@
+subprocess
+pandas==1.5.3
+shutil
+stat
+gzip
+wget==3.2
+argparse
+math
+hashlib
+
