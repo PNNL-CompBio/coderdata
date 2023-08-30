@@ -23,6 +23,11 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+    - name: Data Generation and Push (mutations)
+      run: |
+        echo "Mutations Processing"
+        python hcmi/getHCMIData.py -m hcmi/mutations_manifest_gdc.txt -t mutations -o mutations_hcmi.csv
+
     - name: Data Generation and Push (copy number)
       run: |
         echo "Copy number Processing"
@@ -32,9 +37,4 @@ jobs:
       run: |
         echo "Transcriptomics processing"
         python hcmi/getHCMIData.py -m hcmi/transcriptomics_manifest_gdc.txt -t transcriptomics -o transcriptomics_hcmi.csv
-
-    - name: Data Generation and Push (mutations)
-      run: |
-        echo "Mutations Processing"
-        python hcmi/getHCMIData.py -m hcmi/mutations_manifest_gdc.txt -t mutations -o mutations_hcmi.csv
 
