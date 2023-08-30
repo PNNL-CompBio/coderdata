@@ -609,19 +609,6 @@ def main():
     parser.add_argument('-o', '--outname', help='Output CSV Name', required=True)
     args = parser.parse_args()
     
-#     if bool(args.manifest) == bool(args.manifestfolder):  # Exactly one is required. Use Folder when data is already downloaded.
-#         parser.error("Exactly one of --manifest or --manifestfolder is required.")
-
-#     if bool(args.manifest):
-#         download_option = True
-#         manifest = args.manifest
-#         # Ensure gdc-client is available and download if not.
-#         ensure_gdc_client()
-#     elif bool(args.manifestfolder):
-#         download_option = False
-#         manifest = args.manifestfolder
-#         print("Using provided manifest folder without downloading data...")
-        
         
     if bool(args.manifestfolder):
         download_option = False
