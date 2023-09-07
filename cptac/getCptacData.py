@@ -25,9 +25,10 @@ else:
 
 
 
-def reclass_var(variant):
+def reclass_var(arr):
     # the dictionary started with
     # CCLE data
+    newarr=[]
     variant_schema = {"3'UTR":["3'UTR"],\
                       "5'Flank":["5'Flank"],\
                       "5'UTR": ["5'UTR"], \
@@ -46,17 +47,26 @@ def reclass_var(variant):
                       'RNA':['RNA'],\
                       'Start_Codon_SNP':['START_CODON_SNP','Start_Codon_SNP'],\
                       'Start_Codon_Del':['Start_Codon_Del'],\
-                      'Start_Codon_Ins':['Start_Codon_Ins'],\
+                      'Start_Codon_Ins':['Start_Codon_Ins','START_CODON_INS'],\
                       'Stop_Codon_Del' :['Stop_Codon_Del'],\
                       'Stop_Codon_Ins' :['Stop_Codon_Ins'],\
                       'Silent':['Silent'],\
                       'Splice_Site':['Splice_Site'],\
                       'Translation_Start_Site':['Translation_Start_Site']}
-    for key,var in variant_schema.items():
-        if variant in var:
-            return(key)
-    print("Variant "+variant+' not found, returning undetermined')
-    return('Undetermined')
+    #there has to be a better way to loop through each element of the dictionary
+    #but here we are
+    for a in arr:
+        found = False
+        for key,var in variant_schema.items():
+            if a in var:
+                newarr.append(key)
+                found = True
+        if not found:
+            print("Variant "+a+' not found, returning undetermined')
+            newarr.append('Undetermined')
+    ##double check here
+    print('udpdated '+str(len(arr))+' old variants with '+str(len(newarr))+' new ones')
+    return newarr
 
 def getCancerObj(cancertype):
    # cptac.download(dataset=cancertype,source='harmonized',)
@@ -66,8 +76,6 @@ def getCancerObj(cancertype):
         dat = cptac.Ccrcc()
     elif cancertype == 'coad':
         dat = cptac.Coad()
-    elif cancertype == 'endometrial':
-        dat = cptac.Endometrial()
     elif cancertype == 'gbm':
         dat = cptac.Gbm()
     elif cancertype == 'hnscc':
@@ -144,11 +152,19 @@ def formatMutData(df,dtype,ctype,samp_names,source):
 
     blongdf = subset.join(improve_mapping,on='Patient_ID')
     blongdf.reset_index(drop=True)
-    
+
+
     blongdf[['source']]=source
     blongdf[['study']]='CPTAC3'
+    if(len(blongdf)) > 0:
+        blongdf[['new_class']] =  blongdf[['variant_classification']].apply(reclass_var)
+    else:
+        blongdf[['new_class']] = blongdf[['variant_classification']]
+    blongdf = blongdf.rename(columns={'variant_classification':'old_class',\
+                                      'new_class':'variant_classification',\
+                                      'entrez_gene':'entrez_id'})
     print(blongdf)
-    blongdf = blongdf[['improve_sample_id','entrez_gene','mutation','variant_classification','source','study']]
+    blongdf = blongdf[['improve_sample_id','entrez_id','mutation','variant_classification','source','study']]
     return blongdf
 
 def formatData(df,dtype,ctype,samp_names,source):
