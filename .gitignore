@@ -1,3 +1,10 @@
+*pdf
+*tsv
+*DoseResponse*
+*gz
+*rds
+*png
+.DS_Store
 .Rproj.user
 .Rhistory
 .RData
