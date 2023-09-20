@@ -91,6 +91,47 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, sample_map
     return final_dataframe
 
 
+def remove_sixth_from_last_quote(s):
+    reversed_s = s[::-1]  # Reverse the string
+    count = 0
+    index_to_remove = None
+    for i, char in enumerate(reversed_s):
+        if char == '"':
+            count += 1
+        if count == 6:
+            index_to_remove = i
+            break
+    # Remove the 6th occurrence of the quote character
+    if index_to_remove is not None:
+        reversed_s = reversed_s[:index_to_remove] + reversed_s[index_to_remove+1:]
+    return reversed_s[::-1]  # Reverse again to obtain the original order
+
+def modify_patient_file(file_path):
+    with open(file_path, 'r', encoding='ISO-8859-1') as f:
+        lines = f.readlines()
+    # Modify the 110th line (0-based index is 109)
+    lines[109] = remove_sixth_from_last_quote(lines[109])
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.writelines(lines)
+        
+def generate_samples_file():
+    file_path = 'PNNL_clinical_summary_12_08_2021_updated_OS_4patients_02_28_2022.txt'
+    modify_patient_file(file_path)
+    samples = pd.read_csv('PNNL_clinical_summary_12_08_2021_updated_OS_4patients_02_28_2022.txt', delimiter=' ', skipinitialspace=True, encoding='ISO-8859-1', quotechar='"')
+    maxval = max(pd.read_csv('https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/hcmi/samples.csv').improve_sample_id)
+    # Create a dictionary that maps unique lab-id values to sequential integers
+    mapping = {labId: i for i, labId in enumerate(samples['labId'].unique(), start=(int(maxval)+1))}
+    # Use the map method to create the new column based on the lab-id column
+    samples['improve_sample_id'] = samples['labId'].map(mapping)
+    samples = samples[["labId","improve_sample_id","specificDxAtInclusion","specimenType"]]
+    samples.rename(columns={"labId": "other_id"}, inplace=True)
+    samples.rename(columns={"specificDxAtInclusion": "other_names"}, inplace=True)
+    samples.rename(columns={"specimenType": "common_name"}, inplace=True)
+    samples["cancer_type"] = "ACUTE MYELOID LEUKAEMIA"
+    samples["model_type"] = "ex vivo"
+    samples["other_id_source"] = "beatAML"
+    samples.to_csv("samples.csv", index = False)
+    
 def retrieve_drug_info(compound_name):
     if pd.isna(compound_name):
         return np.nan, np.nan, np.nan, np.nan, np.nan
@@ -113,7 +154,6 @@ def retrieve_drug_info(compound_name):
         return canSMILES, isoSMILES, inchikey, formula, weight
     else:
         return np.nan, np.nan, np.nan, np.nan, np.nan
-
     
 def update_dataframe_with_pubchem(d_df):
     # Get unique chem_name values and retrieve their data
@@ -166,7 +206,6 @@ def format_drug_df(drug_path):
     d_df["chem_name"] = d_df["chem_name"].str.replace('\s-\s', ':')
     return d_df
 
-
 def add_improve_id(previous_df, new_df):
     
     # Extract the maximum value of improve_drug_id from the previous dataframe
@@ -190,6 +229,7 @@ def add_improve_id(previous_df, new_df):
     
     return new_df
 
+
 def map_exp_to_improve(df,improve_map_file):
     improve = pd.read_csv(improve_map_file)        # Map sample_id to improve_sample_id
     mapped_df = pd.merge(df, improve[['other_id', 'improve_sample_id']], left_on='sample_id', right_on='other_id', how='left')
@@ -208,8 +248,19 @@ def map_exp_to_improve(df,improve_map_file):
     return mapped_df
 
 
-
 if __name__ == "__main__":
+    
+    # Download Synapse Files
+    syn.get('syn51674470', downloadLocation='.')
+    syn.get('syn25714248', downloadLocation='.')
+    syn.get('syn32533104', downloadLocation='.')
+    syn.get('syn32529921', downloadLocation='.')
+    syn.get('syn26642974', downloadLocation='.')
+    syn.get('syn26427390', downloadLocation='.')
+    syn.get('syn26642974', downloadLocation='.')
+    
+    #Generate Samples File
+    generate_samples_file
     
     # Download required files. Files in github repo also required.
     gene_url = "https://figshare.com/ndownloader/files/40576109?private_link=525f7777039f4610ef47"
@@ -230,7 +281,7 @@ if __name__ == "__main__":
     p_df = pd.read_csv("ptrc_ex10_crosstab_global_gene_corrected.txt", sep = '\t')
     p_df = p_df.reset_index().rename(columns={'index': 'Protein'})
     p_df = pd.melt(p_df, id_vars=['Protein'], var_name='id', value_name='proteomics')
-    mapped_ids = pd.read_csv("Proteomic_sample_map_beatAML.csv")
+    mapped_ids = pd.read_excel("Data Available for Proteomic Samples.xlsx")
     p_df = map_and_combine(p_df, "proteomics", entrez_map_file, improve_map_file, mapped_ids)
     print("Writing proteomics.csv")
     p_df.to_csv("proteomics.csv", index=False)
