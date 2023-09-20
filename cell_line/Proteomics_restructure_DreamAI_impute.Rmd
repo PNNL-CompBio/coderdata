@@ -8,6 +8,25 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+# require("cluster")
+# require("survival")
+# require("randomForest")
+# require("missForest")
+# require("glmnet")
+# require("Rcpp")
+# require("foreach")
+# require("itertools")
+# require("iterators")
+# require("Matrix")
+# require("devtools")
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+# install.packages("BiocManager")
+# BiocManager::install("impute", version = "3.8")
+# require("impute")
+# 
+# require("remotes")
+# install_github("WangLab-MSSM/DreamAI/Code")
+
 library("DreamAI")
 
 ```
@@ -60,7 +79,7 @@ proteomics_filtered <- proteomics_data[, !remove_cols]
 # Convert the filtered data to a matrix and impute missing values
 matrix_proteomics <- as.matrix(proteomics_filtered)
 
-imputed_result <- DreamAI(matrix_proteomics, k=10, maxiter_MF = 10, ntree = 100, maxnodes = NULL, maxiter_ADMIN=30, tol=10^(-2), gamma_ADMIN=NA, gamma=50, CV=FALSE, fillmethod="row_mean", maxiter_RegImpute=10, conv_nrmse = 1e-6, iter_SpectroFM=40, method = c("KNN"), out="Ensemble")
+imputed_result<- DreamAI(matrix_proteomics,k=10,maxiter_MF = 10, ntree = 100,maxnodes = NULL,maxiter_ADMIN=30,tol=10^(-2),gamma_ADMIN=NA,gamma=50,CV=FALSE,fillmethod="row_mean",maxiter_RegImpute=10,conv_nrmse = 1e-6,iter_SpectroFM=40, method = c("KNN", "MissForest", "ADMIN", "Birnn", "SpectroFM", "RegImpute"),out="Ensemble")
 
 # Convert imputed results to a data frame
 proteomics_imputed <- as.data.frame(imputed_result$Ensemble)
@@ -94,7 +113,7 @@ proteomics_imputed[1:3,1] <- NA
 proteomics_imputed
 #Save the results
 # 
-write.table(proteomics_imputed, "proteomics_restructure_with_knn_impute.tsv",sep="\t",row.names = FALSE,col.names = FALSE,na = "",quote = FALSE)
+write.table(proteomics_imputed, "proteomics_restructure_with_full_impute.tsv",sep="\t",row.names = FALSE,col.names = FALSE,na = "",quote = FALSE)
 
 
 
