@@ -240,21 +240,27 @@ def main():
         dat = getCancerObj(cancertype)
         #dat = dat['mssm']
         ##get the tumor sample identifiers
-        tumor_samps = dat.get_clinical()#.Sample_Tumor_Normal=='Tumor'
-        tumor_samps = list(tumor_samps.index)
+
 
         ##get available data for cancer
         #this call changed in recent version
         dat_list = dat.list_data_sources().set_index('Data type').to_dict()['Available sources']
+        clinsource = dat_list['clinical']
+        if 'harmonized' in clinsource:
+            cs = 'harmonized'
+        else:
+            cs = clinsource[0]
+        tumor_samps = dat.get_clinical(cs)#.Sample_Tumor_Normal=='Tumor'
+        tumor_samps = list(tumor_samps.index)        
         #print(dat_list)
         all_dfs = {}
         all_sources = {} ##keep track of sources for long table
         ##all the data types we're collecting so far
-        for dtype in ['somatic_mutation','proteomics','transcriptomics','CNV']: #'miRNA doesnt work
+        for dtype in ['miRNA']:#,'somatic_mutation','proteomics','transcriptomics','CNV']: #'miRNA doesnt work
             if dtype not in dat_list.keys():
                 continue
             ###figure out whic source, prioritize harmonized when available
-            source_list = dat_list[dtype].split(',')
+            source_list = dat_list[dtype]
             if 'harmonized' in source_list:
                 source = 'harmonized'
             else:
@@ -274,6 +280,7 @@ def main():
 
 
         for dtype,df in all_dfs.items():
+            #tumor_samps = [t for t in df.index]  ##clinical sample info broke, so used this as a bypass
             df = df.loc[[t for t in tumor_samps if t in df.index]] ##get the data for those samples
             #dfE = np.exp(df)
             #dfU = np.log(dfE.sum(axis=1, level=0, min_count=1))
