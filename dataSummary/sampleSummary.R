@@ -5,33 +5,73 @@ library(dplyr)
 library(readr)
 ##first we get sample files
 
-###get all samples and their metadata
-cptac<-readr::read_csv('../cptac/samples.csv')|>
-  mutate(cancer_type=stringr::str_replace_all(cancer_type,'Head and Neck','Head and neck'))
+mergeSamples<-function(){
 
-cell_line<-readr::read_csv('../cell_line/samples_curated.csv')
+  ##this file tries to map as many cancer types as possible to groups
+  cmaps<-readr::read_csv('../cellLineTypes.csv')
 
-allec<-grep('Endometrial',cell_line$cancer_type)
-cell_line$cancer_type[allec]<-'Uterine Corpus Endometrial Carcinoma'
+  ###cptac dta
+  cptac<-readr::read_csv('../cptac/samples.csv')|>
+    mutate(cancer_type=stringr::str_replace_all(cancer_type,'Head and Neck','Head and neck'))|>
+    mutate(cancer_type=stringr::str_replace_all(cancer_type,'Colon','Colorectal'))|>
+    mutate(cancer_type=stringr::str_replace_all(cancer_type,'Uterine Corpus Endometrial Carcinoma','Uterine corpus endometrial carcinoma'))|>
+    dplyr::mutate(`CPTAC Cancer type`=cancer_type)|>
+    left_join(cmaps)|>
+    mutate(sampleSource='CPTAC')
+
+  ##cell line data
+  cell_line<-readr::read_csv('../cell_line/samples.csv')|>
+    dplyr::mutate(`Cell line cancer type`=cancer_type)|>
+    mutate(sampleSource='CCLE')
+
+  allec<-grep('Endometrial',cell_line$`Cell line cancer type`)
+  cell_line$`Cell line cancer type`[allec]<-'Uterine corpus endometrial carcinoma'
+
+  cell_line<-cell_line|>
+    left_join(cmaps)
+
+  ##hcmidata
+  hcmi<-readr::read_csv('../hcmi/samples.csv')|>
+    dplyr::rename(id_source='other_id_source')|>
+    mutate(species='human')|>
+    subset(model_type%in%c('3D Organoid','Solid Tissue','Adherent Cell Line'))|>
+    dplyr::mutate(`HCMI Cancer type`=cancer_type,`HCMI Common name`=common_name)|>
+    dplyr::mutate(model_type=stringr::str_replace_all(model_type,'Solid Tissue','Tumor'))|>
+    dplyr::mutate(model_type=stringr::str_replace_all(model_type,'Adherent Cell line','cell line'))|>
+    left_join(cmaps)|>
+    mutate(sampleSource='HCMI')
+
+  ##now rename samples
+  ##next up: beatAMLdata
 
 
-hcmi<-c()
+  ##also: TCGA data
 
-##now we join them into a single table, with cancer type
-fulldat<<-rbind(cptac,cell_line)|>
-  subset(!is.na(cancer_type))
+  ##now we join them into a single table, with cancer type
+  fulldat<<-rbind(cptac,cell_line,hcmi)|>
+    subset(!is.na(cancer_type))
 
-other_can <- setdiff(fulldat$cancer_type,cptac$cancer_type)
-fulldat[which(fulldat$cancer_type%in%other_can),'cancer_type']<-'Other cancer'
+  other_can <- setdiff(fulldat$cancer_type,cptac$cancer_type)
+  fulldat[which(fulldat$cancer_type%in%other_can),'cancer_type']<-'Other cancer'
 
+  fulldat<-fulldat|>
+    dplyr::rename(orig_cancer_type='cancer_type')|>
+    dplyr::rename(cancer_type='CPTAC Cancer type')
+
+  fulldat
+}
 ##how many cancers can we cover in tumor types
 #dual_dat <-subset(fulldat,cancer_type%in%setdiff(cptac$cancer_type,'Glioblastoma'))
 
 
+fulldat<-mergeSamples()
 ##looking for exact matches
 stats<-fulldat|>
+  subset(!is.na(cancer_type))|>
   group_by(cancer_type,model_type)|>
-  summarize(numSamps=n_distinct(improve_sample_id))
+  summarize(numSamps=n_distinct(improve_sample_id))|>
+  subset(model_type!='Not Reported')|>
+  subset(numSamps>1)
 
 fig1<-ggplot(stats,aes(x=cancer_type,y=numSamps,fill=model_type))+
   geom_bar(stat='identity',position='dodge')+
@@ -75,16 +115,17 @@ matFromDF<-function(gex,value){
   print('converting to matrix...')
   gmat<-gex|>
     dplyr::select('entrez_id','improve_sample_id',value)|>
+    distinct()|>
     subset(!is.na(entrez_id))|>
     dplyr::rename(eval=value)|>
-    # dplyr::select(entrez_id,improve_sample_id,eval)|>
+   # dplyr::select(entrez_id,improve_sample_id,eval)|>
     tidyr::pivot_wider(names_from='improve_sample_id',values_from='eval',
                        values_fn=list(eval=mx),values_fill=fill)|>
     tibble::column_to_rownames('entrez_id')
 
 
   md<-fulldat|>
-    dplyr::select(improve_sample_id,model_type,cancer_type)|>
+    dplyr::select(improve_sample_id,model_type,cancer_type,sampleSource)|>
     distinct()
 
   rav<-which(apply(gmat,1,function(x) any(is.na(x))))
@@ -105,7 +146,7 @@ matFromDF<-function(gex,value){
   gmat2<-gmat2[,pats]
 
   ##now let's save the matrix file
-  readr::write_csv(gmat2,file=paste0(value,'_inMatrixForm.csv'))
+  readr::write_csv(tibble::rownames_to_column(as.data.frame(gmat2),'gene'),file=paste0(value,'_inMatrixForm.csv'))
   return(gmat2)
 
 }
@@ -119,7 +160,7 @@ doPlotFromMat<-function(gmat2,value,suff=''){
 
 
   md<-fulldat|>
-    dplyr::select(improve_sample_id,model_type,cancer_type)|>
+    dplyr::select(improve_sample_id,model_type,cancer_type,sampleSource)|>
     distinct()
 
   print('calculating umap')
@@ -130,19 +171,19 @@ doPlotFromMat<-function(gmat2,value,suff=''){
                    y = ures$layout[,2],
                  subset(md,improve_sample_id%in%rownames(ures$layout)))
 
-  p1<-ggplot(udf,aes(x=x,y=y,col=cancer_type))+geom_point()+
+  p1<-ggplot(udf,aes(x=x,y=y,col=cancer_type,shape=sampleSource))+geom_point()+
     ggtitle(paste('UMAP of',value,'by cancer type'))
-  p2<-ggplot(udf,aes(x=x,y=y,col=model_type))+geom_point()+
+  p2<-ggplot(udf,aes(x=x,y=y,col=model_type,shape=sampleSource))+geom_point()+
     ggtitle(paste('UMAP of',value,'by model type'))
 
   ggsave(paste0(value,suff,'umapCancerTypeTypeDimRed.pdf'),p1,width=14)
   ggsave(paste0(value,suff,'umapCellTypeDimRed.pdf'),p2,width=10)
 
   rudf<-subset(udf,cancer_type!='Other cancer')
-  p1<-ggplot(rudf,aes(x=x,y=y,col=cancer_type))+geom_point()+
+  p1<-ggplot(rudf,aes(x=x,y=y,col=cancer_type,shape=sampleSource))+geom_point()+
     ggtitle(paste('UMAP of',value,'by cancer type'))
 
-  p2<-ggplot(rudf,aes(x=x,y=y,col=model_type))+geom_point()+
+  p2<-ggplot(rudf,aes(x=x,y=y,col=model_type,shape=sampleSource))+geom_point()+
     ggtitle(paste('UMAP of',value,'by model type'))
 
   ggsave(paste0(value,suff,'umapCancerTypeTypeDimRed_matched.pdf'),p1,width=14)
@@ -160,14 +201,14 @@ doPlotFromMat<-function(gmat2,value,suff=''){
 
   ggsave(paste0(value,suff,'tsneCancerTypeTypeDimRed.pdf'),p3,width=14)
 
-  p4<-ggplot(tdf,aes(x=x,y=y,col=model_type))+geom_point()+
+  p4<-ggplot(tdf,aes(x=x,y=y,col=model_type,shape=sampleSource))+geom_point()+
     ggtitle(paste('TSNE of',value,'by model type'))
   ggsave(paste0(value,suff,'tsneCellTypeDimRed.pdf'),p4,width=10)
 
   rtdf<-subset(tdf,cancer_type!='Other cancer')
-  p1<-ggplot(rtdf,aes(x=x,y=y,col=cancer_type))+geom_point()+
+  p1<-ggplot(rtdf,aes(x=x,y=y,col=cancer_type,shape=sampleSource))+geom_point()+
     ggtitle(paste('TSNE of',value,'by cancer type'))
-  p2<-ggplot(rtdf,aes(x=x,y=y,col=model_type))+geom_point()+
+  p2<-ggplot(rtdf,aes(x=x,y=y,col=model_type,shape=sampleSource))+geom_point()+
     ggtitle(paste('TSNE of',value,'by model type'))
   ggsave(paste0(value,suff,'tsneCancerTypeTypeDimRed_matched.pdf'),p1,width=14)
   ggsave(paste0(value,suff,'tsneCellTypeDimRed_matched.pdf'),p2,width=10)
@@ -182,6 +223,7 @@ plotTranscripts<-function(){
     # dplyr::rename(expression='transcriptomics')|>
     rbind(readr::read_csv('../cell_line/transcriptomics.csv.gz')|>
             dplyr::select(entrez_id,improve_sample_id,transcriptomics,source,study))|>
+    rbind(readr::read_csv('../hcmi/transcriptomics.csv'))|>
     subset(improve_sample_id%in%fulldat$improve_sample_id)
 
   ##filter for genes expressed in all samples
@@ -225,10 +267,12 @@ plotCopyNumber<-function(){
   cp<-readr::read_csv('../cptac/CNV.csv.gz')|>
     dplyr::rename(copy_number='CNV')
   cc<-readr::read_csv('../cell_line/copy_number.csv.gz')
-  cnv<-rbind(cp,cc)
+
+  ch<-readr::read_csv('../hcmi/copy_number.csv')
+  cnv<-rbind(cp,cc,ch)
 
   md<-fulldat|>
-    dplyr::select(improve_sample_id,model_type,cancer_type)|>
+    dplyr::select(improve_sample_id,model_type,cancer_type,sampleSource)|>
     #subset(improve_sample_id%in%fulldat$improve_sample_id)|>
     distinct()
 
@@ -237,8 +281,8 @@ plotCopyNumber<-function(){
     subset(!is.na(copy_call))|>
     left_join(md)
 
-  cdat<-cdat|>tidyr::replace_na(list(model_type='cell line'))|>
-    tidyr::replace_na(list(cancer_type='other'))
+ # cdat<-cdat|>tidyr::replace_na(list(model_type='cell line'))|>
+#    tidyr::replace_na(list(cancer_type='other'))
 
   p1<-ggplot(cdat,aes(x=cancer_type,fill=copy_call))+
     geom_bar(position='dodge')+
@@ -266,7 +310,12 @@ plotMutations<-function(){
    # dplyr::rename(entrez_id='entrez_gene')
   mut2<-readr::read_csv('../cell_line/mutations.csv.gz')|>
     dplyr::rename(mutation='mutations')
-  allmut<-rbind(mut,mut2)|>
+
+  mut3<-readr::read_csv('../hcmi/mutations.csv')|>
+    dplyr::rename(mutation='mutations')|>
+    dplyr::rename(variant_classification='variant_class')
+
+  allmut<-rbind(mut,mut2,mut3)|>
     left_join(fulldat)
 
   mp<-ggplot(subset(allmut,!is.na(model_type)),aes(x=variant_classification,fill=cancer_type))+geom_bar()+
@@ -284,6 +333,8 @@ plotMutations<-function(){
     mat<-matFromDF(df,'mutation')
     doPlotFromMat(mat,'mutation',vart)
   })
+
+  newmut
 }
 
 
