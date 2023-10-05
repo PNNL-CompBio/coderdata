@@ -60,8 +60,24 @@ mergeSamples<-function(){
 
   fulldat
 }
-##how many cancers can we cover in tumor types
-#dual_dat <-subset(fulldat,cancer_type%in%setdiff(cptac$cancer_type,'Glioblastoma'))
+###get all samples and their metadata
+cptac<-readr::read_csv('../cptac/samples.csv')|>
+  mutate(cancer_type=stringr::str_replace_all(cancer_type,'Head and Neck','Head and neck'))
+
+cell_line<-readr::read_csv('../cell_line/samples_curated.csv')
+
+allec<-grep('Endometrial',cell_line$cancer_type)
+cell_line$cancer_type[allec]<-'Uterine Corpus Endometrial Carcinoma'
+
+
+hcmi<-c()
+
+##now we join them into a single table, with cancer type
+fulldat<<-rbind(cptac,cell_line)|>
+  subset(!is.na(cancer_type))
+
+other_can <- setdiff(fulldat$cancer_type,cptac$cancer_type)
+fulldat[which(fulldat$cancer_type%in%other_can),'cancer_type']<-'Other cancer'
 
 
 fulldat<-mergeSamples()
@@ -72,6 +88,7 @@ stats<-fulldat|>
   summarize(numSamps=n_distinct(improve_sample_id))|>
   subset(model_type!='Not Reported')|>
   subset(numSamps>1)
+
 
 fig1<-ggplot(stats,aes(x=cancer_type,y=numSamps,fill=model_type))+
   geom_bar(stat='identity',position='dodge')+
@@ -147,6 +164,7 @@ matFromDF<-function(gex,value){
 
   ##now let's save the matrix file
   readr::write_csv(tibble::rownames_to_column(as.data.frame(gmat2),'gene'),file=paste0(value,'_inMatrixForm.csv'))
+
   return(gmat2)
 
 }
@@ -224,6 +242,7 @@ plotTranscripts<-function(){
     rbind(readr::read_csv('../cell_line/transcriptomics.csv.gz')|>
             dplyr::select(entrez_id,improve_sample_id,transcriptomics,source,study))|>
     rbind(readr::read_csv('../hcmi/transcriptomics.csv'))|>
+
     subset(improve_sample_id%in%fulldat$improve_sample_id)
 
   ##filter for genes expressed in all samples
@@ -284,6 +303,7 @@ plotCopyNumber<-function(){
  # cdat<-cdat|>tidyr::replace_na(list(model_type='cell line'))|>
 #    tidyr::replace_na(list(cancer_type='other'))
 
+
   p1<-ggplot(cdat,aes(x=cancer_type,fill=copy_call))+
     geom_bar(position='dodge')+
     scale_y_log10()+
@@ -316,6 +336,7 @@ plotMutations<-function(){
     dplyr::rename(variant_classification='variant_class')
 
   allmut<-rbind(mut,mut2,mut3)|>
+
     left_join(fulldat)
 
   mp<-ggplot(subset(allmut,!is.na(model_type)),aes(x=variant_classification,fill=cancer_type))+geom_bar()+
@@ -335,6 +356,7 @@ plotMutations<-function(){
   })
 
   newmut
+
 }
 
 
