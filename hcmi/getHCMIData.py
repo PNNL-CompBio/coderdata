@@ -242,6 +242,38 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     
     return final_dataframe
 
+def download_from_github(raw_url, save_path):
+    """ 
+    Download a file from github.
+    
+    This will use requests to pull a file from github and save it locally.
+    
+    Parameters
+    ----------
+    raw_url : string
+        github url to download from
+        
+    save_path : string
+        path of location to save file to
+        
+    Returns
+    -------
+    None
+    """
+    response = requests.get(raw_url)
+    with open(save_path, 'wb') as f:
+        f.write(response.content)
+    return
+
+def align_to_schema(data):
+    samples_path = "samples_new_version.csv"
+    samples_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/hcmi_update/hcmi/samples_new_version.csv"
+    download_from_github(samples_url, samples_path)
+    samples = pd.read_csv(samples_path)   
+    data = data[["entrez_id","transcriptomics","source","study","aliquot_id"]]
+    merged_data = pd.merge(samples[['improve_sample_id', 'other_id']], data, left_on='other_id', right_on='aliquot_id', how='inner')
+    merged_data.drop(columns=['aliquot_id'], inplace=True)
+    return merged_data
 
 def write_dataframe_to_csv(dataframe, outname):
     """
@@ -360,7 +392,7 @@ def upload_to_figshare(token, title, filepath):
     publish_article(token,article_id)
         
     
-
+   
 def main():
     """
     Main function to orchestrate the data processing.
@@ -408,21 +440,24 @@ def main():
     # Combine the data
     print("running 'map_and_combine' function")
     combined_data = map_and_combine(data_files, args.type, metadata, entrez_map_file)
-
-    # Save to CSV
-    print("running 'write_dataframe_to_csv' function")
-    write_dataframe_to_csv(combined_data, args.outname)
     
-    
-    print("Data processing complete!")
-    token = args.token
+    # Final formatting
+    final_data = align_to_schema(combined_data)
 
-   
-    print("running 'upload_to_figshare' function")
-    upload_to_figshare(token, args.outname, args.outname)
+
+#     # Save to CSV
+#     print("running 'write_dataframe_to_csv' function")
+#     write_dataframe_to_csv(final_data, args.outname)
+    
+#     print("Data processing complete!")
+#     token = args.token
+
+#     print("running 'upload_to_figshare' function")
+#     upload_to_figshare(token, args.outname, args.outname)
 
 
 
 if __name__ == "__main__":
     main()
     
+   
