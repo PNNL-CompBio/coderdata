@@ -1,5 +1,8 @@
-## CANDLE Data Processing
+## Cancer drug benchmark dataset
 
+There is a recent explosion of deep learning algorithms that 
+
+This package collects diverse sets of paired molecular datasets with corresponding drug sensitivity data. All data here is reprocessed and standardized so it can be easily used as a benchmark dataset for the 
 This repository leverages existing datasets to collect the data
 required for CANDLE data analysis. Since each deep learning model
 requires distinct data capabilities, the goal of this repository is to
