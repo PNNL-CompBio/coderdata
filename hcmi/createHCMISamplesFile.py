@@ -3,22 +3,21 @@ import requests
 
 def download_from_github(raw_url, save_path):
     """ 
-    Download a file from github.
-    
-    This will use requests to pull a file from github and save it locally.
+    Download a file from a raw GitHub URL and save it to a local path.
     
     Parameters
     ----------
     raw_url : string
-        github url to download from
+        The raw GitHub URL to download the file from.
         
     save_path : string
-        path of location to save file to
+        Local path where the downloaded file will be saved.
         
     Returns
     -------
     None
     """
+    
     response = requests.get(raw_url)
     with open(save_path, 'wb') as f:
         f.write(response.content)
@@ -48,7 +47,7 @@ def fetch_metadata_for_samples(uuids):
     """
     Fetch metadata for given UUIDs.
     
-    Takes a list of UUIDs and fetches metadata from the GDC Portal
+    This function makes a POST request to the GDC API endpoint to fetch relevant metadata for the provided UUIDs.
     
     Parameters
     ----------
@@ -57,7 +56,8 @@ def fetch_metadata_for_samples(uuids):
 
     Returns
     -------
-    JSON Request Data
+    dict 
+        JSON Request Data
     """
     
     endpoint = "https://api.gdc.cancer.gov/files"
@@ -157,6 +157,31 @@ def filter_and_subset_data(df):
 
 
 def main():
+    """
+    Retrieve and process HCMI (Human Cancer Models Initiative) samples metadata from GDC (Genomic Data Commons).
+    Create samples.csv file for schema.
+
+    This function automates the workflow of:
+    1. Downloading a manifest file from the GitHub repository.
+    2. Extracting UUIDs (Unique Universal Identifiers) from the manifest.
+    3. Fetching the metadata for the samples corresponding to the UUIDs from GDC API via POST request.
+    4. Structuring the fetched metadata into a pandas dataframe.
+    5. Filtering and subsetting the dataframe to align with the schema.
+    6. Writing the processed dataframe to a CSV file.
+
+    Notes:
+    ------
+    The GDC API is publicly accessible, so no authentication is required.
+
+    To Run:
+    --------
+    python createHCMISamplesFile.py
+
+    Output:
+    -------
+    A local CSV file named 'samples.csv' containing the processed metadata.
+    """
+    
     manifest_path = "full_manifest.txt"
     manifest_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/hcmi_update/hcmi/full_manifest.txt"
     download_from_github(manifest_url, manifest_path)
@@ -164,7 +189,10 @@ def main():
     metadata = fetch_metadata_for_samples(uuids)
     df = extract_data(metadata)
     output = filter_and_subset_data(df)
-    output.to_csv("samples_new_version.csv",index=False)
+    output.to_csv("samples.csv",index=False)
 
     
 main()
+
+
+
