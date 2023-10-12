@@ -7,19 +7,31 @@ library(readr)
 
 mergeSamples<-function(){
 
-  ##this file tries to map as many cancer types as possible to groups
+  ##########################
+  ## CANCER NAME MAPPING FILE
+  ##this file tries to map as many cancer types as possible to groups that span model systems
+  ###########################
   cmaps<-readr::read_csv('../cellLineTypes.csv')
 
-  ###cptac dta
+  ###########################
+  ## CPTAC SAMPLE DATA
+  ## Primary task here is to fix the capitalizations
+  ###########################
   cptac<-readr::read_csv('../cptac/samples.csv')|>
     mutate(cancer_type=stringr::str_replace_all(cancer_type,'Head and Neck','Head and neck'))|>
     mutate(cancer_type=stringr::str_replace_all(cancer_type,'Colon','Colorectal'))|>
     mutate(cancer_type=stringr::str_replace_all(cancer_type,'Uterine Corpus Endometrial Carcinoma','Uterine corpus endometrial carcinoma'))|>
     dplyr::mutate(`CPTAC Cancer type`=cancer_type)|>
     left_join(cmaps)|>
-    mutate(sampleSource='CPTAC')
+    mutate(sampleSource='CPTAC')|>
+    dplyr::select(improve_sample_id,`CPTAC Cancer type`,model_type,species,sampleSource)|>
+    distinct()
 
-  ##cell line data
+  ###########################
+  ## CCLE Cell Line data
+  ## We have many more cancer types here, so we try to map what we have to CPTAC names and then adjust the rest
+  ##
+  ###########################
   cell_line<-readr::read_csv('../cell_line/samples.csv')|>
     dplyr::mutate(`Cell line cancer type`=cancer_type)|>
     mutate(sampleSource='CCLE')
@@ -30,7 +42,24 @@ mergeSamples<-function(){
   cell_line<-cell_line|>
     left_join(cmaps)
 
-  ##hcmidata
+  ##first we collect the names of the cancers that are NOT in CPTAC
+  other_cans<-which(is.na(cell_line$`CPTAC Cancer type`))
+  cell_line$`CPTAC Cancer type`[other_cans]<-cell_line$`Cell line cancer type`[other_cans]
+  cell_line<-cell_line|>
+    dplyr::select(improve_sample_id,`CPTAC Cancer type`,model_type,species,sampleSource)|>
+     distinct()
+
+  #then we rename the NA values to 'Other' if we want
+  #other_cans<-which(is.na(cell_line$`CPTAC Cancer type`))
+  #cell_line$`CPTAC Cancer type`[other_cans]<-'Other'
+  # or just remove them
+  cell_line<-cell_line|>
+    subset(!is.na(`CPTAC Cancer type`))
+
+  ###########################
+  ## HCMI SAMPLE DATA
+  ## Here we lean heavily on the sample mapping file
+  ###########################
   hcmi<-readr::read_csv('../hcmi/samples.csv')|>
     dplyr::rename(id_source='other_id_source')|>
     mutate(species='human')|>
@@ -39,26 +68,64 @@ mergeSamples<-function(){
     dplyr::mutate(model_type=stringr::str_replace_all(model_type,'Solid Tissue','Tumor'))|>
     dplyr::mutate(model_type=stringr::str_replace_all(model_type,'Adherent Cell line','cell line'))|>
     left_join(cmaps)|>
-    mutate(sampleSource='HCMI')
+    mutate(sampleSource='HCMI')|>
+    dplyr::select(improve_sample_id,`CPTAC Cancer type`,model_type,species,sampleSource)|>
+#    dplyr::rename(cancer_type='CPTAC Cancer type')|>
+    distinct()
 
   ##now rename samples
   ##next up: beatAMLdata
+  ###########################
+  ## BeatAML SAMPLE DATA
+  ## TBD
+  ###########################
+  baml<-readr::read_csv("../beatAML/samples.csv")|>
+    mutate(cancer_type='Acute myeloid leukemia')|>
+    mutate(species='Human')|>
+    mutate(model_type='Tumor')|>
+    mutate(sampleSource='BeatAML')|>
+    dplyr::select(improve_sample_id,species,cancer_type,sampleSource,model_type)|>
+    distinct()
+  ###########################
+  ## TCGA SAMPLE DATA
+  ## TBD
+  ###########################
 
 
-  ##also: TCGA data
-
-  ##now we join them into a single table, with cancer type
+  ##now we join thomdelsem into a single table, with cancer type
   fulldat<<-rbind(cptac,cell_line,hcmi)|>
-    subset(!is.na(cancer_type))
+    dplyr::rename(cancer_type=`CPTAC Cancer type`)|>
+    subset()
+  #  subset(!is.na(cancer_type))
 
-  other_can <- setdiff(fulldat$cancer_type,cptac$cancer_type)
-  fulldat[which(fulldat$cancer_type%in%other_can),'cancer_type']<-'Other cancer'
+
+
+#  fulldat<-fulldat|>
+#    dplyr::rename(orig_cancer_type='cancer_type')|>
+#    dplyr::rename(cancer_type='CPTAC Cancer type')
 
   fulldat<-fulldat|>
-    dplyr::rename(orig_cancer_type='cancer_type')|>
-    dplyr::rename(cancer_type='CPTAC Cancer type')
+    dplyr::select(improve_sample_id,species,cancer_type,sampleSource,model_type)|>
+    distinct()|>
+    rbind(baml)
 
-  fulldat
+  models<-fulldat|>
+    group_by(cancer_type)|>
+    summarize(num_models=n_distinct(model_type))|>
+    subset(num_models>1)
+
+  alldat<-fulldat|>
+    subset(cancer_type%in%models$cancer_type)
+
+  other_can <- fulldat|>
+    subset(!is.na(cancer_type))|>
+    subset(!cancer_type%in%models$cancer_type)|>
+    mutate(cancer_type='Other')
+
+#    subset(!cancer_type%in%models
+#  fulldat[which(fulldat$cancer_type%in%other_can),'cancer_type']<-'Other cancer'
+
+  return(rbind(alldat,other_can))
 }
 ###get all samples and their metadata
 cptac<-readr::read_csv('../cptac/samples.csv')|>
@@ -81,6 +148,7 @@ fulldat[which(fulldat$cancer_type%in%other_can),'cancer_type']<-'Other cancer'
 
 
 fulldat<-mergeSamples()
+
 ##looking for exact matches
 stats<-fulldat|>
   subset(!is.na(cancer_type))|>
@@ -185,9 +253,10 @@ doPlotFromMat<-function(gmat2,value,suff=''){
 
   ures<-umap(t(as.matrix(gmat2)))
 
-  udf <- data.frame(x = ures$layout[,1],
-                   y = ures$layout[,2],
-                 subset(md,improve_sample_id%in%rownames(ures$layout)))
+  over<-intersect(md$improve_sample_id,colnames(gmat2))
+  udf <- data.frame(x = ures$layout[over,1],
+                   y = ures$layout[over,2],
+                 subset(md,improve_sample_id%in%over)|>dplyr::distinct())
 
   p1<-ggplot(udf,aes(x=x,y=y,col=cancer_type,shape=sampleSource))+geom_point()+
     ggtitle(paste('UMAP of',value,'by cancer type'))
@@ -242,7 +311,11 @@ plotTranscripts<-function(){
     rbind(readr::read_csv('../cell_line/transcriptomics.csv.gz')|>
             dplyr::select(entrez_id,improve_sample_id,transcriptomics,source,study))|>
     rbind(readr::read_csv('../hcmi/transcriptomics.csv'))|>
+<<<<<<< Updated upstream
 
+=======
+    rbind(readr::read_csv("../beatAML/transcriptomics.csv"))|>
+>>>>>>> Stashed changes
     subset(improve_sample_id%in%fulldat$improve_sample_id)
 
   ##filter for genes expressed in all samples
@@ -255,7 +328,7 @@ plotTranscripts<-function(){
   mat<-matFromDF(gex,'transcriptomics')
   doPlotFromMat(mat,'transcriptomics')
   newmat<-runCombat(mat,fulldat)
-  doPlotFromMat(newmat,'transcriptomics','_combat')
+  doPlotFromMat(newmat,'transcriptomics','_COMBAT_')
 
   gex
 }
@@ -263,9 +336,12 @@ plotTranscripts<-function(){
 
 plotProteomics<-function(){
   prot<-readr::read_csv('../cptac/proteomics.csv.gz')|>
+    rbind(readr::read_csv('../beatAML/proteomics.csv'))|>
     dplyr::select(improve_sample_id,entrez_id,proteomics)|>
     rbind(readr::read_csv('../cell_line/proteomics.csv.gz'))|>
     subset(improve_sample_id%in%fulldat$improve_sample_id)
+
+
 
   ##filter for genes expressed in all samples
   nsamples<-length(unique(prot$improve_sample_id))
@@ -286,7 +362,7 @@ plotCopyNumber<-function(){
   cp<-readr::read_csv('../cptac/CNV.csv.gz')|>
     dplyr::rename(copy_number='CNV')
   cc<-readr::read_csv('../cell_line/copy_number.csv.gz')
-
+  #ca<-readr::read_csv("../beatAML/å")
   ch<-readr::read_csv('../hcmi/copy_number.csv')
   cnv<-rbind(cp,cc,ch)
 
@@ -397,5 +473,4 @@ main<-function(){
 
 
 
-###now can we compare omics measurements?ß
 
