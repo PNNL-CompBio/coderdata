@@ -422,8 +422,8 @@ def align_to_schema(data,data_type):
     """
     
     samples_path = "samples.csv"
-#     samples_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/hcmi_update/hcmi/samples.csv"
-#     download_from_github(samples_url, samples_path)
+    samples_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/hcmi_update/hcmi/samples.csv"
+    download_from_github(samples_url, samples_path)
     samples = pd.read_csv(samples_path)   
     if data_type == "transcriptomics":
         print(data)
