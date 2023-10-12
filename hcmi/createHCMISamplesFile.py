@@ -143,7 +143,7 @@ def filter_and_subset_data(df):
     """
     duplicates_mask = df.drop('id', axis=1).duplicated(keep='first')
     filt = df[~duplicates_mask]
-    filt = filt[(filt.tumor_descriptor != "Not Applicable")]
+    filt= filt.drop_duplicates(subset='aliquot_id', keep=False)
     filt = filt.rename(
         columns={"tissue_or_organ_of_origin":"common_name",
                  "primary_diagnosis": "cancer_type",
@@ -154,6 +154,7 @@ def filter_and_subset_data(df):
     filt = filt[["cancer_type","common_name","other_names","other_id","model_type"]]
     filt["other_id_source"] = "HCMI"
     return filt
+
 
 
 def main():
@@ -190,8 +191,7 @@ def main():
     df = extract_data(metadata)
     output = filter_and_subset_data(df)
     output.to_csv("samples.csv",index=False)
-
-    
+ 
 main()
 
 
