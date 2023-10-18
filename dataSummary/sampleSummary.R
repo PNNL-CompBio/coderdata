@@ -17,7 +17,7 @@ mergeSamples<-function(){
   ## CPTAC SAMPLE DATA
   ## Primary task here is to fix the capitalizations
   ###########################
-  cptac<-readr::read_csv('../cptac/samples.csv')|>
+  cptac<-readr::read_csv('../build/cptac/samples.csv')|>
     mutate(cancer_type=stringr::str_replace_all(cancer_type,'Head and Neck','Head and neck'))|>
     mutate(cancer_type=stringr::str_replace_all(cancer_type,'Colon','Colorectal'))|>
     mutate(cancer_type=stringr::str_replace_all(cancer_type,'Uterine Corpus Endometrial Carcinoma','Uterine corpus endometrial carcinoma'))|>
@@ -32,7 +32,7 @@ mergeSamples<-function(){
   ## We have many more cancer types here, so we try to map what we have to CPTAC names and then adjust the rest
   ##
   ###########################
-  cell_line<-readr::read_csv('../cell_line/samples.csv')|>
+  cell_line<-readr::read_csv('../build/cell_line/samples.csv')|>
     dplyr::mutate(`Cell line cancer type`=cancer_type)|>
     mutate(sampleSource='CCLE')
 
@@ -60,7 +60,7 @@ mergeSamples<-function(){
   ## HCMI SAMPLE DATA
   ## Here we lean heavily on the sample mapping file
   ###########################
-  hcmi<-readr::read_csv('../hcmi/samples.csv')|>
+  hcmi<-readr::read_csv('../build/hcmi/samples.csv')|>
     dplyr::rename(id_source='other_id_source')|>
     mutate(species='human')|>
     subset(model_type%in%c('3D Organoid','Solid Tissue','Adherent Cell Line'))|>
@@ -79,7 +79,7 @@ mergeSamples<-function(){
   ## BeatAML SAMPLE DATA
   ## TBD
   ###########################
-  baml<-readr::read_csv("../beatAML/samples.csv")|>
+  baml<-readr::read_csv("../build/beatAML/samples.csv")|>
     mutate(cancer_type='Acute myeloid leukemia')|>
     mutate(species='Human')|>
     mutate(model_type='Tumor')|>
@@ -127,32 +127,32 @@ mergeSamples<-function(){
 
   return(rbind(alldat,other_can))
 }
-###get all samples and their metadata
-cptac<-readr::read_csv('../cptac/samples.csv')|>
-  mutate(cancer_type=stringr::str_replace_all(cancer_type,'Head and Neck','Head and neck'))
-
-cell_line<-readr::read_csv('../cell_line/samples_curated.csv')
-
-allec<-grep('Endometrial',cell_line$cancer_type)
-cell_line$cancer_type[allec]<-'Uterine Corpus Endometrial Carcinoma'
-
-
-hcmi<-c()
-
-##now we join them into a single table, with cancer type
-fulldat<<-rbind(cptac,cell_line)|>
-  subset(!is.na(cancer_type))
-
-other_can <- setdiff(fulldat$cancer_type,cptac$cancer_type)
-fulldat[which(fulldat$cancer_type%in%other_can),'cancer_type']<-'Other cancer'
-
+# ###get all samples and their metadata
+# cptac<-readr::read_csv('../build/cptac/samples.csv')|>
+#   mutate(cancer_type=stringr::str_replace_all(cancer_type,'Head and Neck','Head and neck'))
+#
+# #cell_line<-readr::read_csv('../build/cell_line/samples_curated.csv')
+# cell_line<-readr::read_csv("../build/cell_line/samples.csv")
+# allec<-grep('Endometrial',cell_line$cancer_type)
+# cell_line$cancer_type[allec]<-'Uterine Corpus Endometrial Carcinoma'
+#
+#
+# hcmi<-c()
+#
+# ##now we join them into a single table, with cancer type
+# fulldat<<-rbind(cptac,cell_line)|>
+#   subset(!is.na(cancer_type))
+#
+# other_can <- setdiff(fulldat$cancer_type,cptac$cancer_type)
+# fulldat[which(fulldat$cancer_type%in%other_can),'cancer_type']<-'Other cancer'
+#
 
 fulldat<-mergeSamples()
 
 ##looking for exact matches
 stats<-fulldat|>
   subset(!is.na(cancer_type))|>
-  group_by(cancer_type,model_type)|>
+  group_by(cancer_type,model_type,sampleSource)|>
   summarize(numSamps=n_distinct(improve_sample_id))|>
   subset(model_type!='Not Reported')|>
   subset(numSamps>1)
@@ -161,10 +161,16 @@ stats<-fulldat|>
 fig1<-ggplot(stats,aes(x=cancer_type,y=numSamps,fill=model_type))+
   geom_bar(stat='identity',position='dodge')+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_y_log10()+
   ggtitle('exact tumor type matches')
 print(fig1)
 ggsave('fig0_cancerDataAvailable.pdf',fig1,height=8,width=10)
 
+fig2<-ggplot(stats,aes(x=cancer_type,y=numSamps,fill=model_type))+
+  geom_bar(stat='identity',position='dodge')+
+  facet_grid(~sampleSource)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  ggtitle('exact tumor type matches')
 
 runCombat<-function(mat, fulldat){
   library(sva)
@@ -306,16 +312,12 @@ plotTranscripts<-function(){
   #PLOT gene expression, then proteomics, then mirnas, then copy number
   #gsamps<-unique(gex$improve_sample_id)
   #fulldat$Gex=fulldat$improve_sample_id%in%gsamps
-  gex<-readr::read_csv('../cptac/transcriptomics.csv.gz')|>
+  gex<-readr::read_csv('../build/cptac/transcriptomics.csv.gz')|>
     # dplyr::rename(expression='transcriptomics')|>
-    rbind(readr::read_csv('../cell_line/transcriptomics.csv.gz')|>
+    rbind(readr::read_csv('../build/cell_line/transcriptomics.csv')|>
             dplyr::select(entrez_id,improve_sample_id,transcriptomics,source,study))|>
-    rbind(readr::read_csv('../hcmi/transcriptomics.csv'))|>
-<<<<<<< Updated upstream
-
-=======
-    rbind(readr::read_csv("../beatAML/transcriptomics.csv"))|>
->>>>>>> Stashed changes
+    rbind(readr::read_csv('../build/hcmi/transcriptomics.csv'))|>
+    rbind(readr::read_csv("../build/beatAML/transcriptomics.csv"))|>
     subset(improve_sample_id%in%fulldat$improve_sample_id)
 
   ##filter for genes expressed in all samples
@@ -335,10 +337,10 @@ plotTranscripts<-function(){
 
 
 plotProteomics<-function(){
-  prot<-readr::read_csv('../cptac/proteomics.csv.gz')|>
+  prot<-readr::read_csv('../build/cptac/proteomics.csv.gz')|>
     rbind(readr::read_csv('../beatAML/proteomics.csv'))|>
     dplyr::select(improve_sample_id,entrez_id,proteomics)|>
-    rbind(readr::read_csv('../cell_line/proteomics.csv.gz'))|>
+    rbind(readr::read_csv('../build/cell_line/proteomics.csv.gz'))|>
     subset(improve_sample_id%in%fulldat$improve_sample_id)
 
 
