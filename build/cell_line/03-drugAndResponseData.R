@@ -1,7 +1,7 @@
 ###Here is a script that runs through all the data files one by one.
 
 #this is a helper file that loads the data
-source("../improveDataFiles.R")
+source("../utils/mapDrugsToPubchem.R")
 
 
 if(!require('PharmacoGx')){
@@ -12,28 +12,35 @@ if(!require('PharmacoGx')){
 all.dsets<-PharmacoGx::availablePSets()
 ##first define a generic dose response function
 
+improve_samples<<-readr::read_csv('samples.csv')
 #' getDoseRespData
 #' Generic function to get dose and response data from PGX object
 #' out of dataset object, and store with dataset name
 getDoseRespData<-function(dset,studyName){
 
-  mapping <- sensitivityInfo(dset)
+  mapping <- sensitivityInfo(dset)##get the dataset dose response data
+
+  ##map the rownames
   if(!'exp_id'%in%names(mapping))
     mapping<-mapping%>%
       tibble::rownames_to_column('exp_id')
 
+  ##fix up the NSC ids
   if('NSC'%in%names(mapping))
     mapping<-mapping|>
       dplyr::select(-treatmentid)|>
       dplyr::mutate(treatmentid=paste0('NSC-',NSC))
 
+  ##move drug to treatment id
   if("drugid"%in%names(mapping))
     mapping<-dplyr::rename(mapping,treatmentid='drugid')
+
+  ##move cellid to sampleid
   if('cellid'%in%names(mapping))
     mapping<-dplyr::rename(mapping,sampleid='cellid')
 
   ##query to build the drug ids
-  drug.map<-buildDrugTable(unique(mapping$treatmentid))%>%
+  drug.map<-buildDrugTable(unique(mapping$treatmentid,'drugs.tsv.gz'))%>%
     dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
     distinct()
 
@@ -51,7 +58,6 @@ getDoseRespData<-function(dset,studyName){
   new.drug.map<-red.drug.map|>
     subset(num%in%minvals$minVal)|>
     tidyr::unite('pc','num',col='improve_drug_id')
-
 
   ##first get the sample id
   samp.map<-mapping%>%
@@ -126,7 +132,7 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
   ###first get cell lines
   all.dose.rep<-do.call(rbind,lapply(cell.lines,function(cel){
 
-   print(cel)
+  # print(cel)
    files<-subset(all.dsets,`Dataset Name`==cel)%>%
       dplyr::select(`PSet Name`)%>%
       unlist()
@@ -149,7 +155,7 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
       #print(url)
 
         dres<-getDoseRespData(dset,cel)
-        print(dres)
+       # print(dres)
       }
       return(dres)
 
@@ -172,8 +178,7 @@ if(FALSE){
   cl2<-c('gCSI','PRISM','CCLE')
   dl2<-getCellLineDoseData(cl2)
 
-  cl2<-c('NCI60')
+  cl2<-c('NCI60') ###this is the biggest dataset by far, and has lots of drugs that require lookup
   dl2<-getCellLineDoseData(cl2)
-
 
 }
