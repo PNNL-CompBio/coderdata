@@ -150,7 +150,7 @@ newres<-lapply(names(filenames),function(value){
                                 names_to='gene_entrez',values_to='transcriptomics',
                                 values_transform=list(expression=as.numeric))|>
         tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene','entrez_par'))|>
-        mutate(entrez=stringr::str_replace_all(entrez_par,'\\)|\\(',''))|>
+        mutate(entrez_id=stringr::str_replace_all(entrez_par,'\\)|\\(',''))|>
         dplyr::select(-c(entrez_par,gene))|>
         distinct()
 
