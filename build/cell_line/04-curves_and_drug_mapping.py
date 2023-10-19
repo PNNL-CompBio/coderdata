@@ -17,8 +17,8 @@ import os
 ########Step 4b fit curves
 allfiles=[a for a in os.listdir('./') if 'DoseResponse' in a]
 print(allfiles)
-for a in allfiles:
-    os.system('python ../utils/fit_curve.py --input '+a+' --output '+a)
+#for a in allfiles:
+#    os.system('python ../utils/fit_curve.py --input '+a+' --output '+a)
 
 ###step 5 concatenate all files
 os.system('cat *.0 > experiments_orig.tsv')
@@ -27,4 +27,4 @@ os.system('cat *.0 > experiments_orig.tsv')
 
 
 ### step 7 store files (figshare? ftp?
-os.system('Rscript ../utils/remapDrugsToSmiles.R drugs.tsv.gz experiments.tsv')
+os.system('Rscript ../utils/remapDrugsToSmiles.R drugs.tsv.gz experiments_orig.tsv')
