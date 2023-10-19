@@ -256,7 +256,7 @@ def main():
         all_dfs = {}
         all_sources = {} ##keep track of sources for long table
         ##all the data types we're collecting so far
-        for dtype in ['miRNA']:#,'somatic_mutation','proteomics','transcriptomics','CNV']: #'miRNA doesnt work
+        for dtype in ['somatic_mutation','proteomics','transcriptomics','CNV']: #'miRNA doesnt work
             if dtype not in dat_list.keys():
                 continue
             ###figure out whic source, prioritize harmonized when available
