@@ -314,7 +314,7 @@ plotTranscripts<-function(){
   #fulldat$Gex=fulldat$improve_sample_id%in%gsamps
   gex<-readr::read_csv('../build/cptac/transcriptomics.csv.gz')|>
     # dplyr::rename(expression='transcriptomics')|>
-    rbind(readr::read_csv('../build/cell_line/transcriptomics.csv')|>
+    rbind(readr::read_csv('../build/cell_line/transcriptomics.csv.gz')|>
             dplyr::select(entrez_id,improve_sample_id,transcriptomics,source,study))|>
     rbind(readr::read_csv('../build/hcmi/transcriptomics.csv'))|>
     rbind(readr::read_csv("../build/beatAML/transcriptomics.csv"))|>

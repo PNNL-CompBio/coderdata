@@ -16,8 +16,10 @@ We have created a separate directory with scripts that collect data from distinc
 
 ### Data ingest process
 
-[include figure here]
+Currently the data ingest process requires going through each directory and running the scripts there-in. We are hoping to containerize and automate this process in the future but for now running locally is our most reliable processes.
 
 
 
-### 
+### Data Storage
+
+Final copies of the data will be put onto Figshare. 

@@ -28,7 +28,7 @@ main<-function(drugfile='drugs.tsv.gz',expfile='experiments.tsv.gz'){
     dplyr::distinct()
 
   newexp<-exp|>
-    dplyr::rename(pubchem_id='improve_drug_id')|>
+    dplyr::rename(pubchem_id='DRUG')|>
     dplyr::right_join(dplyr::select(newdrugs,c(improve_drug_id,pubchem_id)))|>
     dplyr::select(-pubchem_id)|>
     dplyr::distinct()
@@ -38,9 +38,10 @@ main<-function(drugfile='drugs.tsv.gz',expfile='experiments.tsv.gz'){
 }
 
 args<-commandArgs()
-if(length(args)==2){
-  df=args[1]
-  ef=args[2]
+print(args)
+if(length(args)==7){
+  df=args[6]
+  ef=args[7]
   main(df,ef)
 }else{
   main()
