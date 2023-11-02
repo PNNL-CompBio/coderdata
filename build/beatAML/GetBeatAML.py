@@ -118,7 +118,7 @@ def generate_samples_file():
     file_path = 'PNNL_clinical_summary_12_08_2021_updated_OS_4patients_02_28_2022.txt'
     modify_patient_file(file_path)
     samples = pd.read_csv('PNNL_clinical_summary_12_08_2021_updated_OS_4patients_02_28_2022.txt', delimiter=' ', skipinitialspace=True, encoding='ISO-8859-1', quotechar='"')
-    maxval = max(pd.read_csv('https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/hcmi/samples.csv').improve_sample_id)
+    maxval = max(pd.read_csv('../hcmi/samples.csv').improve_sample_id)
     # Create a dictionary that maps unique lab-id values to sequential integers
     mapping = {labId: i for i, labId in enumerate(samples['labId'].unique(), start=(int(maxval)+1))}
     # Use the map method to create the new column based on the lab-id column
