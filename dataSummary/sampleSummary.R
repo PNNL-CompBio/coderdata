@@ -378,7 +378,9 @@ plotCopyNumber<-function(){
   cdat<-cnv|>
     subset(!is.na(copy_call))|>
     left_join(md)|>
-    subset(!copy_call%in%c('diploid','normal'))
+    subset(!copy_call%in%c('diploid','normal'))|>
+    subset(!is.na(cancer_type))|>
+    subset(!is.na(model_type))
 
  # cdat<-cdat|>tidyr::replace_na(list(model_type='cell line'))|>
 #    tidyr::replace_na(list(cancer_type='other'))
@@ -466,10 +468,10 @@ fullStats<-function(gex,prot,cnv,mut){
 }
 
 main<-function(){
+  cnv<-plotCopyNumber()
   prot<-plotProteomics()
 
   gex<-plotTranscripts()
-  cnv<-plotCopyNumber()
   ##need to figure out mutations!!!
 
   fullStats(gex,prot,cnv,NA)
