@@ -1,0 +1,205 @@
+import pandas as pd
+import requests
+import os
+
+def download_from_github(raw_url, save_path):
+    """ 
+    Download a file from a raw GitHub URL and save it to a local path.
+    
+    Parameters
+    ----------
+    raw_url : string
+        The raw GitHub URL to download the file from.
+        
+    save_path : string
+        Local path where the downloaded file will be saved.
+        
+    Returns
+    -------
+    None
+    """
+    
+    response = requests.get(raw_url)
+    with open(save_path, 'wb') as f:
+        f.write(response.content)
+    return
+
+def extract_uuids_from_manifest(manifest_data):
+    """
+    Extract UUIDs from the provided manifest data. 
+    
+    Takes a manifests file generated from GDC portal (or manually) and parses through while collecting UUIDs.
+    
+    Parameters
+    ----------
+    manifest_data : string
+        file path to manifests file
+
+    Returns
+    -------
+    List of UUIDs
+    """
+    with open(manifest_data, 'r') as f:
+        lines = f.readlines()[1:]  # Skip header
+        return [line.split("\t")[0] for line in lines]
+    
+    
+def fetch_metadata_for_samples(uuids):
+    """
+    Fetch metadata for given UUIDs.
+    
+    This function makes a POST request to the GDC API endpoint to fetch relevant metadata for the provided UUIDs.
+    
+    Parameters
+    ----------
+    uuids : list
+        list of UUIDs
+
+    Returns
+    -------
+    dict 
+        JSON Request Data
+    """
+    
+    endpoint = "https://api.gdc.cancer.gov/files"
+    
+    filters_content = {
+        "field": "files.file_id",
+        "value": uuids
+    }
+    
+    payload = {
+        "filters": {
+            "op": "in",
+            "content": filters_content
+        },
+        "fields": (
+            "cases.sample_ids,"
+            "cases.case_id,"
+            "cases.samples.sample_id,"
+            "cases.samples.portions.analytes.aliquots.aliquot_id,"
+            "cases.samples.sample_type,"
+            "cases.diagnoses.tissue_or_organ_of_origin,"
+            "cases.diagnoses.primary_diagnosis,"
+            "cases.samples.tumor_descriptor,"
+            "cases.samples.composition"
+        ),
+        "format": "JSON",
+        "size": str(len(uuids))
+    }
+    
+    response = requests.post(endpoint, json=payload)
+    return response.json()
+
+
+def extract_data(data):
+    """
+    Write API returned JSON Data to Pandas Table
+        
+    Parameters
+    ----------
+    data : json data
+        json data from GDC Portal
+
+    Returns
+    -------
+    Pandas Dataframe
+    """
+    extracted = []
+    for hit in data['data']['hits']:
+        for case in hit['cases']:
+            for idx, sample in enumerate(case['samples']):
+                for portion in sample['portions']:
+                    for analyte in portion['analytes']:
+                        for aliquot in analyte['aliquots']:
+                            if idx < len(case['diagnoses']):
+                                diagnosis = case['diagnoses'][idx]
+                                extracted.append({
+                                    'id': hit['id'],
+                                    'case_id': case['case_id'],
+                                    'tissue_or_organ_of_origin': diagnosis['tissue_or_organ_of_origin'],
+                                    'primary_diagnosis': diagnosis['primary_diagnosis'],
+                                    'sample_id': sample['sample_id'],
+                                    'sample_type': sample['sample_type'],
+                                    'tumor_descriptor': sample.get('tumor_descriptor', None),
+                                    'composition': sample.get('composition', None),
+                                    'aliquot_id': aliquot['aliquot_id']
+                                })
+    return pd.DataFrame(extracted)
+
+def filter_and_subset_data(df):
+    """
+    Filter and subset the data.
+    
+    Taking a pandas dataframe containing all sample information, filter it to desired columns and rename them to match schema.
+        
+    Parameters
+    ----------
+    df : pandas dataframe
+        full samples table
+
+    Returns
+    -------
+    Pandas Dataframe
+    """
+    duplicates_mask = df.drop('id', axis=1).duplicated(keep='first')
+    filt = df[~duplicates_mask]
+    filt= filt.drop_duplicates(subset='aliquot_id', keep=False)
+    filt = filt.rename(
+        columns={"tissue_or_organ_of_origin":"common_name",
+                 "primary_diagnosis": "cancer_type",
+                 "composition": "model_type",
+                 "case_id": "other_names",
+                 "aliquot_id": "other_id"}
+            )
+    filt = filt[["cancer_type","common_name","other_names","other_id","model_type"]]
+    filt["other_id_source"] = "HCMI"
+    return filt
+
+
+
+def main():
+    """
+    Retrieve and process HCMI (Human Cancer Models Initiative) samples metadata from GDC (Genomic Data Commons).
+    Create samples.csv file for schema.
+
+    This function automates the workflow of:
+    1. Downloading a manifest file from the GitHub repository.
+    2. Extracting UUIDs (Unique Universal Identifiers) from the manifest.
+    3. Fetching the metadata for the samples corresponding to the UUIDs from GDC API via POST request.
+    4. Structuring the fetched metadata into a pandas dataframe.
+    5. Filtering and subsetting the dataframe to align with the schema.
+    6. Writing the processed dataframe to a CSV file.
+
+    Notes:
+    ------
+    The GDC API is publicly accessible, so no authentication is required.
+
+    To Run:
+    --------
+    python createHCMISamplesFile.py
+
+    Output:
+    -------
+    A local CSV file named 'samples.csv' containing the processed metadata.
+    """
+    
+    manifest_path = "full_manifest.txt"
+    #manifest_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/hcmi_update/hcmi/full_manifest.txt"
+    #download_from_github(manifest_url, manifest_path)
+    uuids = extract_uuids_from_manifest(manifest_path)
+    metadata = fetch_metadata_for_samples(uuids)
+    df = extract_data(metadata)
+    output = filter_and_subset_data(df)
+    output.to_csv("samples.csv",index=False)
+
+    ##now add in samples
+    print('Writing new samples with improve_sample_id')
+    cmd = "python ../utils/assign_improve_ids.py -p ../cptac/samples.csv  -n samples.csv -s other_id -o samples.csv"
+    os.system(cmd)
+    
+ 
+main()
+
+
+
