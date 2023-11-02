@@ -28,6 +28,30 @@ filenames=list(transcriptomics='https://figshare.com/ndownloader/files/40449128'
                             mutations='https://figshare.com/ndownloader/files/40449638')
 
 
+# the dictionary started with
+# CCLE data
+variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR'),
+    `5'Flank`=c("FIVE_PRIME_FLANK","5'Flank"),`5'UTR`=c("5'UTR"),
+    Undetermined=c('COULD_NOT_DETERMINE'),
+    De_novo_Start_InFrame=c('DE_NOVO_START_IN_FRAME','De_novo_Start_InFrame'),
+    De_novo_Start_OutOfFrame=c('DE_NOVO_START_OUT_FRAME','De_novo_Start_OutOfFrame'),
+    Frame_Shift_Del=c('FRAME_SHIFT_DEL','Frame_Shift_Del'),
+    Frame_Shift_Ins=c('FRAME_SHIFT_INS','Frame_Shift_Ins'),
+    IGR=c('IGR'),In_Frame_Del=c('IN_FRAME_DEL','In_Frame_Del'),
+    In_Frame_Ins=c('IN_FRAME_INS','In_Frame_Ins'),Intron=c('INTRON','Intron'),
+    Missense_Mutation=c('Missense_Mutation','MISSENSE'),
+    Nonsense_Mutation=c('Nonsense_Mutation','NONSENSE'),
+    Nonstop_Mutation=c('Nonstop_Mutation','NONSTOP'),
+    RNA=c('RNA'),
+    Start_Codon_SNP=c('START_CODON_SNP','Start_Codon_SNP'),
+    Start_Codon_Del=c('Start_Codon_Del','STARD_CODON_DEL'),
+    Start_Codon_Ins=c('Start_Codon_Ins','START_CODON_INS'),
+    Stop_Codon_Del=c('Stop_Codon_Del'),
+    Stop_Codon_Ins=c('Stop_Codon_Ins'),
+    Silent=c('Silent','SILENT'),
+    Splice_Site=c('Splice_Site','SPLICE_SITE'),
+    Translation_Start_Site=c('Translation_Start_Site'))
+
 getProteomics<-function(){
   #pull directly from gygi lab
   proteomics <- 'https://gygi.hms.harvard.edu/data/ccle/Table_S2_Protein_Quant_Normalized.xlsx'
@@ -125,7 +149,7 @@ newres<-lapply(names(filenames),function(value){
 
     }else if(value=='mutations'){ ####IF DATA REPRESENTS MUTATIONS#####
       exp_file <- readr::read_csv(fi)|>
-        dplyr::select(EntrezGeneID,HgncName,other_id='ModelID',variant_classification='VariantInfo',mutations='DNAChange')|>
+        dplyr::select(EntrezGeneID,HgncName,other_id='ModelID',VariantInfo,mutations='DNAChange')|>
         distinct()
 
       res<-exp_file|>
@@ -133,6 +157,7 @@ newres<-lapply(names(filenames),function(value){
         dplyr::select(-EntrezGeneID)|>
         subset(!is.na(entrez_id)) ##removes thos with unknonw entrez
 
+      res$variant_classification=unlist(lapply(res$VariantInfo,function(x) names(variant_schema)[grep(x,variant_schema)]))
       full<-res|>  ###since we're already in ENTREZ we skip the mapping below
         dplyr::left_join(samples)|>
         #dplyr::rename(entrez_id=Entrez_id,mutations=Genome_Change,variant_classification=Variant_Classification)|>
@@ -210,3 +235,4 @@ newres<-lapply(names(filenames),function(value){
 
 })
 
+getProteomics()
