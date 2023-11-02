@@ -6,12 +6,12 @@ All data collected for this package has been collated from stable/reproducible s
 
 We have created a separate directory with scripts that collect data from distinct sources as described below.
 
-| ---- | ---- | --- |
 | Directory | Description | Files generated |
-| [`/cell_line`](./cell_line) |
+| ---- | ---- | --- |
+| [`/cell_line`](./cell_line) | DepMap omics data and multiple drug sensitivity datasets| |
 | [`/cptac`](./cptac) | CPTAC omics data measurements| |
 | [`/hcmi`](./hcmi)  | HCMI omics data measurements ||
-| [`/beatAML`](./beatAML) | BeatAML Leukemia data | |
+| [`/beatAML`](./beatAML) | BeatAML Leukemia data | | 
 | [`/nfosi`](./nfosi) | Data collated through the NF Open Science Initiative ||
 
 ### Data ingest process
