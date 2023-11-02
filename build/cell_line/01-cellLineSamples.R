@@ -91,9 +91,13 @@ full.df<-joined.df%>%
   dplyr::select(-c(COSMICID,WTSIMasterCellID))%>%
   distinct()
 
+##NEW: remove all cellosaurus that do not have depmap ids
+full.df<-full.df|>
+  subset(!is.na(DepMap))
+
 #we add idnetifiers for everything that has a cellosaurus id and those that dont
 has_id<-subset(full.df,Cellosaurus!="")
-no_id<-subset(full.df,Cellosaurus=="")
+no_id<-subset(full.df,is.na(Cellosaurus))
 
 samp_ids<-data.frame(Cellosaurus=unique(has_id$Cellosaurus))
 samp_ids$improve_sample_id<-seq(1,nrow(samp_ids))

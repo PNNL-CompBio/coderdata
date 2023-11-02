@@ -8,7 +8,7 @@ from synapseclient import Project, Folder, File, Link
 
 syn = synapseclient.Synapse()
 PAT = "ENTER YOUR PERSONAL ACCESS TOKEN HERE"
-syn.login(authToken=PAT)
+syn.login()#authToken=PAT)
 
 def download_from_github(raw_url, save_path):
     response = requests.get(raw_url)
@@ -229,7 +229,6 @@ def add_improve_id(previous_df, new_df):
     
     return new_df
 
-
 def map_exp_to_improve(df,improve_map_file):
     improve = pd.read_csv(improve_map_file)        # Map sample_id to improve_sample_id
     mapped_df = pd.merge(df, improve[['other_id', 'improve_sample_id']], left_on='sample_id', right_on='other_id', how='left')
@@ -260,14 +259,14 @@ if __name__ == "__main__":
     syn.get('syn26642974', downloadLocation='.')
     
     #Generate Samples File
-    generate_samples_file
+    generate_samples_file()
     
     # Download required files. Files in github repo also required.
-    gene_url = "https://figshare.com/ndownloader/files/40576109?private_link=525f7777039f4610ef47"
-    entrez_map_file = retrieve_figshare_data(gene_url)
+    #gene_url = "https://figshare.com/ndownloader/files/40576109?private_link=525f7777039f4610ef47"
+    entrez_map_file = "../genes.csv"#retrieve_figshare_data(gene_url)
 
     samples_url = "https://figshare.com/ndownloader/files/42289053?private_link=f05259d19b8c34a9a53d"
-    improve_map_file = retrieve_figshare_data(samples_url)
+    improve_map_file = "samples.csv"#retrieve_figshare_data(samples_url)
 
     # Transcriptomics Data
     t_df = pd.read_csv("BeatAML_Waves1to4_RNA_data_normalized.txt", sep = '\t')
@@ -295,10 +294,10 @@ if __name__ == "__main__":
 
     # Drug and Experiment Data
     drug_path = "drug_response.csv"
-    drug_map_path = "drugs_map.tsv.gz"
+    drug_map_path = "../cell_line/drugs.tsv.gz"#"drugs_map.tsv.gz"
     drug_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/cell_line/drugs_by_structure.tsv.gz"
 
-    download_from_github(drug_url, drug_map_path)
+    #download_from_github(drug_url, drug_map_path)
     drug_map = format_drug_map(drug_map_path)
     d_df = format_drug_df(drug_path)
     d_df = update_dataframe_with_pubchem(d_df)
