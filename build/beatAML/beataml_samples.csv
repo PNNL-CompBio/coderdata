@@ -1,0 +1,980 @@
+other_id,improve_sample_id,other_names,common_name,cancer_type,model_type,other_id_source
+10-00669,3910,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00334,3911,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00395,3912,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00639,3913,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+10-00507,3914,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+11-00295,3915,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+10-00819,3916,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+11-00261,3917,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+09-00705,3918,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+10-00792,3919,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+10-00136,3920,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+10-00542,3921,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+11-00049,3922,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+10-00172,3923,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+11-00162,3924,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+10-00791,3925,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+11-00178,3926,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+11-00254,3927,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+10-00692,3928,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+10-00715,3929,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+11-00170,3930,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+11-00090,3931,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+11-00319,3932,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00106,3933,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00047,3934,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00371,3935,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00111,3936,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00069,3937,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00362,3938,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00004,3939,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00033,3940,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00127,3941,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00180,3942,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00059,3943,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00075,3944,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00077,3945,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00083,3946,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00090,3947,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00092,3948,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00137,3949,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00141,3950,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00201,3951,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00242,3952,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00218,3953,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00294,3954,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00236,3955,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00237,3956,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00247,3957,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00268,3958,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00286,3959,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00316,3960,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00346,3961,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00383,3962,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00053,3963,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00417,3964,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00424,3965,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00236,3966,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00476,3967,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00267,3968,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00497,3969,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00540,3970,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00554,3971,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00535,3972,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00600,3973,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00614,3974,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00622,3975,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00654,3976,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00004,3977,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00244,3978,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00052,3979,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00066,3980,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00067,3981,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00134,3982,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00150,3983,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00173,3984,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00171,3985,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00212,3986,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00245,3987,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00242,3988,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00253,3989,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00268,3990,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00270,3991,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00272,3992,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00298,3993,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00311,3994,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00329,3995,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00335,3996,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00369,3997,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00401,3998,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00404,3999,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00430,4000,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00449,4001,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00451,4002,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00477,4003,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00484,4004,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00487,4005,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00498,4006,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00499,4007,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00805,4008,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00502,4009,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00521,4010,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00527,4011,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00536,4012,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00543,4013,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00555,4014,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00573,4015,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00803,4016,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00603,4017,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00664,4018,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00715,4019,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00720,4020,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00738,4021,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00756,4022,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00758,4023,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00777,4024,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00793,4025,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00009,4026,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00143,4027,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00056,4028,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00129,4029,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00148,4030,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00150,4031,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00159,4032,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00167,4033,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00180,4034,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00294,4035,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00196,4036,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00200,4037,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00208,4038,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00281,4039,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00357,4040,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00358,4041,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00361,4042,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00396,4043,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00392,4044,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00407,4045,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00416,4046,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00492,4047,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00147,4048,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00514,4049,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00684,4050,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00571,4051,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00581,4052,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00655,4053,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00682,4054,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00704,4055,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00726,4056,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00731,4057,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00964,4058,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00895,4059,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00988,4060,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00898,4061,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00135,4062,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00947,4063,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00006,4064,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00015,4065,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00017,4066,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00026,4067,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00033,4068,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00035,4069,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00261,4070,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00782,4071,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00041,4072,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00046,4073,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00593,4074,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00062,4075,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00070,4076,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01059,4077,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00161,4078,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00359,4079,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00294,4080,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00232,4081,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00083,4082,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00366,4083,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00374,4084,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00783,4085,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00400,4086,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00486,4087,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00484,4088,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00524,4089,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00562,4090,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01018,4091,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00096,4092,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00595,4093,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00599,4094,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00618,4095,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00632,4096,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00709,4097,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00852,4098,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01009,4099,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00880,4100,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00950,4101,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00952,4102,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00968,4103,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00970,4104,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00981,4105,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01022,4106,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01024,4107,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01055,4108,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01078,4109,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01098,4110,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01123,4111,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01130,4112,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01139,4113,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01142,4114,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00334,4115,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01245,4116,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01256,4117,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01267,4118,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00057,4119,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00187,4120,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00277,4121,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00937,4122,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00938,4123,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00319,4124,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00340,4125,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00434,4126,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00439,4127,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00436,4128,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00534,4129,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00547,4130,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00618,4131,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00651,4132,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00664,4133,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00670,4134,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00745,4135,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00748,4136,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00850,4137,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00871,4138,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00876,4139,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00953,4140,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00095,4141,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00110,4142,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00205,4143,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00206,4144,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00232,4145,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00385,4146,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00418,4147,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00393,4148,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00428,4149,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00431,4150,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00433,4151,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00450,4152,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00465,4153,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00640,4154,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00007,4155,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00426,4156,AML with t(6;9)(p23;q34); DEK-NUP214,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00061,4157,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00023,4158,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00372,4159,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00066,4160,Chronic myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00051,4161,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00118,4162,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00150,4163,unknown,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00537,4164,AML with maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00211,4165,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00258,4166,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00147,4167,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00294,4168,AML with myelodysplasia-related changes,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00301,4169,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00138,4170,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+12-00423,4171,AML with maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00226,4172,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00016,4173,Acute undifferentiated leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00028,4174,Acute myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00034,4175,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00160,4176,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00098,4177,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00123,4178,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00126,4179,Acute erythroid leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00145,4180,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00146,4181,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00149,4182,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00150,4183,"Mixed phenotype acute leukaemia, T/myeloid, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00157,4184,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00163,4185,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00165,4186,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00166,4187,AML with maturation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00186,4188,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00195,4189,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00202,4190,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00204,4191,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00780,4192,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00232,4193,Acute myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00255,4194,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00245,4195,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00250,4196,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00253,4197,Acute megakaryoblastic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00260,4198,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00262,4199,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00266,4200,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00270,4201,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00273,4202,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00281,4203,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00318,4204,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00331,4205,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00044,4206,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00338,4207,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00342,4208,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00353,4209,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00015,4210,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00354,4211,Acute monoblastic and monocytic leukaemia ,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00365,4212,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00384,4213,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00393,4214,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00396,4215,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00406,4216,Acute monoblastic and monocytic leukaemia ,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00409,4217,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00420,4218,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00425,4219,AML with t(9;11)(p22;q23); MLLT3-MLL,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00450,4220,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00454,4221,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00468,4222,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00557,4223,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00471,4224,AML with t(9;11)(p22;q23); MLLT3-MLL,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00487,4225,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00493,4226,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00495,4227,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00496,4228,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00500,4229,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00513,4230,AML with t(9;11)(p22;q23); MLLT3-MLL,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00515,4231,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00593,4232,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00522,4233,Secondary myelofibrosis,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00532,4234,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00544,4235,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00545,4236,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00546,4237,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00551,4238,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00552,4239,AML with maturation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00558,4240,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00563,4241,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00572,4242,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00573,4243,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00578,4244,AML with t(6;9)(p23;q34); DEK-NUP214,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00581,4245,AML with t(6;9)(p23;q34); DEK-NUP214,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00584,4246,AML with maturation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00601,4247,Refractory anaemia with excess blasts,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00602,4248,AML with mutated CEBPA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00619,4249,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00615,4250,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00625,4251,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00655,4252,AML with t(9;11)(p22;q23); MLLT3-MLL,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00658,4253,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00659,4254,Acute myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00660,4255,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00001,4256,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00012,4257,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00021,4258,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00023,4259,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00026,4260,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00034,4261,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00041,4262,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00045,4263,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00053,4264,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00060,4265,"Myelodysplastic syndrome, unclassifiable",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00063,4266,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00064,4267,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00078,4268,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00126,4269,"Mixed phenotype acute leukaemia, T/myeloid, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00081,4270,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00092,4271,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00096,4272,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00113,4273,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00125,4274,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00127,4275,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00135,4276,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00141,4277,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00152,4278,Acute myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00757,4279,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00175,4280,Acute monoblastic and monocytic leukaemia ,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00184,4281,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00193,4282,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00228,4283,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00482,4284,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00231,4285,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00528,4286,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00240,4287,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00259,4288,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00273,4289,AML with mutated CEBPA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00279,4290,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00289,4291,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00676,4292,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00466,4293,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00331,4294,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00355,4295,Acute monoblastic and monocytic leukaemia ,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00359,4296,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00597,4297,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00376,4298,Refractory anaemia with excess blasts,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00380,4299,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01098,4300,Myeloid sarcoma,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00423,4301,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00425,4302,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00434,4303,AML with t(9;11)(p22;q23); MLLT3-MLL,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00447,4304,AML with t(9;11)(p22;q23); MLLT3-MLL,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00448,4305,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00458,4306,Refractory anaemia with excess blasts,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00464,4307,AML with t(9;11)(p22;q23); MLLT3-MLL,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00454,4308,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00473,4309,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00476,4310,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00488,4311,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00496,4312,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00504,4313,AML with t(9;11)(p22;q23); MLLT3-MLL,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00514,4314,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00537,4315,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00542,4316,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00546,4317,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00564,4318,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00559,4319,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00140,4320,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00567,4321,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00231,4322,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00578,4323,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00581,4324,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00588,4325,Acute erythroid leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00599,4326,AML with minimal differentiation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00974,4327,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00602,4328,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00608,4329,AML with maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00613,4330,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00618,4331,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00081,4332,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00632,4333,Acute myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00643,4334,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00644,4335,Acute monoblastic and monocytic leukaemia ,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00658,4336,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00667,4337,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00672,4338,Essential thrombocythaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00670,4339,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00681,4340,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00690,4341,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00712,4342,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00714,4343,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00641,4344,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00725,4345,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00815,4346,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00730,4347,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00735,4348,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00739,4349,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00742,4350,"Myelodysplastic syndrome, unclassifiable",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00761,4351,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00774,4352,AML with minimal differentiation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00781,4353,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00787,4354,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00798,4355,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00800,4356,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00801,4357,Myeloid sarcoma,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00817,4358,Acute myelomonocytic leukaemia,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00831,4359,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00832,4360,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00901,4361,AML with minimal differentiation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00014,4362,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00018,4363,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00024,4364,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00029,4365,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00043,4366,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00045,4367,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00051,4368,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00057,4369,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00084,4370,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00071,4371,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00073,4372,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00075,4373,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00312,4374,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00123,4375,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00194,4376,AML with minimal differentiation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00874,4377,AML with minimal differentiation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00315,4378,AML with minimal differentiation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00147,4379,AML with mutated CEBPA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+14-00083,4380,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00275,4381,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00175,4382,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00169,4383,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00829,4384,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00171,4385,AML with minimal differentiation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00201,4386,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00229,4387,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00237,4388,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00246,4389,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00248,4390,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00261,4391,Acute myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00269,4392,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00276,4393,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00350,4394,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00300,4395,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00302,4396,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00303,4397,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00287,4398,AML with mutated CEBPA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00309,4399,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00296,4400,AML with t(9;11)(p22;q23); MLLT3-MLL,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00320,4401,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00279,4402,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00331,4403,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00338,4404,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00351,4405,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00353,4406,Acute megakaryoblastic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00371,4407,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00377,4408,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01097,4409,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00395,4410,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00548,4411,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00733,4412,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00383,4413,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00406,4414,Refractory cytopenia with multilineage dysplasia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00417,4415,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00471,4416,AML with mutated CEBPA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00470,4417,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00464,4418,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00479,4419,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00491,4420,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00525,4421,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00534,4422,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00539,4423,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00556,4424,AML without maturation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00563,4425,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00559,4426,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00572,4427,AML with maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00578,4428,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00593,4429,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00264,4430,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00595,4431,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00608,4432,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00610,4433,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00614,4434,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00615,4435,"Acute myeloid leukaemia, NOS",Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00616,4436,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00626,4437,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00633,4438,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00650,4439,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00653,4440,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01094,4441,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00304,4442,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00670,4443,AML without maturation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00674,4444,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00680,4445,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00683,4446,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00688,4447,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00692,4448,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00693,4449,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00701,4450,AML with minimal differentiation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00702,4451,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00724,4452,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00734,4453,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00717,4454,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00742,4455,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00755,4456,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00756,4457,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00763,4458,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00764,4459,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00766,4460,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00767,4461,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00777,4462,AML with myelodysplasia-related changes,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00939,4463,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00778,4464,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01138,4465,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00782,4466,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00786,4467,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00807,4468,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00811,4469,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00864,4470,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00936,4471,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00813,4472,AML with maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00819,4473,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00821,4474,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00839,4475,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00837,4476,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00850,4477,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00855,4478,Myeloid leukaemia associated with Down syndrome,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00858,4479,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00870,4480,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00872,4481,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00883,4482,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00967,4483,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00900,4484,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00892,4485,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00903,4486,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00909,4487,AML with minimal differentiation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00912,4488,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00921,4489,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00929,4490,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00942,4491,AML with t(9;11)(p22;q23); MLLT3-MLL,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00010,4492,AML with t(9;11)(p22;q23); MLLT3-MLL,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00088,4493,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00073,4494,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00118,4495,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00961,4496,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00965,4497,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00975,4498,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00976,4499,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00981,4500,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00979,4501,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+15-00990,4502,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00001,4503,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00003,4504,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00004,4505,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00007,4506,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00027,4507,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00031,4508,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00124,4509,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00496,4510,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00048,4511,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00050,4512,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00056,4513,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00087,4514,Therapy-related myeloid neoplasms,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00067,4515,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00075,4516,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00078,4517,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00077,4518,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00094,4519,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00226,4520,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00102,4521,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00109,4522,AML with mutated NPM1,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00120,4523,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00129,4524,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00113,4525,Myeloid sarcoma,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00115,4526,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00132,4527,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00139,4528,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00358,4529,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00143,4530,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00145,4531,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00157,4532,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01127,4533,AML with mutated NPM1,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00442,4534,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00150,4535,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00151,4536,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00217,4537,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00220,4538,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00249,4539,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00269,4540,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00271,4541,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00273,4542,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00278,4543,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00289,4544,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00292,4545,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00303,4546,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01118,4547,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00307,4548,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00483,4549,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00316,4550,unknown,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00332,4551,"Myelodysplastic syndrome, unclassifiable",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00458,4552,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00339,4553,"Atypical chronic myeloid leukaemia, BCR-ABL1 negative",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00344,4554,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00351,4555,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00354,4556,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00356,4557,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00373,4558,Myeloid sarcoma,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00392,4559,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00406,4560,AML with maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00410,4561,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00466,4562,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00533,4563,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00459,4564,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00460,4565,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00465,4566,Acute myelomonocytic leukaemia,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00474,4567,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00538,4568,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00710,4569,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00059,4570,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00477,4571,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00611,4572,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00883,4573,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00479,4574,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00481,4575,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00491,4576,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00765,4577,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00886,4578,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00494,4579,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00498,4580,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00504,4581,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00510,4582,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00519,4583,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00525,4584,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00541,4585,Plasma cell myeloma,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00540,4586,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00547,4587,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+13-00650,4588,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00564,4589,Chronic myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00566,4590,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00701,4591,Chronic myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00822,4592,Chronic myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00627,4593,Chronic myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00699,4594,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00702,4595,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00705,4596,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00708,4597,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00724,4598,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00731,4599,AML with maturation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00755,4600,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00766,4601,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00882,4602,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00770,4603,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00771,4604,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00810,4605,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00818,4606,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00815,4607,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00820,4608,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00834,4609,"Mixed phenotype acute leukaemia, T/myeloid, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00831,4610,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00836,4611,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00867,4612,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00846,4613,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01017,4614,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00875,4615,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00118,4616,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00048,4617,Unknown,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00149,4618,Unknown,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00951,4619,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-00980,4620,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01004,4621,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01005,4622,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01010,4623,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01061,4624,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01103,4625,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01192,4626,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00963,4627,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01047,4628,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01049,4629,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01080,4630,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01082,4631,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01093,4632,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01100,4633,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01102,4634,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01109,4635,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01121,4636,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00215,4637,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00436,4638,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01151,4639,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01185,4640,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01191,4641,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01201,4642,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01210,4643,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01216,4644,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01219,4645,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01223,4646,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01225,4647,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01227,4648,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01237,4649,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01254,4650,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01262,4651,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01272,4652,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+16-01270,4653,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00077,4654,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00011,4655,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00021,4656,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00281,4657,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00025,4658,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00029,4659,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00033,4660,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00064,4661,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00066,4662,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00072,4663,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00093,4664,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00094,4665,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00105,4666,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00111,4667,Myeloid sarcoma,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00113,4668,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00123,4669,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00126,4670,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00177,4671,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00179,4672,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00189,4673,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00195,4674,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00210,4675,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00230,4676,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00248,4677,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00368,4678,AML without maturation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00252,4679,AML with minimal differentiation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00256,4680,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00262,4681,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00264,4682,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00276,4683,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00287,4684,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00300,4685,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00313,4686,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00321,4687,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00322,4688,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00325,4689,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00326,4690,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00328,4691,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00337,4692,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00346,4693,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00360,4694,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00423,4695,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00438,4696,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00441,4697,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00444,4698,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00443,4699,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00251,4700,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00446,4701,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00452,4702,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00457,4703,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00463,4704,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00464,4705,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00466,4706,AML with t(8;21)(q22;q22); RUNX1-RUNX1T1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00467,4707,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00478,4708,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00482,4709,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00485,4710,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00491,4711,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00499,4712,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00831,4713,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00043,4714,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00511,4715,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00514,4716,AML with t(9;11)(p22;q23); MLLT3-MLL,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00518,4717,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00536,4718,Unknown,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00539,4719,Acute erythroid leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00551,4720,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00556,4721,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00613,4722,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00634,4723,AML with minimal differentiation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00637,4724,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00656,4725,unknown,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00678,4726,Acute myelomonocytic leukaemia,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00679,4727,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00676,4728,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00685,4729,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00687,4730,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00690,4731,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00694,4732,"Mixed phenotype acute leukaemia, B/myeloid, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00741,4733,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00755,4734,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00761,4735,Acute myelomonocytic leukaemia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00768,4736,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00770,4737,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00772,4738,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00776,4739,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00779,4740,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00781,4741,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00834,4742,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00838,4743,Myeloid sarcoma,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00843,4744,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00848,4745,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00849,4746,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00851,4747,AML with minimal differentiation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00857,4748,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00862,4749,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00867,4750,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00878,4751,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00881,4752,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00883,4753,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00887,4754,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00893,4755,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00896,4756,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00901,4757,Acute monoblastic and monocytic leukaemia ,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00908,4758,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00915,4759,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00926,4760,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00933,4761,Unknown,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01020,4762,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01021,4763,AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01023,4764,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01024,4765,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01038,4766,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01047,4767,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01036,4768,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01054,4769,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01060,4770,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01081,4771,AML with maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01083,4772,Acute myelomonocytic leukaemia,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01106,4773,"Acute myeloid leukaemia, NOS",Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01110,4774,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-01117,4775,AML with maturation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00007,4776,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00012,4777,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00014,4778,Unknown,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00016,4779,Unknown,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00029,4780,AML with mutated NPM1,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00039,4781,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00053,4782,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00055,4783,Therapy-related myeloid neoplasms,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00361,4784,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00073,4785,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00077,4786,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00082,4787,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00103,4788,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00101,4789,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00105,4790,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00127,4791,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00129,4792,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00131,4793,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00135,4794,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00173,4795,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00179,4796,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00184,4797,Unknown,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00190,4798,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00192,4799,AML with mutated NPM1,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00204,4800,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00206,4801,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00208,4802,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00218,4803,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00219,4804,Refractory cytopenia with multilineage dysplasia,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00223,4805,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00226,4806,AML with minimal differentiation,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00230,4807,AML with mutated NPM1,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00238,4808,Unknown,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00253,4809,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00260,4810,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00334,4811,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00267,4812,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00269,4813,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00270,4814,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00278,4815,Unknown,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00279,4816,Acute monoblastic and monocytic leukaemia ,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00280,4817,Unknown,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00283,4818,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00290,4819,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00298,4820,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00305,4821,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00332,4822,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00320,4823,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00327,4824,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00341,4825,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00390,4826,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00408,4827,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00027,4828,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00035,4829,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+18-00414,4830,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00019,4831,AML with mutated CEBPA,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00025,4832,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00029,4833,AML with mutated NPM1,Leukapheresis,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00062,4834,Acute promyelocytic leukaemia with t(15;17)(q22;q12); PML-RARA,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00051,4835,AML with maturation,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00084,4836,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00092,4837,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00107,4838,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00137,4839,AML with myelodysplasia-related changes,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00154,4840,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00156,4841,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00165,4842,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00179,4843,AML with myelodysplasia-related changes,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00200,4844,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00261,4845,AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22); CBFB-MYH11,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00290,4846,"Mixed phenotype acute leukaemia, T/myeloid, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00313,4847,AML with mutated NPM1,Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00315,4848,"Acute myeloid leukaemia, NOS",Peripheral Blood,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00327,4849,AML with mutated NPM1,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00369,4850,AML without maturation,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+19-00400,4851,Therapy-related myeloid neoplasms,Bone Marrow Aspirate,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00002,4852,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00003,4853,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00004,4854,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00005,4855,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00006,4856,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00007,4857,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00008,4858,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00009,4859,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00010,4860,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00011,4861,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00012,4862,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00013,4863,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00015,4864,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00016,4865,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00017,4866,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+00-00018,4867,Control,Healthy pooled CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00035,4868,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00036,4869,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00037,4870,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00038,4871,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00039,4872,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00040,4873,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00041,4874,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00042,4875,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00043,4876,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00044,4877,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00045,4878,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00046,4879,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00047,4880,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00048,4881,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00049,4882,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00050,4883,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00051,4884,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00052,4885,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00053,4886,Control,Healthy Individual CD34+,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00055,4887,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
+17-00056,4888,Control,Healthy Individual BM MNC,ACUTE MYELOID LEUKAEMIA,ex vivo,beatAML
