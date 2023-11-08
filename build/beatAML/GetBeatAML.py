@@ -6,6 +6,7 @@ from synapseclient import Project, Folder, File, Link
 import requests
 import numpy as np
 import subprocess
+import argparse
 
 
 def download_from_github(raw_url, save_path):
@@ -460,11 +461,13 @@ def generate_raw_drug_file(original_drug_file, sample_mapping_file, updated_raw_
 
 
 if __name__ == "__main__":
-    
+    parser = argparse.ArgumentParser(description='Process some integers and a string.')
+    parser.add_argument('-t', '--token', type=str, help='Synapse Token')
+    args = parser.parse_args()
     
     print("Logging into Synapse")
     syn = synapseclient.Synapse()
-    PAT = "eyJ0eXAiOiJKV1QiLCJraWQiOiJXN05OOldMSlQ6SjVSSzpMN1RMOlQ3TDc6M1ZYNjpKRU9VOjY0NFI6VTNJWDo1S1oyOjdaQ0s6RlBUSCIsImFsZyI6IlJTMjU2In0.eyJhY2Nlc3MiOnsic2NvcGUiOlsidmlldyIsImRvd25sb2FkIl0sIm9pZGNfY2xhaW1zIjp7fX0sInRva2VuX3R5cGUiOiJQRVJTT05BTF9BQ0NFU1NfVE9LRU4iLCJpc3MiOiJodHRwczovL3JlcG8tcHJvZC5wcm9kLnNhZ2ViYXNlLm9yZy9hdXRoL3YxIiwiYXVkIjoiMCIsIm5iZiI6MTY5MzU5MzA2MywiaWF0IjoxNjkzNTkzMDYzLCJqdGkiOiIzNzY5Iiwic3ViIjoiMzQ1Mzk1NSJ9.d1bet3qFrRW057urAvyvc3jGWzZyF-g4Gq4Bq8_rJYZpYQyrZoGUbeUY-Anxep7P4AszGCdRjrcG9iI5UXExu13J5jtVne-Kb5O8Yy1RDWZcK8wZ2s0ei5_B-gf29JJU6Djumxf3ebhHMJqJOSuDcHpSrJJCwaFWo6YivJyzeDPJIggyWIh9NE_67XYHPNEH0SEEUesKPq3B-YI5q5ienq_guMd2sGP3JzdHsbVCSaJ4H4v_GGeYL8Wm84mORjQegH5px4makNI6tUXrjjVRQjJdyWj3eQxBUd8kKwe2SWG4cyCNPu0sHxT2PLmzIuiTK3YCxw5nqJjV7T2RG3ZGww"
+    PAT = args.token
     syn.login(authToken=PAT)
     # drug response: syn51674470
     # gene: syn25714248
