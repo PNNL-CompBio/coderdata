@@ -53,6 +53,34 @@ def retrieve_figshare_data(url):
     new_file = str(next(iter(set(files_1) - set(files_0))))
     return new_file
 
+def remove_sixth_from_last_quote(s):
+    """
+    Modify an incorrectly formatted file. 
+    """
+    reversed_s = s[::-1]  # Reverse the string
+    count = 0
+    index_to_remove = None
+    for i, char in enumerate(reversed_s):
+        if char == '"':
+            count += 1
+        if count == 6:
+            index_to_remove = i
+            break
+    # Remove the 6th occurrence of the quote character
+    if index_to_remove is not None:
+        reversed_s = reversed_s[:index_to_remove] + reversed_s[index_to_remove+1:]
+    return reversed_s[::-1]  # Reverse again to obtain the original order
+
+def modify_patient_file(file_path):
+    """
+    Modify an incorrectly formatted file. 
+    """
+    with open(file_path, 'r', encoding='ISO-8859-1') as f:
+        lines = f.readlines()
+    # Modify the 110th line (0-based index is 109)
+    lines[109] = remove_sixth_from_last_quote(lines[109])
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.writelines(lines)
         
 def generate_samples_file():
     """
@@ -70,30 +98,46 @@ def generate_samples_file():
     # Read the beataml_waves1to4_sample_mapping.xlsx file
     beataml_samples = pd.read_excel('beataml_waves1to4_sample_mapping.xlsx')
     additional_samples = beataml_samples[~beataml_samples['rna_control'].isin(['No', '']) & pd.notna(beataml_samples['rna_control'])]
+    
     # Map rna_control to common_name and retain columns LabId, dbgap_rnaseq_sample
     additional_samples = additional_samples[['labId', 'dbgap_rnaseq_sample', 'rna_control']]
+
     # Read the other file
     mapped_info = pd.read_excel('1-s2.0-S1535610822003129-mmc2.xlsx', skiprows=1)
+
     # Merge with the original samples on dbgap_rnaseq_sample
     original_samples = mapped_info.merge(beataml_samples, on="dbgap_rnaseq_sample", how="inner")
+
     # Concatenate the original samples and the additional samples
-    all_samples = pd.concat([original_samples, additional_samples], ignore_index=True)
+    full_samples = pd.concat([original_samples, additional_samples], ignore_index=True)
 
+    full_samples = full_samples[["labId", "specificDxAtInclusion", "specimenType","rna_control"]]
+    full_samples['common_name'] = np.where(full_samples['specimenType'].isna(), full_samples['rna_control'], full_samples['specimenType'])
+    full_samples.drop(columns=["specimenType","rna_control"], inplace=True)
+    full_samples.rename(columns={"labId": "other_id"}, inplace=True)
+    full_samples.rename(columns={"specificDxAtInclusion": "other_names"}, inplace=True)
+    full_samples['other_names'] = full_samples['other_names'].fillna('Control')
+    full_samples["cancer_type"] = "ACUTE MYELOID LEUKAEMIA"
+    full_samples["model_type"] = "ex vivo"
+    full_samples["other_id_source"] = "beatAML"
+    full_samples.drop_duplicates(subset='other_id', keep='first', inplace=True)
+    
+    prot_sample_file = 'PNNL_clinical_summary_12_08_2021_updated_OS_4patients_02_28_2022.txt'
+    modify_patient_file(prot_sample_file)
+    prot_samples = pd.read_csv(prot_sample_file, delimiter=' ', skipinitialspace=True, encoding='ISO-8859-1', quotechar='"')
+    prot_samples = prot_samples[["labId","specificDxAtInclusion","specimenType"]]
+    prot_samples.rename(columns={"labId": "other_id"}, inplace=True)
+    prot_samples.rename(columns={"specificDxAtInclusion": "other_names"}, inplace=True)
+    prot_samples.rename(columns={"specimenType": "common_name"}, inplace=True)
+    prot_samples["cancer_type"] = "ACUTE MYELOID LEUKAEMIA"
+    prot_samples["model_type"] = "ex vivo"
+    prot_samples["other_id_source"] = "beatAML"    
+    
+    all_samples = pd.concat([prot_samples, full_samples])
     maxval = max(pd.read_csv('https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/build/hcmi/samples.csv').improve_sample_id)
-    mapping = {labId: i for i, labId in enumerate(all_samples['labId'].unique(), start=(int(maxval)+1))}
-    all_samples['improve_sample_id'] = all_samples['labId'].map(mapping)
-
-    all_samples = all_samples[["labId", "improve_sample_id", "specificDxAtInclusion", "specimenType","rna_control"]]
-    all_samples['common_name'] = np.where(all_samples['specimenType'].isna(), all_samples['rna_control'], all_samples['specimenType'])
-    all_samples.drop(columns=["specimenType","rna_control"], inplace=True)
-    all_samples.rename(columns={"labId": "other_id"}, inplace=True)
-    all_samples.rename(columns={"specificDxAtInclusion": "other_names"}, inplace=True)
-    all_samples['other_names'] = all_samples['other_names'].fillna('Control')
-    all_samples["cancer_type"] = "ACUTE MYELOID LEUKAEMIA"
-    all_samples["model_type"] = "ex vivo"
-    all_samples["other_id_source"] = "beatAML"
-    all_samples
-    all_samples.drop_duplicates(subset='improve_sample_id', keep='first', inplace=True)
+    mapping = {labId: i for i, labId in enumerate(all_samples['other_id'].unique(), start=(int(maxval)+1))}
+    all_samples['improve_sample_id'] = all_samples['other_id'].map(mapping)
+    all_samples.insert(1, 'improve_sample_id', all_samples.pop('improve_sample_id'))
     all_samples.to_csv("beataml_samples.csv", index=False)
     return all_samples
 
@@ -394,6 +438,7 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
             },
             inplace=True
         )
+        
 
     mapped_df = pd.merge(mapped_df, improve[['other_id', 'improve_sample_id']], 
                          left_on='sample_id', 
@@ -552,24 +597,24 @@ if __name__ == "__main__":
     t_df = map_and_combine(t_df, "transcriptomics", entrez_map_file, "beataml_samples.csv", sample_mapping_file)
     t_df = t_df[t_df.entrez_id.notna()]
     t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]]
-    t_df.to_csv("beataml_transcriptomics.csv")
+    t_df.to_csv("beataml_transcriptomics.csv",index=False)
 
-#     # New Proteomics Data
+    # New Proteomics Data
     print("Starting Proteomics Data")
     p_df = pd.read_csv("ptrc_ex10_crosstab_global_gene_corrected.txt", sep = '\t')
     p_df = p_df.reset_index().rename(columns={'index': 'Protein'})
     p_df = pd.melt(p_df, id_vars=['Protein'], var_name='id', value_name='proteomics')
     p_df = map_and_combine(p_df, "proteomics", entrez_map_file, improve_map_file, proteomics_map)
     p_df = p_df[["improve_sample_id","proteomics","entrez_id","source","study"]]
-    p_df.to_csv("beataml_proteomics.csv")
-
+    p_df.to_csv("beataml_proteomics.csv",index=False)
+    
     
     # New Mutation Data
     print("Starting Mutation Data")
     m_df = pd.read_csv(mutations_file, sep = '\t')
     m_df = map_and_combine(m_df, "mutations", entrez_map_file, "beataml_samples.csv", mutation_map_file)
     m_df = m_df[["improve_sample_id","mutations", "entrez_id","variant_classification","source","study"]]
-    m_df.to_csv("beataml_mutations.csv")
+    m_df.to_csv("beataml_mutations.csv",index=False)
     
     
     # Drug and Experiment Data
@@ -592,4 +637,3 @@ if __name__ == "__main__":
     exp_res.to_csv("beataml_experiments.csv", index=False)
     print("Finished Pipeline")
 
-    
