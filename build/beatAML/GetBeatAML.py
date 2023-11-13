@@ -82,7 +82,7 @@ def modify_patient_file(file_path):
     with open(file_path, 'w', encoding='utf-8') as f:
         f.writelines(lines)
         
-def generate_samples_file():
+def generate_samples_file(prev_samples_path):
     """
     Generate samples file by reading, processing and merging multiple source files.
 
@@ -134,7 +134,7 @@ def generate_samples_file():
     prot_samples["other_id_source"] = "beatAML"    
     
     all_samples = pd.concat([prot_samples, full_samples])
-    maxval = max(pd.read_csv('https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/build/hcmi/samples.csv').improve_sample_id)
+    maxval = max(pd.read_csv(prev_samples_path).improve_sample_id)
     mapping = {labId: i for i, labId in enumerate(all_samples['other_id'].unique(), start=(int(maxval)+1))}
     all_samples['improve_sample_id'] = all_samples['other_id'].map(mapping)
     all_samples.insert(1, 'improve_sample_id', all_samples.pop('improve_sample_id'))
@@ -549,8 +549,7 @@ if __name__ == "__main__":
     updated_raw_drug_file = "beatAML_drug_raw.tsv"
     
     drug_path = "beatAML_drug_processed.tsv.0"
-    drug_map_path = "drugs_by_structure.tsv.gz"
-    retrieve_figshare_data("https://figshare.com/ndownloader/files/42357210?private_link=525f7777039f4610ef47")
+    drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
     
     transcriptomics_file = "beataml_waves1to4_norm_exp_dbgap.txt"
     transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"
@@ -568,8 +567,10 @@ if __name__ == "__main__":
     supplimentary_file = '1-s2.0-S1535610822003129-mmc2.xlsx'
     download_from_github(supplementary_url, supplimentary_file)
     
+    prev_samples_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112428?private_link=0ea222d9bd461c756fb0")
+    
     #Generate Samples File
-    generate_samples_file()
+    generate_samples_file(prev_samples_path)
     improve_map_file = "beataml_samples.csv"
     
     print("Starting Raw Drug File Generation ")
@@ -586,7 +587,6 @@ if __name__ == "__main__":
     else:
         print("Curve fitting failed.")
 
-    
     # New Transcriptomics Data
     print("Starting Transcriptomics Data")
     t_df = pd.read_csv(transcriptomics_file, sep = '\t')
@@ -608,14 +608,12 @@ if __name__ == "__main__":
     p_df = p_df[["improve_sample_id","proteomics","entrez_id","source","study"]]
     p_df.to_csv("beataml_proteomics.csv",index=False)
     
-    
     # New Mutation Data
     print("Starting Mutation Data")
     m_df = pd.read_csv(mutations_file, sep = '\t')
     m_df = map_and_combine(m_df, "mutations", entrez_map_file, "beataml_samples.csv", mutation_map_file)
     m_df = m_df[["improve_sample_id","mutations", "entrez_id","variant_classification","source","study"]]
     m_df.to_csv("beataml_mutations.csv",index=False)
-    
     
     # Drug and Experiment Data
     print("Starting Drug Data")
@@ -636,4 +634,3 @@ if __name__ == "__main__":
     exp_res = exp_res[["source","improve_sample_id","improve_drug_id","study","auc","ic50","ec50","ec50se","r2fit","einf","hs","aac1","auc1","dss1"]]
     exp_res.to_csv("beataml_experiments.csv", index=False)
     print("Finished Pipeline")
-
