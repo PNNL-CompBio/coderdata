@@ -1,0 +1,16 @@
+FROM --platform=linux/x86_64 python:3.9
+
+WORKDIR /usr/src/app
+
+COPY build/hcmi/01-createHCMISamplesFile.py .
+COPY build/hcmi/02-getHCMIData.py .
+COPY build/hcmi/full_manifest.txt .
+COPY build/cptac/cptac_samples.csv .
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD python 01-createHCMISamplesFile.py && \
+    python 02-getHCMIData.py -m full_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv && \
+    python 02-getHCMIData.py -m full_manifest.txt -t copy_number -o hcmi_copy_number.csv && \
+    python 02-getHCMIData.py -m full_manifest.txt -t mutations -o hcmi_mutations.csv
