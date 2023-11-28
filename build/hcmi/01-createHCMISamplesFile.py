@@ -154,8 +154,16 @@ def filter_and_subset_data(df):
             )
     filt = filt[["cancer_type","common_name","other_names","other_id","model_type"]]
     filt["other_id_source"] = "HCMI"
+    # Create new improve sample IDs
+    
+    #Non-docker:
+    maxval = max(pd.read_csv('../cptac/cptac_samples.csv').improve_sample_id)
+    # Docker:
+    # maxval = max(pd.read_csv('cptac_samples.csv').improve_sample_id)
+    mapping = {other_id: i for i, other_id in enumerate(filt['other_id'].unique(), start=(int(maxval)+1))}
+    # Use the map method to create the new column based on the lab-id column
+    filt['improve_sample_id'] = filt['other_id'].map(mapping)
     return filt
-
 
 
 def main():
@@ -191,13 +199,8 @@ def main():
     metadata = fetch_metadata_for_samples(uuids)
     df = extract_data(metadata)
     output = filter_and_subset_data(df)
-    output.to_csv("samples.csv",index=False)
+    output.to_csv("hcmi_samples.csv",index=False)
 
-    ##now add in samples
-    print('Writing new samples with improve_sample_id')
-    cmd = "python ../utils/assign_improve_ids.py -p ../cptac/samples.csv  -n samples.csv -s other_id -o samples.csv"
-    os.system(cmd)
-    
  
 main()
 
