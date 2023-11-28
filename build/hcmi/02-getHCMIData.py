@@ -150,7 +150,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
         Metadata associated with the UUIDs extracted from the manifest.
     """
     
-    manifest_loc = data_type + "_manifest_files"
+    manifest_loc = "full_manifest_files"
 
     if download_data:
         if os.path.isdir(manifest_loc):
@@ -165,6 +165,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
     metadata = fetch_metadata(uuids)
 
     return metadata
+
 
 def get_clean_files(data_type):
     """
@@ -192,51 +193,42 @@ def get_clean_files(data_type):
 
     suffix = data_suffixes.get(data_type)
     
-    manifest = f'{data_type}_manifest_files'
+    manifest = 'full_manifest_files'
     
-    # Filter out unwanted folders like .DS_Store
     manifest_folders = [folder for folder in os.listdir(manifest) if folder != '.DS_Store']
     
-    # Extract filenames that match the given suffix, exclude any with '.ipynb_checkpoints'
-    sample_filenames = [
-        x for folder_name in manifest_folders 
-        for x in os.listdir(os.path.join(manifest, folder_name))
-        if suffix in x and '.ipynb_checkpoints' not in x
-    ]
-
     all_dataframes = []
-    first = True
 
-    # Create file paths, read files into dataframes and process them
-    for folder_n, sample in zip(manifest_folders, sample_filenames):
-        filepath = os.path.join(manifest, folder_n, sample)
-        if ".gz" in filepath:
-            with gzip.open(filepath) as f:
-                dataframe = pd.read_csv(f, delimiter='\t', skiprows=7)
-        else:
-            dataframe = pd.read_csv(filepath, delimiter='\t')
+    for folder_name in manifest_folders:
+        folder_path = os.path.join(manifest, folder_name)
+        folder_files = os.listdir(folder_path)
 
-        dataframe['file_id'] = folder_n
-        dataframe.reset_index(inplace=True)
+        sample_filenames = [x for x in folder_files if suffix in x and '.ipynb_checkpoints' not in x]
 
-        # Special handling for transcriptomics data type
-        if data_type == "transcriptomics":
-            dataframe.columns = dataframe.iloc[0]
-            if 'tpm_unstranded' in dataframe.columns:
-                dataframe = dataframe[5:]
-                new_index = ['gene_id', 'gene_name', 'gene_type', 'tpm_unstranded', 'file_id']
-                dataframe = dataframe.reindex(columns=new_index)
-                dataframe['file_id'] = folder_n
-                dataframe = dataframe[dataframe['gene_type'] == 'protein_coding']
+        for sample in sample_filenames:
+            filepath = os.path.join(manifest, folder_name, sample)
+            if ".gz" in filepath:
+                with gzip.open(filepath) as f:
+                    dataframe = pd.read_csv(f, delimiter='\t', skiprows=7)
+            else:
+                dataframe = pd.read_csv(filepath, delimiter='\t')
 
-        # Print the first dataframe for sanity
-        if first:
-            print(dataframe)
-            first = False
+            dataframe['file_id'] = folder_name
+            dataframe.reset_index(inplace=True)
 
-        all_dataframes.append(dataframe)
+            if data_type == "transcriptomics":
+                dataframe.columns = dataframe.iloc[0]
+                if 'tpm_unstranded' in dataframe.columns:
+                    dataframe = dataframe[5:]
+                    new_index = ['gene_id', 'gene_name', 'gene_type', 'tpm_unstranded', 'file_id']
+                    dataframe = dataframe.reindex(columns=new_index)
+                    dataframe['file_id'] = folder_name
+                    dataframe = dataframe[dataframe['gene_type'] == 'protein_coding']
+
+            all_dataframes.append(dataframe)
         
     return all_dataframes
+
 
 
 def retrieve_figshare_data(url):
@@ -284,7 +276,6 @@ def copy_num(arr):
         
         if math.isnan(a):
             return float('nan')
-        #print(a)
         a_val = math.log2(float(a)+0.000001) ###this should not be exponent, should be log!!! 2**float(a)
         if a_val < 0.0: #0.5210507:
             return 'deep del'
@@ -421,7 +412,7 @@ def align_to_schema(data,data_type):
         The final form of the dataframe.
     """
     
-    samples_path = "samples.csv"
+    samples_path = "hcmi_samples.csv"
     #samples_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/hcmi_update/hcmi/samples.csv"
     #download_from_github(samples_url, samples_path)
     samples = pd.read_csv(samples_path)   
