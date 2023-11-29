@@ -1,3 +1,4 @@
+theme: jekyll-theme-minimal
 ## Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package
 
 Welcome to the `coderdata` repository.
