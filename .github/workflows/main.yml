@@ -6,21 +6,23 @@ on:
       - JJ_hcmi_branch
 
 jobs:
-  build:
+  build-hcmi:
     runs-on: ubuntu-20.04
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
     - name: Build HCMI Image
       run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
-
     - name: Run HCMI Container
       run: docker run hcmi-builder
 
+  build-beataml:
+    runs-on: ubuntu-20.04
+    needs: build-hcmi
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
     - name: Build BeatAML Image
       run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
-
     - name: Run BeatAML Container
       run: docker run -e SYNAPSE_TOKEN=${{ secrets.GITHUB_SECRET_SYNAPSE_TOKEN }} beataml-builder
-        
