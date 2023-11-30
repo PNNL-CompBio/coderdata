@@ -16,16 +16,15 @@ jobs:
         run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
       - name: Run HCMI Container
         run: docker run --name hcmi-container hcmi-builder
-      - name: Get HCMI container logs
-        run: docker logs hcmi-container
       - name: Copy files from HCMI Container
         run: |
           mkdir hcmi-files
-          for file in hcmi_transcriptomics.csv hcmi_samples.csv hcmi_mutations.csv hcmi_copy_number.csv; do
-            if docker exec hcmi-container test -f /usr/src/app/$file; then
-              docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
+          for file in hcmi_samples.csv hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
+            docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
             fi
           done
+      - name: Get HCMI container logs
+        run: docker logs hcmi-container
       - name: Upload artifacts for HCMI
         uses: actions/upload-artifact@v2
         with:
@@ -43,23 +42,22 @@ jobs:
         run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
       - name: Run BeatAML Container
         run: docker run --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
-      - name: Get BeatAML container logs
-        run: docker logs hcmi-container
       - name: Copy files from BeatAML Container
         run: |
           mkdir beataml-files
-          for file in beataml_drugs.tsv beataml_experiments.csv beataml_mutations.csv beataml_proteomics.csv beataml_samples.csv beataml_transcriptomics.csv; do
-            if docker exec beataml-container test -f /usr/src/app/$file; then
-              docker cp beataml-container:/usr/src/app/$file beataml-files/$file
+          for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv; beataml_drugs.tsv beataml_experiments.csv do
+            docker cp beataml-container:/usr/src/app/$file beataml-files/$file
             fi
           done
+      - name: Get BeatAML container logs
+        run: docker logs beataml-container
       - name: Upload artifact for BeatAML
         uses: actions/upload-artifact@v2
         with:
           name: beataml-files
           path: beataml-files
 
-  upload-to-external-site:
+  upload-to-figshare:
     needs: [build-hcmi, build-beataml]
     runs-on: ubuntu-20.04
     if: always()
