@@ -8,7 +8,7 @@ on:
 jobs:
   build-hcmi:
     runs-on: ubuntu-20.04
-    environment: github-pages
+    environment: build
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -19,7 +19,7 @@ jobs:
 
   build-beataml:
     runs-on: ubuntu-20.04
-    environment: github-pages
+    environment: build
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
