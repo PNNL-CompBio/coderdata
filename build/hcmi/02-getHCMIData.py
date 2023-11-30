@@ -212,7 +212,6 @@ def get_clean_files(data_type):
                 with gzip.open(filepath, 'rt') as f:
                     # Read into pandas DataFrame then convert. This is the only time pandas is used.
                     dataframe_pd = pd.read_csv(f, sep='\t', skiprows=7,low_memory=False)
-                    print(dataframe_pd)
                     dataframe = pl.DataFrame(dataframe_pd)
             else:
                 if data_type == "transcriptomics":
