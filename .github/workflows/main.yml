@@ -18,7 +18,6 @@ jobs:
 
   build-beataml:
     runs-on: ubuntu-20.04
-    needs: build-hcmi
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
