@@ -10,12 +10,14 @@ jobs:
     runs-on: ubuntu-20.04
     environment: build
     steps:
-      - name: Checkout code
+      - name: Checkout  HCMI
         uses: actions/checkout@v2
       - name: Build HCMI Image
         run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
       - name: Run HCMI Container
-        run: docker run -d --name hcmi-container hcmi-builder
+        run: docker run --name hcmi-container hcmi-builder
+      - name: Get HCMI container logs
+        run: docker logs hcmi-container
       - name: Copy files from HCMI Container
         run: |
           mkdir hcmi-files
@@ -30,16 +32,19 @@ jobs:
           name: hcmi-files
           path: hcmi-files
 
+
   build-beataml:
     runs-on: ubuntu-20.04
     environment: build
     steps:
-      - name: Checkout code
+      - name: Checkout code BeatAML
         uses: actions/checkout@v2
       - name: Build BeatAML Image
         run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
       - name: Run BeatAML Container
-        run: docker run -d --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
+        run: docker run --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
+      - name: Get BeatAML container logs
+        run: docker logs hcmi-container
       - name: Copy files from BeatAML Container
         run: |
           mkdir beataml-files
