@@ -9,4 +9,4 @@ COPY build/utils/fit_curve.py .
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD python GetBeatAML.py --token ${SYNAPSE_TOKEN_SECRET}
+CMD python GetBeatAML.py --token ${SYNAPSE_TOKEN}
