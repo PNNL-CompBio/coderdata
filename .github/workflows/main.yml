@@ -1,40 +1,26 @@
-# name: CI
+name: CI
 
-# on:
-#   push:
-#     branches:
-#       - JJ_hcmi_branch
+on:
+  push:
+    branches:
+      - JJ_hcmi_branch
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-20.04
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v2
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-#     - name: Set up Python for GitHub
-#       if: github.event_name != 'push' || github.repository != 'owner/repo'
-#       uses: actions/setup-python@v2
-#       with:
-#         python-version: 3.11
-    
-#     - name: Install dependencies
-#       run: |
-#         python -m pip install --upgrade pip
-#         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Build HCMI Image
+      run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
 
-#     - name: Data Generation and Push (mutations)
-#       run: |
-#         echo "Mutations Processing"
-#         python hcmi/getHCMIData.py -m hcmi/mutations_manifest_gdc.txt -t mutations -o mutations_hcmi.csv
+    - name: Run HCMI Container
+      run: docker run hcmi-builder
 
-#     - name: Data Generation and Push (copy number)
-#       run: |
-#         echo "Copy number Processing"
-#         python hcmi/getHCMIData.py -m hcmi/copy_number_manifest_gdc.txt -t copy_number -o copy_number_hcmi.csv
+    - name: Build BeatAML Image
+      run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
 
-#     - name: Data Generation and Push (transcriptomics)
-#       run: |
-#         echo "Transcriptomics processing"
-#         python hcmi/getHCMIData.py -m hcmi/transcriptomics_manifest_gdc.txt -t transcriptomics -o transcriptomics_hcmi.csv
-
+    - name: Run BeatAML Container
+      run: docker run -e SYNAPSE_TOKEN=${{ secrets.GITHUB_SECRET_SYNAPSE_TOKEN }} beataml-builder
+        
