@@ -10,20 +10,68 @@ jobs:
     runs-on: ubuntu-20.04
     environment: build
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Build HCMI Image
-      run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
-    - name: Run HCMI Container
-      run: docker run hcmi-builder
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build HCMI Image
+        run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
+      - name: Run HCMI Container
+        run: docker run -d --name hcmi-container hcmi-builder
+      - name: Copy files from HCMI Container
+        run: |
+          mkdir hcmi-files
+          for file in hcmi_transcriptomics.csv hcmi_samples.csv hcmi_mutations.csv hcmi_copy_number.csv; do
+            if docker exec hcmi-container test -f /usr/src/app/$file; then
+              docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
+            fi
+          done
+      - name: Upload artifacts for HCMI
+        uses: actions/upload-artifact@v2
+        with:
+          name: hcmi-files
+          path: hcmi-files
 
   build-beataml:
     runs-on: ubuntu-20.04
     environment: build
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Build BeatAML Image
-      run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
-    - name: Run BeatAML Container
-      run: docker run -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build BeatAML Image
+        run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
+      - name: Run BeatAML Container
+        run: docker run -d --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
+      - name: Copy files from BeatAML Container
+        run: |
+          mkdir beataml-files
+          for file in beataml_drugs.tsv beataml_experiments.csv beataml_mutations.csv beataml_proteomics.csv beataml_samples.csv beataml_transcriptomics.csv; do
+            if docker exec beataml-container test -f /usr/src/app/$file; then
+              docker cp beataml-container:/usr/src/app/$file beataml-files/$file
+            fi
+          done
+      - name: Upload artifact for BeatAML
+        uses: actions/upload-artifact@v2
+        with:
+          name: beataml-files
+          path: beataml-files
+
+  upload-to-external-site:
+    needs: [build-hcmi, build-beataml]
+    runs-on: ubuntu-20.04
+    if: always()
+    steps:
+      - name: Download artifacts from HCMI
+        uses: actions/download-artifact@v2
+        with:
+          name: hcmi-files
+      - name: Download artifacts from BeatAML
+        uses: actions/download-artifact@v2
+        with:
+          name: beataml-files
+      - name: Create all-files directory
+        run: mkdir all-files
+      - name: Move files to all-files
+        run: |
+          mv hcmi-files/* all-files/
+          mv beataml-files/* all-files/
+      - name: List files in all-files
+        run: ls -lah all-files/
