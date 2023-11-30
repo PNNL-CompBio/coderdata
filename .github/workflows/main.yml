@@ -25,4 +25,4 @@ jobs:
     - name: Build BeatAML Image
       run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
     - name: Run BeatAML Container
-      run: docker run -e SYNAPSE_TOKEN=${{ secrets.GITHUB_SECRET_SYNAPSE_TOKEN }} beataml-builder
+      run: docker run -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
