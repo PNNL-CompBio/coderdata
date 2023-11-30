@@ -16,6 +16,8 @@ jobs:
         run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
       - name: Run HCMI Container
         run: docker run -d --name hcmi-container hcmi-builder
+      - name: Get Docker container logs
+        run: docker logs hcmi-container
       - name: Copy files from HCMI Container
         run: |
           mkdir hcmi-files
