@@ -7,3 +7,6 @@ matplotlib
 tqdm
 scikit-learn
 scipy
+#polars
+pyarrow
+polars-lts-cpu
