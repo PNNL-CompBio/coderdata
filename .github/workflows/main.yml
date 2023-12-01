@@ -25,7 +25,9 @@ jobs:
       # - name: Get HCMI container logs
       #   run: docker logs hcmi-container
       - name: dummy hcmi
-        run: touch hcmi-files/d.txt hcmi-files/bc.gz
+        run: |
+          mkdir hcmi-files
+          touch hcmi-files/d.txt hcmi-files/bc.gz
       - name: Upload artifacts for HCMI
         uses: actions/upload-artifact@v2
         with:
@@ -52,7 +54,9 @@ jobs:
       # - name: Get BeatAML container logs
       #   run: docker logs beataml-container
       - name: dummy beataml
-        run: touch beataml-files/a.tsv beataml-files/b.csv
+        run: |
+          mkdir beataml-files
+          touch beataml-files/a.tsv beataml-files/b.csv
       - name: Upload artifact for BeatAML
         uses: actions/upload-artifact@v2
         with:
