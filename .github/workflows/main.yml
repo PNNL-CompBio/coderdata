@@ -27,7 +27,8 @@ jobs:
       - name: dummy hcmi
         run: |
           mkdir hcmi-files
-          touch hcmi-files/d.txt hcmi-files/bc.gz
+          echo "This is some sample text." > hcmi-files/d.txt
+          echo "Another line of text." > hcmi-files/c.gz
       - name: Upload artifacts for HCMI
         uses: actions/upload-artifact@v2
         with:
@@ -56,7 +57,8 @@ jobs:
       - name: dummy beataml
         run: |
           mkdir beataml-files
-          touch beataml-files/a.tsv beataml-files/b.csv
+          echo "Sample content for a file." > beataml-files/a.tsv 
+          echo "More content for b file." > beataml-files/b.csv
       - name: Upload artifact for BeatAML
         uses: actions/upload-artifact@v2
         with:
@@ -89,4 +91,7 @@ jobs:
         - name: List files in all-files
           run: ls -lah all-files/
         - name: Upload to Figshare
-          run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+          # This can be updated to trigger with tag releases.
+          # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+          #This is a short term alternative. Links to branch. Not as pretty but okay for now.
+          run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
