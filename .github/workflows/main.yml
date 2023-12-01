@@ -74,7 +74,7 @@ jobs:
           run: ls -lah 
         - name: Move files to all-files
           run: |
-            mv * all-files/
+            rsync -av --remove-source-files --include='*.csv' --include='*.tsv' --include='*.gz' --exclude='*' . all-files/
         - name: List files in all-files
           run: ls -lah all-files/
         - name: Upload to Figshare
