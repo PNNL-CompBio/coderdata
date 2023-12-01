@@ -70,10 +70,13 @@ jobs:
             name: beataml-files
         - name: Create all-files directory
           run: mkdir all-files
+        - name: List files cwd
+          run: ls -lah 
         - name: Move files to all-files
           run: |
-            mv hcmi-files/* all-files/
-            mv beataml-files/* all-files/
+            mv *.csv all-files/
+            mv *.tsv all-files/
+            mv *.gz all-files/
         - name: List files in all-files
           run: ls -lah all-files/
         - name: Upload to Figshare
