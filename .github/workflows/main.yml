@@ -44,7 +44,7 @@ jobs:
       - name: Copy files from BeatAML Container
         run: |
           mkdir beataml-files
-          for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv; beataml_drugs.tsv beataml_experiments.csv do
+          for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv beataml_drugs.tsv beataml_experiments.csv; do
             docker cp beataml-container:/usr/src/app/$file beataml-files/$file
           done
       - name: Get BeatAML container logs
@@ -55,7 +55,7 @@ jobs:
           name: beataml-files
           path: beataml-files
 
-  upload-to-figshare:
+upload-to-figshare:
     needs: [build-hcmi, build-beataml]
     runs-on: ubuntu-20.04
     if: always()
@@ -76,3 +76,5 @@ jobs:
           mv beataml-files/* all-files/
       - name: List files in all-files
         run: ls -lah all-files/
+      - name: Upload to Figshare
+        run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
