@@ -65,6 +65,7 @@ jobs:
 
   upload-to-figshare:
       needs: [build-hcmi, build-beataml]
+      environment: build
       runs-on: ubuntu-20.04
       if: always()
       steps:
