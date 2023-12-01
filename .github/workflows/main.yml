@@ -12,23 +12,23 @@ jobs:
     steps:
       - name: Checkout  HCMI
         uses: actions/checkout@v2
-      # - name: Build HCMI Image
-      #   run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
-      # - name: Run HCMI Container
-      #   run: docker run --name hcmi-container hcmi-builder
-      # - name: Copy files from HCMI Container
-      #   run: |
-      #     mkdir hcmi-files
-      #     for file in hcmi_samples.csv hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
-      #       docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
-      #     done
-      # - name: Get HCMI container logs
-      #   run: docker logs hcmi-container
-      - name: dummy hcmi
+      - name: Build HCMI Image
+        run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
+      - name: Run HCMI Container
+        run: docker run --name hcmi-container hcmi-builder
+      - name: Copy files from HCMI Container
         run: |
           mkdir hcmi-files
-          echo "This is some sample text." > hcmi-files/d.txt
-          echo "Another line of text." > hcmi-files/c.gz
+          for file in hcmi_samples.csv hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
+            docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
+          done
+      - name: Get HCMI container logs
+        run: docker logs hcmi-container
+      # - name: dummy hcmi
+      #   run: |
+      #     mkdir hcmi-files
+      #     echo "This is some sample text." > hcmi-files/d.txt
+      #     echo "Another line of text." > hcmi-files/c.gz
       - name: Upload artifacts for HCMI
         uses: actions/upload-artifact@v2
         with:
@@ -42,23 +42,23 @@ jobs:
     steps:
       - name: Checkout code BeatAML
         uses: actions/checkout@v2
-      # - name: Build BeatAML Image
-      #   run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
-      # - name: Run BeatAML Container
-      #   run: docker run --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
-      # - name: Copy files from BeatAML Container
-      #   run: |
-      #     mkdir beataml-files
-      #     for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv beataml_drugs.tsv beataml_experiments.csv; do
-      #       docker cp beataml-container:/usr/src/app/$file beataml-files/$file
-      #     done
-      # - name: Get BeatAML container logs
-      #   run: docker logs beataml-container
-      - name: dummy beataml
+      - name: Build BeatAML Image
+        run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
+      - name: Run BeatAML Container
+        run: docker run --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
+      - name: Copy files from BeatAML Container
         run: |
           mkdir beataml-files
-          echo "Sample content for a file." > beataml-files/a.tsv 
-          echo "More content for b file." > beataml-files/b.csv
+          for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv beataml_drugs.tsv beataml_experiments.csv; do
+            docker cp beataml-container:/usr/src/app/$file beataml-files/$file
+          done
+      - name: Get BeatAML container logs
+        run: docker logs beataml-container
+      # - name: dummy beataml
+      #   run: |
+      #     mkdir beataml-files
+      #     echo "Sample content for a file." > beataml-files/a.tsv 
+      #     echo "More content for b file." > beataml-files/b.csv
       - name: Upload artifact for BeatAML
         uses: actions/upload-artifact@v2
         with:
