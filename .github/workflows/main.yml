@@ -103,5 +103,15 @@ jobs:
           run: ls -lah ~/work/*
         - name: List files in ~/work/*/*
           run: ls -lah ~/work/*/*
-        - name: Upload to Figshare
-          run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+        - name: echo path
+          run: echo $PATH
+        - name: list /home/runner/work/coderdata/coderdata/*
+          run: ls -lah /home/runner/work/coderdata/coderdata/*
+        - name: list /home/runner/work/coderdata/coderdata/*/*
+          run: ls -lah /home/runner/work/coderdata/coderdata/*/*
+        - name: list ../../../*
+          run: ls -lah ../../../*
+        - name: pwd 
+          run: pwd
+        # - name: Upload to Figshare
+        #   run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
