@@ -87,33 +87,5 @@ jobs:
             rsync -av --remove-source-files --include='*.csv' --include='*.tsv' --include='*.gz' --exclude='*' . all-files/
         - name: List files in all-files
           run: ls -lah all-files/
-        - name: List files in ~
-          run: ls -lah ~
-        - name: List files in ..
-          run: ls -lah ..
-        - name: List files in ../..
-          run: ls -lah ../..
-        - name: List files in ../../..
-          run: ls -lah ../../..
-        - name: List files in ../../../..
-          run: ls -lah ../../../..
-        - name: List files in ~/work
-          run: ls -lah ~/work
-        - name: List files in ~/runners
-          run: ls -lah ~/runners
-        - name: List files in ~/work/*
-          run: ls -lah ~/work/*
-        - name: List files in ~/work/*/*
-          run: ls -lah ~/work/*/*
-        - name: echo path
-          run: echo $PATH
-        - name: list /home/runner/work/coderdata/coderdata/*
-          run: ls -lah /home/runner/work/coderdata/coderdata/*
-        - name: list /home/runner/work/coderdata/coderdata/*/*
-          run: ls -lah /home/runner/work/coderdata/coderdata/*/*
-        - name: list ../../../*
-          run: ls -lah ../../../*
-        - name: pwd 
-          run: pwd
-        # - name: Upload to Figshare
-        #   run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+        - name: Upload to Figshare
+          run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
