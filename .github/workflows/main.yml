@@ -55,26 +55,26 @@ jobs:
           name: beataml-files
           path: beataml-files
 
-upload-to-figshare:
-    needs: [build-hcmi, build-beataml]
-    runs-on: ubuntu-20.04
-    if: always()
-    steps:
-      - name: Download artifacts from HCMI
-        uses: actions/download-artifact@v2
-        with:
-          name: hcmi-files
-      - name: Download artifacts from BeatAML
-        uses: actions/download-artifact@v2
-        with:
-          name: beataml-files
-      - name: Create all-files directory
-        run: mkdir all-files
-      - name: Move files to all-files
-        run: |
-          mv hcmi-files/* all-files/
-          mv beataml-files/* all-files/
-      - name: List files in all-files
-        run: ls -lah all-files/
-      - name: Upload to Figshare
-        run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+  upload-to-figshare:
+      needs: [build-hcmi, build-beataml]
+      runs-on: ubuntu-20.04
+      if: always()
+      steps:
+        - name: Download artifacts from HCMI
+          uses: actions/download-artifact@v2
+          with:
+            name: hcmi-files
+        - name: Download artifacts from BeatAML
+          uses: actions/download-artifact@v2
+          with:
+            name: beataml-files
+        - name: Create all-files directory
+          run: mkdir all-files
+        - name: Move files to all-files
+          run: |
+            mv hcmi-files/* all-files/
+            mv beataml-files/* all-files/
+        - name: List files in all-files
+          run: ls -lah all-files/
+        - name: Upload to Figshare
+          run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
