@@ -74,9 +74,7 @@ jobs:
           run: ls -lah 
         - name: Move files to all-files
           run: |
-            mv *.csv all-files/
-            mv *.tsv all-files/
-            mv *.gz all-files/
+            mv * all-files/
         - name: List files in all-files
           run: ls -lah all-files/
         - name: Upload to Figshare
