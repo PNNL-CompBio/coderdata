@@ -209,9 +209,9 @@ def main():
     project_id = create_project(args.token,args.title)
             
     for file in os.listdir(args.directory):
-        file = os.path.join(args.directory, file)
+        filepath = os.path.join(args.directory, file)
         print(f"Running 'upload_to_figshare' for {file}")
-        upload_to_figshare(args.token, file, file, project_id,args.publish)
+        upload_to_figshare(args.token, file, filepath, project_id,args.publish)
 
 if __name__ == "__main__":
     main()
