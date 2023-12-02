@@ -23,8 +23,6 @@ Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 #basename='https://ftp.mcs.anl.gov/pub/candle/public/improve/Data/Omics/Curated_CCLE_Multiomics_files/'
 filenames=list(transcriptomics='https://figshare.com/ndownloader/files/40449128',
                             copy_number='https://figshare.com/ndownloader/files/40448840',
-                            #methylation='CCLE_AID_RRBS_TSS_1kb_20180614.csv',
-                            #miRNA='CCLE_AID_miRNA_20180525.csv',
                             mutations='https://figshare.com/ndownloader/files/40449638')
 
 
@@ -96,7 +94,7 @@ mirnaFixing<-function(mirlist){
 newres<-lapply(names(filenames),function(value){
 
   fi=filenames[[value]]
-  fname=paste0(value,'.csv.gz')
+  fname=paste0('depmap_',value,'.csv.gz')
   print(paste('now reading',fi,'to store as',fname))
   ##now every data type is parsed slightly differently, so we need to change our formatting
   ##and mapping to get it into a unified 3 column schema
@@ -225,8 +223,16 @@ newres<-lapply(names(filenames),function(value){
 
   ##do the last join with samples
   full<-res|>
-    dplyr::left_join(samples)|>
-    dplyr::select(c('entrez_id','improve_sample_id',vars))|>
+    dplyr::left_join(samples)
+  
+  missed<-full|>subset(is.na(improve_sample_id))|>
+    dplyr::select(improve_sample_id,other_id)|>
+    distinct()
+  print(paste('missing',nrow(missed),'identifiers'))
+  print(missed)
+
+  full<-full|>dplyr::select(c('entrez_id','improve_sample_id',vars))|>
+    subset(!is.na(improve_sample_id))|>
     dplyr::distinct()|>
     dplyr::mutate(source='DepMap',study='CCLE')
 
