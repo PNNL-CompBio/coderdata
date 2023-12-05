@@ -1,8 +1,7 @@
 ###Here is a script that runs through all the data files one by one.
 
 #this is a helper file that loads the data
-source("../utils/mapDrugsToPubchem.R")
-
+source("mapDrugsToPubchem.R")
 
 if(!require('PharmacoGx')){
   BiocManager::install("PharmacoGx",force=TRUE)
@@ -12,7 +11,7 @@ if(!require('PharmacoGx')){
 all.dsets<-PharmacoGx::availablePSets()
 ##first define a generic dose response function
 
-improve_samples<<-readr::read_csv('samples.csv')
+improve_samples<<-readr::read_csv('cell_line_samples.csv')
 #' getDoseRespData
 #' Generic function to get dose and response data from PGX object
 #' out of dataset object, and store with dataset name
