@@ -21,6 +21,8 @@ jobs:
           'test_download_cptac_cli.py', 
           'test_download_hcmi_cli.py'
         ]
+      outputs:
+        result: ${{ steps.test-outcome.outcome }}
 
     steps:
     - uses: actions/checkout@v2
@@ -42,23 +44,25 @@ jobs:
         pip install .
 
     - name: Run test
+      id: test-outcome
       run: |
         pytest -n 4 tests/${{ matrix.test-file }}
 
   check-results:
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test]
     if: always()
     steps:
       - name: Check Test Results
         run: |
-          results=0
-          for job in ${{ toJson(needs.test.results) }}; do
-            if [ $job == 'failure' ]; then
-              results=1
+          failed=0
+          for result in ${{ toJson(needs.test.results) }}; do
+            if [ "$result" == "failure" ]; then
+              failed=1
+              break
             fi
           done
-          if [ $results -eq 1 ]; then
-            echo "Atleast one test failed"
+          if [ $failed -eq 1 ]; then
+            echo "Some tests failed"
             exit 1
           fi
