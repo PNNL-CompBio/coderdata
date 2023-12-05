@@ -11,17 +11,17 @@ import gzip
 
 
 ##read in existing gene identifier table from cell line data
-genes = pd.read_csv('../genes.csv')#'https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/cell_line/genes.csv')
+genes = pd.read_csv('genes.csv')#'https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/cell_line/genes.csv')
 
 ##read in samples, get max value
 #global samples, maxval
-if os.path.exists('./samples.csv'):
-    samples = pd.read_csv('./samples.csv')
+if os.path.exists('./cptac_samples.csv'):
+    samples = pd.read_csv('./cptac_samples.csv')
     maxval = max(samples.improve_sample_id)
 else:
     samples = pd.DataFrame.from_dict({'common_name':[],'cancer_type':[],'other_names':[],'species':[],\
                             'improve_sample_id':[],'id_source':[],'other_id':[],'model_type':[]})
-    maxval = max(pd.read_csv('../cell_line/samples.csv').improve_sample_id)#'https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/cell_line/samples.csv').improve_sample_id)
+    maxval = max(pd.read_csv('cell_line_samples.csv').improve_sample_id)#'https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/main/cell_line/samples.csv').improve_sample_id)
 
 
 
@@ -127,7 +127,7 @@ def buildTumorSampleTable(sample_names,cancer_type):
 
     samples = samples.reset_index(drop=True)
     #print(samples)
-    samples.to_csv('samples.csv',index=False)
+    samples.to_csv('cptac_samples.csv',index=False)
     return samples
    
 def formatMutData(df,dtype,ctype,samp_names,source):
