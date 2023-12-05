@@ -27,13 +27,14 @@ depmap_models<-readr::read_csv('https://figshare.com/ndownloader/files/40448834'
 
 sanger_models<-readr::read_csv("https://cog.sanger.ac.uk/cmp/download/model_list_20230923.csv")
 
+print(paste("Downloaded",nrow(depmap_models),'dep map identifiers and',nrow(sanger_models),'sanger models'))
+
 ##query for cellosaurus automagically to get loadest version
 url='https://ftp.expasy.org/databases/cellosaurus/cellosaurus.xml'
 if(!file.exists('cell.xml'))
   curl_download(url,'cell.xml',quiet=TRUE)#curl(url, "r", h)
 cello<-XML::xmlParse('cell.xml')
 cdf<-XML::xmlToList(cello)
-
 
 
 ### next we parse through cellosaurus to get as many samples as we deem relevant
@@ -63,6 +64,7 @@ full.res<-do.call(rbind,lapply(cell.lines,function(x){
 print(paste('Got',nrow(full.res),'human cellosaurus samples'))
 ######
 #now we join the sagner table, depmap table, the cellosaurus table, and the CTRP identifiers
+
 allmod<-sanger_models|>
   dplyr::rename(ModelID='BROAD_ID')|>
   left_join(depmap_models)|>
@@ -106,7 +108,7 @@ full.df<-joined.df%>%
 #has_id<-subset(full.df,Cellosaurus!="")
 #no_id<-subset(full.df,is.na(Cellosaurus))
 
-samp_ids<-data.frame(Cellosaurus=unique(has_id$Cellosaurus))
+samp_ids<-data.frame(Cellosaurus=unique(full.df$Cellosaurus))
 samp_ids$improve_sample_id<-seq(1,length(unique(full.df$Cellosaurus)))
 
 #now we need to add in the missing ones
@@ -130,5 +132,5 @@ long.df<-full.df%>%
   subset(other_id!="")
 
 
-write.table(long.df,'samples.csv',sep=',',row.names=F,col.names=T)
+write.table(long.df,'cell_line_samples.csv',sep=',',row.names=F,col.names=T)
 
