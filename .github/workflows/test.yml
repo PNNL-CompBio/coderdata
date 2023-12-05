@@ -6,8 +6,19 @@ on:
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-file: [
+          'test_download_and_load_beataml.py', 
+          'test_download_and_load_depmap.py', 
+          'test_download_beataml_cli.py', 
+          'test_download_depmap_cli.py',
+          'test_download_and_load_cptac.py', 
+          'test_download_and_load_hcmi.py', 
+          'test_download_cptac_cli.py', 
+          'test_download_hcmi_cli.py'
+        ]
 
     steps:
     - uses: actions/checkout@v2
@@ -23,6 +34,11 @@ jobs:
         pip install -r requirements.txt
         pip install pytest-xdist
 
-    - name: Run tests
+
+    - name: Install as package
       run: |
-        pytest -n 4
+        pip install .
+
+    - name: Run test
+      run: |
+        pytest -n 4 tests/${{ matrix.test-file }}
