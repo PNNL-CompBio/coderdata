@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         test-file: [
           'test_download_and_load_beataml.py', 
@@ -43,3 +44,21 @@ jobs:
     - name: Run test
       run: |
         pytest -n 4 tests/${{ matrix.test-file }}
+
+  check-results:
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    steps:
+      - name: Check Test Results
+        run: |
+          results=0
+          for job in ${{ toJson(needs.test.results) }}; do
+            if [ $job == 'failure' ]; then
+              results=1
+            fi
+          done
+          if [ $results -eq 1 ]; then
+            echo "Atleast one test failed"
+            exit 1
+          fi
