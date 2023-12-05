@@ -21,8 +21,8 @@ jobs:
           'test_download_cptac_cli.py', 
           'test_download_hcmi_cli.py'
         ]
-      outputs:
-        result: ${{ steps.test-outcome.outcome }}
+    outputs:
+      result: ${{ steps.test-outcome.outcome }}
 
     steps:
     - uses: actions/checkout@v2
