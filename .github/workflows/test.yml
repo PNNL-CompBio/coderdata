@@ -50,6 +50,7 @@ jobs:
 
   build-and-publish:
     runs-on: ubuntu-latest
+    environment: build
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -67,4 +68,4 @@ jobs:
       run: |
         ls
         python setup.py sdist bdist_wheel
-        twine upload dist/*
+        twine upload dist/* --verbose
