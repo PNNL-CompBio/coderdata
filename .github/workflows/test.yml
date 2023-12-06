@@ -78,17 +78,35 @@ jobs:
         CURRENT_VERSION=$(grep -oP "version='\K[0-9]+\.[0-9]+\.[0-9]+" setup.py)
         echo "Current version: $CURRENT_VERSION"
 
-        # Get the latest tag from the repository
-        LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo $CURRENT_VERSION)
+        # Fetch tags and get the latest tag, removing the 'v' prefix
+        git fetch --tags
+        LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1` | sed 's/^v//')
         echo "Latest tag: $LATEST_TAG"
 
-        # Use Python to compare versions and decide which one to use
-        NEW_VERSION=$(python -c "from packaging.version import parse as parse_version; \
-                                 print(max(parse_version('$CURRENT_VERSION'), parse_version('$LATEST_TAG')))")
-        echo "New version: $NEW_VERSION"
+        # Use Python to compare versions
+        HIGHER_VERSION=$(python -c "from packaging.version import parse as parse_version; \
+                                    current = parse_version('$CURRENT_VERSION'); \
+                                    latest = parse_version('$LATEST_TAG'); \
+                                    print(current if current > latest else latest)")
+        echo "Higher version: $HIGHER_VERSION"
 
-        # Replace the version in setup.py
-        sed -i "s/version\s*=\s*'[0-9]+\.[0-9]+\.[0-9]+'/'version='$NEW_VERSION'/" setup.py
+        # If current version is higher, increment patch version in setup.py
+        if [ "$CURRENT_VERSION" == "$HIGHER_VERSION" ]; then
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+          PATCH=$((VERSION_PARTS[2] + 1))
+          NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+          echo "Incremented version: $NEW_VERSION"
+          sed -i "s/version='\([0-9]\+\.[0-9]\+\.\)[0-9]\+'/'version='\1$PATCH'/" setup.py
+          # Commit and push the updated setup.py
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add setup.py
+          git commit -m "Increment version number to $NEW_VERSION [skip ci]"
+          git push
+        else
+          echo "No version increment needed"
+        fi
+
 
     - name: Build and publish
       env:
@@ -97,3 +115,4 @@ jobs:
       run: |
         python setup.py sdist bdist_wheel
         twine upload dist/* --verbose
+
