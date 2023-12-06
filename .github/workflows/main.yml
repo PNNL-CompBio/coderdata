@@ -54,11 +54,6 @@ jobs:
           done
       - name: Get BeatAML container logs
         run: docker logs beataml-container
-      # - name: dummy beataml
-      #   run: |
-      #     mkdir beataml-files
-      #     echo "Sample content for a file." > beataml-files/a.tsv 
-      #     echo "More content for b file." > beataml-files/b.csv
       - name: Upload artifact for BeatAML
         uses: actions/upload-artifact@v2
         with:
@@ -94,4 +89,6 @@ jobs:
           # This can be updated to trigger with tag releases.
           # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
           #This is a short term alternative. Links to branch. Not as pretty but okay for now.
+          
+          #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
           run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
