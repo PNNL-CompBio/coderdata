@@ -6,6 +6,7 @@ on:
 
 jobs:
   test:
+  if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -49,6 +50,7 @@ jobs:
 
 
   build-and-publish:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     environment: build
     steps:
@@ -57,15 +59,32 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
-    - name: Install dependencies
+    - name: Install dependancies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine
+        pip install setuptools wheel twine packaging
+    - name: Update version
+      run: |
+        # Extract the current version from setup.py
+        CURRENT_VERSION=$(grep -oP "version='\K[0-9]+\.[0-9]+\.[0-9]+" setup.py)
+        echo "Current version: $CURRENT_VERSION"
+
+        # Get the latest tag from the repository
+        LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+        echo "Latest tag: $LATEST_TAG"
+
+        # Use Python to compare versions and decide which one to use
+        NEW_VERSION=$(python -c "from packaging.version import parse as parse_version; \
+                                 print(max(parse_version('$CURRENT_VERSION'), parse_version('$LATEST_TAG')))")
+        echo "New version: $NEW_VERSION"
+
+        # Replace the version in setup.py
+        sed -i "s/version\s*=\s*'[0-9]\+\.[0-9]\+\.[0-9]\+'/version='$NEW_VERSION'/" setup.py
+
     - name: Build and publish
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_SECRET }}
       run: |
-        ls
         python setup.py sdist bdist_wheel
         twine upload dist/* --verbose
