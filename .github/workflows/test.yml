@@ -51,6 +51,7 @@ jobs:
 
   build-and-publish:
     if: github.actor != 'github-actions[bot]'
+    needs: test
     runs-on: ubuntu-latest
     environment: build
     steps:
@@ -107,9 +108,7 @@ jobs:
         else
           echo "No version increment needed"
         fi
-
-
-    - name: Build and publish
+    - name: Build local and publish to PyPI
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_SECRET }}
