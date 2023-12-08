@@ -2,19 +2,7 @@
 library(readr)
 library(tidyr)
 library(dplyr)
-###first reqad in all gene information so we can map appropriately
-allgenes = read_csv("../genes.csv")
-genes = allgenes|>
-  dplyr::select(gene_symbol,entrez_id)|>
-  dplyr::distinct()
 
-
-
-##here are the improve sample id indices
-samples = read_csv('cell_line_samples.csv',
-                   quote='"')|>
-  dplyr::select(other_id,improve_sample_id)|>
-  unique()
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 ###PATH TO depmap 23q2 on FigShare
@@ -246,6 +234,29 @@ do_all<-function(values=names(filenames)){
   })
 }
 
-do_all(names(filenames))
-getProteomics()
 
+main<-function(){
+	args = commandArgs(trailingOnly=TRUE)
+	if(length(args)!=2){
+	  print('Usage: Rscript 02-cellLineDepMap.R [genefile] [samplefile]')
+	  exit()
+	  }
+	gfile = args[1]
+	sfile = args[2]
+	###first reqad in all gene information so we can map appropriately
+	allgenes = read_csv(gfile)
+	genes <<- allgenes|>
+	  dplyr::select(gene_symbol,entrez_id)|>
+	    dplyr::distinct()
+
+	    ##here are the improve sample id indices
+	 samples <<- read_csv(sfile,
+                   quote='"')|>
+		     dplyr::select(other_id,improve_sample_id)|>
+		       unique()
+	do_all(names(filenames))
+	getProteomics()
+
+}
+
+main()
