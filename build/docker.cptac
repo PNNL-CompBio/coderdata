@@ -19,4 +19,3 @@ ADD genes.csv .
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
 VOLUME ["/tmp"]
-
