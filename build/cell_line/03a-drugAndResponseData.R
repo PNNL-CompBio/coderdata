@@ -124,8 +124,6 @@ getDoseRespData<-function(dset,studyName){
 ####
 
 
-
-
 #' getCellLineData - gets cell line dose response data
 getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')){
   ###first get cell lines
@@ -169,15 +167,34 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
   #write.table(all.dose.rep,file='allDoseRepPreCalc.tsv',sep='\t')
 }
 
-if(FALSE){
 
-  cl1<-c('CTRPv2','FIMM','GDSC')
-  dl1<-getCellLineDoseData(cl1)
 
-  cl2<-c('gCSI','PRISM','CCLE')
-  dl2<-getCellLineDoseData(cl2)
 
-  cl2<-c('NCI60') ###this is the biggest dataset by far, and has lots of drugs that require lookup
-  dl2<-getCellLineDoseData(cl2)
+
+main<-function(){
+	args = commandArgs(trailingOnly=TRUE)
+	if(length(args)!=1){
+	  print('Usage: Rscript 03-drugAndResponseData.R [samplefile]')
+	  exit()
+	  }
+	sfile = args[1]
+
+
+	    ##here are the improve sample id indices
+	 samples <<- read_csv(sfile,
+                   quote='"')|>
+		     dplyr::select(other_id,improve_sample_id)|>
+		       unique()
+
+       cl1<-c('CTRPv2','FIMM','GDSC')
+       dl1<-getCellLineDoseData(cl1)
+
+       cl2<-c('gCSI','PRISM','CCLE')
+       dl2<-getCellLineDoseData(cl2)
+
+       cl2<-c('NCI60') ###this is the biggest dataset by far, and has lots of drugs that require lookup
+       dl2<-getCellLineDoseData(cl2)
 
 }
+
+main()

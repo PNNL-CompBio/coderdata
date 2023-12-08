@@ -1,5 +1,4 @@
-pandas
-numpy
-argparse
+numpy==1.23
+pandas==2.1
 cptac
-gzip
+argparse
