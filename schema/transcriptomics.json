@@ -1,7 +1,7 @@
 {
-    "title" : "proteomics",
+    "title" : "transcriptomics",
     "type" : "object",
-    "description" : "List of proteomics experiments",
+    "description" : "List of transcriptomics experiments",
     "properties" : {
 	"improve_sample_id":{
 	    "type" : "integer",
@@ -11,9 +11,9 @@
 	    "type" : "string",
 	    "description" : "The entrez id for the gene that encodes the protein"
 	},
-	"proteomics":{
+	"transcriptomics":{
 	    "type" : "number",
-	    "description" : "Log2 fold change relative to reference for source/study"
+	    "description": "Transcripts per million (TPM) for gene and sample"
 	},
 	"source": {
 	    "type" : "string",
