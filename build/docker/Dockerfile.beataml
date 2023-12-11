@@ -2,9 +2,9 @@ FROM --platform=linux/x86_64 python:3.9
 
 WORKDIR /usr/src/app
 
-COPY hcmi/hcmi_samples.csv .
-COPY beatAML/GetBeatAML.py . 
-COPY utils/fit_curve.py .
+COPY build/hcmi/hcmi_samples.csv .
+COPY build/beatAML/GetBeatAML.py . 
+COPY build/utils/fit_curve.py .
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
