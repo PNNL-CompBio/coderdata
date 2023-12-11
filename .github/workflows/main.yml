@@ -5,8 +5,40 @@ on:
     branches:
       - builder_branch_JJ
 
+
 jobs:
+  build-hcmi-samples:
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      #Add upload artifact from CPTAC Samples 
+      - name: Checkout  HCMI
+        uses: actions/checkout@v2
+      - name: Build HCMI Image
+        run: docker build -t hcmi-samples-builder -f build/docker/Dockerfile.hcmi.samples .
+      - name: Run HCMI Container
+        run: docker run --name hcmi-samples-container hcmi-samples-builder
+      - name: Copy file from HCMI Samples Container
+        run: |
+          mkdir hcmi-samples
+          for file in hcmi_samples.csv; do
+            docker cp hcmi-samples-container:/usr/src/app/$file hcmi-samples/$file
+          done
+      - name: Get HCMI container logs
+        run: docker logs hcmi-samples-container
+      # - name: dummy hcmi
+      #   run: |
+      #     mkdir hcmi-files
+      #     echo "This is some sample text." > hcmi-files/d.txt
+      #     echo "Another line of text." > hcmi-files/c.gz
+      - name: Upload artifacts for HCMI
+        uses: actions/upload-artifact@v2
+        with:
+          name: hcmi-samples
+          path: hcmi-samples
+
   build-hcmi:
+    needs: [build-hcmi-samples]
     runs-on: ubuntu-20.04
     environment: build
     steps:
