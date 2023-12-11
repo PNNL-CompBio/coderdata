@@ -39,5 +39,8 @@ new.samples <- data.frame(common_name, cancer_type, other_names, species,
 new.samples[new.samples$other_id == "-666", ]$other_id <- NA
 
 #### 4. Upload new samples.csv file ####
-all.samples <- rbind(samples, new.samples)
-write.csv(all.samples, "lincs_samples.csv")
+old.samples <- dplyr::distinct(samples[samples$other_id %in% LINCS.info$cell_id |
+                            samples$other_names %in% LINCS.info$cell_id |
+                            samples$common_name %in% LINCS.info$cell_id, ])
+LINCS.samples <- rbind(old.samples, new.samples)
+write.csv(LINCS.samples, "lincs_samples.csv", row.names = FALSE)
