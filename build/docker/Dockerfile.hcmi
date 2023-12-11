@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY build/hcmi/02-getHCMIData.py .
 COPY build/hcmi/full_manifest.txt .
-COPY hcmi-samples/hcmi_samples.csv .
+COPY hcmi_samples.csv .
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
