@@ -89,10 +89,10 @@ jobs:
       - name: setup data-vis dir
         if: success() || failure()
         run: |
-        mkdir data-vis
-        mv *.png data-vis
-        mv *.pdf data-vis
-        mv *table.csv data-vis
+          mkdir data-vis
+          mv *.png data-vis
+          mv *.pdf data-vis
+          mv *table.csv data-vis
       - name: Upload artifacts
         if: success() || failure()
         uses: actions/upload-artifact@v2
