@@ -48,6 +48,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: hcmi-samples
+      - name: List files cwd
+        run: ls -lah 
       - name: Build HCMI Image
         run: docker build -t hcmi-builder -f build/docker/Dockerfile.hcmi .
       - name: Run HCMI Container
