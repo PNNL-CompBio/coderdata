@@ -13,7 +13,7 @@ jobs:
       - name: Checkout  HCMI
         uses: actions/checkout@v2
       - name: Build HCMI Image
-        run: docker build -t hcmi-builder -f docker/Dockerfile.hcmi .
+        run: docker build -t hcmi-builder -f build/docker/Dockerfile.hcmi .
       - name: Run HCMI Container
         run: docker run --name hcmi-container hcmi-builder
       - name: Copy files from HCMI Container
@@ -43,7 +43,7 @@ jobs:
       - name: Checkout code BeatAML
         uses: actions/checkout@v2
       - name: Build BeatAML Image
-        run: docker build -t beataml-builder -f docker/Dockerfile.beataml .
+        run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
       - name: Run BeatAML Container
         run: docker run --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
       - name: Copy files from BeatAML Container
@@ -60,35 +60,106 @@ jobs:
           name: beataml-files
           path: beataml-files
 
+
+  data-visualization:
+    environment: build
+    runs-on: ubuntu-20.04
+    if: always()
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v2
+      - name: Download artifacts from HCMI
+        uses: actions/download-artifact@v2
+        with:
+          name: hcmi-files
+      - name: Download artifacts from BeatAML
+        uses: actions/download-artifact@v2
+        with:
+          name: beataml-files
+      - name: Create all-files directory
+        run: mkdir all-files
+      - name: List files cwd
+        run: ls -lah 
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v2
+    - name: Run Visualization02
+      if: success() || failure()
+      run: Rscript visualization02.r
+    - name: Run Visualization01
+      if: success() || failure()
+      run: Rscript visualization01.r
+    - name: setup data-vis dir
+      if: success() || failure()
+      run: |
+      mkdir data-vis
+      mv *.png data-vis
+      mv *.pdf data-vis
+      mv *table.csv data-vis
+    - name: Upload artifacts
+      if: success() || failure()
+      uses: actions/upload-artifact@v2
+      with:
+        name: data-vis
+        path: data-vis
+
+data-visualization-save-to-docs:
+  environment: build
+  runs-on: ubuntu-20.04
+  if: always()
+  steps:
+    - name: Checkout repo content
+      uses: actions/checkout@v2
+
+    - name: Download artifacts from data-vis
+      uses: actions/download-artifact@v2
+      with:
+        name: data-vis
+    - name: Move files to docs directory
+      run: |
+        mv data-vis/* docs/
+    - name: Setup Git config
+      run: |
+        git config user.name "jjacobson95"
+        git config user.email "jeremy.jacobson3402@gmail.com"
+    - name: Commit and push changes
+      run: |
+        git add .
+        git commit -m "Add data visualization artifacts to docs"
+        if git diff --staged --quiet; then
+          echo "No changes to commit."
+        else
+          git push
+        fi
+
   upload-to-figshare:
-      needs: [build-hcmi, build-beataml]
-      environment: build
-      runs-on: ubuntu-20.04
-      if: always()
-      steps:
-        - name: checkout repo content
-          uses: actions/checkout@v2
-        - name: Download artifacts from HCMI
-          uses: actions/download-artifact@v2
-          with:
-            name: hcmi-files
-        - name: Download artifacts from BeatAML
-          uses: actions/download-artifact@v2
-          with:
-            name: beataml-files
-        - name: Create all-files directory
-          run: mkdir all-files
-        - name: List files cwd
-          run: ls -lah 
-        - name: Move files to all-files
-          run: |
-            rsync -av --remove-source-files --include='*.csv' --include='*.tsv' --include='*.gz' --exclude='*' . all-files/
-        - name: List files in all-files
-          run: ls -lah all-files/
-        - name: Upload to Figshare
-          # This can be updated to trigger with tag releases.
-          # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
-          #This is a short term alternative. Links to branch. Not as pretty but okay for now.
-          
-          #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
-          run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+    needs: [build-hcmi, build-beataml]
+    environment: build
+    runs-on: ubuntu-20.04
+    if: always()
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v2
+      - name: Download artifacts from HCMI
+        uses: actions/download-artifact@v2
+        with:
+          name: hcmi-files
+      - name: Download artifacts from BeatAML
+        uses: actions/download-artifact@v2
+        with:
+          name: beataml-files
+      - name: Create all-files directory
+        run: mkdir all-files
+      - name: List files cwd
+        run: ls -lah 
+      - name: Move files to all-files
+        run: |
+          rsync -av --remove-source-files --include='*.csv' --include='*.tsv' --include='*.gz' --exclude='*' . all-files/
+      - name: List files in all-files
+        run: ls -lah all-files/
+      - name: Upload to Figshare
+        # This can be updated to trigger with tag releases.
+        # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+        #This is a short term alternative. Links to branch. Not as pretty but okay for now.
+        
+        #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
+        run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
