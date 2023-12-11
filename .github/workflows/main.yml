@@ -102,34 +102,34 @@ jobs:
         name: data-vis
         path: data-vis
 
-data-visualization-save-to-docs:
-  environment: build
-  runs-on: ubuntu-20.04
-  if: always()
-  steps:
-    - name: Checkout repo content
-      uses: actions/checkout@v2
+  data-visualization-save-to-docs:
+    environment: build
+    runs-on: ubuntu-20.04
+    if: always()
+    steps:
+      - name: Checkout repo content
+        uses: actions/checkout@v2
 
-    - name: Download artifacts from data-vis
-      uses: actions/download-artifact@v2
-      with:
-        name: data-vis
-    - name: Move files to docs directory
-      run: |
-        mv data-vis/* docs/
-    - name: Setup Git config
-      run: |
-        git config user.name "jjacobson95"
-        git config user.email "jeremy.jacobson3402@gmail.com"
-    - name: Commit and push changes
-      run: |
-        git add .
-        git commit -m "Add data visualization artifacts to docs"
-        if git diff --staged --quiet; then
-          echo "No changes to commit."
-        else
-          git push
-        fi
+      - name: Download artifacts from data-vis
+        uses: actions/download-artifact@v2
+        with:
+          name: data-vis
+      - name: Move files to docs directory
+        run: |
+          mv data-vis/* docs/
+      - name: Setup Git config
+        run: |
+          git config user.name "jjacobson95"
+          git config user.email "jeremy.jacobson3402@gmail.com"
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "Add data visualization artifacts to docs"
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git push
+          fi
 
   upload-to-figshare:
     needs: [build-hcmi, build-beataml]
