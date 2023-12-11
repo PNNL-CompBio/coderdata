@@ -102,8 +102,8 @@ jobs:
     runs-on: ubuntu-20.04
     if: always()
     steps:
-      # - name: checkout repo content
-      #   uses: actions/checkout@v2
+      - name: checkout repo content
+        uses: actions/checkout@v2
       # - name: Download artifacts from HCMI
       #   uses: actions/download-artifact@v2
       #   with:
