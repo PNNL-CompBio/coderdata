@@ -60,6 +60,7 @@ jobs:
           path: beataml-files
 
   data-visualization:
+    needs: [build-hcmi, build-beataml]
     environment: build
     runs-on: ubuntu-20.04
     if: always()
@@ -101,6 +102,7 @@ jobs:
           path: data-vis
 
   data-visualization-save-to-docs:
+    needs: [data-visualization]
     environment: build
     runs-on: ubuntu-20.04
     if: always()
