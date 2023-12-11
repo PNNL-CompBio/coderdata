@@ -71,39 +71,6 @@ getL1000 <- function() {
   L1000.full$source <- "CMap"
   L1000.full$study <- "LINCS"
   L1000.full$perturbation_type <- "drug" # all entries have pert_type="trt_cp"
-
-  # # check how many drugs' pert_iname matches chem_name: 41/89
-  # L1000.drugs <- unique(L1000.full[L1000.full$pert_iname %in% drugs$chem_name,]$pert_iname) # 41
-  # all.L1000.drugs <- unique(L1000.full$pert_iname) # 89
-  # 
-  # # get pubchem cid's
-  # drug.cids <- webchem::get_cid(unique(L1000.full$pert_iname))
-  # drug.cids$cid <- paste("PC", drug.cids$cid, sep="_")
-  # colnames(drug.cids) <- c("pert_iname", "pubchem_id")
-  # drug.cids.names <- unique(drug.cids$pert_iname) # 89 but 4 drugs have pubchem_id=="PC_NA"
-  # #L1000.w.cids <- merge(drug.cids, L1000.full) # not enough memory
-  # 
-  # # check how many drugs' pubchem cids match w IMPROVE: 69/89
-  # L1000.IMPROVE.drugs <- merge(drug.cids, drugs)
-  # drug.pert.inames <- unique(L1000.IMPROVE.drugs$pert_iname) # 69
-  # improve.ids <- unique(L1000.IMPROVE.drugs$improve_drug_id) # 69
-  # 
-  # # try merging by pert_iname and chem_name to increase match: 49/89
-  # more.L1000.IMPROVE.drugs <- merge(L1000.IMPROVE.drugs, drugs, 
-  #                                   by.x="pert_iname", by.y="chem_name")
-  # improve.ids <- unique(c(more.L1000.IMPROVE.drugs$improve_drug_id.x,
-  #                       more.L1000.IMPROVE.drugs$improve_drug_id.y)) # 49
-  # 
-  # # check if need to add samples
-  # L1000.samples <- unique(L1000.inst.info$cell_id) # 7
-  # L1000.samples.improve <- unique(L1000.inst.info[L1000.inst.info$cell_id %in% 
-  #                                                   samples$other_id, ]$cell_id) # 4; missing PC3, NPC, NPC.TAK
-  # 
-  # # check if need to add genes
-  # L1000.genes <- unique(L1000.genes.info$pr_gene_symbol) # 12328
-  # L1000.genes.improve <- unique(L1000.genes.info[L1000.genes.info$pr_gene_symbol %in% 
-  #                                                   genes$gene_symbol, ]$pr_gene_symbol) # 12322
-  
   
   # join with IMPROVE IDs:
   # samples by "other_id"
@@ -159,7 +126,7 @@ newres<-lapply(names(filenames),function(value){
     dplyr::left_join(samples)|>
     dplyr::select(c('entrez_id','improve_sample_id',vars))|>
     dplyr::distinct()|>
-    dplyr::mutate(source='CMap',study='LINCS')
+    dplyr::mutate(source='Broad',study='LINCS')
 
   write_csv(full,file=gzfile(fname))
   return(fi)
