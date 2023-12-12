@@ -38,7 +38,7 @@ new.samples <- data.frame(common_name, cancer_type, other_names, species,
 # replace -666 with NA
 new.samples[new.samples$other_id == "-666", ]$other_id <- NA
 
-#### 4. Upload new samples.csv file ####
+#### 4. Generate new samples.csv file ####
 old.samples <- dplyr::distinct(samples[samples$other_id %in% LINCS.info$cell_id |
                             samples$other_names %in% LINCS.info$cell_id |
                             samples$common_name %in% LINCS.info$cell_id, ])
