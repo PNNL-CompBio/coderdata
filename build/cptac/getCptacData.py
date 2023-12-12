@@ -283,6 +283,7 @@ def main():
             dat_files[dtype] = fdf
     ##now concatenate all the cancers into a single file
     for dtype,df in dat_files.items():
+        print('saving '+dtype+' file')
         df.to_csv("/tmp/"+dtype+'.csv.gz',sep=',',index=False, compression='gzip')
         
     #fdf.to_csv(path_or_buf=fname, sep=',',index=False)
