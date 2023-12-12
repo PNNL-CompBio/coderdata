@@ -136,6 +136,7 @@ jobs:
           R -e "install.packages('RColorBrewer', dependencies=TRUE, repos='http://cran.rstudio.com/')"
           R -e "install.packages('circlize', dependencies=TRUE, repos='http://cran.rstudio.com/')"
           R -e "install.packages('dplyr', dependencies=TRUE, repos='http://cran.rstudio.com/')"
+          R -e "install.packages('readr', dependencies=TRUE, repos='http://cran.rstudio.com/')"
           R -e "install.packages('tools', dependencies=TRUE, repos='http://cran.rstudio.com/')"
           R -e "install.packages('ggplot2', dependencies=TRUE, repos='http://cran.rstudio.com/')"
           R -e "install.packages('reshape2', dependencies=TRUE, repos='http://cran.rstudio.com/')"
