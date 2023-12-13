@@ -4,31 +4,32 @@ library(tidyr)
 library(dplyr)
 library(R.utils)
 library(cmapR)
-#library(webchem)
 
 #### Step 1: Get IMPROVE gene, drug, and sample IDs for mapping ####
 # IMPROVE on FigShare: https://figshare.com/articles/dataset/IMPROVE_Cell_Line_Data_Files/22822286
-
-allgenes = readr::read_csv("https://figshare.com/ndownloader/files/40576109")
-genes = allgenes|>
-  dplyr::select(gene_symbol,entrez_id)|>
-  dplyr::distinct()
-
-download.file("https://figshare.com/ndownloader/files/42357210",
-              "drugs_by_structure.tsv.gz")
-alldrugs = readr::read_tsv("drugs_by_structure.tsv.gz")
-drugs = alldrugs|>
-  dplyr::select(chem_name,pubchem_id,improve_drug_id)|>
-  dplyr::distinct()
-
-samples = readr::read_csv('https://figshare.com/ndownloader/files/40576103',
-                   quote='"')|>
-  dplyr::select(other_id,improve_sample_id)|>
-  unique()
+# coderdata on FigShare: https://figshare.com/articles/dataset/CODERData-V0_1_0/24582741
+get_IMPROVE_LINCS <- function() {
+  allgenes = readr::read_csv("https://figshare.com/ndownloader/files/40576109")
+  genes = allgenes|>
+    dplyr::select(gene_symbol,entrez_id)|>
+    dplyr::distinct()
+  
+  download.file("https://figshare.com/ndownloader/files/43613700",
+                "lincs_drugs.tsv")
+  alldrugs = readr::read_tsv("drugs_by_structure.tsv.gz")
+  drugs = alldrugs|>
+    dplyr::select(chem_name,improve_drug_id)|>
+    dplyr::distinct()
+  
+  samples = readr::read_csv('https://figshare.com/ndownloader/files/43613697')|>
+    dplyr::select(other_id,improve_sample_id)|>
+    unique()
+  return(list(genes = genes, drugs = drugs, samples = samples))
+}
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 #### Step 2: get data from source ####
-getL1000 <- function() {
+build_L1000 <- function(genes, drugs, samples) {
   options(timeout = 300)
   
   # identify URLs
@@ -56,7 +57,7 @@ getL1000 <- function() {
   # L1000.inst.info based on inst_id;
   # keep only cell_id, pert_type, pert_iname, gene_symbol, data_value
   L1000.full <- L1000.long |> 
-    dplyr::left_join(L1000.gene.info) |>
+    dplyr::left_join(L1000.genes.info) |>
     dplyr::left_join(L1000.inst.info) |>
     dplyr::select(cell_id,pert_type,pert_iname,pr_gene_symbol,data_value)|>
     dplyr::distinct()
@@ -68,7 +69,7 @@ getL1000 <- function() {
   colnames(L1000.full)[4] <- "gene_symbol" # match genes column name
   colnames(L1000.full)[3] <- "chem_name"
   L1000.full$data_type <- "transcriptomics"
-  L1000.full$source <- "CMap"
+  L1000.full$source <- "Broad"
   L1000.full$study <- "LINCS"
   L1000.full$perturbation_type <- "drug" # all entries have pert_type="trt_cp"
   
@@ -79,21 +80,26 @@ getL1000 <- function() {
   res<-L1000.full|>
     dplyr::left_join(samples)|>
     dplyr::left_join(genes)|>
-    dplyr::left_join(drugs)|>
+    dplyr::left_join(drugs, relationship = "many-to-many")|>
     dplyr::select(entrez_id,improve_sample_id,data_value,data_type,
                   improve_drug_id,perturbation_type,source,study)|>
     dplyr::distinct()
-  colnames(res)["improve_drug_id"] <- "perturbation"
+  colnames(res)[5] <- "perturbation"
+  res <- na.omit(res)
   write_csv(res,file=gzfile('perturbations.csv.gz'))
 }
 
 getCMap <- function() {
-  getL1000()
+  meta.df <- get_IMPROVE_LINCS()
+  getL1000(meta.df[[1]], meta.df[[2]], meta.df[[3]])
+  #getP100(meta.df[[1]], meta.df[[2]], meta.df[[3]])
+  #getGCP(meta.df[[1]], meta.df[[2]], meta.df[[3]])
+  
   #getCRISPR()
   #getScreen()
-  #getP100()
-  #getGCP()
 }
+
+getCMap()
 
 #### Step 3: rewrite each file ####
 filenames=list(perturbations='insert-figshare-link')
@@ -132,5 +138,3 @@ newres<-lapply(names(filenames),function(value){
   return(fi)
 
 })
-
-getCMap()
