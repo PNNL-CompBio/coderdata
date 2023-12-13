@@ -178,11 +178,16 @@ jobs:
     steps:
       - name: Checkout repo content
         uses: actions/checkout@v2
-
       - name: Download artifacts from data-vis
         uses: actions/download-artifact@v2
         with:
           name: data-vis
+      - name: List files cwd
+        run: ls -lah 
+      - name: List files ..
+        run: ls -lah ..
+      - name: List files all
+        run: ls -lah *
       - name: Move files to docs directory
         run: |
           # Check and move PNG files if they exist
