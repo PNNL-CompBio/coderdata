@@ -114,10 +114,10 @@ jobs:
       #     name: beataml-files
       - name: Install coderdata and skip build steps
         run: pip install coderdata
-      - name: Download hcmi data from coder data
-        run: coderdata download --prefix hcmi
-      - name: Download beataml data from coder data
-        run: coderdata download --prefix beataml
+      - name: Download all data from coder data
+        run: coderdata download 
+      # - name: Download beataml data from coder data
+      #   run: coderdata download --prefix beataml
       - name: Create all-files directory
         run: mkdir all-files
       - name: List files cwd
@@ -143,9 +143,9 @@ jobs:
           R -e "install.packages('ComplexUpset', dependencies=TRUE, repos='http://cran.rstudio.com/')"
       - name: List files cwd 3
         run: ls -lah dataSummary
-      - name: Run Visualization02
-        if: success() || failure()
-        run: Rscript dataSummary/visualization02.R
+      # - name: Run Visualization02
+      #   if: success() || failure()
+      #   run: Rscript dataSummary/visualization02.R
       - name: Run Visualization01
         if: success() || failure()
         run: Rscript dataSummary/visualization01.R
@@ -189,14 +189,27 @@ jobs:
           name: data-vis
       - name: Move files to docs directory
         run: |
-          mv data-vis/* docs/
+          # Check and move PNG files if they exist
+          if compgen -G "*.png" > /dev/null; then
+            mv *.png docs
+          fi
+
+          # Check and move PDF files if they exist
+          if compgen -G "*.pdf" > /dev/null; then
+            mv *.pdf docs
+          fi
+
+          # Check and move CSV files with 'table' in their names if they exist
+          if compgen -G "*table.csv" > /dev/null; then
+            mv *table.csv docs
+          fi
       - name: Setup Git config
         run: |
           git config user.name "jjacobson95"
           git config user.email "jeremy.jacobson3402@gmail.com"
       - name: Commit and push changes
         run: |
-          git add .
+          git add docs
           git commit -m "Add data visualization artifacts to docs"
           if git diff --staged --quiet; then
             echo "No changes to commit."
