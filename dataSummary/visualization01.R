@@ -1,8 +1,6 @@
 
 library(RColorBrewer)
 library(dplyr)
-library(ggplot2)
-
 mergeSamples<-function(){
   
   ##########################
@@ -138,7 +136,7 @@ fig0<-ggplot(stats,aes(x=cancer_type,y=numSamps,fill=model_type))+
   ggtitle('Samples by tumor type')
 
 print(fig0)
-ggsave('Fig0_Overview.pdf',fig1,height=8,width=10)
+ggsave('Fig0_Overview.pdf',fig0,height=8,width=10)
 
 # Subset data for each type
 data_type1 <- subset(stats, sampleSource == 'HCMI')
