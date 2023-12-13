@@ -120,25 +120,38 @@ if __name__ == "__main__":
     LINCS_drugs = pd.read_table(LINCS_drugs_url, delimiter = "\t") # cols: pert_id, canonical_smiles, inchi_key, pert_iname, pert_type
     LINCS_drugs = LINCS_drugs[LINCS_drugs['pert_type'] == "trt_cp"] # removes DMSO controls, leaving just drug treatments
     LINCS_drugs = LINCS_drugs[["pert_iname","inchi_key"]].drop_duplicates()
+    LINCS_drugs.rename(columns={"inchi_key": "InChIKey"}, inplace=True)
     
     # 2. Get current drug data from FigShare
     drugs_url = "https://figshare.com/ndownloader/files/42357210"
     drugs = pd.read_table(drugs_url, compression="gzip")
     
     # 3. Get PubChem information for new drugs
-    LINCS_drugs.rename(columns={"pert_iname": "chem_name"}, inplace=True)
-    LINCS_drugs.rename(columns={"inchi_key": "InChIKey"}, inplace=True)
     new_drugs = LINCS_drugs[~LINCS_drugs['InChIKey'].isin(drugs['InChIKey'])]
-    old_drugs = drugs[drugs['InChIKey'].isin(LINCS_drugs['inchi_key'])]
+    new_drugs.rename(columns={"pert_iname": "chem_name"}, inplace=True)
     new_drugs['improve_drug_id'] = np.nan
     new_drugs = update_LINCS_dataframe_with_pubchem(new_drugs)
     
     # 4. Create new IMPROVE IDs for new drugs
     new_drugs = add_improve_id(drugs, new_drugs)
-    more_old_drugs = drugs[drugs['isoSMILES'].isin(new_drugs['isoSMILES'])]
-    new_drugs = new_drugs.dropna() # remove drugs not given new IDs because isoSMILES matched existing drug
-    
-    # 5. Generate new file with drug information
     new_drugs = new_drugs[["formula","weight","canSMILES","isoSMILES","InChIKey","chem_name","pubchem_id","improve_drug_id"]]
+
+    # 5. Make sure IMPROVE chem_name = pert_iname from LINCS
+    old_drugs = drugs[drugs['isoSMILES'].isin(new_drugs['isoSMILES'])]
+    old_drugs = old_drugs.merge(new_drugs, 'left', 'isoSMILES')
+    old_drugs = old_drugs[['formula_y','weight_y','canSMILES_y','isoSMILES','InChIKey_y','chem_name_y','pubchem_id','improve_drug_id_x']].drop_duplicates()
+    old_drugs.rename(columns={'formula_y': 'formula', 'weight_y': 'weight', 'canSMILES_y': 'canSMILES',
+                              'InChIKey_y': 'InChIKey', 'chem_name_y': 'chem_name', 'improve_drug_id_x': 'improve_drug_id'}, inplace=True)
+    
+
+    more_old_drugs = drugs[drugs['InChIKey'].isin(LINCS_drugs['InChIKey'])]
+    more_old_drugs = more_old_drugs.merge(LINCS_drugs, 'left', 'InChIKey')
+    more_old_drugs['chem_name'] = more_old_drugs['pert_iname']
+    more_old_drugs.drop(columns='pert_iname').drop_duplicates()
+
+    old_drugs = pd.concat([old_drugs, more_old_drugs])
+    
+    # 6. Generate new file with drug information
+    new_drugs = new_drugs.dropna() # remove drugs not given new IDs because isoSMILES matched existing drug
     LINCS_drugs = pd.concat([old_drugs, new_drugs]).drop_duplicates()
     LINCS_drugs.to_csv("lincs_drugs.tsv", sep="\t", index=False)
