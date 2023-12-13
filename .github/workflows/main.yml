@@ -139,12 +139,12 @@ jobs:
         run: ls -lah 
       - name: List files dataSummary dir
         run: ls -lah dataSummary
-      - name: Run Visualization02
-        if: success() || failure()
-        run: Rscript dataSummary/visualization02.R
       - name: Run Visualization01
         if: success() || failure()
         run: Rscript dataSummary/visualization01.R
+      - name: Run Visualization02
+        if: success() || failure()
+        run: Rscript dataSummary/visualization02.R
       - name: setup data-vis dir
         if: success() || failure()
         run: |
