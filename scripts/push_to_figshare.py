@@ -190,9 +190,10 @@ def upload_to_figshare(token, title, directory, project_id, publish, article_id=
         """
         Write details of Figshare to yaml
         """
+        title_updated = title.replace('/', '_')
         article_info = issue_request('GET', f'articles/{article_id}')
         # article_link = f"https://figshare.com/articles/dataset/{title}/{project_id}/file/{article_id}"
-        article_link = f"https://figshare.com/articles/dataset/{title}/{article_id}"
+        article_link = f"https://figshare.com/articles/dataset/{title_updated}/{article_id}"
 
         # Retrieve the article details
         article_details_response = requests.get(article_info['url'])
@@ -200,7 +201,7 @@ def upload_to_figshare(token, title, directory, project_id, publish, article_id=
         article_details = article_details_response.json()
 
         # Construct the URLs
-        file_url_links = {file['name']:f"https://figshare.com/articles/dataset/{title}/{article_id}?file={file['id']}" for file in article_details['files']}
+        file_url_links = {file['name']:f"https://figshare.com/articles/dataset/{title_updated}/{article_id}?file={file['id']}" for file in article_details['files']}
         file_download_link = {file['name']: file['download_url'] for file in article_details['files']}
         yaml_data = {
             'article_link': article_link,
