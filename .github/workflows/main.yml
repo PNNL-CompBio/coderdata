@@ -193,7 +193,7 @@ jobs:
       - name: Commit and push changes
         run: |
           git pull
-          git add docs/*
+          git add -f docs/*
           git status
           git commit -m "Add data visualization artifacts to docs"
           git push
