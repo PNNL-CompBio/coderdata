@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-hcmi-samples:
-  if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
     steps:
