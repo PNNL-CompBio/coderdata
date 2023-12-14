@@ -223,7 +223,6 @@ jobs:
     needs: [build-hcmi, build-beataml]
     environment: build
     runs-on: ubuntu-20.04
-    if: always()
     steps:
       - name: checkout repo content
         uses: actions/checkout@v2
