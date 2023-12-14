@@ -250,4 +250,4 @@ jobs:
   #       #This is a short term alternative. Links to branch. Not as pretty but okay for now.
         
   #       #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
-  #       run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+  #       run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish 
