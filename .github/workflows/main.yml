@@ -26,7 +26,7 @@ jobs:
             docker cp hcmi-samples-container:/usr/src/app/$file hcmi-samples/$file
           done
       - name: Get HCMI container logs
-        run: docker logs hcmi-samples-container
+        run: docker logs hcmi-samples-container 
       # - name: dummy hcmi
       #   run: |
       #     mkdir hcmi-files
