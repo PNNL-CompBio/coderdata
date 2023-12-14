@@ -7,101 +7,101 @@ on:
 
 
 jobs:
-  # build-hcmi-samples:
-  # if: github.actor != 'github-actions[bot]'
-  #   runs-on: ubuntu-20.04
-  #   environment: build
-  #   steps:
-  #     #Add upload artifact from CPTAC Samples 
-  #     - name: Checkout  HCMI
-  #       uses: actions/checkout@v2
-  #     - name: Build HCMI Image
-  #       run: docker build -t hcmi-samples-builder -f build/docker/Dockerfile.hcmi.samples .
-  #     - name: Run HCMI Container
-  #       run: docker run --name hcmi-samples-container hcmi-samples-builder
-  #     - name: Copy file from HCMI Samples Container
-  #       run: |
-  #         mkdir hcmi-samples
-  #         for file in hcmi_samples.csv; do
-  #           docker cp hcmi-samples-container:/usr/src/app/$file hcmi-samples/$file
-  #         done
-  #     - name: Get HCMI container logs
-  #       run: docker logs hcmi-samples-container
-  #     # - name: dummy hcmi
-  #     #   run: |
-  #     #     mkdir hcmi-files
-  #     #     echo "This is some sample text." > hcmi-files/d.txt
-  #     #     echo "Another line of text." > hcmi-files/c.gz
-  #     - name: Upload artifacts for HCMI
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: hcmi-samples
-  #         path: hcmi-samples
+  build-hcmi-samples:
+  if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      #Add upload artifact from CPTAC Samples 
+      - name: Checkout  HCMI
+        uses: actions/checkout@v2
+      - name: Build HCMI Image
+        run: docker build -t hcmi-samples-builder -f build/docker/Dockerfile.hcmi.samples .
+      - name: Run HCMI Container
+        run: docker run --name hcmi-samples-container hcmi-samples-builder
+      - name: Copy file from HCMI Samples Container
+        run: |
+          mkdir hcmi-samples
+          for file in hcmi_samples.csv; do
+            docker cp hcmi-samples-container:/usr/src/app/$file hcmi-samples/$file
+          done
+      - name: Get HCMI container logs
+        run: docker logs hcmi-samples-container
+      # - name: dummy hcmi
+      #   run: |
+      #     mkdir hcmi-files
+      #     echo "This is some sample text." > hcmi-files/d.txt
+      #     echo "Another line of text." > hcmi-files/c.gz
+      - name: Upload artifacts for HCMI
+        uses: actions/upload-artifact@v2
+        with:
+          name: hcmi-samples
+          path: hcmi-samples
 
-  # build-hcmi:
-  #   if: github.actor != 'github-actions[bot]'
-  #   needs: [build-hcmi-samples]
-  #   runs-on: ubuntu-20.04
-  #   environment: build
-  #   steps:
-  #     - name: Checkout  HCMI
-  #       uses: actions/checkout@v2
-  #     - name: Download artifacts from HCMI
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: hcmi-samples
-  #     - name: List files cwd
-  #       run: ls -lah 
-  #     - name: Build HCMI Image
-  #       run: docker build -t hcmi-builder -f build/docker/Dockerfile.hcmi .
-  #     - name: Run HCMI Container
-  #       run: docker run --name hcmi-container hcmi-builder
-  #     - name: Copy files from HCMI Container
-  #       run: |
-  #         mkdir hcmi-files
-  #         for file in hcmi_samples.csv hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
-  #           docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
-  #         done
-  #     - name: Get HCMI container logs
-  #       run: docker logs hcmi-container
-  #     # - name: dummy hcmi
-  #     #   run: |
-  #     #     mkdir hcmi-files
-  #     #     echo "This is some sample text." > hcmi-files/d.txt
-  #     #     echo "Another line of text." > hcmi-files/c.gz
-  #     - name: Upload artifacts for HCMI
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: hcmi-files
-  #         path: hcmi-files
+  build-hcmi:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-hcmi-samples]
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout  HCMI
+        uses: actions/checkout@v2
+      - name: Download artifacts from HCMI
+        uses: actions/download-artifact@v2
+        with:
+          name: hcmi-samples
+      - name: List files cwd
+        run: ls -lah 
+      - name: Build HCMI Image
+        run: docker build -t hcmi-builder -f build/docker/Dockerfile.hcmi .
+      - name: Run HCMI Container
+        run: docker run --name hcmi-container hcmi-builder
+      - name: Copy files from HCMI Container
+        run: |
+          mkdir hcmi-files
+          for file in hcmi_samples.csv hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
+            docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
+          done
+      - name: Get HCMI container logs
+        run: docker logs hcmi-container
+      # - name: dummy hcmi
+      #   run: |
+      #     mkdir hcmi-files
+      #     echo "This is some sample text." > hcmi-files/d.txt
+      #     echo "Another line of text." > hcmi-files/c.gz
+      - name: Upload artifacts for HCMI
+        uses: actions/upload-artifact@v2
+        with:
+          name: hcmi-files
+          path: hcmi-files
 
-  # build-beataml:
-  #   if: github.actor != 'github-actions[bot]'
-  #   runs-on: ubuntu-20.04
-  #   environment: build
-  #   steps:
-  #     - name: Checkout code BeatAML
-  #       uses: actions/checkout@v2
-  #     - name: Build BeatAML Image
-  #       run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
-  #     - name: Run BeatAML Container
-  #       run: docker run --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
-  #     - name: Copy files from BeatAML Container
-  #       run: |
-  #         mkdir beataml-files
-  #         for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv beataml_drugs.tsv beataml_experiments.csv; do
-  #           docker cp beataml-container:/usr/src/app/$file beataml-files/$file
-  #         done
-  #     - name: Get BeatAML container logs
-  #       run: docker logs beataml-container
-  #     - name: Upload artifact for BeatAML
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: beataml-files
-  #         path: beataml-files
+  build-beataml:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout code BeatAML
+        uses: actions/checkout@v2
+      - name: Build BeatAML Image
+        run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
+      - name: Run BeatAML Container
+        run: docker run --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
+      - name: Copy files from BeatAML Container
+        run: |
+          mkdir beataml-files
+          for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv beataml_drugs.tsv beataml_experiments.csv; do
+            docker cp beataml-container:/usr/src/app/$file beataml-files/$file
+          done
+      - name: Get BeatAML container logs
+        run: docker logs beataml-container
+      - name: Upload artifact for BeatAML
+        uses: actions/upload-artifact@v2
+        with:
+          name: beataml-files
+          path: beataml-files
   data-visualization:
     if: github.actor != 'github-actions[bot]'
-    # needs: [build-hcmi, build-beataml]
+    needs: [build-hcmi, build-beataml]
     environment: build
     runs-on: ubuntu-20.04
     steps:
@@ -119,18 +119,18 @@ jobs:
           R -e "install.packages('ComplexUpset', dependencies=TRUE, repos='http://cran.rstudio.com/')"
       - name: checkout repo content
         uses: actions/checkout@v2
-      # - name: Download artifacts from HCMI
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: hcmi-files
-      # - name: Download artifacts from BeatAML
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: beataml-files
-      - name: Install coderdata and skip build steps
-        run: pip install coderdata
-      - name: Download all data from coder data
-        run: coderdata download 
+      - name: Download artifacts from HCMI
+        uses: actions/download-artifact@v2
+        with:
+          name: hcmi-files
+      - name: Download artifacts from BeatAML
+        uses: actions/download-artifact@v2
+        with:
+          name: beataml-files
+      # - name: Install coderdata and skip build steps
+      #   run: pip install coderdata
+      # - name: Download all data from coder data
+      #   run: coderdata download 
       # - name: Download beataml data from coder data
       #   run: coderdata download --prefix beataml
       - name: Create all-files directory
@@ -204,6 +204,10 @@ jobs:
           if compgen -G "*table.csv" > /dev/null; then
             mv *table.csv docs
           fi
+      - name: List files in docs after moving
+        run: ls -lah docs
+      - name: List files in local after moving
+        run: ls -lah 
       - name: Setup Git config
         run: |
           git config user.name "jjacobson95"
@@ -212,42 +216,38 @@ jobs:
         run: |
           git add docs
           git commit -m "Add data visualization artifacts to docs"
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
-          else
-            git push
-          fi
+          git push
 
-  # upload-to-figshare:
-  #   if: github.actor != 'github-actions[bot]'
-  #   needs: [build-hcmi, build-beataml]
-  #   environment: build
-  #   runs-on: ubuntu-20.04
-  #   if: always()
-  #   steps:
-  #     - name: checkout repo content
-  #       uses: actions/checkout@v2
-  #     - name: Download artifacts from HCMI
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: hcmi-files
-  #     - name: Download artifacts from BeatAML
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: beataml-files
-  #     - name: Create all-files directory
-  #       run: mkdir all-files
-  #     - name: List files cwd
-  #       run: ls -lah 
-  #     - name: Move files to all-files
-  #       run: |
-  #         rsync -av --remove-source-files --include='*.csv' --include='*.tsv' --include='*.gz' --exclude='*' . all-files/
-  #     - name: List files in all-files
-  #       run: ls -lah all-files/
-  #     - name: Upload to Figshare
-  #       # This can be updated to trigger with tag releases.
-  #       # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
-  #       #This is a short term alternative. Links to branch. Not as pretty but okay for now.
+  upload-to-figshare:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-hcmi, build-beataml]
+    environment: build
+    runs-on: ubuntu-20.04
+    if: always()
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v2
+      - name: Download artifacts from HCMI
+        uses: actions/download-artifact@v2
+        with:
+          name: hcmi-files
+      - name: Download artifacts from BeatAML
+        uses: actions/download-artifact@v2
+        with:
+          name: beataml-files
+      - name: Create all-files directory
+        run: mkdir all-files
+      - name: List files cwd
+        run: ls -lah 
+      - name: Move files to all-files
+        run: |
+          rsync -av --remove-source-files --include='*.csv' --include='*.tsv' --include='*.gz' --exclude='*' . all-files/
+      - name: List files in all-files
+        run: ls -lah all-files/
+      - name: Upload to Figshare
+        # This can be updated to trigger with tag releases.
+        # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+        #This is a short term alternative. Links to branch. Not as pretty but okay for now.
         
-  #       #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
-  #       run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish 
+        #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
+        run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish 
