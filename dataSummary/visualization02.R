@@ -287,9 +287,9 @@ generate_group_summary_plot <- function(all_file_names) {
 
 # Data file names for each group
 beataml_names <- list(
-  transcriptomics = "beataml_transcriptomics.csv",
-  proteomics = "beataml_proteomics.csv",
-  mutations = "beataml_mutations.csv"
+  transcriptomics = "beataml_transcriptomics.csv.gz",
+  proteomics = "beataml_proteomics.csv.gz",
+  mutations = "beataml_mutations.csv.gz"
 )
 hcmi_names <- list(
   transcriptomics = "hcmi_transcriptomics.csv.gz",
