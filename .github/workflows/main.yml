@@ -127,10 +127,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: beataml-files
-      # - name: Install coderdata and skip build steps
-      #   run: pip install coderdata
-      # - name: Download all data from coder data
-      #   run: coderdata download 
+      - name: Install coderdata and skip build steps
+        run: pip install coderdata
+      - name: Download cptac data from coder data
+        run: coderdata download --prefix cptac
+      - name: Download cell_line data from coder data
+        run: coderdata download --prefix cell_line
       # - name: Download beataml data from coder data
       #   run: coderdata download --prefix beataml
       - name: Create all-files directory
@@ -149,20 +151,7 @@ jobs:
         if: success() || failure()
         run: |
           mkdir -p data-vis
-          # Check and move PNG files if they exist
-          if compgen -G "*.png" > /dev/null; then
-            mv *.png data-vis
-          fi
-
-          # Check and move PDF files if they exist
-          if compgen -G "*.pdf" > /dev/null; then
-            mv *.pdf data-vis
-          fi
-
-          # Check and move CSV files with 'table' in their names if they exist
-          if compgen -G "*table.csv" > /dev/null; then
-            mv *table.csv data-vis
-          fi
+          rsync -av --remove-source-files --include='*.png' --include='*.pdf' --include='*table.csv' --exclude='*' . data-vis/
       - name: Upload artifacts
         if: success() || failure()
         uses: actions/upload-artifact@v2
@@ -190,20 +179,8 @@ jobs:
         run: ls -lah *
       - name: Move files to docs directory
         run: |
-          # Check and move PNG files if they exist
-          if compgen -G "*.png" > /dev/null; then
-            mv *.png docs
-          fi
-
-          # Check and move PDF files if they exist
-          if compgen -G "*.pdf" > /dev/null; then
-            mv *.pdf docs
-          fi
-
-          # Check and move CSV files with 'table' in their names if they exist
-          if compgen -G "*table.csv" > /dev/null; then
-            mv *table.csv docs
-          fi
+          mkdir -p data-vis
+          rsync -av --remove-source-files --include='*.png' --include='*.pdf' --include='*table.csv' --exclude='*' . docs/
       - name: List files in docs after moving
         run: ls -lah docs
       - name: List files in local after moving
@@ -241,6 +218,10 @@ jobs:
       - name: Move files to all-files
         run: |
           rsync -av --remove-source-files --include='*.csv' --include='*.tsv' --include='*.gz' --exclude='*' . all-files/
+      - name: gzip all files in all-files
+        run: gzip all-files/*
+      - name: gunzip all samples files in all-files
+        run: gunzip all-files/*samples*
       - name: List files in all-files
         run: ls -lah all-files/
       - name: Upload to Figshare
@@ -250,3 +231,15 @@ jobs:
         
         #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
         run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish 
+      - name: List files in all-files
+        run: ls -lah all-files/
+      - name: Setup Git config
+        run: |
+          git config user.name "jjacobson95"
+          git config user.email "jeremy.jacobson3402@gmail.com"
+      - name: Commit and push changes
+        run: |
+          mv figshare_latest.yml docs
+          git add docs
+          git commit -m "Add figshare stats to docs"
+          git push
