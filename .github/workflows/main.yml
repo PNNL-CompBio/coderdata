@@ -202,8 +202,7 @@ jobs:
 
   upload-to-figshare:
     if: github.actor != 'github-actions[bot]'
-    # needs: [build-hcmi, build-beataml]
-
+    needs: [build-hcmi, build-beataml]
     environment: build
     runs-on: ubuntu-20.04
     steps:
