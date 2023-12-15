@@ -13,7 +13,8 @@ How to use the package
 - [Fig3_CPTAC.pdf](./docs/Fig3_CPTAC.pdf)
 ## Beataml Data
 
-Error reading beataml_table.csv: Missing optional dependency 'tabulate'.  Use pip or conda to install tabulate.
+| Dataset   | Unique_Entrez_IDs   | Unique_Sample_IDs   |
+|-----------|---------------------|---------------------|
 ## Fig5 Data
 
 - [Fig5_Sample_Summary.pdf](./docs/Fig5_Sample_Summary.pdf)
@@ -22,7 +23,12 @@ Error reading beataml_table.csv: Missing optional dependency 'tabulate'.  Use pi
 - [Fig1_HMCI.pdf](./docs/Fig1_HMCI.pdf)
 ## Cell Data
 
-Error reading cell_line_table.csv: Missing optional dependency 'tabulate'.  Use pip or conda to install tabulate.
+| Dataset         |   Unique_Entrez_IDs |   Unique_Sample_IDs |
+|:----------------|--------------------:|--------------------:|
+| Transcriptomics |               19176 |                1450 |
+| Proteomics      |               12465 |                 375 |
+| Copy_number     |               25338 |                1811 |
+| Mutations       |               19822 |                1736 |
 ![cell_line_circos.png](docs/cell_line_circos.png)
 ## Figshare Data
 
@@ -33,7 +39,11 @@ Error reading cell_line_table.csv: Missing optional dependency 'tabulate'.  Use 
 ## Cptac Data
 
 ![cptac_circos.png](docs/cptac_circos.png)
-Error reading cptac_table.csv: Missing optional dependency 'tabulate'.  Use pip or conda to install tabulate.
+| Dataset         |   Unique_Entrez_IDs |   Unique_Sample_IDs |
+|:----------------|--------------------:|--------------------:|
+| Transcriptomics |               38407 |                1113 |
+| Proteomics      |               15278 |                1026 |
+| Copy_number     |               38395 |                1024 |
 ##  Data
 
 - [_config.yml](./docs/_config.yml)
@@ -51,7 +61,8 @@ Error reading cptac_table.csv: Missing optional dependency 'tabulate'.  Use pip 
 - [Fig0_Overview.pdf](./docs/Fig0_Overview.pdf)
 ## Hcmi Data
 
-Error reading hcmi_table.csv: Missing optional dependency 'tabulate'.  Use pip or conda to install tabulate.
+| Dataset   | Unique_Entrez_IDs   | Unique_Sample_IDs   |
+|-----------|---------------------|---------------------|
 ## Combined Data Summary
 
 TODO: create script that generates figures
