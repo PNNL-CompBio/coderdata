@@ -81,22 +81,13 @@ missedmod<-subset(depmap_models,ModelID%in%setdiff(depmap_models$ModelID,allmod$
 allmod<-rbind(allmod,missedmod)
 joined.df<-allmod%>%
   left_join(full.res)
-#%>%
-  #left_join(tab)%>%s
-  ##this for 22q2 data
-  #dplyr::select(-c(patient_id,sample_collection_site,primary_or_metastasis,primary_disease,
-  #                 sex,age,source,depmap_public_comments,lineage,lineage_sub_subtype,Subtype,Cellosaurus_NCIt_id,lineage_subtype,
-  #                 lineage_molecular_subtype,default_growth_pattern,stripped_cell_line_name,alias,source,sample_collection_site,
-  #                 model_manipulation,model_manipulation_details,parent_depmap_id,Cellosaurus_issues))
-  ##use this for 22q4 data
-  
+
 ##now lengethn the table to have the appopriate columns
 full.df<-joined.df%>%
   dplyr::rename(DepMap='Depmap_ID',Sanger='Sanger_ID',##old file formatSanger='SangerModelID'
                 CCLE='CCLE_ID',#old file CCLE='CCLE_ID'
                 Cellosaurus='RRID',
                  common_name='CellLineName',
-                patient_id='PatientID',
                # cancer_type='OncotreeSubtype',
                 other_names='accession')%>%
   mutate(COSMIC=as.character(COSMIC_ID))|>#,WTSI=as.character(WTSIMasterCellID))%>%
@@ -125,7 +116,7 @@ samp_ids$improve_sample_id<-seq(1,length(unique(full.df$Cellosaurus)))
 long.df<-full.df%>%
   left_join(samp_ids)|>
   dplyr::select(-c(StrippedCellLineName))|>
-  tidyr::pivot_longer(cols=c(DepMap,Sanger,CCLE,COSMIC,Cellosaurus),names_to='id_source',
+  tidyr::pivot_longer(cols=c(PatientID,DepMap,Sanger,CCLE,COSMIC,Cellosaurus),names_to='other_id_source',
                       values_to='other_id')%>%
   mutate(model_type='cell line')%>%
   subset(!is.na(other_id))%>%
