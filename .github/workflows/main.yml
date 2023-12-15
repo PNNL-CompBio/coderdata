@@ -14,8 +14,11 @@ jobs:
     steps:
       - name: Checkout  repo
         uses: actions/checkout@v2
+      - name: pip install reqs
+        run: pip install -r requirements.txt 
       - name: Run docs script
         run: python scripts/update_docs_CI.py
+
   # build-hcmi-samples:
   #   if: github.actor != 'github-actions[bot]'
   #   runs-on: ubuntu-20.04
