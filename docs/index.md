@@ -29,7 +29,7 @@ How to use the package
 | Proteomics      |               12465 |                 375 |
 | Copy_number     |               25338 |                1811 |
 | Mutations       |               19822 |                1736 |
-![cell_line_circos.png](docs/cell_line_circos.png)
+![cell_line_circos.png](./docs/cell_line_circos.png)
 ## Figshare Data
 
 - [figshare_latest.yml](./docs/figshare_latest.yml)
@@ -38,7 +38,7 @@ How to use the package
 - [Fig2_BeatAML.pdf](./docs/Fig2_BeatAML.pdf)
 ## Cptac Data
 
-![cptac_circos.png](docs/cptac_circos.png)
+![cptac_circos.png](./docs/cptac_circos.png)
 | Dataset         |   Unique_Entrez_IDs |   Unique_Sample_IDs |
 |:----------------|--------------------:|--------------------:|
 | Transcriptomics |               38407 |                1113 |
