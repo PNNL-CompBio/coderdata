@@ -33,11 +33,12 @@ def create_docs_section(category, files, directory):
     """
     section = f"## {category.capitalize()} Data\n\n"
     for file_info in files:
-        file_path = os.path.join(directory, file_info['name'])
-        if file_info['type'] in ['.png']:
-            # Embed PNG images
-            section += f"![{file_info['name']}]({file_path})\n"
-        elif file_info['type'] in ['.csv']:
+        # Adjusting the file path to be relative to the Markdown file location
+        relative_file_path = f"./{directory}/{file_info['name']}"
+        if file_info['type'] == '.png':
+            # Embed PNG images using Markdown syntax
+            section += f"![{file_info['name']}]({relative_file_path})\n"
+        elif file_info['type'] == '.csv':
             # Display CSV content as a table
             try:
                 df = pd.read_csv(file_path)
