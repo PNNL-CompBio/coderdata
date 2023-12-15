@@ -128,14 +128,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: beataml-files
-      # - name: Install coderdata and skip build steps
-      #   run: pip install coderdata
+      - name: Install coderdata and skip build steps
+        run: pip install coderdata
       - name: Download cptac data from coder data
         run: coderdata download --prefix cptac
       - name: Download cell_line data from coder data
         run: coderdata download --prefix cell_line
-      - name: Download all data from coder data
-        run: coderdata download 
+      # - name: Download all data from coder data
+      #   run: coderdata download 
       - name: Create all-files directory
         run: mkdir all-files
       - name: List files cwd
