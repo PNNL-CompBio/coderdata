@@ -41,7 +41,7 @@ def create_docs_section(category, files, directory):
         elif file_info['type'] == '.csv':
             # Display CSV content as a table
             try:
-                df = pd.read_csv(file_path)
+                df = pd.read_csv(relative_file_path)
                 section += df.to_markdown(index=False) + "\n"
             except Exception as e:
                 section += f"Error reading {file_info['name']}: {e}\n"
