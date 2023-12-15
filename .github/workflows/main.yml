@@ -18,6 +18,17 @@ jobs:
         run: pip install -r requirements.txt 
       - name: Run docs script
         run: python scripts/update_docs_CI.py
+      - name: Setup Git config
+        run: |
+          git config user.name "jjacobson95"
+          git config user.email "jeremy.jacobson3402@gmail.com"
+      - name: Commit and push changes
+        run: |
+          git pull
+          git add docs/*
+          git commit -m "Add figshare stats to docs"
+          git push
+
 
   # build-hcmi-samples:
   #   if: github.actor != 'github-actions[bot]'
