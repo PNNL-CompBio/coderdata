@@ -1,0 +1,4 @@
+numpy==1.23
+pandas==2.1
+cptac
+argparse

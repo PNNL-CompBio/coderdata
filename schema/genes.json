@@ -1,0 +1,26 @@
+{
+    "type": "object",
+    "title": "genes",
+    "description": "List of genes and identifiers used in coderdata",
+    "properties": {
+	"entrez_id": {
+	"type": "integer",
+	    "description": "entrez gene id",
+	    "minimum": 1
+    },
+    "gene_symbol": {
+	"type": "string",
+	"description" : "HGNC approved gene identifier"
+    },
+    "other_id": {
+	"type": "string",
+	"description": "Other identifier, e.g. ENSEMBL"
+    },
+    "other_id_source": {
+	"type" : "string",
+	"description": "Source of other_id, e.g. `ensembl_gene`"
+    }
+    }
+}
+
+
