@@ -15,7 +15,9 @@ jobs:
       - name: Checkout  repo
         uses: actions/checkout@v2
       - name: pip install reqs
-        run: pip install -r requirements.txt 
+        run: |
+          pip install -r requirements.txt 
+          pip install tabulate
       - name: Run docs script
         run: python scripts/update_docs_CI.py
       - name: Setup Git config
