@@ -1,0 +1,28 @@
+{
+    "title" : "proteomics",
+    "type" : "object",
+    "description" : "List of proteomics experiments",
+    "properties" : {
+	"improve_sample_id":{
+	    "type" : "integer",
+	    "description" : "A link back to the samples object"
+	},
+	"entrez_id":{
+	    "type" : "string",
+	    "description" : "The entrez id for the gene that encodes the protein"
+	},
+	"proteomics":{
+	    "type" : "number",
+	    "description" : "Log2 fold change relative to reference for source/study"
+	},
+	"source": {
+	    "type" : "string",
+	    "description" : "Source of proteomics measurement"
+	},
+	"study" : {
+	    "type" : "string",
+	    "description" : "Study that ran the proteomics measurement"
+	}
+    }
+}
+	 

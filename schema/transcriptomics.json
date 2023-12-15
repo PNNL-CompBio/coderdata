@@ -1,0 +1,28 @@
+{
+    "title" : "transcriptomics",
+    "type" : "object",
+    "description" : "List of transcriptomics experiments",
+    "properties" : {
+	"improve_sample_id":{
+	    "type" : "integer",
+	    "description" : "A link back to the samples object"
+	},
+	"entrez_id":{
+	    "type" : "string",
+	    "description" : "The entrez id for the gene that encodes the protein"
+	},
+	"transcriptomics":{
+	    "type" : "number",
+	    "description": "Transcripts per million (TPM) for gene and sample"
+	},
+	"source": {
+	    "type" : "string",
+	    "description" : "Source of proteomics measurement"
+	},
+	"study" : {
+	    "type" : "string",
+	    "description" : "Study that ran the proteomics measurement"
+	}
+    }
+}
+	 
