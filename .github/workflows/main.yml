@@ -7,6 +7,15 @@ on:
 
 
 jobs:
+  build-docs:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout  repo
+        uses: actions/checkout@v2
+      - name: Run docs script
+        run: python scripts/update_docs_CI.py
   # build-hcmi-samples:
   #   if: github.actor != 'github-actions[bot]'
   #   runs-on: ubuntu-20.04
@@ -249,13 +258,4 @@ jobs:
   #         git add docs
   #         git commit -m "Add figshare stats to docs"
   #         git push
-    build-docs:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    steps:
-      #Add upload artifact from CPTAC Samples 
-      - name: Checkout  repo
-        uses: actions/checkout@v2
-      - name: Run docs script
-        run: python scripts/update_docs_CI.py
+
