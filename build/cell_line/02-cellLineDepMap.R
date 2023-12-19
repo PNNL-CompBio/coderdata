@@ -60,11 +60,16 @@ getProteomics<-function(){
     dplyr::distinct()|>
     tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')
 
+    smap<-samples|>
+        subset(other_id%in%pfilt$other_id)
+
   res<-pfilt|>
-    dplyr::left_join(samples)|>
+    dplyr::left_join(smap)|>
     dplyr::left_join(genes)|>
     dplyr::select(improve_sample_id,entrez_id,proteomics)|>
-    dplyr::distinct()
+      dplyr::distinct()
+    res$study='DepMap'
+    res$source='Broad'
   write_csv(res,file=gzfile('proteomics.csv.gz'))
 }
 
@@ -85,7 +90,7 @@ mirnaFixing<-function(mirlist){
 do_all<-function(values=names(filenames)){
 ###run through each file and rewrite
   newres<-lapply(values,function(value){
-  
+
     fi=filenames[[value]]
     fname=paste0('depmap_',value,'.csv.gz')
     print(paste('now reading',fi,'to store as',fname))
@@ -93,32 +98,33 @@ do_all<-function(values=names(filenames)){
     ##and mapping to get it into a unified 3 column schema
     if(value=='copy_number'){
       exp_file <- readr::read_csv(fi)
-  
+
       res = exp_file|>
         tidyr::pivot_longer(cols=c(2:ncol(exp_file)),
                             names_to='gene_entrez',values_to='copy_number',
                             values_transform=list(copy_number=as.numeric))|>
         dplyr::distinct()
-  
+
       res<-res|>
         tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene','entrez_id'))|>
         dplyr::select(-gene)
       res$entrez_id<-stringr::str_replace(res$entrez_id,'\\)','')
       res$entrez_id<-stringr::str_replace(res$entrez_id,'\\(','')
-  
+
       res<-res|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
         dplyr::mutate(copy_call=ifelse(copy_number<0.5210507,'deep del',
                                        ifelse(copy_number<0.7311832,'het loss',
                                               ifelse(copy_number<1.214125,'diploid',
                                                      ifelse(copy_number<1.422233,'gain','amp')))))|>
       #  dplyr::left_join(genes)|>
-        dplyr::distinct()
-  
-  
+          dplyr::distinct()|>
+          subset(!is.na(copy_number))
+
+
       colnames(res)[1]<-'other_id'
       vars=c('copy_number','copy_call')
-  
-  
+
+
     }else if(value=='methylation'){ ###IF DATA REPRESENT RRBS###
       exp_file <- readr::read_csv(fi)[-c(1:2),]
       #the gene names are not unique and in some weird format, i willt ry to keep both in the metadata
@@ -127,40 +133,40 @@ do_all<-function(values=names(filenames)){
                                 names_to='gene_region',values_to='methylation',
                             values_transform=list(methylation=as.numeric))|>
         dplyr::distinct()
-  
+
       res<-res|>
         tidyr::separate(gene_region,into=c('gene_symbol','num','start','end'),sep='_')|>
         dplyr::left_join(genes)|>
         dplyr::distinct()
-  
+
       colnames(res)[1]<-'other_id'
       vars=c('methylation','start','end')
-  
-  
+
+
       }else if(value=='mutations'){ ####IF DATA REPRESENTS MUTATIONS#####
         exp_file <- readr::read_csv(fi)|>
-          dplyr::select(EntrezGeneID,HgncName,other_id='ModelID',VariantInfo,mutations='DNAChange')|>
+          dplyr::select(EntrezGeneID,HgncName,other_id='ModelID',VariantInfo,mutation='DNAChange')|>
           distinct()
-  
+
         res<-exp_file|>
           mutate(entrez_id=as.numeric(EntrezGeneID))|>
           dplyr::select(-EntrezGeneID)|>
           subset(!is.na(entrez_id)) ##removes thos with unknonw entrez
-  
+
         res$variant_classification=unlist(lapply(res$VariantInfo,function(x) names(variant_schema)[grep(x,variant_schema)]))
         full<-res|>  ###since we're already in ENTREZ we skip the mapping below
           dplyr::left_join(samples)|>
           #dplyr::rename(entrez_id=Entrez_id,mutations=Genome_Change,variant_classification=Variant_Classification)|>
-          dplyr::select(entrez_id,improve_sample_id,mutations,variant_classification)|>
+          dplyr::select(entrez_id,improve_sample_id,mutation,variant_classification)|>
            dplyr::mutate(source='DepMap',study='CCLE')|>
           dplyr::distinct()
-  
+
           write_csv(full,file=fname)
           return(fi)
       }
       else if(value=='transcriptomics'){ #if gene expression
         exp_file <- readr::read_csv(fi)
-  
+
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
                                   names_to='gene_entrez',values_to='transcriptomics',
                                   values_transform=list(expression=as.numeric))|>
@@ -168,31 +174,31 @@ do_all<-function(values=names(filenames)){
           mutate(entrez_id=stringr::str_replace_all(entrez_par,'\\)|\\(',''))|>
           dplyr::select(-c(entrez_par,gene))|>
           distinct()
-  
+
         colnames(res)[1]<-'other_id'
         vars=c('transcriptomics')
-  
+
       }
       else if(value=='miRNA'){ #if mirna expression
         exp_file <- readr::read_csv(fi)
-  
+
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
                                   names_to='gene_symbol',values_to='miRNA',values_transform=list(mirnas=as.numeric))
-  
+
         gmod<-genes
         gmod$gene_symbol<-tolower(gmod$gene_symbol)
-  
+
         res$gene_symbol<-tolower(res$gene_symbol)
-  
+
         res<-res|>
           dplyr::left_join(gmod)|>
           dplyr::distinct()
           #dplyr::mutate(gene_symbol=tolower(gene_symbol))
-  
+
         missed<-subset(res,is.na(entrez_id))
         notmissed<-subset(res,!is.na(entrez_id))
         print(paste("matched",length(unique(notmissed$gene_symbol)),'miRNAs and missed',length(unique(missed$gene_symbol))))
-  
+
         ##mirfix
         mirmap<-mirnaFixing(unique(missed$gene_symbol))
         fixed<-missed|>
@@ -204,33 +210,33 @@ do_all<-function(values=names(filenames)){
           subset(!is.na(entrez_id))|>
           dplyr::select(-old)|>
           rbind(notmissed)
-  
+
         missed<-subset(fixed,is.na(entrez_id))
         print(paste("after second pass, matched",length(unique(notmissed$gene_symbol)),'miRNAs and missed',length(unique(missed$gene_symbol))))
-  
+
         colnames(res)[1]<-'other_id'
         vars=c('miRNA')
-  
+
       }
-  
+
     ##do the last join with samples
     full<-res|>
       dplyr::left_join(samples)
-    
+
     missed<-full|>subset(is.na(improve_sample_id))|>
       dplyr::select(improve_sample_id,other_id)|>
       distinct()
     print(paste('missing',nrow(missed),'identifiers'))
     print(missed)
-  
+
     full<-full|>dplyr::select(c('entrez_id','improve_sample_id',vars))|>
       subset(!is.na(improve_sample_id))|>
       dplyr::distinct()|>
-      dplyr::mutate(source='DepMap',study='CCLE')
-  
+      dplyr::mutate(source='DepMap',study='Broad')
+
     write_csv(full,file=gzfile(fname))
     return(fi)
-  
+
   })
 }
 

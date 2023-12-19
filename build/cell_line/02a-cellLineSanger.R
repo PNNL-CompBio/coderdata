@@ -11,7 +11,7 @@ Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 filenames=list(transcriptomics='https://cog.sanger.ac.uk/cmp/download/rnaseq_all_20220624.zip',
                copy_number='https://cog.sanger.ac.uk/cmp/download/WES_pureCN_CNV_genes_latest.csv.gz',
                proteomics='https://cog.sanger.ac.uk/cmp/download/Proteomics_20221214.zip',
-               mutations='https://cog.sanger.ac.uk/cmp/download/mutations_all_20230202.zip')
+               mutation='https://cog.sanger.ac.uk/cmp/download/mutations_all_20230202.zip')
 # the dictionary started with
 # CCLE data
 variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3prime_UTR_ess_splice'),
@@ -40,11 +40,11 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
                      Translation_Start_Site=c('Translation_Start_Site','start_lost'))
 
 getAll<-function(dt=names(filenames)){
-  
+
   options(timeout=10000)
   ###run through each file and rewrite
   newres<-lapply(df,function(value){
-    
+
     fi=filenames[[value]]
      fname=paste0('sanger_',value,'.csv.gz')
     print(paste('now reading',fi,'to store as',fname))
@@ -53,11 +53,11 @@ getAll<-function(dt=names(filenames)){
     if(value=='copy_number'){
       #read in file
       exp_file <- readr::read_csv(fi) ##already in long form <3 <3 <3
-      
+
       smap<-samples|>
         subset(id_source=='Sanger')|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
-      
+
       res<-exp_file|>
         dplyr::select(other_id='model_id',gene_symbol='symbol',gatk_mean_log2_copy_ratio,source,data_type,cn_category)|>
         mutate(copy_number=2^gatk_mean_log2_copy_ratio,.keep='all')|>
@@ -66,7 +66,7 @@ getAll<-function(dt=names(filenames)){
         dplyr::select(other_id,source,copy_number,entrez_id,sanger='cn_category')|>
         left_join(smap)|>
         distinct()
-      
+
       ##calibrate the copy call
       res<-res|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
         dplyr::mutate(improve=ifelse(copy_number<0.5210507,'deep del',
@@ -75,12 +75,12 @@ getAll<-function(dt=names(filenames)){
                                                      ifelse(copy_number<1.422233,'gain','amp')))))|>
         dplyr::distinct()|>
         mutate(study='Sanger')
-      
+
       lres<-res|>
         tidyr::pivot_longer(cols=c(improve_copy_call,sanger_copy_call),
                             names_to='copy_call_source',
                             values_to='copy_call')
-      
+
     }else if(value=='methylation'){ ###IF DATA REPRESENT RRBS###
       exp_file <- readr::read_csv(fi)[-c(1:2),]
       #the gene names are not unique and in some weird format, i willt ry to keep both in the metadata
@@ -89,32 +89,32 @@ getAll<-function(dt=names(filenames)){
                             names_to='gene_region',values_to='methylation',
                             values_transform=list(methylation=as.numeric))|>
         dplyr::distinct()
-      
+
       res<-res|>
         tidyr::separate(gene_region,into=c('gene_symbol','num','start','end'),sep='_')|>
         dplyr::left_join(genes)|>
         dplyr::distinct()
-      
+
       colnames(res)[1]<-'other_id'
       vars=c('methylation','start','end')
-      
-      
-    }else if(value=='mutations'){ ####IF DATA REPRESENTS MUTATIONS#####
+
+
+    }else if(value=='mutation'){ ####IF DATA REPRESENTS MUTATIONS#####
       res=download.file(fi,'/tmp/tmp.zip')
       filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
       fi= "/tmp/mutations_all_20230202.csv"
-      
+
       exp_file <- readr::read_csv(fi)|>
-        dplyr::select(symbol='gene_symbol',other_id='model_id',effect,mutations='cdna_mutation',source)|>
+        dplyr::select(symbol='gene_symbol',other_id='model_id',effect,mutation='cdna_mutation',source)|>
         distinct()
-      
+
       smap<-samples|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
-      
+
       res<-exp_file|>
         left_join(smap)|>
         mutate(study='Sanger')
-      
+
       res$variant_classification=unlist(lapply(res$effect,function(x) names(variant_schema)[grep(x,variant_schema)]))
       res<-res|>dplyr::select(-effect)
       write_csv(full,file=fname)
@@ -124,7 +124,7 @@ getAll<-function(dt=names(filenames)){
       res=download.file(fi,'/tmp/tmp.zip')
       filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
       fi= "/tmp/rnaseq_tpm_20220624.csv"
-      
+
       exp_file <- readr::read_csv(fi)
       ##the rows have metadata
       samps<-t(exp_file[1:3,])
@@ -133,20 +133,20 @@ getAll<-function(dt=names(filenames)){
         tibble::rownames_to_column('other_id')|>
         left_join(samples)|>
         dplyr::rename(source='data_source',study='dataset_name')
-      
+
       missing<-subset(samps,is.na(improve_sample_id))|>
         dplyr::select(-c(other_id,improve_sample_id))|>
         dplyr::rename(other_id='model_name')
-      
+
       ##the data starts at row 5
       dat<-exp_file[-c(1:4),-1]
       colnames(dat)[1]<-'gene_symbol'
-      
+
       ddat<-apply(dat,2,unlist)|>as.data.frame()
       ddat<-ddat|>
         left_join(genes)|>
         dplyr::select(-gene_symbol)
-      
+
       ddat$entrez_id<-as.numeric(ddat$entrez_id)
       res = tidyr::pivot_longer(data=as.data.frame(ddat),cols=c(1:(ncol(ddat)-1)),
                                 names_to='other_id',values_to='transcriptomics',
@@ -154,31 +154,31 @@ getAll<-function(dt=names(filenames)){
         distinct()
       smap<-samps|>
         dplyr::select(improve_sample_id,other_id,study,source)|>distinct()
-      
+
       full<-res|>
         left_join(smap)
-      
+
     }
     else if(value=='miRNA'){ #if mirna expression
       exp_file <- readr::read_csv(fi)
-      
+
       res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
                                 names_to='gene_symbol',values_to='miRNA',values_transform=list(mirnas=as.numeric))
-      
+
       gmod<-genes
       gmod$gene_symbol<-tolower(gmod$gene_symbol)
-      
+
       res$gene_symbol<-tolower(res$gene_symbol)
-      
+
       res<-res|>
         dplyr::left_join(gmod)|>
         dplyr::distinct()
       #dplyr::mutate(gene_symbol=tolower(gene_symbol))
-      
+
       missed<-subset(res,is.na(entrez_id))
       notmissed<-subset(res,!is.na(entrez_id))
       print(paste("matched",length(unique(notmissed$gene_symbol)),'miRNAs and missed',length(unique(missed$gene_symbol))))
-      
+
       ##mirfix
       mirmap<-mirnaFixing(unique(missed$gene_symbol))
       fixed<-missed|>
@@ -190,24 +190,24 @@ getAll<-function(dt=names(filenames)){
         subset(!is.na(entrez_id))|>
         dplyr::select(-old)|>
         rbind(notmissed)
-      
+
       missed<-subset(fixed,is.na(entrez_id))
       print(paste("after second pass, matched",length(unique(notmissed$gene_symbol)),'miRNAs and missed',length(unique(missed$gene_symbol))))
-      
+
       colnames(res)[1]<-'other_id'
       vars=c('miRNA')
-      
+
     }else if(value=='proteomics'){
       res=download.file(fi,'/tmp/tmp.zip')
       filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
-      
+
       fi='/tmp/Protein_matrix_averaged_zscore_20221214.tsv'
       exp_file <- readr::read_tsv(fi,skip=1)[-1,-1]
       colnames(exp_file)[1]<-'other_id'
-    
+
       smap<-samps|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
-      
+
       res<-exp_file|>
         tidyr::pivot_longer(cols=(-c(other_id)),names_to='gene_symbol',values_to='proteomics')|>
         subset(!is.na(proteomics))|>
@@ -215,28 +215,28 @@ getAll<-function(dt=names(filenames)){
         dplyr::select(-gene_symbol)|>
         left_join(smap)|>
         mutate(source='Sanger',study='Sanger')
-      
+
     }
-    
+
     ##do the last join with samples
     #full<-res|>
     #  left_join(samples)
-    
+
     missed<-full|>subset(is.na(improve_sample_id))|>
       dplyr::select(improve_sample_id,other_id)|>
       distinct()
     print(paste('missing',nrow(missed),'identifiers'))
     print(missed)
-    
+
     full<-full|>
       subset(!is.na(improve_sample_id))|>
       dplyr::select(-other_id)
-  
+
     write_csv(full,file=gzfile(fname))
     return(fi)
-    
+
   })
-  
+
 }
 
 
