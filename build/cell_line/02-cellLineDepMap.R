@@ -60,11 +60,16 @@ getProteomics<-function(){
     dplyr::distinct()|>
     tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')
 
+    smap<-samples|>
+        subset(other_id%in%pfilt$other_id)
+
   res<-pfilt|>
-    dplyr::left_join(samples)|>
+    dplyr::left_join(smap)|>
     dplyr::left_join(genes)|>
     dplyr::select(improve_sample_id,entrez_id,proteomics)|>
-    dplyr::distinct()
+      dplyr::distinct()
+    res$study='DepMap'
+    res$source='Broad'
   write_csv(res,file=gzfile('proteomics.csv.gz'))
 }
 
@@ -227,7 +232,7 @@ do_all<-function(values=names(filenames)){
     full<-full|>dplyr::select(c('entrez_id','improve_sample_id',vars))|>
       subset(!is.na(improve_sample_id))|>
       dplyr::distinct()|>
-      dplyr::mutate(source='DepMap',study='CCLE')
+      dplyr::mutate(source='DepMap',study='Broad')
 
     write_csv(full,file=gzfile(fname))
     return(fi)
