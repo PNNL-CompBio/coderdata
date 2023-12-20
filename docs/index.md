@@ -18,7 +18,10 @@ How to use your project.
     <div class="dataset-container">
         <a href="#cell-line" class="dataset-link">Cell Line</a>
         <div class="dataset-blurb">
-            <p>Blurb about the Cell Line dataset.</p>
+            <p>Cell Line dataset Stats</p>
+            <p>Cell Lines: </p>
+            <p>Genes: </p>
+            <p>Drugs: </p>
         </div>
     </div>
 
@@ -26,6 +29,9 @@ How to use your project.
         <a href="#cptac" class="dataset-link">CPTAC</a>
         <div class="dataset-blurb">
             <p>Blurb about the CPTAC dataset.</p>
+            <p>Cancer Types: </p>
+            <p>Genes: </p>
+            <p>Drugs: </p>
         </div>
     </div>
 
@@ -33,6 +39,9 @@ How to use your project.
         <a href="#hcmi" class="dataset-link">HCMI</a>
         <div class="dataset-blurb">
             <p>Blurb about the HCMI dataset.</p>
+            <p>Cancer Types: </p>
+            <p>Genes: </p>
+            <p>Drugs: </p>
         </div>
     </div>
 
@@ -40,6 +49,8 @@ How to use your project.
         <a href="#beataml" class="dataset-link">BeatAML</a>
         <div class="dataset-blurb">
             <p>Blurb about the BeatAML dataset.</p>
+            <p>Cancer Types: </p>
+            <p>Genes: </p>
         </div>
     </div>
 
