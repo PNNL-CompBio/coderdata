@@ -6,7 +6,6 @@
 }
 
 .dataset-container {
-    display: flex;
     width: 12%; /* Adjust the width as needed */
     margin-bottom: 20px;
 }
