@@ -1,17 +1,27 @@
+.dataset-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.dataset-container {
+    width: 45%; /* Adjust the width as needed */
+    margin-bottom: 20px;
+}
+
 .dataset-link {
     display: block;
     background-color: #f2f2f2;
     border-radius: 15px;
     padding: 10px;
-    margin-bottom: 5px;
     text-align: center;
     text-decoration: none;
     color: #333;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 5px;
 }
 
 .dataset-blurb {
-    margin-bottom: 20px;
     padding: 10px;
     background-color: #f9f9f9;
     border-radius: 10px;
