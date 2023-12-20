@@ -56,9 +56,6 @@ How to use the package
 ## Index.md Data
 
 - [index.md](./docs/index.md)
-## Gemfile Data
-
-- [Gemfile](./docs/Gemfile)
 ## Fig0 Data
 
 - [Fig0_Overview.pdf](./docs/Fig0_Overview.pdf)
