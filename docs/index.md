@@ -1,38 +1,5 @@
 <link rel="stylesheet" href="style.css">
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>CoderData</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="header">
-    Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package
-</div>
-
-<div class="navbar">
-    <div class="dropdown">
-        <a href="#datasets">Datasets</a>
-        <div class="dropdown-content">
-            <a href="#cell-line">Cell Line</a>
-            <a href="#cptac">CPTAC</a>
-            <a href="#hcmi">HCMI</a>
-            <a href="#beataml">BeatAML</a>
-        </div>
-    </div>
-    <div class="dropdown">
-        <a href="#resources">Resources</a>
-        <div class="dropdown-content">
-            <a href="https://github.com/PNNL-CompBio/coderdata/">GitHub</a>
-            <a href="https://pypi.org/project/coderdata/">PyPI</a>
-        </div>
-    </div>
-</div>
-
-
-
 <!-- # Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package -->
 
 ### Introduction
