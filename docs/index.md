@@ -1,72 +1,54 @@
+<link rel="stylesheet" href="style.css">
+
 # Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package
 
+### Introduction
+Your introduction text here.
+
 ### Installation
+Instructions on how to install.
 
-...
+### Usage
+How to use your project.
 
-### Use
+### Datasets
 
-How to use the package
+<div class="dataset-section">
 
-## Fig3 Data
+<a href="#cell-line" class="dataset-link">Cell Line</a>
+<div class="dataset-blurb">
+    <p>Blurb about the Cell Line dataset.</p>
+</div>
 
-- [Fig3_CPTAC.pdf](./docs/Fig3_CPTAC.pdf)
-## Beataml Data
+<a href="#cptac" class="dataset-link">CPTAC</a>
+<div class="dataset-blurb">
+    <p>Blurb about the CPTAC dataset.</p>
+</div>
 
-| Dataset   | Unique_Entrez_IDs   | Unique_Sample_IDs   |
-|-----------|---------------------|---------------------|
-## Fig5 Data
+<a href="#hcmi" class="dataset-link">HCMI</a>
+<div class="dataset-blurb">
+    <p>Blurb about the HCMI dataset.</p>
+</div>
 
-- [Fig5_Sample_Summary.pdf](./docs/Fig5_Sample_Summary.pdf)
-## Fig1 Data
+<a href="#beataml" class="dataset-link">BeatAML</a>
+<div class="dataset-blurb">
+    <p>Blurb about the BeatAML dataset.</p>
+</div>
 
-- [Fig1_HMCI.pdf](./docs/Fig1_HMCI.pdf)
-## Cell Data
+</div>
 
-| Dataset         |   Unique_Entrez_IDs |   Unique_Sample_IDs |
-|:----------------|--------------------:|--------------------:|
-| Transcriptomics |               19176 |                1450 |
-| Proteomics      |               12465 |                 375 |
-| Copy_number     |               25338 |                1811 |
-| Mutations       |               19822 |                1736 |
-![cell_line_circos.png](./docs/cell_line_circos.png)
-## Figshare Data
 
-- [figshare_latest.yml](./docs/figshare_latest.yml)
-## Fig2 Data
+### Cell Line
+Blurb about Cell Line.
 
-- [Fig2_BeatAML.pdf](./docs/Fig2_BeatAML.pdf)
-## Cptac Data
+### CPTAC
+Blurb about CPTAC.
 
-![cptac_circos.png](./docs/cptac_circos.png)
-| Dataset         |   Unique_Entrez_IDs |   Unique_Sample_IDs |
-|:----------------|--------------------:|--------------------:|
-| Transcriptomics |               38407 |                1113 |
-| Proteomics      |               15278 |                1026 |
-| Copy_number     |               38395 |                1024 |
-##  Data
+### HCMI
+Blurb about HCMI
 
-- [_config.yml](./docs/_config.yml)
-## Fig4 Data
+### BeatAML
+Blurb about BeatAML.
 
-- [Fig4_CCLE.pdf](./docs/Fig4_CCLE.pdf)
-## Rplots.pdf Data
-
-- [Rplots.pdf](./docs/Rplots.pdf)
-## Index.md Data
-
-- [index.md](./docs/index.md)
-## Gemfile Data
-
-- [Gemfile](./docs/Gemfile)
-## Fig0 Data
-
-- [Fig0_Overview.pdf](./docs/Fig0_Overview.pdf)
-## Hcmi Data
-
-| Dataset   | Unique_Entrez_IDs   | Unique_Sample_IDs   |
-|-----------|---------------------|---------------------|
-## Combined Data Summary
-
-TODO: create script that generates figures
-
+### Contact
+Your contact information.
