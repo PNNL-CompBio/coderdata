@@ -1,8 +1,7 @@
 .dataset-section {
     display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
     justify-content: space-around;
+    flex-wrap: wrap;
 }
 
 .dataset-container {
