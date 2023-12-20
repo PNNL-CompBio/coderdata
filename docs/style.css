@@ -9,14 +9,17 @@ body {
     background-color: #263238; /* Dark background for the header */
     color: white;
     position: fixed;
+    text-align: right;
     top: 0;
     left: 0;
+    height: 100px;
     width: 100%;
     z-index: 1000;
     display: flex;
-    flex-direction: column; /* Keep the title and description stacked */
-    padding: 20px; /* Add padding to increase the header size */
-    justify-content: space-between; /* Align title/description and navbar */
+    /* flex-direction: column; Keep the title and description stacked */
+    padding-top: 20px; /* Add padding to increase the header size */
+    padding-bottom: 20px; /* Add padding to increase the header size */
+    /* justify-content: space-between; Align title/description and navbar */
 }
 
 .header span.title {
