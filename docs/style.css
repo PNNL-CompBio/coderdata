@@ -10,12 +10,13 @@ body {
     color: white;
     position: fixed;
     top: 0;
+    left: 0;
     width: 100%;
     z-index: 1000;
     display: flex;
-    flex-direction: column; /* Stack title and description */
-    align-items: center; /* Center title and description */
-    padding: 20px 0; /* Add padding to increase the header size */
+    flex-direction: column; /* Keep the title and description stacked */
+    padding: 20px; /* Add padding to increase the header size */
+    justify-content: space-between; /* Align title/description and navbar */
 }
 
 .header span.title {
@@ -29,13 +30,15 @@ body {
 }
 
 .navbar {
-    position: fixed; /* Fixed position to the header */
+    /* position: fixed; Fixed position to the header */
     right: 0;
     top: 0;
     display: flex;
     height: 100%; /* Full height of the header */
     align-items: center; /* Vertically align nav items */
+    align-self: flex-end; /* Align navbar to the end (right) */
 }
+
 
 
 .navbar a {
