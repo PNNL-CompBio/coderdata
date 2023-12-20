@@ -54,7 +54,3 @@ How to use your project.
 
 ### Contact
 Your contact information.
-
-
-</body>
-</html>
