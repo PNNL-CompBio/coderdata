@@ -1,6 +1,38 @@
 <link rel="stylesheet" href="style.css">
 
-# Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CoderData</title>
+</head>
+<body>
+
+<div class="header">
+    Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package
+</div>
+
+<div class="navbar">
+    <div class="dropdown">
+        <a href="#datasets">Datasets</a>
+        <div class="dropdown-content">
+            <a href="#cell-line">Cell Line</a>
+            <a href="#cptac">CPTAC</a>
+            <a href="#hcmi">HCMI</a>
+            <a href="#beataml">BeatAML</a>
+        </div>
+    </div>
+    <div class="dropdown">
+        <a href="#resources">Resources</a>
+        <div class="dropdown-content">
+            <a href="https://github.com/PNNL-CompBio/coderdata/">GitHub</a>
+            <a href="https://pypi.org/project/coderdata/">PyPI</a>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- # Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package -->
 
 ### Introduction
 Your introduction text here.
@@ -18,7 +50,6 @@ How to use your project.
     <div class="dataset-container">
         <a href="#cell-line" class="dataset-link">Cell Line</a>
         <div class="dataset-blurb">
-            <p>Cell Line dataset Stats</p>
             <p>Cell Lines: </p>
             <p>Genes: </p>
             <p>Drugs: </p>
@@ -28,7 +59,6 @@ How to use your project.
     <div class="dataset-container">
         <a href="#cptac" class="dataset-link">CPTAC</a>
         <div class="dataset-blurb">
-            <p>Blurb about the CPTAC dataset.</p>
             <p>Cancer Types: </p>
             <p>Genes: </p>
             <p>Drugs: </p>
@@ -38,7 +68,6 @@ How to use your project.
     <div class="dataset-container">
         <a href="#hcmi" class="dataset-link">HCMI</a>
         <div class="dataset-blurb">
-            <p>Blurb about the HCMI dataset.</p>
             <p>Cancer Types: </p>
             <p>Genes: </p>
             <p>Drugs: </p>
@@ -48,7 +77,6 @@ How to use your project.
     <div class="dataset-container">
         <a href="#beataml" class="dataset-link">BeatAML</a>
         <div class="dataset-blurb">
-            <p>Blurb about the BeatAML dataset.</p>
             <p>Cancer Types: </p>
             <p>Genes: </p>
         </div>
@@ -58,3 +86,7 @@ How to use your project.
 
 ### Contact
 Your contact information.
+
+
+</body>
+</html>
