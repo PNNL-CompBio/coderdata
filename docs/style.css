@@ -5,11 +5,12 @@ body {
 }
 
 .header {
+    display: flex;
     background-color: #263238;
     color: white;
-    padding: 10px 20px;
     position: fixed;
     top: 0;
+    height: 40px;
     width: 100%;
     z-index: 1000;
 }
