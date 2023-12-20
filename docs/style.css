@@ -16,8 +16,9 @@ body {
 
 .navbar {
     position: absolute;
-    right: 0;
-    top: 10px;
+    left: 0;
+    width: 25%;
+    top: 40px;
 }
 
 .navbar a {
