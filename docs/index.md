@@ -45,18 +45,5 @@ How to use your project.
 
 </div>
 
-
-### Cell Line
-Blurb about Cell Line.
-
-### CPTAC
-Blurb about CPTAC.
-
-### HCMI
-Blurb about HCMI
-
-### BeatAML
-Blurb about BeatAML.
-
 ### Contact
 Your contact information.
