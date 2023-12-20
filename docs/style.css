@@ -5,6 +5,7 @@ body {
 }
 
 .header {
+    font-size: 24px;
     background-color: #263238; /* Dark background for the header */
     color: white;
     position: fixed;
@@ -29,13 +30,13 @@ body {
 
 .navbar {
     position: fixed; /* Fixed position to the header */
-    font-size: 20px;
-    right: 30;
+    right: 0;
     top: 0;
     display: flex;
     height: 100%; /* Full height of the header */
     align-items: center; /* Vertically align nav items */
 }
+
 
 .navbar a {
     color: white;
