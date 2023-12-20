@@ -2,3 +2,8 @@
 # plugins:
 # - jekyll-remote-theme
 source: docs
+
+# Build settings
+markdown: kramdown
+theme: null # No theme is used since you are specifying your own layouts
+layouts_dir: _layouts # Specifies where to find the layout templates
