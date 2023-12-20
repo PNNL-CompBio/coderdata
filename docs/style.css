@@ -1,3 +1,68 @@
+/* Overall page background */
+body {
+    background-color: #E0F2F1; /* Light blue background */
+    font-family: Arial, sans-serif;
+}
+
+/* Header styling */
+.header {
+    background-color: #263238; /* Dark background for the header */
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 24px;
+}
+
+/* Navigation bar styling */
+.navbar {
+    display: flex;
+    justify-content: space-evenly;
+    background-color: #455A64; /* Darker shade for navbar */
+    padding: 10px 0;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    font-size: 18px;
+}
+
+.navbar a:hover {
+    background-color: #546E7A;
+}
+
+/* Dropdown menu styling */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
 .dataset-section {
     display: flex;
     justify-content: space-around;
