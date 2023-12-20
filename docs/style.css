@@ -1,11 +1,13 @@
 .dataset-section {
     display: flex;
     flex-wrap: wrap;
+    flex-direction: row;
     justify-content: space-around;
 }
 
 .dataset-container {
-    width: 45%; /* Adjust the width as needed */
+    display: flex;
+    width: 24%; /* Adjust the width as needed */
     margin-bottom: 20px;
 }
 
