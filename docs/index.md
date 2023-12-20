@@ -1,3 +1,8 @@
+---
+layout: default
+title: CoderData
+---
+
 <link rel="stylesheet" href="style.css">
 
 <!-- # Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package -->
