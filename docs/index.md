@@ -15,25 +15,33 @@ How to use your project.
 
 <div class="dataset-section">
 
-<a href="#cell-line" class="dataset-link">Cell Line</a>
-<div class="dataset-blurb">
-    <p>Blurb about the Cell Line dataset.</p>
-</div>
+    <div class="dataset-container">
+        <a href="#cell-line" class="dataset-link">Cell Line</a>
+        <div class="dataset-blurb">
+            <p>Blurb about the Cell Line dataset.</p>
+        </div>
+    </div>
 
-<a href="#cptac" class="dataset-link">CPTAC</a>
-<div class="dataset-blurb">
-    <p>Blurb about the CPTAC dataset.</p>
-</div>
+    <div class="dataset-container">
+        <a href="#cptac" class="dataset-link">CPTAC</a>
+        <div class="dataset-blurb">
+            <p>Blurb about the CPTAC dataset.</p>
+        </div>
+    </div>
 
-<a href="#hcmi" class="dataset-link">HCMI</a>
-<div class="dataset-blurb">
-    <p>Blurb about the HCMI dataset.</p>
-</div>
+    <div class="dataset-container">
+        <a href="#hcmi" class="dataset-link">HCMI</a>
+        <div class="dataset-blurb">
+            <p>Blurb about the HCMI dataset.</p>
+        </div>
+    </div>
 
-<a href="#beataml" class="dataset-link">BeatAML</a>
-<div class="dataset-blurb">
-    <p>Blurb about the BeatAML dataset.</p>
-</div>
+    <div class="dataset-container">
+        <a href="#beataml" class="dataset-link">BeatAML</a>
+        <div class="dataset-blurb">
+            <p>Blurb about the BeatAML dataset.</p>
+        </div>
+    </div>
 
 </div>
 
