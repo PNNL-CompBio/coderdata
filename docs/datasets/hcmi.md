@@ -16,5 +16,10 @@ The python package allows users to easily download the data, load it into python
 ### HCMI Summary
 
 
-<embed src="{{ 'assets/stats/Fig1_HMCI.pdf' | relative_url }}" type="application/pdf" width="600" height="400" />
+
+<div class="flex-container"> 
+    <div class="flex-item">
+        <embed src="{{ 'assets/stats/Fig1_HMCI.pdf' | relative_url }}" type="application/pdf" />
+    </div>
+</div>
 
