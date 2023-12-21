@@ -265,5 +265,5 @@ pre > code.language-python {
 .flex-item img,
 .flex-item embed {
     width: 100%; /* Makes the image and PDF take the full width of their container */
-    height: auto; /* Keeps the aspect ratio of the image and scales the height accordingly */
+    height: 100%; /* Keeps the aspect ratio of the image and scales the height accordingly */
 }

@@ -15,6 +15,9 @@ The python package allows users to easily download the data, load it into python
 ### BeatAML Summary
 
 
+<div class="flex-container"> 
+    <div class="flex-item">
+        <embed src="{{ 'assets/stats/Fig2_BeatAML.pdf' | relative_url }}" type="application/pdf" />
+    </div>
+</div>
 
-
-<iframe src="{{ 'assets/stats/Fig2_BeatAML.pdf' | relative_url }}" width="600" height="400"></iframe>
