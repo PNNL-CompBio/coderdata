@@ -16,9 +16,9 @@ The python package allows users to easily download the data, load it into python
 
 <div class="flex-container"> 
     <div class="flex-item">
-        <img src="{{ 'assets/stats/cell_line_circos.png' | relative_url }}" alt="Cell Line Circos" />
+        <embed src="{{ 'assets/stats/Fig4_CCLE.pdf' | relative_url }}" type="application/pdf" />
     </div>
     <div class="flex-item">
-        <embed src="{{ 'assets/stats/Fig4_CCLE.pdf' | relative_url }}" type="application/pdf" />
+        <img src="{{ 'assets/stats/cell_line_circos.png' | relative_url }}" alt="Cell Line Circos" />
     </div>
 </div>
