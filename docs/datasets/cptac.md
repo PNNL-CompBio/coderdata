@@ -15,10 +15,12 @@ The python package allows users to easily download the data, load it into python
 ### CPTAC Summary
 
 
-<embed src="{{ 'assets/stats/Fig3_CPTAC.pdf' | relative_url }}" type="application/pdf" width="600" height="400" />
-
-
-<img src="{{ 'assets/stats/cptac_circos.png' | relative_url }}" alt="Alt text" width="600" height="400" />
-
-
+<div class="flex-container"> 
+    <div class="flex-item">
+        <img src="{{ 'assets/stats/cptac_circos.png' | relative_url }}" alt="Cell Line Circos" />
+    </div>
+    <div class="flex-item">
+        <embed src="{{ 'assets/stats/Fig3_CPTAC.pdf' | relative_url }}" type="application/pdf" />
+    </div>
+</div>
 
