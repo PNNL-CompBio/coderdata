@@ -28,6 +28,12 @@
                 <a href="https://pypi.org/project/coderdata/">PyPI</a>
             </div>
         </div>
+    <!-- Hamburger Menu Icon -->
+    </div>
+    <div class="hamburger" onclick="toggleNavbar()">
+        <div></div>
+        <div></div>
+        <div></div>
     </div>
 </div>
 
@@ -35,3 +41,14 @@
 
 </body>
 </html>
+
+
+<script>
+    function toggleNavbar() {
+        var navbar = document.querySelector('.navbar');
+        var hamburger = document.querySelector('.hamburger');
+        navbar.classList.toggle('open');
+        hamburger.classList.toggle('open');
+    }
+</script>
+
