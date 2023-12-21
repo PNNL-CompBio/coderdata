@@ -85,3 +85,11 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
     </div>
 
 </div>
+
+### Data Overview
+
+<embed src="{{ 'assets/stats/Fig0_Overview.pdf' | relative_url }}" type="application/pdf" width="600" height="400" />
+
+<embed src="{{ 'assets/stats/Fig5_Sample_Summary.pdf' | relative_url }}" type="application/pdf" width="600" height="400" />
+
+
