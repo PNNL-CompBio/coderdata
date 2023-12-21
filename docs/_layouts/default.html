@@ -20,6 +20,7 @@
                 </linearGradient>
             </defs>
             <text fill="url(#gradient-title)" x="10" y="40" font-size="36" font-weight="bold">{{ page.title }}</text>
+            <a href="{{ '' | absolute_url }}"></a>
         </svg>
     </span>
     <span class="description">Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package</span>
@@ -28,10 +29,10 @@
         <div class="dropdown">
             <a href="#datasets">Datasets</a>
             <div class="dropdown-content">
-                <a href="datasets/cell-line">Cell Line</a>
-                <a href="datasets/cptac">CPTAC</a>
-                <a href="datasets/hcmi">HCMI</a>
-                <a href="datasets/beataml">BeatAML</a>
+                <a href="{{ '/datasets/cell-line' | absolute_url }}">Cell Line</a>
+                <a href="{{ '/datasets/cptac' | absolute_url }}">CPTAC</a>
+                <a href="{{ '/datasets/hcmi' | absolute_url }}">HCMI</a>
+                <a href="{{ '/datasets/beataml' | absolute_url }}">BeatAML</a>
             </div>
         </div>
         <div class="dropdown">
