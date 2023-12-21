@@ -129,35 +129,61 @@ body {
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-pre, code {
+code {
     background-color: white; 
-    border: 1px solid #ccc; 
-    padding: 10px; 
+    /* border: 1px solid #ccc;  */
+    /* padding: 10px;  */
 }
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.hamburger div {
+    height: 3px;
+    background: white;
+    margin: 5px 0;
+    transition: transform 0.3s ease;
+}
+
+/* Media query for smaller screens */
 
 @media (max-width: 768px) {
-    .header {
-        font-size: 20px; 
-        padding: 5px 10px; 
+    .navbar a {
+        display: none;
     }
 
-    .header span.title,
-    .header span.description {
-        font-size: 18px; 
-        display: block; 
+    .hamburger {
+        display: flex;
     }
-
-    .navbar {
-        flex-direction: column; 
-    }
-
-    .navbar a,
-    .dropdown-content a {
-        font-size: 14px;
-        padding: 5px; 
-    }
-
-    .dropdown-content {
-        position: static;
+    .navbar.open {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+        position: absolute;
+        right: 0;
+        top: 60px; /* Adjust the top value based on the height of your header */
+        background-color: #263238; /* Same as header background for consistency */
     }
 }
+
+/* Styles for when the navbar is open */
+.navbar.open a {
+    display: block;
+}
+
+/* Rotate hamburger into an 'X' */
+.hamburger.open div:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.open div:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.open div:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
