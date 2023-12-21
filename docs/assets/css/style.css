@@ -207,7 +207,7 @@ pre > code.language-python {
         /* position: absolute; */
         right: 0;
         top: 60px; /* Adjust the top value based on the height of your header */
-        background-color: #001c38; /* Same as header background for consistency */
+        background-color: #001a37; /* Same as header background for consistency */
     }
     .header.span.description {
         display: none;
