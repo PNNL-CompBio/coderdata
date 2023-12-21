@@ -31,7 +31,15 @@ body {
 .header span.description {
     font-size: 20px; 
     margin-top: 10px; 
+    transition: max-height 0.3s ease-in-out; /* Smooth transition for collapsing */
 }
+
+
+
+.header span,div {
+    margin-right: 20px; /* Adds spacing to the right of each span */
+}
+
 
 .navbar {
     /* position: fixed; Fixed position to the header */
@@ -43,8 +51,6 @@ body {
     padding-right: 20px;
     /* align-self: flex-end; */
 }
-
-
 
 .navbar a {
     color: white;
@@ -131,24 +137,26 @@ body {
 
 code {
     background-color: white; 
-    /* border: 1px solid #ccc;  */
-    /* padding: 10px;  */
+    width: 60%;
+    border: 1px solid #ccc; 
+    padding: 10px; 
 }
 .hamburger {
     display: none;
     flex-direction: column;
     justify-content: space-around;
     cursor: pointer;
+    padding-right: 20px;
 }
 
 .hamburger div {
-    width: 30px; /* Width of the hamburger lines */
-    height: 3px;
+    width: 5px; /* Width of the hamburger lines */
+    height: 20px;
     background-color: white; /* Color of the hamburger lines */
     transition: all 0.3s; /* Smooth transition for the animation */
 }
 
-/* Media query for smaller screens */
+
 
 @media (max-width: 768px) {
     .navbar a,
@@ -159,6 +167,7 @@ code {
 
     .hamburger {
         display: flex;
+        padding-right: 20px;
     }
     .navbar.open {
         display: flex;
@@ -170,7 +179,14 @@ code {
         top: 60px; /* Adjust the top value based on the height of your header */
         background-color: #263238; /* Same as header background for consistency */
     }
+    .header span.description {
+        max-height: 3.6em; /* Roughly two lines of text */
+        overflow: hidden;
+        white-space: nowrap; /* Ensures the text stays in a single line */
+        text-overflow: ellipsis; /* Adds ellipsis to the end if the text is too long */
+    }
 }
+
 
 /* Styles for when the navbar is open */
 .navbar.open a {
@@ -189,3 +205,10 @@ code {
 .hamburger.open div:nth-child(3) {
     transform: rotate(-45deg) translate(7px, -6px);
 }
+
+
+/* @media (max-width: 768px) {
+    .header span.description {
+        display: none;
+    }
+} */
