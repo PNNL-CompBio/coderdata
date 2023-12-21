@@ -4,7 +4,6 @@ body {
     font-family: Arial, sans-serif;
 }
 
-
 .header {
     font-size: 24px;
     background-color: #263238; 
@@ -23,14 +22,9 @@ body {
     padding: 10px 10px; 
 }
 
-.header-logo {
-    height: 100%;
-    width: auto; 
-    margin-right: 10px; 
-}
 
 .header span.title {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: bold; 
 }
 
@@ -38,18 +32,22 @@ body {
     font-size: 18px; 
     margin-top: 10px; 
     transition: max-height 0.3s ease-in-out; /* Smooth transition for collapsing */
-    display: block;
-    max-width: 100px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap; /* Ensures the text stays in a single line */
+    text-overflow: ellipsis; /* Adds ellipsis to the end if the text is too long */
 }
+
 
 
 .header span,div {
     margin-right: 20px; /* Adds spacing to the right of each span */
 }
 
+
+.header-logo {
+    height: 100%;
+    width: auto; 
+    margin-right: 10px; 
+}
 
 .navbar {
     /* position: fixed; Fixed position to the header */
@@ -168,31 +166,6 @@ pre > code.language-python {
     overflow-x: auto; 
     border: 1px solid #ccc;
 }
-
-
-.title-and-description {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-left: 10px;
-}
-
-/* .title-svg {
-    height: auto;
-} */
-
-.navbar {
-    display: flex;
-    align-items: center;
-}
-
-@media (max-width: 768px) {
-    .description {
-        display: none;
-    }
-}
-
-
 /* 
 .hamburger {
     display: none;
@@ -211,8 +184,36 @@ pre > code.language-python {
 
 
 
+@media (max-width: 768px) {
+    .navbar a,
+    .dropdown-content {
+        display: none; /* Hide the navbar links */
+    }
+/* 
+    .hamburger {
+        display: flex;
+        padding-right: 20px;
+    } */
+    .navbar.open {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-right: 20px;
+        /* position: absolute; */
+        right: 0;
+        top: 60px; /* Adjust the top value based on the height of your header */
+        background-color: #263238; /* Same as header background for consistency */
+    }
+    .header span.description {
+        display: none;
+    }
+}
 
 
+/* Styles for when the navbar is open */
+.navbar.open a {
+    display: block;
+}
 
 /* Rotate hamburger into an 'X' */
 /* .hamburger.open div:nth-child(1) {
@@ -229,12 +230,9 @@ pre > code.language-python {
  */
 
 
-
  .code-box {
     background-color: white;
     border: 1px solid #ccc;
-    padding: 1em;
-    margin-bottom: 1em;
     font-family: monospace; /* Gives the text a code-like appearance */
     white-space: pre-wrap; /* Preserves whitespace and line breaks */
     word-break: break-all; /* Prevents long lines from overflowing */
