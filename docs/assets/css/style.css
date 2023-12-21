@@ -273,8 +273,8 @@ pre > code.language-python {
 
 
 .flex-item img {
-    width: 60%; /* Makes the image and PDF take the full width of their container */
+    width: 65%; /* Makes the image and PDF take the full width of their container */
     height: 100%; /* Keeps the aspect ratio of the image and scales the height accordingly */
-    border: #001a37;
-    border-width: 2px;
+    border-radius: 2px;
+    border-color: #001a37;
 }
