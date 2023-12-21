@@ -190,10 +190,10 @@ pre > code.language-python {
 
 
 @media (max-width: 1200px) {
-    .navbar a,
+    /* .navbar a,
     .dropdown-content {
-        display: none; /* Hide the navbar links */
-    }
+        display: none; 
+    } */
 /* 
     .hamburger {
         display: flex;
