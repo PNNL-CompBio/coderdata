@@ -30,7 +30,7 @@ body {
 }
 
 .header span.title {
-    font-size: 24px;
+    font-size: 32px;
     font-weight: bold; 
 }
 
@@ -177,9 +177,9 @@ pre > code.language-python {
     margin-left: 10px;
 }
 
-.title-svg {
+/* .title-svg {
     height: auto;
-}
+} */
 
 .navbar {
     display: flex;
@@ -239,4 +239,10 @@ pre > code.language-python {
     white-space: pre-wrap; /* Preserves whitespace and line breaks */
     word-break: break-all; /* Prevents long lines from overflowing */
     overflow-x: auto; /* Adds a horizontal scrollbar if content is too wide */
+}
+
+.code-box p {
+    margin: 0; /* Removes the default paragraph margin */
+    line-height: normal; /* Sets line height to normal to remove extra spacing */
+    padding: 0; /* Ensures there's no padding adding extra space */
 }
