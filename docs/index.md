@@ -30,13 +30,19 @@ coderdata download --prefix hcmi
 
 ##### Python
 To download, load, and call datasets in python, simply run the following commands. 
-
+<!-- 
 ```python
 import coderdata
 coderdata.download_data_by_prefix('hcmi') # download all hcmi data to local directory.
 hcmi_data = coderdata.DatasetLoader('hcmi') # load hcmi data from local directory into the DatasetLoader object.
 hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader object.
-```
+``` -->
+<div class="code-box">
+    <p>import coderdata</p>
+    <p>coderdata.download_data_by_prefix('hcmi') # download all hcmi data to local directory.</p>
+    <p>hcmi_data = coderdata.DatasetLoader('hcmi') # load hcmi data from local directory into the DatasetLoader object.</p>
+    <p>hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader object.</p>
+</div>
 
 
 ### Datasets
