@@ -13,3 +13,8 @@ The build section is a github workflow that generates four cancer datasets in a 
 The python package allows users to easily download the data, load it into python and reformat it as desired.
 
 ### Cell Line Summary
+
+
+<img src="{{ 'assets/stats/cell_line_circos.png' | absolute_url }}" alt="Alt text" />
+
+<iframe src="{{ 'assets/stats/Fig4_CCLE.pdf' | absolute_url }}" width="600" height="400"></iframe>

@@ -13,3 +13,18 @@ The build section is a github workflow that generates four cancer datasets in a 
 The python package allows users to easily download the data, load it into python and reformat it as desired.
 
 ### CPTAC Summary
+
+
+<iframe src="{{ 'assets/stats/Fig3_CPTAC.pdf' | absolute_url }}" width="600" height="400"></iframe>
+
+
+<img src="{{ 'assets/stats/cptac_circos.png' | absolute_url }}" alt="Alt text" />
+
+
+<iframe src="{{ 'assets/stats/Fig0_Overview.pdf' | absolute_url }}" width="600" height="400"></iframe>
+
+
+<iframe src="{{ 'assets/stats/Fig5_Sample_Summary.pdf' | absolute_url }}" width="600" height="400"></iframe>
+
+
+
