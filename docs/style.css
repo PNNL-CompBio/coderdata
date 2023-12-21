@@ -29,7 +29,7 @@ body {
 }
 
 .header span.description {
-    font-size: 20px; 
+    font-size: 18px; 
     margin-top: 10px; 
     transition: max-height 0.3s ease-in-out; /* Smooth transition for collapsing */
 }
@@ -40,6 +40,12 @@ body {
     margin-right: 20px; /* Adds spacing to the right of each span */
 }
 
+
+.header-logo {
+    height: 50px;
+    width: auto; 
+    margin-right: 10px; 
+}
 
 .navbar {
     /* position: fixed; Fixed position to the header */
