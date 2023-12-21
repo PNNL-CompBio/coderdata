@@ -254,12 +254,15 @@ pre > code.language-python {
     justify-content: space-around; /* Or use 'center' if you prefer */
     align-items: center;
     flex-wrap: wrap; /* Allows items to wrap onto the next line on smaller screens */
+    width: 95%;
+    height: 500px;
 }
 
 .flex-item {
     margin: 10px; /* Adds some space around each item */
     flex-basis: calc(50% - 20px); /* Adjust the width of each item minus margin */
     box-sizing: border-box;
+    height: 100%;
 }
 
 .flex-item img,
