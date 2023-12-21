@@ -34,6 +34,7 @@ body {
     transition: max-height 0.3s ease-in-out; /* Smooth transition for collapsing */
     white-space: nowrap; /* Ensures the text stays in a single line */
     text-overflow: ellipsis; /* Adds ellipsis to the end if the text is too long */
+    width: auto;
 }
 
 
@@ -150,7 +151,7 @@ code {
     padding: 10px; 
 }
 
-pre > code.language-bash {
+/* pre > code.language-bash {
     background-color: white; 
     width: 60%;
     border: 1px solid #ccc; 
@@ -165,7 +166,7 @@ pre > code.language-python {
     display: block; 
     overflow-x: auto; 
     border: 1px solid #ccc;
-}
+} */
 /* 
 .hamburger {
     display: none;
@@ -184,7 +185,7 @@ pre > code.language-python {
 
 
 
-@media (max-width: 768px) {
+@media (max-width: 1000px) {
     .navbar a,
     .dropdown-content {
         display: none; /* Hide the navbar links */
@@ -204,7 +205,7 @@ pre > code.language-python {
         top: 60px; /* Adjust the top value based on the height of your header */
         background-color: #263238; /* Same as header background for consistency */
     }
-    .header span.description {
+    .header.span.description {
         display: none;
     }
 }
@@ -234,8 +235,8 @@ pre > code.language-python {
     background-color: white;
     border: 1px solid #ccc;
     font-family: monospace; /* Gives the text a code-like appearance */
-    white-space: pre-wrap; /* Preserves whitespace and line breaks */
-    word-break: break-all; /* Prevents long lines from overflowing */
+    /* white-space: pre-wrap; Preserves whitespace and line breaks */
+    /* word-break: break-all; Prevents long lines from overflowing */
     overflow-x: auto; /* Adds a horizontal scrollbar if content is too wide */
 }
 
