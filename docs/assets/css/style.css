@@ -230,3 +230,13 @@ pre > code.language-python {
 
 
 
+ .code-box {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin-bottom: 1em;
+    font-family: monospace; /* Gives the text a code-like appearance */
+    white-space: pre-wrap; /* Preserves whitespace and line breaks */
+    word-break: break-all; /* Prevents long lines from overflowing */
+    overflow-x: auto; /* Adds a horizontal scrollbar if content is too wide */
+}
