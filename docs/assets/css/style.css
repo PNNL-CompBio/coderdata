@@ -248,3 +248,22 @@ pre > code.language-python {
     line-height: normal; /* Sets line height to normal to remove extra spacing */
     padding: 0; /* Ensures there's no padding adding extra space */
 }
+
+.flex-container {
+    display: flex;
+    justify-content: space-around; /* Or use 'center' if you prefer */
+    align-items: center;
+    flex-wrap: wrap; /* Allows items to wrap onto the next line on smaller screens */
+}
+
+.flex-item {
+    margin: 10px; /* Adds some space around each item */
+    flex-basis: calc(50% - 20px); /* Adjust the width of each item minus margin */
+    box-sizing: border-box;
+}
+
+.flex-item img,
+.flex-item embed {
+    width: 100%; /* Makes the image and PDF take the full width of their container */
+    height: auto; /* Keeps the aspect ratio of the image and scales the height accordingly */
+}
