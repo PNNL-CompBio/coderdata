@@ -3,7 +3,7 @@ layout: default
 title: CoderData
 ---
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/css/style.css">
 
 <!-- # Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package -->
 
@@ -44,7 +44,7 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
 <div class="dataset-section">
 
     <div class="dataset-container">
-        <a href="#cell-line" class="dataset-link">Cell Line</a>
+        <a href="#datasets/cell-line" class="dataset-link">Cell Line</a>
         <div class="dataset-blurb">
             <p>Cell Lines: </p>
             <p>Genes: </p>
@@ -53,7 +53,7 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
     </div>
 
     <div class="dataset-container">
-        <a href="#cptac" class="dataset-link">CPTAC</a>
+        <a href="#datasets/cptac" class="dataset-link">CPTAC</a>
         <div class="dataset-blurb">
             <p>Cancer Types: </p>
             <p>Genes: </p>
@@ -62,7 +62,7 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
     </div>
 
     <div class="dataset-container">
-        <a href="#hcmi" class="dataset-link">HCMI</a>
+        <a href="#datasets/hcmi" class="dataset-link">HCMI</a>
         <div class="dataset-blurb">
             <p>Cancer Types: </p>
             <p>Genes: </p>
@@ -71,7 +71,7 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
     </div>
 
     <div class="dataset-container">
-        <a href="#beataml" class="dataset-link">BeatAML</a>
+        <a href="#datasets/beataml" class="dataset-link">BeatAML</a>
         <div class="dataset-blurb">
             <p>Cancer Types: </p>
             <p>Genes: </p>
