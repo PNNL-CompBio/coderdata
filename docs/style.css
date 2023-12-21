@@ -137,22 +137,25 @@ code {
 .hamburger {
     display: none;
     flex-direction: column;
+    justify-content: space-around;
     cursor: pointer;
 }
 
 .hamburger div {
+    width: 30px; /* Width of the hamburger lines */
     height: 3px;
-    background: white;
-    margin: 5px 0;
-    transition: transform 0.3s ease;
+    background-color: white; /* Color of the hamburger lines */
+    transition: all 0.3s; /* Smooth transition for the animation */
 }
 
 /* Media query for smaller screens */
 
 @media (max-width: 768px) {
-    .navbar a {
-        display: none;
+    .navbar a,
+    .dropdown-content {
+        display: none; /* Hide the navbar links */
     }
+
 
     .hamburger {
         display: flex;
@@ -186,4 +189,3 @@ code {
 .hamburger.open div:nth-child(3) {
     transform: rotate(-45deg) translate(7px, -6px);
 }
-
