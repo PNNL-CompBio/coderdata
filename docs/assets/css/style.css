@@ -22,11 +22,15 @@ body {
     padding: 10px 10px; 
 }
 
+.title-and-description {
+    display:block
+}
 
 .header span.title {
     font-size: 24px;
     font-weight: bold; 
 }
+
 
 .header span.description {
     font-size: 18px; 
@@ -185,7 +189,7 @@ pre > code.language-python {
 
 
 
-@media (max-width: 1000px) {
+@media (max-width: 1200px) {
     .navbar a,
     .dropdown-content {
         display: none; /* Hide the navbar links */
