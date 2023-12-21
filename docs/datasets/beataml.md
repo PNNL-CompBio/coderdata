@@ -17,4 +17,4 @@ The python package allows users to easily download the data, load it into python
 
 
 
-<iframe src="{{ 'assets/stats/Fig2_BeatAML.pdf' | absolute_url }}" width="600" height="400"></iframe>
+<iframe src="{{ 'assets/stats/Fig2_BeatAML.pdf' | relative_url }}" width="600" height="400"></iframe>

@@ -15,6 +15,6 @@ The python package allows users to easily download the data, load it into python
 ### Cell Line Summary
 
 
-<img src="{{ 'assets/stats/cell_line_circos.png' | absolute_url }}" alt="Alt text" />
+<img src="{{ 'assets/stats/cell_line_circos.png' | relative_url }}" alt="Alt text" />
 
-<iframe src="{{ 'assets/stats/Fig4_CCLE.pdf' | absolute_url }}" width="600" height="400"></iframe>
+<iframe src="{{ 'assets/stats/Fig4_CCLE.pdf' | relative_url }}" width="600" height="400"></iframe>
