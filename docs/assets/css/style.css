@@ -164,7 +164,7 @@ pre > code.language-python {
     overflow-x: auto; 
     border: 1px solid #ccc;
 }
-
+/* 
 .hamburger {
     display: none;
     flex-direction: column;
@@ -174,25 +174,24 @@ pre > code.language-python {
 }
 
 .hamburger div {
-    width: 3px; /* Width of the hamburger lines */
+    width: 3px; 
     height: 10px;
-    background-color: white; /* Color of the hamburger lines */
-    transition: all 0.3s; /* Smooth transition for the animation */
-}
+    background-color: white;
+    transition: all 0.3s; 
+} */
 
 
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     .navbar a,
     .dropdown-content {
         display: none; /* Hide the navbar links */
     }
-
-
+/* 
     .hamburger {
         display: flex;
         padding-right: 20px;
-    }
+    } */
     .navbar.open {
         display: flex;
         flex-direction: column;
@@ -218,7 +217,7 @@ pre > code.language-python {
 }
 
 /* Rotate hamburger into an 'X' */
-.hamburger.open div:nth-child(1) {
+/* .hamburger.open div:nth-child(1) {
     transform: rotate(45deg) translate(5px, 5px);
 }
 
@@ -229,4 +228,4 @@ pre > code.language-python {
 .hamburger.open div:nth-child(3) {
     transform: rotate(-45deg) translate(7px, -6px);
 }
-
+ */
