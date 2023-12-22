@@ -56,7 +56,7 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
 
 <div class="dataset-section">
     {% assign datasets = 'cell_line,cptac,hcmi,beataml' | split: ',' %}
-    {% for dataset in site.data.datasets %}
+    {% for dataset in datasets %}
     <div class="dataset-container">
         <a href="datasets/{{ dataset.name }}" class="dataset-link">{{ dataset.name | capitalize }}</a>
         <div class="dataset-blurb">
