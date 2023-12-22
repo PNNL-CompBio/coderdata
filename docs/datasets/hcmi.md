@@ -31,7 +31,7 @@ This data encompasses numerous cancer types and includes cell line, organoid, an
   </thead>
   <tbody>
     {% for row in site.data.hcmi_table %}
-    {% unless forloop.first %} 
+    <!-- {% unless forloop.first %}  -->
     <tr>
       {% for cell in row %}
       <td>{{ cell[1] }}</td>
