@@ -34,9 +34,6 @@ The python package allows users to easily download the data, load it into python
   {% endfor %}
 </table>
 {% else %}
-<p>Cell line table is not available.</p>
-{% endif %}
-{% else %}
 <p>CPTAC table is not available.</p>
 {% endif %}
 
