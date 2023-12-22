@@ -71,23 +71,30 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
     <div class="dataset-container">
         <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset }}</a>
         <div class="dataset-blurb">
-            {% for row in site.data.hcmi_table %}
-            {% unless forloop.first %} 
-                <span class="dot dot_{{ row[0] | downcase }}"></span>
-                <p>Hmm: {{ page.cell_line_cell_lines }} </p>
-            {% endunless %}
-            {% endfor %}
-            <p>Cell Lines: {{ page.cell_line_cell_lines }} </p>
-            <p>Genes: {{ page.cell_line_genes }} </p>
-            <p>Drugs: {{ page.cell_line_drugs }} </p>
-            <p>Cancer Types: {{ page.cptac.cancer_types }} </p>
-            <p>Genes: {{ page.cptac_genes }} </p>
-            <p>Drugs: {{ page.cptac_drugs }} </p>
-            <p>Cancer Types: {{ page.hcmi_cancer_types }} </p>
-            <p>Genes: {{ page.hcmi_genes }} </p>
-            <p>Cancer Types: {{ page.beataml_cancer_types }}</p>
-            <p>Genes: {{ page.beataml_genes }}</p>
-            <p>Drugs: {{ page.beataml_drugs }}</p>
+            {% case dataset %}
+            {% when 'cell_line' %}
+                {% for row in site.data.cell_line_table %}
+                {% unless forloop.first %} 
+                    <span class="dot dot_{{ row[0] | downcase }}"></span> 
+                    <p>{{ row[0] }}</p>
+                    <p>Appeared: {{ page.cell_line_drugs }} </p>
+                {% endunless %}
+                {% endfor %}
+                <p>Cell Lines: {{ page.cell_line_cell_lines }} </p>
+                <p>Genes: {{ page.cell_line_genes }} </p>
+                <p>Drugs: {{ page.cell_line_drugs }} </p>
+            {% when 'cptac' %}
+                <p>Cancer Types: {{ page.cptac.cancer_types }} </p>
+                <p>Genes: {{ page.cptac_genes }} </p>
+                <p>Drugs: {{ page.cptac_drugs }} </p>
+            {% when 'hcmi' %}
+                <p>Cancer Types: {{ page.hcmi_cancer_types }} </p>
+                <p>Genes: {{ page.hcmi_genes }} </p>
+            {% when 'beataml' %}
+                <p>Cancer Types: {{ page.beataml_cancer_types }}</p>
+                <p>Genes: {{ page.beataml_genes }}</p>
+                <p>Drugs: {{ page.beataml_drugs }}</p>
+            {% endcase %}
         </div>
     </div>
     {% endfor %}
