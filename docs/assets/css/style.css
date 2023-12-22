@@ -293,3 +293,25 @@ th, td {
 th {
     background-color: #f2f2f2;
 }
+
+
+.dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.transcriptomics { background-color: red; }
+.proteomics { background-color: blue; }
+.mutations { background-color: green; } 
+.copy_number { background-color: yellow; } 
+
+.legend p {
+    display: flex;
+    align-items: center;
+}
+
+.legend .dot {
+    margin-right: 5px;
+}
