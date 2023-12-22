@@ -308,7 +308,7 @@ th {
 .dot_copy_number { background-color: yellow; } 
 
 .legend p {
-    display: flex;
+    display: block;
     align-items: center;
 }
 
