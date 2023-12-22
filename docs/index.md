@@ -68,11 +68,16 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
 <div class="dataset-section">
     {% assign datasets = 'cell_line,cptac,hcmi,beataml' | split: ',' %}
     {% for dataset in datasets %}
+    <p>Dataset: {{ dataset }}</p>
+    <p>Data file: {{ dataset | append: '_table' }}</p>
+    {% for row in site.data[dataset | append: '_table'] %}
+        <p>{{ row | jsonify }}</p>
+    {% endfor %}
     <div class="dataset-container">
         <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset }}</a>
         <div class="dataset-blurb">
             {% for row in site.data[dataset | append: '_table'] %}
-            {% unless forloop.first %} 
+            <!-- {% unless forloop.first %}  -->
                 <span class="dot dot_{{ row[0] | downcase }}"></span> 
                 <p>{{ row | jsonify }}</p>
             {% endunless %}
@@ -83,9 +88,9 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
                 <p>Genes: {{ page.cell_line_genes }} </p>
                 <p>Drugs: {{ page.cell_line_drugs }} </p>
             {% when 'cptac' %}
-                <p>Cancer Types: {{ page_cptac.cancer_types }} </p>
-                <p>Genes: {{ page_cptac_genes }} </p>
-                <p>Drugs: {{ page_cptac_drugs }} </p>
+                <p>Cancer Types: {{ page.cptac.cancer_types }} </p>
+                <p>Genes: {{ page.cptac_genes }} </p>
+                <p>Drugs: {{ page.cptac_drugs }} </p>
             {% when 'hcmi' %}
                 <p>Cancer Types: {{ page.hcmi_cancer_types }} </p>
                 <p>Genes: {{ page.hcmi_genes }} </p>
