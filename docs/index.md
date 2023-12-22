@@ -48,23 +48,20 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
 ### Datasets
 
 <div class="legend">
-    <p><span class="dot_transcriptomics"></span> Transcriptomics</p>
-    <p><span class="dot_proteomics"></span> Proteomics</p>
-    <p><span class="dot_mutations"></span> Mutations</p>
-    <p><span class="dot_copy_number"></span> Copy Number</p>
+    <p><span class="dot dot_transcriptomics"></span> Transcriptomics</p>
+    <p><span class="dot dot_proteomics"></span> Proteomics</p>
+    <p><span class="dot dot_mutations"></span> Mutations</p>
+    <p><span class="dot dot_copy_number"></span> Copy Number</p>
 </div>
 
 <div class="dataset-section">
-
-    {% assign datasets = 'cell-line,cptac,hcmi,beataml' | split: ',' %}
-    {% for dataset in datasets %}
+    {% assign datasets = 'cell_line,cptac,hcmi,beataml' | split: ',' %}
+    {% for dataset in site.data.datasets %}
     <div class="dataset-container">
-        <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset }}</a>
+        <a href="datasets/{{ dataset.name }}" class="dataset-link">{{ dataset.name | capitalize }}</a>
         <div class="dataset-blurb">
-            {% for row in site.data[dataset | append: '_table'] %}
-            {% unless forloop.first %} 
-                <span class="dot_{{ row[0] | downcase }}"></span> 
-            {% endunless %}
+            {% for data_type in dataset.data_types %}
+            <span class="dot dot_{{ data_type | downcase }}"></span>
             {% endfor %}
             {% case dataset %}
             {% when 'cell_line' %}
