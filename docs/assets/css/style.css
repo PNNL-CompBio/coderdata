@@ -302,10 +302,10 @@ th {
     display: inline-block;
 }
 
-.transcriptomics { background-color: red; }
-.proteomics { background-color: blue; }
-.mutations { background-color: green; } 
-.copy_number { background-color: yellow; } 
+.dot_transcriptomics { background-color: red; }
+.dot_proteomics { background-color: blue; }
+.dot_mutations { background-color: green; } 
+.dot_copy_number { background-color: yellow; } 
 
 .legend p {
     display: flex;
