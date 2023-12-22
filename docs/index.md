@@ -70,20 +70,23 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
     {% for dataset in datasets %}
     <p>Dataset: {{ dataset }}</p>
     <p>Data file: {{ dataset | append: '_table' }}</p>
-    {% for row in site.data[dataset | append: '_table'] %}
+    {% for row in site.data.[dataset | append: '_table'] %}
         <p>{{ row | jsonify }}</p>
     {% endfor %}
     <div class="dataset-container">
         <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset }}</a>
         <div class="dataset-blurb">
-            {% for row in site.data[dataset | append: '_table'] %}
+            {% for row in site.data.[dataset | append: '_table'] %}
             <!-- {% unless forloop.first %}  -->
                 <span class="dot dot_{{ row[0] | downcase }}"></span> 
                 <p>{{ row | jsonify }}</p>
-            {% endunless %}
+            <!-- {% endunless %} -->
             {% endfor %}
             {% case dataset %}
             {% when 'cell_line' %}
+                {% for row in site.data.[dataset | append: '_table'] %}
+                    <span class="dot dot_{{ row[0] | downcase }}">{{row}} hmm?</span> 
+                {% endfor %}
                 <p>Cell Lines: {{ page.cell_line_cell_lines }} </p>
                 <p>Genes: {{ page.cell_line_genes }} </p>
                 <p>Drugs: {{ page.cell_line_drugs }} </p>
