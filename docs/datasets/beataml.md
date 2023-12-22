@@ -16,28 +16,29 @@ The python package allows users to easily download the data, load it into python
 
 ### BeatAML Summary
 
+Beat acute myeloid leukemia (BeatAML) data was collected though the [GitHub](https://biodev.github.io/BeatAML2/) and [Synapse](https://www.synapse.org/#!Synapse:syn24171150).
+This data focuses on acute myeloid leukemia tumor data. Data includes drug response, proteomics, and transcriptomics datasets.
+
+
 {% if site.data.beataml_table %}
 <table>
-  <thead>
+  {% for row in site.data.beataml_table %}
+    {% if forloop.first %}
     <tr>
-      {% assign first_row = site.data.beataml_table[0] %}
-      {% for cell in first_row %}
-      <th>{{ cell[0] }}</th>
+      {% for pair in row %}
+        <th>{{ pair[0] }}</th>
       {% endfor %}
     </tr>
-  </thead>
-  <tbody>
-    {% for row in site.data.beataml_table %}
-    <!-- {% unless forloop.first %}  -->
-    <tr>
-      {% for cell in row %}
-      <td>{{ cell[1] }}</td>
-      {% endfor %}
-    </tr>
-    {% endunless %}
-    {% endfor %}
-  </tbody>
+    {% endif %}
+
+    {% tablerow pair in row %}
+      {{ pair[1] }}
+    {% endtablerow %}
+  {% endfor %}
 </table>
+{% else %}
+<p>Cell line table is not available.</p>
+{% endif %}
 {% else %}
 <p>BeatAML table is not available.</p>
 {% endif %}
