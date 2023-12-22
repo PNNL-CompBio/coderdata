@@ -47,6 +47,67 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
 
 ### Datasets
 
+<div class="legend">
+    <p><span class="dot_transcriptomics"></span> Transcriptomics</p>
+    <p><span class="dot_proteomics"></span> Proteomics</p>
+    <p><span class="dot_mutations"></span> Mutations</p>
+    <p><span class="dot_copy_number"></span> Copy Number</p>
+</div>
+
+<div class="dataset-section">
+    {% assign datasets = 'hcmi,beataml,cptac,cell_line' | split: ',' %}
+    {% for dataset in datasets %}
+    <div class="dataset-container">
+        <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset | capitalize }}</a>
+        <div class="dataset-blurb">
+            {% for row in site.data[dataset | append: '_table'] %}
+            {% unless forloop.first %} <!-- Skip header row -->
+            <span class="dot {{ row[0] | downcase }}"></span> <!-- Row name as class for dot -->
+            {% endunless %}
+            {% endfor %}
+            <!-- Your dataset content here -->
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
+<div class="dataset-section">
+
+    {% assign datasets = 'cell_line,cptac,hcmi,beataml' | split: ',' %}
+    {% for dataset in datasets %}
+    <div class="dataset-container">
+        <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset | capitalize }}</a>
+        <div class="dataset-blurb">
+            {% for row in site.data[dataset | append: '_table'] %}
+            {% unless forloop.first %} 
+            <span class="dot {{ row[0] | downcase }}"></span> 
+            {% endunless %}
+            {% endfor %}
+            {% case dataset %}
+            {% when 'cell_line' %}
+                <p>Cell Lines: </p>
+                <p>Genes: </p>
+                <p>Drugs: </p>
+            {% when 'cptac' %}
+                <p>Cancer Types: </p>
+                <p>Genes: </p>
+                <p>Drugs: </p>
+            {% when 'hcmi' %}
+                <p>Cancer Types: </p>
+                <p>Genes: </p>
+            {% when 'beataml' %}
+                <p>Cancer Types: </p>
+                <p>Genes: </p>
+                <p>Drugs: </p>
+            {% endcase %}
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+<!-- 
 <div class="dataset-section">
 
     <div class="dataset-container">
@@ -84,7 +145,7 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
         </div>
     </div>
 
-</div>
+</div> -->
 
 ### Data Overview
 
