@@ -26,17 +26,6 @@ The python package allows users to easily download the data, load it into python
       {% endfor %}
     </tr>
     {% endif %}
-  {% endfor %}
-</table>
-<table>
-  {% for row in site.data.cell_line_table %}
-    {% if forloop.first %}
-    <tr>
-      {% for pair in row %}
-        <th>{{ pair[0] }}</th>
-      {% endfor %}
-    </tr>
-    {% endif %}
 
     {% tablerow pair in row %}
       {{ pair[1] }}
