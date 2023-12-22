@@ -75,25 +75,39 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
             {% when 'cell_line' %}
                 {% for row in site.data.cell_line_table %}
                 <!-- {% unless forloop.first %}  -->
-                    <span class="dot dot_{{ row[1] | downcase }}"></span> 
+                    <!-- <span class="dot dot_{{ row[1] | downcase }}"></span> 
                     <p>{{ row[1] }}</p>
-                    <p>Appeared:  </p>
+                    <p>Appeared X:  </p> -->
                 <!-- {% endunless %} -->
-                {% endfor %}
+                <!-- {% endfor %} -->
                 <p>Cell Lines: {{ page.cell_line_cell_lines }} </p>
                 <p>Genes: {{ page.cell_line_genes }} </p>
                 <p>Drugs: {{ page.cell_line_drugs }} </p>
+                <span class="dot dot_transcriptomics"></span> 
+                <span class="dot dot_proteomics"></span> 
+                <span class="dot dot_mutations"></span> 
+                <span class="dot dot_copy_number"></span> 
             {% when 'cptac' %}
                 <p>Cancer Types: {{ page.cptac.cancer_types }} </p>
                 <p>Genes: {{ page.cptac_genes }} </p>
                 <p>Drugs: {{ page.cptac_drugs }} </p>
+                <span class="dot dot_transcriptomics"></span> 
+                <span class="dot dot_proteomics"></span> 
+                <span class="dot dot_mutations"></span> 
+                <span class="dot dot_copy_number"></span> 
             {% when 'hcmi' %}
                 <p>Cancer Types: {{ page.hcmi_cancer_types }} </p>
                 <p>Genes: {{ page.hcmi_genes }} </p>
+                <span class="dot dot_transcriptomics"></span> 
+                <span class="dot dot_proteomics"></span> 
+                <span class="dot dot_mutations"></span> 
+                <span class="dot dot_copy_number"></span> 
             {% when 'beataml' %}
                 <p>Cancer Types: {{ page.beataml_cancer_types }}</p>
                 <p>Genes: {{ page.beataml_genes }}</p>
                 <p>Drugs: {{ page.beataml_drugs }}</p>
+                <span class="dot dot_transcriptomics"></span> 
+                <span class="dot dot_proteomics"></span> 
             {% endcase %}
         </div>
     </div>
