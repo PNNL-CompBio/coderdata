@@ -37,9 +37,6 @@ This data focuses on acute myeloid leukemia tumor data. Data includes drug respo
   {% endfor %}
 </table>
 {% else %}
-<p>Cell line table is not available.</p>
-{% endif %}
-{% else %}
 <p>BeatAML table is not available.</p>
 {% endif %}
 
