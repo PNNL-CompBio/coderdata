@@ -58,28 +58,15 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
 
 ### Datasets
 
-<div class="legend">
-    <p>Transcriptomics<span class="dot dot_transcriptomics"></span></p>
-    <p>Proteomics<span class="dot dot_proteomics"></span></p>
-    <p>Mutations<span class="dot dot_mutations"></span></p>
-    <p>Copy Number<span class="dot dot_copy_number"></span></p>
-</div>
-
 <div class="dataset-section">
     {% assign datasets = 'cell_line,cptac,hcmi,beataml' | split: ',' %}
     {% for dataset in datasets %}
     <div class="dataset-container">
-        <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset }}</a>
+        <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset | capitalize }}</a>
         <div class="dataset-blurb">
             {% case dataset %}
             {% when 'cell_line' %}
                 {% for row in site.data.cell_line_table %}
-                <!-- {% unless forloop.first %}  -->
-                    <!-- <span class="dot dot_{{ row[1] | downcase }}"></span> 
-                    <p>{{ row[1] }}</p>
-                    <p>Appeared X:  </p> -->
-                <!-- {% endunless %} -->
-                <!-- {% endfor %} -->
                 <p>Cell Lines: {{ page.cell_line_cell_lines }} </p>
                 <p>Genes: {{ page.cell_line_genes }} </p>
                 <p>Drugs: {{ page.cell_line_drugs }} </p>
@@ -116,45 +103,13 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
 </div>
 
 
-<!-- 
-<div class="dataset-section">
+<div class="legend">
+    <p>Transcriptomics<span class="dot dot_transcriptomics"></span></p>
+    <p>Proteomics<span class="dot dot_proteomics"></span></p>
+    <p>Mutations<span class="dot dot_mutations"></span></p>
+    <p>Copy Number<span class="dot dot_copy_number"></span></p>
+</div>
 
-    <div class="dataset-container">
-        <a href="datasets/cell-line" class="dataset-link">Cell Line</a>
-        <div class="dataset-blurb">
-            <p>Cell Lines: </p>
-            <p>Genes: </p>
-            <p>Drugs: </p>
-        </div>
-    </div>
-
-    <div class="dataset-container">
-        <a href="datasets/cptac" class="dataset-link">CPTAC</a>
-        <div class="dataset-blurb">
-            <p>Cancer Types: </p>
-            <p>Genes: </p>
-            <p>Drugs: </p>
-        </div>
-    </div>
-
-    <div class="dataset-container">
-        <a href="datasets/hcmi" class="dataset-link">HCMI</a>
-        <div class="dataset-blurb">
-            <p>Cancer Types: </p>
-            <p>Genes: </p>
-            <p>Drugs: </p>
-        </div>
-    </div>
-
-    <div class="dataset-container">
-        <a href="datasets/beataml" class="dataset-link">BeatAML</a>
-        <div class="dataset-blurb">
-            <p>Cancer Types: </p>
-            <p>Genes: </p>
-        </div>
-    </div>
-
-</div> -->
 
 ### Data Overview
 
@@ -166,8 +121,3 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
         <embed src="{{ 'assets/stats/Fig5_Sample_Summary.pdf' | relative_url }}" type="application/pdf" />
     </div>
 </div>
-
-
-
-### To do - add data types for each daaset like transcriptomics ,proteomics, etc Maybe have a little legend and different colored dots for each in the Datasets section.
-### These little dots could just be in the in a line in the box above cancer /cell line types.

@@ -19,26 +19,23 @@ The python package allows users to easily download the data, load it into python
 
 {% if site.data.cptac_table %}
 <table>
-  <thead>
+  {% for row in site.data.cptac_table %}
+    {% if forloop.first %}
     <tr>
-      {% assign first_row = site.data.cptac_table[0] %}
-      {% for cell in first_row %}
-      <th>{{ cell[0] }}</th>
+      {% for pair in row %}
+        <th>{{ pair[0] }}</th>
       {% endfor %}
     </tr>
-  </thead>
-  <tbody>
-    {% for row in site.data.cptac_table %}
-    <!-- {% unless forloop.first %}  -->
-    <tr>
-      {% for cell in row %}
-      <td>{{ cell[1] }}</td>
-      {% endfor %}
-    </tr>
-    {% endunless %}
-    {% endfor %}
-  </tbody>
+    {% endif %}
+
+    {% tablerow pair in row %}
+      {{ pair[1] }}
+    {% endtablerow %}
+  {% endfor %}
 </table>
+{% else %}
+<p>Cell line table is not available.</p>
+{% endif %}
 {% else %}
 <p>CPTAC table is not available.</p>
 {% endif %}

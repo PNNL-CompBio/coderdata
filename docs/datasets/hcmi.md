@@ -16,31 +16,28 @@ The build section is a github workflow that generates four cancer datasets in a 
 The python package allows users to easily download the data, load it into python and reformat it as desired.
 
 ### HCMI Summary
-Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) Data Portal.
+Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) [Data Portal](https://portal.gdc.cancer.gov/projects/HCMI-CMDC).
 This data encompasses numerous cancer types and includes cell line, organoid, and tumor data. Data includes the transcriptomics, somatic mutation, and copy number datasets.
 
 {% if site.data.hcmi_table %}
 <table>
-  <thead>
-    <tr>
-      {% assign first_row = site.data.hcmi_table[0] %}
-      {% for cell in first_row %}
-      <th>{{ cell[0] }}</th>
-      {% endfor %}
-    </tr>
-  </thead>
-  <tbody>
     {% for row in site.data.hcmi_table %}
-    <!-- {% unless forloop.first %}  -->
-    <tr>
-      {% for cell in row %}
-      <td>{{ cell[1] }}</td>
-      {% endfor %}
-    </tr>
-    {% endunless %}
+      {% if forloop.first %}
+      <tr>
+        {% for pair in row %}
+          <th>{{ pair[0] }}</th>
+        {% endfor %}
+      </tr>
+      {% endif %}
+  
+      {% tablerow pair in row %}
+        {{ pair[1] }}
+      {% endtablerow %}
     {% endfor %}
-  </tbody>
-</table>
+  </table>
+  {% else %}
+  <p>Cell line table is not available.</p>
+  {% endif %}
 {% else %}
 <p>HCMI table is not available.</p>
 {% endif %}
