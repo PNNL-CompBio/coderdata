@@ -143,8 +143,8 @@ body {
 
 .dataset-blurb {
     padding: 10px;
-    width: 75%;
-    text-indent: 4px;
+    width: 80%;
+    text-indent: 2px;
     background-color: #f9f9f9;
     border-radius: 10px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
@@ -303,12 +303,13 @@ th {
     border-radius: 50%;
     display: inline-block;
     margin-left: 5px;
+    margin-right: 20px; 
 }
 
-.dot_transcriptomics { background-color: red; }
-.dot_proteomics { background-color: blue; }
-.dot_mutations { background-color: green; } 
-.dot_copy_number { background-color: yellow; } 
+.dot_transcriptomics { background-color: maroon; }
+.dot_proteomics { background-color: midnightblue; }
+.dot_mutations { background-color: seagreen; } 
+.dot_copy_number { background-color: darkorange; } 
 
 .legend {
     display: flex;
@@ -322,8 +323,10 @@ th {
     align-items: center;
     flex-wrap: wrap; 
     margin-right: 10px; 
+    
 }
 
 .legend .dot {
     margin-left: 5px;
+    margin-right: 20px; 
 }

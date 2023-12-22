@@ -18,27 +18,36 @@ The python package allows users to easily download the data, load it into python
 
 {% if site.data.cell_line_table %}
 <table>
-  <thead>
+  {% for row in site.data.cell_line_table %}
+    {% if forloop.first %}
     <tr>
-      {% assign first_row = site.data.cell_line_table[0] %}
-      {% for cell in first_row %}
-      <th>{{ cell }}</th> 
+      {% for pair in row %}
+        <th>{{ pair[0] }}</th>
       {% endfor %}
     </tr>
-  </thead>
-  <tbody>
-    {% for row in site.data.cell_line_table offset:1 %} 
+    {% endif %}
+  {% endfor %}
+</table>
+<table>
+  {% for row in site.data.cell_line_table %}
+    {% if forloop.first %}
     <tr>
-      {% for cell in row %}
-      <td>{{ cell }}</td> 
+      {% for pair in row %}
+        <th>{{ pair[0] }}</th>
       {% endfor %}
     </tr>
-    {% endfor %}
-  </tbody>
+    {% endif %}
+
+    {% tablerow pair in row %}
+      {{ pair[1] }}
+    {% endtablerow %}
+  {% endfor %}
 </table>
 {% else %}
 <p>Cell line table is not available.</p>
 {% endif %}
+
+
 
 
 ### Visualization
