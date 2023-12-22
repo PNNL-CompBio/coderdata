@@ -1,17 +1,6 @@
 ---
 layout: default
 title: CoderData
-cell_line_cell_lines: 0
-cell_line_genes: 0
-cell_line_drugs: 0
-cptac_cancer_types: 0
-cptac_genes: 0
-cptac_drugs: 0
-hcmi_cancer_types: 0
-hcmi_genes: 0
-beataml_cancer_types: 0
-beataml_genes: 0
-beataml_drugs: 0
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -41,13 +30,7 @@ coderdata download --prefix hcmi
 
 ##### Python
 To download, load, and call datasets in python, simply run the following commands. 
-<!-- 
-```python
-import coderdata
-coderdata.download_data_by_prefix('hcmi') # download all hcmi data to local directory.
-hcmi_data = coderdata.DatasetLoader('hcmi') # load hcmi data from local directory into the DatasetLoader object.
-hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader object.
-``` -->
+
 <div class="code-box">
     <p>import coderdata</p>
     <p>coderdata.download_data_by_prefix('hcmi') # download all hcmi data to local directory.</p>
@@ -66,32 +49,32 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
             <div class="dataset-blurb">
                 {% case dataset %}
                     {% when 'cell_line' %}
-                        <p>Cell Lines: {{ page.cell_line_cell_lines }} </p>
-                        <p>Genes: {{ page.cell_line_genes }} </p>
-                        <p>Drugs: {{ page.cell_line_drugs }} </p>
+                        <p>Cell Lines: {{ site.data.stats.cell_line.cell_lines }} </p>
+                        <p>Genes: {{ site.data.stats.cell_line.genes }} </p>
+                        <p>Drugs: {{ site.data.stats.cell_line.drugs }} </p>
                         <span class="dot dot_transcriptomics"></span> 
                         <span class="dot dot_proteomics"></span> 
                         <span class="dot dot_mutations"></span> 
                         <span class="dot dot_copy_number"></span> 
                     {% when 'cptac' %}
-                        <p>Cancer Types: {{ page.cptac.cancer_types }} </p>
-                        <p>Genes: {{ page.cptac_genes }} </p>
-                        <p>Drugs: {{ page.cptac_drugs }} </p>
+                        <p>Cancer Types: {{ site.data.stats.cptac.cancer_types }} </p>
+                        <p>Genes: {{ site.data.stats.cptac.genes }} </p>
+                        <p>Drugs: {{ site.data.stats.cptac.drugs }} </p>
                         <span class="dot dot_transcriptomics"></span> 
                         <span class="dot dot_proteomics"></span> 
                         <span class="dot dot_mutations"></span> 
                         <span class="dot dot_copy_number"></span> 
                     {% when 'hcmi' %}
-                        <p>Cancer Types: {{ page.hcmi_cancer_types }} </p>
-                        <p>Genes: {{ page.hcmi_genes }} </p>
+                        <p>Cancer Types: {{ site.data.stats.hcmi.cancer_types }} </p>
+                        <p>Genes: {{ site.data.stats.hcmi.genes }} </p>
                         <span class="dot dot_transcriptomics"></span> 
                         <span class="dot dot_proteomics"></span> 
                         <span class="dot dot_mutations"></span> 
                         <span class="dot dot_copy_number"></span> 
                     {% when 'beataml' %}
-                        <p>Cancer Types: {{ page.beataml_cancer_types }}</p>
-                        <p>Genes: {{ page.beataml_genes }}</p>
-                        <p>Drugs: {{ page.beataml_drugs }}</p>
+                        <p>Cancer Types: {{ site.data.stats.beataml.cancer_types }}</p>
+                        <p>Genes: {{ site.data.stats.beataml.genes }}</p>
+                        <p>Drugs: {{ site.data.stats.beataml.drugs }}</p>
                         <span class="dot dot_transcriptomics"></span> 
                         <span class="dot dot_proteomics"></span> 
                 {% endcase %}
