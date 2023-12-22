@@ -1,17 +1,17 @@
 ---
 layout: default
 title: CoderData
-cell_line.cell_lines: 0
-cell_line.genes: 0
-cell_line.drugs: 0
-cptac.cancer_types: 0
-cptac.genes: 0
-cptac.drugs: 0
-hcmi.cancer_types: 0
-hcmi.genes: 0
-beataml.cancer_types: 0
-beataml.genes: 0
-beataml.drugs: 0
+cell_line_cell_lines: 0
+cell_line_genes: 0
+cell_line_drugs: 0
+cptac_cancer_types: 0
+cptac_genes: 0
+cptac_drugs: 0
+hcmi_cancer_types: 0
+hcmi_genes: 0
+beataml_cancer_types: 0
+beataml_genes: 0
+beataml_drugs: 0
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -79,20 +79,20 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
             {% endfor %}
             {% case dataset %}
             {% when 'cell_line' %}
-                <p>Cell Lines: {{ page.cell_line.cell_lines }} </p>
-                <p>Genes: {{ page.cell_line.genes }} </p>
-                <p>Drugs: {{ page.cell_line.drugs }} </p>
+                <p>Cell Lines: {{ page.cell_line_cell_lines }} </p>
+                <p>Genes: {{ page.cell_line_genes }} </p>
+                <p>Drugs: {{ page.cell_line_drugs }} </p>
             {% when 'cptac' %}
-                <p>Cancer Types: {{ page.cptac.cancer_types }} </p>
-                <p>Genes: {{ page.cptac.genes }} </p>
-                <p>Drugs: {{ page.cptac.drugs }} </p>
+                <p>Cancer Types: {{ page_cptac.cancer_types }} </p>
+                <p>Genes: {{ page_cptac_genes }} </p>
+                <p>Drugs: {{ page_cptac_drugs }} </p>
             {% when 'hcmi' %}
-                <p>Cancer Types: {{ page.hcmi.cancer_types }} </p>
-                <p>Genes: {{ page.hcmi.genes }} </p>
+                <p>Cancer Types: {{ page.hcmi_cancer_types }} </p>
+                <p>Genes: {{ page.hcmi_genes }} </p>
             {% when 'beataml' %}
-                <p>Cancer Types: {{ page.beataml.cancer_types }}</p>
-                <p>Genes: {{ page.beataml.genes }}</p>
-                <p>Drugs: {{ page.beataml.drugs }}</p>
+                <p>Cancer Types: {{ page.beataml_cancer_types }}</p>
+                <p>Genes: {{ page.beataml_genes }}</p>
+                <p>Drugs: {{ page.beataml_drugs }}</p>
             {% endcase %}
         </div>
     </div>
