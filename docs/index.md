@@ -74,11 +74,11 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
             {% case dataset %}
             {% when 'cell_line' %}
                 {% for row in site.data.cell_line_table %}
-                {% unless forloop.first %} 
-                    <span class="dot dot_{{ row[0] | downcase }}"></span> 
-                    <p>{{ row[0] }}</p>
-                    <p>Appeared: {{ page.cell_line_drugs }} </p>
-                {% endunless %}
+                <!-- {% unless forloop.first %}  -->
+                    <span class="dot dot_{{ row[1] | downcase }}"></span> 
+                    <p>{{ row[1] }}</p>
+                    <p>Appeared:  </p>
+                <!-- {% endunless %} -->
                 {% endfor %}
                 <p>Cell Lines: {{ page.cell_line_cell_lines }} </p>
                 <p>Genes: {{ page.cell_line_genes }} </p>
