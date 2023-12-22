@@ -22,19 +22,17 @@ The python package allows users to easily download the data, load it into python
     <tr>
       {% assign first_row = site.data.cell_line_table[0] %}
       {% for cell in first_row %}
-      <th>{{ cell[0] }}</th>
+      <th>{{ cell }}</th> 
       {% endfor %}
     </tr>
   </thead>
   <tbody>
-    {% for row in site.data.cell_line_table %}
-    <!-- {% unless forloop.first %}  -->
+    {% for row in site.data.cell_line_table offset:1 %} 
     <tr>
       {% for cell in row %}
-      <td>{{ cell[1] }}</td>
+      <td>{{ cell }}</td> 
       {% endfor %}
     </tr>
-    {% endunless %}
     {% endfor %}
   </tbody>
 </table>
