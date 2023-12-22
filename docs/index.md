@@ -1,6 +1,17 @@
 ---
 layout: default
 title: CoderData
+cell_line.cell_lines: 0
+cell_line.genes: 0
+cell_line.drugs: 0
+cptac.cancer_types: 0
+cptac.genes: 0
+cptac.drugs: 0
+hcmi.cancer_types: 0
+hcmi.genes: 0
+beataml.cancer_types: 0
+beataml.genes: 0
+beataml.drugs: 0
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -48,43 +59,46 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
 ### Datasets
 
 <div class="legend">
-    <p><span class="dot dot_transcriptomics"></span> Transcriptomics</p>
-    <p><span class="dot dot_proteomics"></span> Proteomics</p>
-    <p><span class="dot dot_mutations"></span> Mutations</p>
-    <p><span class="dot dot_copy_number"></span> Copy Number</p>
+    <p>Transcriptomics<span class="dot dot_transcriptomics"></span></p>
+    <p>Proteomics<span class="dot dot_proteomics"></span></p>
+    <p>Mutations<span class="dot dot_mutations"></span></p>
+    <p>Copy Number<span class="dot dot_copy_number"></span></p>
 </div>
 
 <div class="dataset-section">
-    {% assign datasets = 'cell_line,cptac,hcmi,beataml' | split: ',' %}
+    {% assign datasets = 'cell-line,cptac,hcmi,beataml' | split: ',' %}
     {% for dataset in datasets %}
     <div class="dataset-container">
-        <a href="datasets/{{ dataset.name }}" class="dataset-link">{{ dataset.name | capitalize }}</a>
+        <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset }}</a>
         <div class="dataset-blurb">
-            {% for data_type in dataset.data_types %}
-            <span class="dot dot_{{ data_type | downcase }}"></span>
+            {% for row in site.data[dataset | append: '_table'] %}
+            {% unless forloop.first %} 
+                <span class="dot_{{ row[0] | downcase }}"></span> 
+            {% endunless %}
             {% endfor %}
             {% case dataset %}
             {% when 'cell_line' %}
-                <p>Cell Lines: </p>
-                <p>Genes: </p>
-                <p>Drugs: </p>
+                <p>Cell Lines: {{ page.cell_line.cell_lines }} </p>
+                <p>Genes: {{ page.cell_line.genes }} </p>
+                <p>Drugs: {{ page.cell_line.drugs }} </p>
             {% when 'cptac' %}
-                <p>Cancer Types: </p>
-                <p>Genes: </p>
-                <p>Drugs: </p>
+                <p>Cancer Types: {{ page.cptac.cancer_types }} </p>
+                <p>Genes: {{ page.cptac.genes }} </p>
+                <p>Drugs: {{ page.cptac.drugs }} </p>
             {% when 'hcmi' %}
-                <p>Cancer Types: </p>
-                <p>Genes: </p>
+                <p>Cancer Types: {{ page.hcmi.cancer_types }} </p>
+                <p>Genes: {{ page.hcmi.genes }} </p>
             {% when 'beataml' %}
-                <p>Cancer Types: </p>
-                <p>Genes: </p>
-                <p>Drugs: </p>
+                <p>Cancer Types: {{ page.beataml.cancer_types }}</p>
+                <p>Genes: {{ page.beataml.genes }}</p>
+                <p>Drugs: {{ page.beataml.drugs }}</p>
             {% endcase %}
         </div>
     </div>
     {% endfor %}
 
 </div>
+
 
 <!-- 
 <div class="dataset-section">

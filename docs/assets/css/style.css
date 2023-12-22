@@ -300,6 +300,7 @@ th {
     width: 10px;
     border-radius: 50%;
     display: inline-block;
+    margin-left: 5px;
 }
 
 .dot_transcriptomics { background-color: red; }
@@ -307,11 +308,18 @@ th {
 .dot_mutations { background-color: green; } 
 .dot_copy_number { background-color: yellow; } 
 
-.legend p {
+.legend {
     display: block;
     align-items: center;
 }
 
+.legend p {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; 
+    margin-right: 10px; 
+}
+
 .legend .dot {
-    margin-right: 5px;
+    margin-left: 5px;
 }
