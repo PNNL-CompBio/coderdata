@@ -28,7 +28,7 @@ The python package allows users to easily download the data, load it into python
   </thead>
   <tbody>
     {% for row in site.data.cell_line_table %}
-    {% unless forloop.first %} 
+    <!-- {% unless forloop.first %}  -->
     <tr>
       {% for cell in row %}
       <td>{{ cell[1] }}</td>
