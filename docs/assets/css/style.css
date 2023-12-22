@@ -309,8 +309,10 @@ th {
 .dot_copy_number { background-color: yellow; } 
 
 .legend {
-    display: block;
+    display: flex;
+    justify-content: start;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .legend p {

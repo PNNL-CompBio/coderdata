@@ -66,14 +66,15 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
 </div>
 
 <div class="dataset-section">
-    {% assign datasets = 'cell-line,cptac,hcmi,beataml' | split: ',' %}
+    {% assign datasets = 'cell_line,cptac,hcmi,beataml' | split: ',' %}
     {% for dataset in datasets %}
     <div class="dataset-container">
         <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset }}</a>
         <div class="dataset-blurb">
             {% for row in site.data[dataset | append: '_table'] %}
             {% unless forloop.first %} 
-                <span class="dot_{{ row[0] | downcase }}"></span> 
+                <span class="dot dot_{{ row[0] | downcase }}"></span> 
+                <p>{{ row | jsonify }}</p>
             {% endunless %}
             {% endfor %}
             {% case dataset %}
