@@ -97,3 +97,7 @@ hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader obj
     </div>
 </div>
 
+
+
+### To do - add data types for each daaset like transcriptomics ,proteomics, etc Maybe have a little legend and different colored dots for each in the Datasets section.
+### These little dots could just be in the in a line in the box above cancer /cell line types.

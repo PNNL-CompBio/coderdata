@@ -1,6 +1,8 @@
 ---
 layout: default
 title: CoderData
+pdf_exists: true
+png_exists: true
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -14,11 +16,44 @@ The python package allows users to easily download the data, load it into python
 
 ### Cell Line Summary
 
+{% if site.data.cell_line_table %}
+<table>
+  <thead>
+    <tr>
+      {% assign first_row = site.data.cell_line_table[0] %}
+      {% for cell in first_row %}
+      <th>{{ cell[0] }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in site.data.cell_line_table %}
+    {% unless forloop.first %} 
+    <tr>
+      {% for cell in row %}
+      <td>{{ cell[1] }}</td>
+      {% endfor %}
+    </tr>
+    {% endunless %}
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Cell line table is not available.</p>
+{% endif %}
+
+
+### Visualization
+
 <div class="flex-container"> 
+    {% if page.pdf_exists %}
     <div class="flex-item">
         <embed src="{{ 'assets/stats/Fig4_CCLE.pdf' | relative_url }}" type="application/pdf" />
     </div>
+    {% endif %}
+    {% if page.png_exists %}
     <div class="flex-item">
         <img src="{{ 'assets/stats/cell_line_circos.png' | relative_url }}" alt="Cell Line Circos" />
     </div>
+    {% endif %}
 </div>

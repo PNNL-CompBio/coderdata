@@ -51,7 +51,7 @@ body {
 .header-logo {
     height: 100%;
     width: auto; 
-    margin-right: 10px; 
+    /* margin-right: 10px;  */
 }
 
 .navbar {
@@ -277,4 +277,19 @@ pre > code.language-python {
     height: 100%; /* Keeps the aspect ratio of the image and scales the height accordingly */
     border-radius: 2px;
     border-color: #001a37;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
 }
