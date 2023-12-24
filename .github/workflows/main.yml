@@ -183,16 +183,16 @@ jobs:
           name: data-vis
       - name: List files cwd
         run: ls -lah 
-      - name: List files ..
-        run: ls -lah ..
-      - name: List files all
-        run: ls -lah *
+      - name: List files .. 
+        run: ls -lah .. 
+      - name: List files all 
+        run: ls -lah * 
       - name: Move files to docs directory
         run: |
           mkdir -p data-vis
-         # rsync -av --remove-source-files --include='*.png' --include='*.pdf' --include='*table.csv' --exclude='*' . docs/
           rsync -av --remove-source-files --include='*.png' --include='*.pdf' --exclude='*' . docs/assets/stats
           rsync -av --remove-source-files --include='*table.csv' --exclude='*' . docs/_data
+      #    rsync -av --remove-source-files --include='*.png' --include='*.pdf' --include='*table.csv' --exclude='*' . docs/
       - name: List files in docs after moving
         run: ls -lah docs
       - name: List files in local after moving
