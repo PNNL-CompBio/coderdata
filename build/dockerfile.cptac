@@ -1,0 +1,21 @@
+FROM python:3.9-slim
+#ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update --allow-insecure-repositories
+RUN apt-get install -y --allow-unauthenticated build-essential libpq-dev python3-venv
+
+RUN python3 -m venv /opt/venv
+RUN /opt/venv/bin/pip3 install --upgrade pip
+
+ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+WORKDIR /app
+
+ADD cptac/requirements.txt .
+ADD cptac/*.py .
+ADD cell_line/cell_line_samples.csv .
+ADD genes.csv .
+
+# installing python libraries
+RUN /opt/venv/bin/pip3 install -r requirements.txt
+
+VOLUME ["/tmp"]

@@ -2,19 +2,16 @@
 library(readr)
 library(dplyr)
 
-
 main<-function(drugfile='drugs.tsv.gz',expfile='experiments.tsv.gz'){
 
   drugs<-readr::read_tsv(drugfile)
   exp<-readr::read_tsv(expfile)
 
   ##first copy files to same path with 'orig'
-
   drugids<-unique(drugs$improve_drug_id)
   pubchem<-drugids[grep('PC',drugids)]
 
   print(paste("Found",length(drugids),'drug ids from original dataset, of which',length(pubchem),'of those are in pubChem'))
-
 
   smiles<-unique(drugs$canSMILES)
   print(paste("Found",length(smiles),'unique SMILES'))

@@ -169,6 +169,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
     return metadata
 
+
 def get_clean_files(data_type):
     """
     Extract clean files of a specified data type from manifest folders.
@@ -309,6 +310,7 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     final_dataframe = final_dataframe.join(df_metadata, on='file_id', how='left')
     
     return final_dataframe
+
 
 
 def retrieve_figshare_data(url):
