@@ -253,10 +253,11 @@ jobs:
           git config user.email "jeremy.jacobson3402@gmail.com"
       - name: Commit and push changes
         run: |
-          mv figshare_latest.yml docs
           git pull
-          git add docs
-          git commit -m "Add figshare stats to docs"
+          mv figshare_latest.yml docs
+          git add -f docs/*
+          git status
+          git commit -m "Add figshare_latest.yml to docs"
           git push
   # build-docs:
   #   if: github.actor != 'github-actions[bot]'
