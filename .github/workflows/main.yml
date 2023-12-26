@@ -261,10 +261,10 @@ jobs:
       - name: Commit and push changes
         run: |
           git pull
-          mv figshare_latest.yml docs
+          mv figshare_latest.yml docs/_data
           git add -f docs/*
           git status
-          git commit -m "Add figshare_latest.yml to docs"
+          git commit -m "Add figshare_latest.yml to docs/_data"
           git push
   # build-docs:
   #   if: github.actor != 'github-actions[bot]'
@@ -291,7 +291,7 @@ jobs:
   #         git push
   build-docs:
     if: github.actor != 'github-actions[bot]'
-    needs: [data-visualization-save-to-docs]
+    needs: [data-visualization-save-to-docs, upload-to-figshare]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
