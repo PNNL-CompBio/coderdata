@@ -126,6 +126,8 @@ jobs:
         uses: actions/checkout@v2
       - name: List files cwd before
         run: ls -lah 
+      - name: Install coderdata
+        run: pip install coderdata
       - name: Download cell_line data from coder data
         run: coderdata download --prefix cell_line
       - name: List files cwd after
@@ -151,7 +153,9 @@ jobs:
       - name: Checkout code cptac
         uses: actions/checkout@v2
       - name: List files cwd before
-        run: ls -lah 
+        run: ls -lah
+      - name: Install coderdata
+        run: pip install coderdata
       - name: Download cptac data from coder data
         run: coderdata download --prefix cptac
       - name: List files cwd after
