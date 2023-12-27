@@ -116,6 +116,58 @@ jobs:
           name: beataml-files
           path: beataml-files
 
+  build-cell-line:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-hcmi-samples]
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout code Cell Line
+        uses: actions/checkout@v2
+      - name: List files cwd before
+        run: ls -lah 
+      - name: Download cell_line data from coder data
+        run: coderdata download --prefix cell_line
+      - name: List files cwd after
+        run: ls -lah 
+      - name: Copy files from BeatAML Container
+        run: |
+          mkdir cell-line-files
+          for file in *.csv*; do
+            cp $file cell-line-files/$file
+          done
+      - name: Upload artifact for Cell Line
+        uses: actions/upload-artifact@v2
+        with:
+          name: cell-line-files
+          path: cell-line-files
+
+  build-cptac:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-hcmi-samples]
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout code cptac
+        uses: actions/checkout@v2
+      - name: List files cwd before
+        run: ls -lah 
+      - name: Download cptac data from coder data
+        run: coderdata download --prefix cptac
+      - name: List files cwd after
+        run: ls -lah 
+      - name: Copy files from BeatAML Container
+        run: |
+          mkdir cptac-files
+          for file in *.csv*; do
+            cp $file cptac-files/$file
+          done
+      - name: Upload artifact for cptac
+        uses: actions/upload-artifact@v2
+        with:
+          name: cptac-files
+          path: cptac-files
+
   data-visualization:
     if: github.actor != 'github-actions[bot]'
     needs: [build-hcmi, build-beataml]
@@ -144,12 +196,20 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: beataml-files
-      - name: Install coderdata and skip build steps
-        run: pip install coderdata
-      - name: Download cptac data from coder data
-        run: coderdata download --prefix cptac
-      - name: Download cell_line data from coder data
-        run: coderdata download --prefix cell_line
+      - name: Download artifacts from Cell Line
+        uses: actions/download-artifact@v2
+        with:
+          name: cell-line-files
+      - name: Download artifacts from cptac
+        uses: actions/download-artifact@v2
+        with:
+          name: cptac-files
+      # - name: Install coderdata and skip build steps
+      #   run: pip install coderdata
+      # - name: Download cptac data from coder data
+      #   run: coderdata download --prefix cptac
+      # - name: Download cell_line data from coder data
+      #   run: coderdata download --prefix cell_line
       # - name: Download all data from coder data
       #   run: coderdata download 
       - name: Create all-files directory
@@ -158,6 +218,9 @@ jobs:
         run: ls -lah 
       - name: List files dataSummary dir
         run: ls -lah dataSummary
+      - name: Gzip all non-samples csv files in current dir.
+        run: |
+          find . -type f -name '*.csv' ! -name '*samples*' -exec gzip -k "{}" +
       - name: Run Visualization01
         if: success() || failure()
         run: Rscript dataSummary/visualization01.R
@@ -196,7 +259,6 @@ jobs:
         run: ls -lah * 
       - name: Move files to docs directory
         run: |
-          mkdir -p data-vis
           rsync -av --remove-source-files --include='*.png' --include='*.pdf' --exclude='*' . docs/assets/stats
           rsync -av --remove-source-files --include='*table.csv' --exclude='*' . docs/_data
       #    rsync -av --remove-source-files --include='*.png' --include='*.pdf' --include='*table.csv' --exclude='*' . docs/
