@@ -151,7 +151,7 @@ fig1 <- ggplot(data_type1, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   geom_bar(stat='identity', position='dodge') +
   scale_fill_manual(values=color_palette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ggtitle('Cancer and Tissue Types - HMCI')
+  ggtitle('Cancer and Tissue Types - HCMI')
 
 fig2 <- ggplot(data_type2, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   geom_bar(stat='identity', position='dodge') +
@@ -171,7 +171,7 @@ fig4 <- ggplot(data_type4, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   ggtitle('Cancer and Tissue Types - CCLE')
 
-ggsave('Fig1_HMCI.pdf',fig1,height=8,width=10)
+ggsave('Fig1_HCMI.pdf',fig1,height=8,width=10)
 ggsave('Fig2_BeatAML.pdf',fig2,height=8,width=10)
 ggsave('Fig3_CPTAC.pdf',fig3,height=8,width=10)
 ggsave('Fig4_CCLE.pdf',fig4,height=8,width=10)
