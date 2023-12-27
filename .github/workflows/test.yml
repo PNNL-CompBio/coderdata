@@ -15,7 +15,7 @@ jobs:
           'test_download_and_load_beataml.py', 
           'test_download_and_load_depmap.py', 
           'test_download_beataml_cli.py', 
-          'test_download_depmap_cli.py',
+          'test_download_cell_line_cli.py',
           'test_download_and_load_cptac.py', 
           'test_download_and_load_hcmi.py', 
           'test_download_cptac_cli.py', 
