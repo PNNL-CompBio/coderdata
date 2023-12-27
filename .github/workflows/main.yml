@@ -214,7 +214,12 @@ jobs:
           git add -f docs/*
           git status
           git commit -m "Add data visualization artifacts to docs"
-          git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Add data visualization artifacts to docs"
+            git push
+          fi
 
   upload-to-figshare:
     if: github.actor != 'github-actions[bot]'
