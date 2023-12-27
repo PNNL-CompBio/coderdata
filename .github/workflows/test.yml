@@ -1,0 +1,118 @@
+name: Python package tests
+
+on:
+  push:
+    branches: [ package_dev_JJ ]
+
+jobs:
+  test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test-file: [
+          'test_download_and_load_beataml.py', 
+          'test_download_and_load_depmap.py', 
+          'test_download_beataml_cli.py', 
+          'test_download_depmap_cli.py',
+          'test_download_and_load_cptac.py', 
+          'test_download_and_load_hcmi.py', 
+          'test_download_cptac_cli.py', 
+          'test_download_hcmi_cli.py'
+        ]
+    outputs:
+      result: ${{ steps.test-outcome.outcome }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-xdist
+
+    - name: Install as package
+      run: |
+        pip install .
+
+    - name: Run test
+      id: test-outcome
+      run: |
+        pytest -n 4 tests/${{ matrix.test-file }}
+
+  build-and-publish:
+    if: github.actor != 'github-actions[bot]'
+    needs: test
+    runs-on: ubuntu-latest
+    environment: build
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Fetch tags from main branch
+      run: |
+        git fetch origin 'refs/tags/*:refs/tags/*'
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine packaging
+
+    - name: Update version
+      run: |
+        # Extract the current version from setup.py
+        CURRENT_VERSION=$(grep -oP "version='\K[0-9]+\.[0-9]+\.[0-9]+" setup.py)
+        echo "Current version: $CURRENT_VERSION"
+
+        # Fetch tags and get the latest tag, removing the 'v' prefix
+        git fetch --tags
+        LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1` | sed 's/^v//')
+        echo "Latest tag: $LATEST_TAG"
+
+        # Use Python to compare versions
+        HIGHER_VERSION=$(python -c "from packaging.version import parse as parse_version; \
+                                    current = parse_version('$CURRENT_VERSION'); \
+                                    latest = parse_version('$LATEST_TAG'); \
+                                    print(current if current > latest else latest)")
+        echo "Higher version: $HIGHER_VERSION"
+
+        # If current version is higher, increment patch version in setup.py
+        if [ "$CURRENT_VERSION" == "$HIGHER_VERSION" ]; then
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+          PATCH=$((VERSION_PARTS[2] + 1))
+          NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+          echo "Incremented version: $NEW_VERSION"
+          sed -i "s/version='\([0-9]\+\.[0-9]\+\.\)[0-9]\+'/version='\1$PATCH'/" setup.py
+
+          # Commit and push the updated setup.py
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add setup.py
+          git commit -m "Increment version number to $NEW_VERSION [skip ci]"
+          git push
+        else
+          echo "No version increment needed"
+        fi
+    - name: Build local and publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_SECRET }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload dist/* --verbose
+
