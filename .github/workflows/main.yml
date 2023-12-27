@@ -279,7 +279,6 @@ jobs:
           git pull
           git add -f docs/*
           git status
-          git commit -m "Add data visualization artifacts to docs"
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
