@@ -44,7 +44,7 @@ This data encompasses numerous cancer types and includes cell line, organoid, an
 <div class="flex-container"> 
     {% if page.pdf_exists %}
     <div class="flex-item">
-        <embed src="{{ 'assets/stats/Fig1_HMCI.pdf' | relative_url }}" type="application/pdf" />
+        <embed src="{{ 'assets/stats/Fig1_HCMI.pdf' | relative_url }}" type="application/pdf" />
     </div>
     {% endif %}
     {% if page.png_exists %}
