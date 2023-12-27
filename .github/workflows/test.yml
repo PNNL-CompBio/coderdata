@@ -13,7 +13,7 @@ jobs:
       matrix:
         test-file: [
           'test_download_and_load_beataml.py', 
-          'test_download_and_load_depmap.py', 
+          'test_download_and_load_cell_line.py', 
           'test_download_beataml_cli.py', 
           'test_download_cell_line_cli.py',
           'test_download_and_load_cptac.py', 
