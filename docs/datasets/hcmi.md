@@ -2,7 +2,7 @@
 layout: default
 title: CoderData
 pdf_exists: true
-png_exists: false
+png_exists: true
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -21,23 +21,24 @@ This data encompasses numerous cancer types and includes cell line, organoid, an
 
 {% if site.data.hcmi_table %}
 <table>
-    {% for row in site.data.hcmi_table %}
-        {% if forloop.first %}
-        <tr>
-        {% for pair in row %}
-            <th>{{ pair[0] }}</th>
-        {% endfor %}
-        </tr>
-        {% endif %}
+  {% for row in site.data.hcmi_table %}
+    {% if forloop.first %}
+    <tr>
+      {% for pair in row %}
+        <th>{{ pair[0] }}</th>
+      {% endfor %}
+    </tr>
+    {% endif %}
 
-        {% tablerow pair in row %}
-        {{ pair[1] }}
-        {% endtablerow %}
-    {% endfor %}
+    {% tablerow pair in row %}
+      {{ pair[1] }}
+    {% endtablerow %}
+  {% endfor %}
 </table>
 {% else %}
 <p>HCMI table is not available.</p>
 {% endif %}
+
 
 ### Visualization
 
