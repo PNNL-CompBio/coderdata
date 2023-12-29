@@ -49,7 +49,6 @@ This data encompasses numerous cancer types and includes cell line, organoid, an
     </div>
     {% endif %}
     {% if page.png_exists %}
-    </div>
     <div class="flex-item">
         <img src="{{ 'assets/stats/hcmi_circos.png' | relative_url }}" alt="HCMI Circos" />
     </div>
