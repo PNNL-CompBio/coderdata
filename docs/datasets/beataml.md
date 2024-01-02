@@ -2,7 +2,7 @@
 layout: default
 title: CoderData
 pdf_exists: true
-png_exists: false
+png_exists: true
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -55,3 +55,4 @@ This data focuses on acute myeloid leukemia tumor data. Data includes drug respo
     </div>
     {% endif %}
 </div>
+
