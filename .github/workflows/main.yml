@@ -315,13 +315,18 @@ jobs:
         run: gunzip all-files/*samples*
       - name: List files in all-files
         run: ls -lah all-files/
-      - name: Upload to Figshare
-        # This can be updated to trigger with tag releases.
-        # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
-        #This is a short term alternative. Links to branch. Not as pretty but okay for now.
+      # - name: Upload to Figshare
+      #   # This can be updated to trigger with tag releases.
+      #   # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+      #   #This is a short term alternative. Links to branch. Not as pretty but okay for now.
         
-        #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
-        run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish 
+      #   #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
+      #   run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish 
+      - name: Extract version from setup.py
+        id: version
+        run: echo "PACKAGE_VERSION=$(grep 'version=' setup.py | sed -n "s/.*version='\(.*\)'.*/\1/p")" >> $GITHUB_ENV
+      - name: Upload to Figshare
+        run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ env.PACKAGE_VERSION }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish
       - name: List files in all-files
         run: ls -lah all-files/
       - name: Setup Git config
