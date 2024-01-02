@@ -1,25 +1,25 @@
-article_link: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652
+article_link: https://figshare.com/articles/dataset/CODERData0.1.9/24932781
 file_download:
-  beataml_drugs.tsv.gz: https://ndownloader.figshare.com/files/43882788
-  beataml_experiments.csv.gz: https://ndownloader.figshare.com/files/43882800
-  beataml_mutations.csv.gz: https://ndownloader.figshare.com/files/43882797
-  beataml_proteomics.csv.gz: https://ndownloader.figshare.com/files/43882794
-  beataml_samples.csv: https://ndownloader.figshare.com/files/43882803
-  beataml_transcriptomics.csv.gz: https://ndownloader.figshare.com/files/43882806
-  cellLineTypes.csv.gz: https://ndownloader.figshare.com/files/43882791
-  hcmi_copy_number.csv.gz: https://ndownloader.figshare.com/files/43882782
-  hcmi_mutations.csv.gz: https://ndownloader.figshare.com/files/43882776
-  hcmi_samples.csv: https://ndownloader.figshare.com/files/43882785
-  hcmi_transcriptomics.csv.gz: https://ndownloader.figshare.com/files/43882779
+  beataml_drugs.tsv.gz: https://ndownloader.figshare.com/files/43883001
+  beataml_experiments.csv.gz: https://ndownloader.figshare.com/files/43883013
+  beataml_mutations.csv.gz: https://ndownloader.figshare.com/files/43883010
+  beataml_proteomics.csv.gz: https://ndownloader.figshare.com/files/43883007
+  beataml_samples.csv: https://ndownloader.figshare.com/files/43883016
+  beataml_transcriptomics.csv.gz: https://ndownloader.figshare.com/files/43883019
+  cellLineTypes.csv.gz: https://ndownloader.figshare.com/files/43883004
+  hcmi_copy_number.csv.gz: https://ndownloader.figshare.com/files/43882995
+  hcmi_mutations.csv.gz: https://ndownloader.figshare.com/files/43882989
+  hcmi_samples.csv: https://ndownloader.figshare.com/files/43882998
+  hcmi_transcriptomics.csv.gz: https://ndownloader.figshare.com/files/43882992
 file_url:
-  beataml_drugs.tsv.gz: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882788
-  beataml_experiments.csv.gz: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882800
-  beataml_mutations.csv.gz: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882797
-  beataml_proteomics.csv.gz: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882794
-  beataml_samples.csv: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882803
-  beataml_transcriptomics.csv.gz: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882806
-  cellLineTypes.csv.gz: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882791
-  hcmi_copy_number.csv.gz: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882782
-  hcmi_mutations.csv.gz: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882776
-  hcmi_samples.csv: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882785
-  hcmi_transcriptomics.csv.gz: https://figshare.com/articles/dataset/CODERDatarefs_heads_builder_branch_JJ/24932652?file=43882779
+  beataml_drugs.tsv.gz: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43883001
+  beataml_experiments.csv.gz: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43883013
+  beataml_mutations.csv.gz: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43883010
+  beataml_proteomics.csv.gz: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43883007
+  beataml_samples.csv: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43883016
+  beataml_transcriptomics.csv.gz: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43883019
+  cellLineTypes.csv.gz: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43883004
+  hcmi_copy_number.csv.gz: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43882995
+  hcmi_mutations.csv.gz: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43882989
+  hcmi_samples.csv: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43882998
+  hcmi_transcriptomics.csv.gz: https://figshare.com/articles/dataset/CODERData0.1.9/24932781?file=43882992
