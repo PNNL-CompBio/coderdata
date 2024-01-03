@@ -190,7 +190,9 @@ def upload_to_figshare(token, title, directory, project_id, publish, article_id=
         """
         Write details of Figshare to yaml
         """
+        #convert slashes and periods to underscores so the file links are generated correctly.
         title_updated = title.replace('/', '_')
+        title_updated = title_updated.replace('.', '_')
         article_info = issue_request('GET', f'articles/{article_id}')
         # article_link = f"https://figshare.com/articles/dataset/{title}/{project_id}/file/{article_id}"
         article_link = f"https://figshare.com/articles/dataset/{title_updated}/{article_id}"
