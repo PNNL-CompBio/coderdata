@@ -3,6 +3,9 @@
 import requests
 import os
 import json
+import yaml
+
+
 def download_data_by_prefix(dataset_prefix=None):
     """
     Download the most recent version of files from a Figshare dataset, filtered by a specific prefix or all files.
@@ -25,7 +28,19 @@ def download_data_by_prefix(dataset_prefix=None):
     """
     
     # Get the dataset details
-    url = "https://api.figshare.com/v2/articles/24582741"
+    # url = "https://api.figshare.com/v2/articles/24582741"
+    
+       # Read the article link from YAML file
+    with open("figshare_latest.yml", 'r') as file:
+        yaml_data = yaml.safe_load(file)
+    
+    article_link = yaml_data.get('article_link', '')
+    # Extract the article ID from the URL
+    article_id = article_link.rsplit('/', 1)[-1]
+    print(article_id)
+    # Construct the new API URL
+    url = f"https://api.figshare.com/v2/articles/{article_id}"
+    print(url)
     response = requests.get(url)
     if response.status_code != 200:
         raise Exception(f"Failed to get dataset details from Figshare: {response.text}")
