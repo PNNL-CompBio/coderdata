@@ -90,7 +90,7 @@ fwrite(combined_maf_df, "MPNST_WES_mutation_seq.csv")
 if(file.exists("MPNST_WES_mutation_seq.csv") && (file.info("MPNST_WES_mutation_seq.csv")$size > 0)) {
   # Remove the 'tmp' directory and its contents
   unlink(path, recursive = TRUE, force = TRUE)
-  cat("The 'tmp' directory has been successfully removed.\n")
+  cat("The 'tmp_WES' directory has been successfully removed.\n")
 } else {
-  cat("There was an error in the script execution. 'tmp' directory not removed.\n")
+  cat("There was an error in the script execution. 'tmp_WES' directory not removed.\n")
 }
