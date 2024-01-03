@@ -26,8 +26,8 @@ jobs:
         #Add upload artifact from CPTAC Samples when ready
         #temp fix below
       - name: Copy CPTAC sample from build location. 
-          run: |
-            cp build/cptac/cptac_samples.csv .
+        run: |
+          cp build/cptac/cptac_samples.csv .
       - name: Build HCMI Image
         run: docker build -t hcmi-samples-builder -f build/docker/Dockerfile.hcmi .
       - name: Run HCMI samples Container
