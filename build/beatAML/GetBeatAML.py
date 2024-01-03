@@ -552,7 +552,6 @@ if __name__ == "__main__":
     
     if args.samples:
         print("Only running Samples File Generation")
-        prev_samples_path = "../hcmi/hcmi_samples.csv"
         #Generate Samples File
         generate_samples_file(prev_samples_path)
     else:
