@@ -508,6 +508,7 @@ def generate_raw_drug_file(original_drug_file, sample_mapping_file, updated_raw_
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers and a string.')
     parser.add_argument('-t', '--token', type=str, help='Synapse Token')
+    parser.add_argument('-s', '--samples', action='store_true', help='Only Run Samples File Generation')
     args = parser.parse_args()
     
     print("Logging into Synapse")
@@ -541,102 +542,104 @@ if __name__ == "__main__":
     additional_mapping_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_sample_mapping.xlsx"
     sample_mapping_file = "beataml_waves1to4_sample_mapping.xlsx"
     download_from_github(additional_mapping_url, sample_mapping_file)
-    
-    original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-    original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-    download_from_github(original_drug_url, original_drug_file)
-    
-    updated_raw_drug_file = "beatAML_drug_raw.tsv"
-    
-    drug_path = "beatAML_drug_processed.tsv.0"
-    drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
-    
-    transcriptomics_file = "beataml_waves1to4_norm_exp_dbgap.txt"
-    transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"
-    download_from_github(transcriptomics_url, transcriptomics_file)
-    
-    mutations_file = "beataml_wes_wv1to4_mutations_dbgap.txt"
-    mutations_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wes_wv1to4_mutations_dbgap.txt"
-    download_from_github(mutations_url, mutations_file)
-   
-    mutation_map_file = "beataml_waves1to4_sample_mapping.xlsx"
-    mutation_map_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_sample_mapping.xlsx"
-    download_from_github(mutation_map_url, mutation_map_file)
-    
+
     supplementary_url = 'https://ars.els-cdn.com/content/image/1-s2.0-S1535610822003129-mmc2.xlsx'
     supplimentary_file = '1-s2.0-S1535610822003129-mmc2.xlsx'
     download_from_github(supplementary_url, supplimentary_file)
     
     prev_samples_path = "hcmi_samples.csv"
-    
-    #Generate Samples File
-    generate_samples_file(prev_samples_path)
     improve_map_file = "beataml_samples.csv"
     
-    print("Starting Raw Drug File Generation ")
-    # Generate Raw Drugs File to use in Curve fitting algorithm
-    generate_raw_drug_file(original_drug_file,sample_mapping_file, updated_raw_drug_file,supplimentary_file)
-
-    print("Starting Curve Fitting Algorithm")
-    # Run Curve fitting algorithm from scripts directory.
-    # Note the file path to fit_curve.py may need to be changed.
-    command = ['python', 'fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv']
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    if result.returncode == 0:
-        print("Curve Fitting executed successfully!")
+    if args.samples:
+        print("Only running Samples File Generation")
+        prev_samples_path = "../hcmi/hcmi_samples.csv"
+        #Generate Samples File
+        generate_samples_file(prev_samples_path)
     else:
-        print("Curve fitting failed.")
-        print("Out:", result.stdout)
-        print("Error:", result.stderr)
+        print("Generating all drug/omics files")
+        original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
+        original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
+        download_from_github(original_drug_url, original_drug_file)
+        
+        updated_raw_drug_file = "beatAML_drug_raw.tsv"
+        
+        drug_path = "beatAML_drug_processed.tsv.0"
+        drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
+        
+        transcriptomics_file = "beataml_waves1to4_norm_exp_dbgap.txt"
+        transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"
+        download_from_github(transcriptomics_url, transcriptomics_file)
+        
+        mutations_file = "beataml_wes_wv1to4_mutations_dbgap.txt"
+        mutations_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wes_wv1to4_mutations_dbgap.txt"
+        download_from_github(mutations_url, mutations_file)
+    
+        mutation_map_file = "beataml_waves1to4_sample_mapping.xlsx"
+        mutation_map_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_sample_mapping.xlsx"
+        download_from_github(mutation_map_url, mutation_map_file)
+        
+        
+        print("Starting Raw Drug File Generation ")
+        # Generate Raw Drugs File to use in Curve fitting algorithm
+        generate_raw_drug_file(original_drug_file,sample_mapping_file, updated_raw_drug_file,supplimentary_file)
 
-    # New Transcriptomics Data
-    print("Starting Transcriptomics Data")
-    t_df = pd.read_csv(transcriptomics_file, sep = '\t')
-    t_df.index = t_df.display_label
-    t_df = t_df.iloc[:, 4:]
-    t_df = t_df.reset_index().rename(columns={'display_label': 'Gene'})
-    t_df = pd.melt(t_df, id_vars=['Gene'], var_name='sample_id', value_name='transcriptomics')
-    t_df = map_and_combine(t_df, "transcriptomics", entrez_map_file, "beataml_samples.csv", sample_mapping_file)
-    t_df = t_df[t_df.entrez_id.notna()]
-    t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]]
-    t_df.to_csv("beataml_transcriptomics.csv",index=False)
+        print("Starting Curve Fitting Algorithm")
+        # Run Curve fitting algorithm from scripts directory.
+        # Note the file path to fit_curve.py may need to be changed.
+        command = ['python', 'fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv']
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if result.returncode == 0:
+            print("Curve Fitting executed successfully!")
+        else:
+            print("Curve fitting failed.")
+            print("Out:", result.stdout)
+            print("Error:", result.stderr)
 
-    # New Proteomics Data
-    print("Starting Proteomics Data")
-    p_df = pd.read_csv("ptrc_ex10_crosstab_global_gene_corrected.txt", sep = '\t')
-    p_df = p_df.reset_index().rename(columns={'index': 'Protein'})
-    p_df = pd.melt(p_df, id_vars=['Protein'], var_name='id', value_name='proteomics')
-    p_df = map_and_combine(p_df, "proteomics", entrez_map_file, improve_map_file, proteomics_map)
-    p_df = p_df[["improve_sample_id","proteomics","entrez_id","source","study"]]
-    p_df.to_csv("beataml_proteomics.csv",index=False)
-    
-    # New Mutation Data
-    print("Starting Mutation Data")
-    m_df = pd.read_csv(mutations_file, sep = '\t')
-    m_df = map_and_combine(m_df, "mutations", entrez_map_file, "beataml_samples.csv", mutation_map_file)
-    m_df = m_df[["improve_sample_id","mutations", "entrez_id","variant_classification","source","study"]]
-    m_df.to_csv("beataml_mutations.csv",index=False)
-    
-    # Drug and Experiment Data
-    print("Starting Drug Data")
-    drug_map = format_drug_map(drug_map_path)
-    d_df = format_drug_df(drug_path)
-    d_df = update_dataframe_with_pubchem(d_df)
-    d_res = merge_drug_info(d_df, drug_map)
-    d_res = add_improve_id(drug_map, d_res)
-    #Drug Data
-    drug_res = d_res[["improve_drug_id","chem_name","formula","weight","inchikey","canSMILES","isoSMILES"]]
-    drug_res.rename(columns={"inchikey": "inCHIKey"}, inplace=True)
-    drug_res.to_csv("beataml_drugs.tsv",sep="\t", index=False)
-    
-    print("Starting Experiment Data")
-    # Experiment Data
-    d_res = d_res.rename(columns={"CELL":"sample_id","AUC":"auc"})
-    exp_res = map_exp_to_improve(d_res,"beataml_samples.csv")
-    exp_res = exp_res[["source","improve_sample_id","improve_drug_id","study","auc","ic50","ec50","ec50se","r2fit","einf","hs","aac1","auc1","dss1"]]
-    exp_res.to_csv("beataml_experiments.csv", index=False)
-    print("Finished Pipeline")
-    
-    
-    
+        # New Transcriptomics Data
+        print("Starting Transcriptomics Data")
+        t_df = pd.read_csv(transcriptomics_file, sep = '\t')
+        t_df.index = t_df.display_label
+        t_df = t_df.iloc[:, 4:]
+        t_df = t_df.reset_index().rename(columns={'display_label': 'Gene'})
+        t_df = pd.melt(t_df, id_vars=['Gene'], var_name='sample_id', value_name='transcriptomics')
+        t_df = map_and_combine(t_df, "transcriptomics", entrez_map_file, "beataml_samples.csv", sample_mapping_file)
+        t_df = t_df[t_df.entrez_id.notna()]
+        t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]]
+        t_df.to_csv("beataml_transcriptomics.csv",index=False)
+
+        # New Proteomics Data
+        print("Starting Proteomics Data")
+        p_df = pd.read_csv("ptrc_ex10_crosstab_global_gene_corrected.txt", sep = '\t')
+        p_df = p_df.reset_index().rename(columns={'index': 'Protein'})
+        p_df = pd.melt(p_df, id_vars=['Protein'], var_name='id', value_name='proteomics')
+        p_df = map_and_combine(p_df, "proteomics", entrez_map_file, improve_map_file, proteomics_map)
+        p_df = p_df[["improve_sample_id","proteomics","entrez_id","source","study"]]
+        p_df.to_csv("beataml_proteomics.csv",index=False)
+        
+        # New Mutation Data
+        print("Starting Mutation Data")
+        m_df = pd.read_csv(mutations_file, sep = '\t')
+        m_df = map_and_combine(m_df, "mutations", entrez_map_file, "beataml_samples.csv", mutation_map_file)
+        m_df = m_df[["improve_sample_id","mutations", "entrez_id","variant_classification","source","study"]]
+        m_df.to_csv("beataml_mutations.csv",index=False)
+        
+        # Drug and Experiment Data
+        print("Starting Drug Data")
+        drug_map = format_drug_map(drug_map_path)
+        d_df = format_drug_df(drug_path)
+        d_df = update_dataframe_with_pubchem(d_df)
+        d_res = merge_drug_info(d_df, drug_map)
+        d_res = add_improve_id(drug_map, d_res)
+        #Drug Data
+        drug_res = d_res[["improve_drug_id","chem_name","formula","weight","inchikey","canSMILES","isoSMILES"]]
+        drug_res.rename(columns={"inchikey": "inCHIKey"}, inplace=True)
+        drug_res.to_csv("beataml_drugs.tsv",sep="\t", index=False)
+        
+        print("Starting Experiment Data")
+        # Experiment Data
+        d_res = d_res.rename(columns={"CELL":"sample_id","AUC":"auc"})
+        exp_res = map_exp_to_improve(d_res,"beataml_samples.csv")
+        exp_res = exp_res[["source","improve_sample_id","improve_drug_id","study","auc","ic50","ec50","ec50se","r2fit","einf","hs","aac1","auc1","dss1"]]
+        exp_res.to_csv("beataml_experiments.csv", index=False)
+        print("Finished Pipeline")
     
