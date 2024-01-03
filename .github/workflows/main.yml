@@ -132,10 +132,10 @@ jobs:
         run: coderdata download --prefix cell_line
       - name: List files cwd after
         run: ls -lah 
-      - name: Copy files from BeatAML Container
+      - name: Copy files from cell line Container
         run: |
           mkdir cell-line-files
-          for file in *.csv*; do
+          for file in *cell_line*gz; do
             cp $file cell-line-files/$file
           done
       - name: Upload artifact for Cell Line
@@ -163,7 +163,7 @@ jobs:
       - name: Copy files from BeatAML Container
         run: |
           mkdir cptac-files
-          for file in *.csv*; do
+          for file in *cptac*gz; do
             cp $file cptac-files/$file
           done
       - name: Upload artifact for cptac
@@ -302,6 +302,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: beataml-files
+      - name: Download artifacts from CPTAC
+        uses: actions/download-artifact@v2
+        with:
+          name: cptac-files
+      - name: Download artifacts from Cell Line
+        uses: actions/download-artifact@v2
+        with:
+          name: cell-line-files
       - name: Create all-files directory
         run: mkdir all-files
       - name: List files cwd
