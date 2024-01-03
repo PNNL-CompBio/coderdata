@@ -129,10 +129,8 @@ jobs:
         run: ls -lah 
       - name: Build BeatAML Image
         run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
-      # - name: Run BeatAML Container
-      #   run: docker run --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder
       - name: Run BeatAML Container
-        run: docker run --name beataml-container -e SYNAPSE_TOKEN=${{ secrets.SYNAPSE_TOKEN_SECRET }} beataml-builder python GetBeatAML.py --token ${SYNAPSE_TOKEN}
+        run: docker run --name beataml-container beataml-builder python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }}
       - name: Copy files from BeatAML Container
         run: |
           mkdir beataml-files
