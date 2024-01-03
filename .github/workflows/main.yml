@@ -135,7 +135,7 @@ jobs:
       - name: Copy files from cell line Container
         run: |
           mkdir cell-line-files
-          for file in *cell_line*gz; do
+          for file in *cell_line*sv*; do
             cp $file cell-line-files/$file
           done
       - name: Upload artifact for Cell Line
@@ -163,7 +163,7 @@ jobs:
       - name: Copy files from BeatAML Container
         run: |
           mkdir cptac-files
-          for file in *cptac*gz; do
+          for file in *cptac*sv*; do
             cp $file cptac-files/$file
           done
       - name: Upload artifact for cptac
