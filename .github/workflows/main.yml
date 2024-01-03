@@ -377,7 +377,7 @@ jobs:
           git add -f docs/*
           git add build/download/figshare_latest.yml
           git status
-          git commit -m "Add figshare_latest.yml to docs/_data and build/download"
+          git commit -m "Add figshare_latest.yml to docs/_data and coderdata/download"
           git push
   # build-docs:
   #   if: github.actor != 'github-actions[bot]'
