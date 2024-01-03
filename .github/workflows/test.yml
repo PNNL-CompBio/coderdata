@@ -2,7 +2,7 @@ name: Python package tests
 
 on:
   push:
-    branches: [ builder_branch_JJ ]
+    branches: [ package_dev_JJ ]
 
 jobs:
   test:
