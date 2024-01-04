@@ -549,6 +549,7 @@ jobs:
           # Commit and push the updated setup.py
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git pull
           git add setup.py
           git commit -m "Increment version number to $NEW_VERSION [skip ci]"
           git push
