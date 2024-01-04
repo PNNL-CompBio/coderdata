@@ -372,12 +372,10 @@ jobs:
       - name: Commit and push changes
         run: |
           git pull
-          cp figshare_latest.yml docs/_data
-          mv figshare_latest.yml coderdata/download/figshare_latest.yml
+          mv figshare_latest.yml docs/_data
           git add -f docs/*
-          git add coderdata/download/figshare_latest.yml
           git status
-          git commit -m "Add figshare_latest.yml to docs/_data and coderdata/download"
+          git commit -m "Add figshare_latest.yml to docs/_data"
           git push
   # build-docs:
   #   if: github.actor != 'github-actions[bot]'
@@ -423,7 +421,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
-  # Deployment job
   deploy-docs:
     if: github.actor != 'github-actions[bot]'
     needs: [build-docs]
@@ -436,9 +433,32 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  run-tests:
+  update-package-download-function:
     if: github.actor != 'github-actions[bot]'
     needs: [upload-to-figshare]
+    environment: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v2
+      - name: Update figshare path in downloader.py
+        run: |
+          python scripts/script.py -y docs/_data/figshare_latest.yml -d coderdata/download/downloader.py
+          cat coderdata/download/downloader.py
+      - name: Setup Git config
+        run: |
+          git config user.name "jjacobson95"
+          git config user.email "jeremy.jacobson3402@gmail.com"
+      - name: Commit and push changes
+        run: |
+          git pull
+          git add coderdata/download/downloader.py
+          git commit -m "update downloader.py"
+          git push
+
+  run-tests:
+    if: github.actor != 'github-actions[bot]'
+    needs: [update-package-download-function]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -459,7 +479,6 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
