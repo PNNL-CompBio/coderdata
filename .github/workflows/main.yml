@@ -373,9 +373,9 @@ jobs:
         run: |
           git pull
           cp figshare_latest.yml docs/_data
-          mv figshare_latest.yml build/download/figshare_latest.yml
+          mv figshare_latest.yml coderdata/download/figshare_latest.yml
           git add -f docs/*
-          git add build/download/figshare_latest.yml
+          git add coderdata/download/figshare_latest.yml
           git status
           git commit -m "Add figshare_latest.yml to docs/_data and coderdata/download"
           git push
