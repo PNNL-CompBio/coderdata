@@ -443,7 +443,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Update figshare path in downloader.py
         run: |
-          python scripts/script.py -y docs/_data/figshare_latest.yml -d coderdata/download/downloader.py
+          python scripts/update_download_function.py -y docs/_data/figshare_latest.yml -d coderdata/download/downloader.py
           cat coderdata/download/downloader.py
       - name: Setup Git config
         run: |
