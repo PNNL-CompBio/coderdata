@@ -127,7 +127,7 @@ def formatMutData(df,dtype,ctype,samp_names,source,samples):
     ##firstr get relevant columnsz
     df = df.reset_index()
     subset = df[['Patient_ID','HGNC_Entrez_Gene_ID(supplied_by_NCBI)','Mutation','Genome_Change']]
-    subset.columns=['Patient_ID','entrez_gene','variant_classification','mutation']
+    subset.columns=['Patient_ID','entrez_gene','variant_classification','Mutation']
 
     improve_mapping = samples
     improve_mapping.reset_index(drop=True)
@@ -145,9 +145,11 @@ def formatMutData(df,dtype,ctype,samp_names,source,samples):
         blongdf[['new_class']] = blongdf[['variant_classification']]
     blongdf = blongdf.rename(columns={'variant_classification':'old_class',\
                                       'new_class':'variant_classification',\
-                                      'entrez_gene':'entrez_id'})
-    print(blongdf)
+                                      'entrez_gene':'entrez_id',
+                                      'Mutation':'mutation'})
     blongdf = blongdf[['improve_sample_id','entrez_id','mutation','variant_classification','source','study']]
+    print(blongdf)
+
     return blongdf
 
 def formatData(df,dtype,ctype,samp_names,source,genes,samples):
@@ -231,10 +233,14 @@ def main():
     if(opts.sampfile is not None):
         old_samples = pd.read_csv(opts.sampfile)
         samples = pd.DataFrame()
-    if(opts.newsamps is not None): ##otherwise we build the data
+        print("generating sample file")
+    elif(opts.newsamps is not None): ##otherwise we build the data
         build_data=True
         samples = pd.read_csv(opts.newsamps)
-
+        print("Building dataset from generated sample file")
+    else:
+        print("Need a sample file to continue")
+        exit()
     ##this loops through the 10 main cancer types and collects samples and then data
     for cancertype in ['brca','coad','hnscc','lscc','luad','ov','gbm','pdac','ucec','ccrcc']:
         dat = getCancerObj(cancertype)
@@ -245,6 +251,8 @@ def main():
         clinsource = dat_list['clinical']
         if 'harmonized' in clinsource:
             cs = 'harmonized'
+    #    elif 'umich' in clinsource:
+    #        cs = 'umich'
         else:
             cs = clinsource[0]
         tumor_samps = dat.get_clinical(cs)#.Sample_Tumor_Normal=='Tumor'
@@ -259,13 +267,17 @@ def main():
             all_dfs = {}
             all_sources = {} ##keep track of sources for long table
             ##all the data types we're collecting so far
-            for dtype in ['mutation','proteomics','transcriptomics','copy_number']: #'miRNA doesnt work
+            ## these are specifically the names of the file data keys in the `list_data_sources` function
+            ## so have to match EXACTLY
+            for dtype in ['somatic_mutation','proteomics','transcriptomics','CNV']: #'miRNA doesnt work
                 if dtype not in dat_list.keys():
                     continue
                 ###figure out whic source, prioritize harmonized when available
                 source_list = dat_list[dtype]
                 if 'harmonized' in source_list:
                     source = 'harmonized'
+                elif 'umich' in dat_list[dtype]:
+                    source = 'umich'
                 else:
                     source = source_list[0]
                 all_sources[dtype] = source #we can keep the source for future analysis/batch
@@ -274,11 +286,11 @@ def main():
                     all_dfs[dtype] = dat.get_proteomics(source)
                 if dtype=='transcriptomics':
                     all_dfs[dtype] = dat.get_transcriptomics(source)
-                if dtype=='mutation':
+                if dtype=='somatic_mutation':
                     all_dfs[dtype] = dat.get_somatic_mutation(source)
                 if dtype=='miRNA':
                     all_dfs[dtype] = dat.get_miRNA(source)
-                if dtype=='copy_number':
+                if dtype=='CNV':
                     all_dfs[dtype] = dat.get_CNV(source)
 
             for dtype,df in all_dfs.items():
@@ -288,17 +300,25 @@ def main():
                 dfU.dropna(how='all', axis=0, inplace=True)
                 print(cancertype+' '+dtype)
                 ##now we move to long form and match identifiers
-                if dtype=='mutation':
-                    fdf = formatMutData(dfU,dtype,cancertype,tumor_samps,all_sources[dtype],samples)
+                if dtype=='somatic_mutation': ## we actually want the column to be mutation
+                    fdf = formatMutData(dfU,'mutation',cancertype,tumor_samps,all_sources[dtype],samples)
                     fdf = fdf.reset_index(drop=True)
+                    dtype='mutations' ##but we want the file name to be mutations
+                elif dtype=='CNV':##column should be copy_number
+                    fdf = formatData(dfU,'copy_number',cancertype,tumor_samps,all_sources[dtype],genes,samples)
+                    fdf = fdf.reset_index(drop=True)
+                    dtype='copy_number'##so should file name
                 else:
                     fdf = formatData(dfU,dtype,cancertype,tumor_samps,all_sources[dtype],genes,samples)
                     fdf = fdf.reset_index(drop=True)
+                    
                 if dtype in dat_files.keys():
                     of = dat_files[dtype]
                     fdf = pd.concat([of,fdf])
                     dat_files[dtype] = fdf
-
+                else:
+                    dat_files[dtype] = fdf
+    print(build_data)
     if build_data:
         ##now concatenate all the cancers into a single file
         for dtype,df in dat_files.items():
