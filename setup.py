@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='coderdata',  
-    version='0.1.13',   
+    version='0.1.14',   
     author='Jeremy Jacobson',
     author_email='jeremy.jacobson@pnnl.gov',
     description='A package to download, load, and process multiple benchmark multi-omic drug response datasets',
