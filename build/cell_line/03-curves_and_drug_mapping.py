@@ -27,5 +27,4 @@ os.system('cat *.0 > experiments_orig.tsv')
 
 ##now fix drug identifiers in experiments and drug files
 
-### step 3d store files (figshare? ftp?
 os.system('Rscript remapDrugsToSmiles.R drugs.tsv.gz experiments_orig.tsv')
