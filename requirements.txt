@@ -10,3 +10,4 @@ scipy
 #polars
 pyarrow
 polars-lts-cpu
+PyYAML
