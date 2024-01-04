@@ -28,7 +28,9 @@ main<-function(drugfile='drugs.tsv.gz',expfile='experiments.tsv.gz'){
     dplyr::rename(pubchem_id='DRUG')|>
     dplyr::right_join(dplyr::select(newdrugs,c(improve_drug_id,pubchem_id)))|>
     dplyr::select(-pubchem_id)|>
-    dplyr::distinct()
+      dplyr::distinct()
+
+  colnames(newexp)<-tolower(colnames(newexp))
 
   readr::write_tsv(newdrugs,drugfile)
   readr::write_csv(newexp,expfile)
