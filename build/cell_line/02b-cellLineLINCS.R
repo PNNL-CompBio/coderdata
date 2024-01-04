@@ -9,19 +9,22 @@ library(cmapR)
 # IMPROVE on FigShare: https://figshare.com/articles/dataset/IMPROVE_Cell_Line_Data_Files/22822286
 # coderdata on FigShare: https://figshare.com/articles/dataset/CODERData-V0_1_0/24582741
 get_IMPROVE_LINCS <- function() {
-  allgenes = readr::read_csv("https://figshare.com/ndownloader/files/40576109")
+  # originally pulled from Figshare: https://figshare.com/ndownloader/files/40576109
+  allgenes = readr::read_csv("genes.csv")
   genes = allgenes|>
     dplyr::select(gene_symbol,entrez_id)|>
     dplyr::distinct()
   
-  download.file("https://figshare.com/ndownloader/files/43613700",
-                "lincs_drugs.tsv")
-  alldrugs = readr::read_tsv("drugs_by_structure.tsv.gz")
+  # initially used IMPROVE Figshare's "drugs_by_structure.tsv.gz"
+  # download.file("https://figshare.com/ndownloader/files/43613700",
+  #               "lincs_drugs.tsv")
+  alldrugs = readr::read_tsv("lincs_drugs.tsv")
   drugs = alldrugs|>
     dplyr::select(chem_name,improve_drug_id)|>
     dplyr::distinct()
   
-  samples = readr::read_csv('https://figshare.com/ndownloader/files/43613697')|>
+  # originally pulled from Figshare: https://figshare.com/ndownloader/files/43613697
+  samples = readr::read_csv("lincs_samples.csv")|>
     dplyr::select(other_id,improve_sample_id)|>
     unique()
   return(list(genes = genes, drugs = drugs, samples = samples))
