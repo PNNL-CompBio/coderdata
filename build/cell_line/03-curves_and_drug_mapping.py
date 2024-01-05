@@ -11,9 +11,17 @@ TODO: add in R or dockerize requirements
 '''
 
 import os
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--curSampleFile',dest='samplefile',default=None,help='Cell line sample file')
+
+opts = parser.parse_args()
+
+samplefile = opts.samplefile
 
 ####step 3a - get dose response data
-cmd = 'Rscript 03a-drugAndResponseData.R'
+cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile
 os.system(cmd)
 
 ########Step 3b fit curves

@@ -8,6 +8,7 @@ import os
 import numpy as np
 import pandas as pd
 import gzip
+from pathvalidate.argparse import validate_filename_arg
 
 
 def reclass_var(arr):
@@ -110,7 +111,7 @@ def buildTumorSampleTable(sample_names,cancer_type,samples,maxval):
 
     samples = samples.reset_index(drop=True)
     #print(samples)
-    samples.to_csv('cptac_samples.csv',index=False)
+    samples.to_csv('/tmp/cptac_samples.csv',index=False)
     return samples
    
 def formatMutData(df,dtype,ctype,samp_names,source,samples):
@@ -216,11 +217,11 @@ def main():
       main function that takes a sample file and gene file as arguments
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument('--prevSampleFile', dest='sampfile',
+    parser.add_argument('--prevSampleFile', dest='sampfile', 
                         default=None, help='Sample file to use to generate new ids. Returns sample file')
     parser.add_argument('--geneFile', dest='genefile',default='./genes.csv',
                        help='gene file to get gene ids')
-    parser.add_argument('--curSampleFile', dest='newsamps',default=None,
+    parser.add_argument('--curSampleFile', dest='newsamps',default=None, 
                         help='Sample file to use to generate data. Returns data for samples')
     opts = parser.parse_args()
     dat_files = {}
@@ -231,11 +232,13 @@ def main():
     ## if there is an old sample file, we build only build sample file
     build_data=False
     if(opts.sampfile is not None):
+        print(opts.sampfile)
         old_samples = pd.read_csv(opts.sampfile)
         samples = pd.DataFrame()
         print("generating sample file")
     elif(opts.newsamps is not None): ##otherwise we build the data
         build_data=True
+        print(opts.newsamps)
         samples = pd.read_csv(opts.newsamps)
         print("Building dataset from generated sample file")
     else:
@@ -258,12 +261,14 @@ def main():
         tumor_samps = dat.get_clinical(cs)#.Sample_Tumor_Normal=='Tumor'
         tumor_samps = list(tumor_samps.index)
         if not build_data:
+            print('Building sample file only for '+cancertype)
             if len(samples)==0:
                 maxval = max(old_samples.improve_sample_id)
             else:
                 maxval = max(samples.improve_sample_id)
             samples = buildTumorSampleTable(tumor_samps,cancertype,samples,maxval)
         if build_data:
+            print('Building data file')
             all_dfs = {}
             all_sources = {} ##keep track of sources for long table
             ##all the data types we're collecting so far
