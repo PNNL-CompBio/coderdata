@@ -11,6 +11,7 @@ We have created a separate directory with scripts that collect data from distinc
 |[`/cell_line`](./cell_line) | DepMap omics data and multiple drug sensitivity datasets| |
 |[`/cptac`](./cptac) | CPTAC omics data measurements| |
 |[`/hcmi`](./hcmi)  | HCMI omics data measurements ||
+|[`/mpnst`](./mpnst)  | MPNST omics data measurements ||
 |[`/beatAML`](./beatAML) | BeatAML Leukemia data | | 
 |[`/nfosi`](./nfosi) | Data collated through the NF Open Science Initiative ||
 

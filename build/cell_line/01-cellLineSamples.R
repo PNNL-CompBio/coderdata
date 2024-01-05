@@ -25,6 +25,9 @@ library(readr)
 depmap_models<-readr::read_csv('https://figshare.com/ndownloader/files/40448834')#|>
 #  dplyr::rename(DepMap_ID='ModelID')
 
+sanger_models<-readr::read_csv("https://cog.sanger.ac.uk/cmp/download/model_list_20230923.csv")
+
+print(paste("Downloaded",nrow(depmap_models),'dep map identifiers and',nrow(sanger_models),'sanger models'))
 
 ##query for cellosaurus automagically to get loadest version
 url='https://ftp.expasy.org/databases/cellosaurus/cellosaurus.xml'
@@ -32,7 +35,6 @@ if(!file.exists('cell.xml'))
   curl_download(url,'cell.xml',quiet=TRUE)#curl(url, "r", h)
 cello<-XML::xmlParse('cell.xml')
 cdf<-XML::xmlToList(cello)
-
 
 
 ### next we parse through cellosaurus to get as many samples as we deem relevant
@@ -61,64 +63,65 @@ full.res<-do.call(rbind,lapply(cell.lines,function(x){
 
 print(paste('Got',nrow(full.res),'human cellosaurus samples'))
 ######
-#now we join the depmap table, the cellosaurus table, and the CTRP identifiers
+#now we join the sagner table, depmap table, the cellosaurus table, and the CTRP identifiers
 
-joined.df<-depmap_models%>%
-  full_join(full.res)%>%
-  #left_join(tab)%>%
-  ##this for 22q2 data
-  #dplyr::select(-c(patient_id,sample_collection_site,primary_or_metastasis,primary_disease,
-  #                 sex,age,source,depmap_public_comments,lineage,lineage_sub_subtype,Subtype,Cellosaurus_NCIt_id,lineage_subtype,
-  #                 lineage_molecular_subtype,default_growth_pattern,stripped_cell_line_name,alias,source,sample_collection_site,
-  #                 model_manipulation,model_manipulation_details,parent_depmap_id,Cellosaurus_issues))
-  ##use this for 22q4 data
-  dplyr::select(-c(PatientID,SourceType,GrowthPattern,
-                     PrimaryOrMetastasis,LegacyMolecularSubtype,LegacySubSubtype,
-                   EngineeredModel,TreatmentStatus,PlateCoating,AgeCategory,
-                   CatalogNumber,PublicComments,SampleCollectionSite,OnboardedMedia,
-                   Sex,Age,SourceDetail,OncotreeLineage,OncotreeCode,
-                   OncotreePrimaryDisease,DepmapModelType,StrippedCellLineName))
+allmod<-sanger_models|>
+  dplyr::rename(ModelID='BROAD_ID')|>
+  left_join(depmap_models)|>
+  dplyr::select(Sanger_ID='model_id',Depmap_ID='ModelID',PatientID,CellLineName,StrippedCellLineName,COSMIC_ID,CCLE_ID,RRID,cancer_type)|>
+  subset(!is.na(RRID))|> ##only take those we can map to cellosaurus
+  distinct()
+
+##we missed a handful here, so let's add back
+missedmod<-subset(depmap_models,ModelID%in%setdiff(depmap_models$ModelID,allmod$Depmap_ID))|>
+  subset(!is.na(RRID))|>
+  dplyr::select(Depmap_ID='ModelID',CCLE_ID='CCLEName',COSMIC_ID='COSMICID',CellLineName,StrippedCellLineName,Sanger_ID='SangerModelID',RRID,cancer_type='OncotreeSubtype')|>
+  mutate(PatientID=NA)
+
+allmod<-rbind(allmod,missedmod)
+joined.df<-allmod%>%
+  left_join(full.res)
 
 ##now lengethn the table to have the appopriate columns
 full.df<-joined.df%>%
-  dplyr::rename(DepMap='ModelID',Sanger='SangerModelID',##old file formatSanger='SangerModelID'
-                CCLE='CCLEName',#old file CCLE='CCLEName'
+  dplyr::rename(DepMap='Depmap_ID',Sanger='Sanger_ID',##old file formatSanger='SangerModelID'
+                CCLE='CCLE_ID',#old file CCLE='CCLE_ID'
                 Cellosaurus='RRID',
                  common_name='CellLineName',
-                cancer_type='OncotreeSubtype',
+               # cancer_type='OncotreeSubtype',
                 other_names='accession')%>%
-  mutate(COSMIC=as.character(COSMICID),WTSI=as.character(WTSIMasterCellID))%>%
-  dplyr::select(-c(COSMICID,WTSIMasterCellID))%>%
+  mutate(COSMIC=as.character(COSMIC_ID))|>#,WTSI=as.character(WTSIMasterCellID))%>%
+  dplyr::select(-c(COSMIC_ID))|>#,WTSIMasterCellID))%>%
   distinct()
 
-##NEW: remove all cellosaurus that do not have depmap ids
-full.df<-full.df|>
-  subset(!is.na(DepMap))
 
 #we add idnetifiers for everything that has a cellosaurus id and those that dont
-has_id<-subset(full.df,Cellosaurus!="")
-no_id<-subset(full.df,is.na(Cellosaurus))
+#has_id<-subset(full.df,Cellosaurus!="")
+#no_id<-subset(full.df,is.na(Cellosaurus))
 
-samp_ids<-data.frame(Cellosaurus=unique(has_id$Cellosaurus))
-samp_ids$improve_sample_id<-seq(1,nrow(samp_ids))
+samp_ids<-data.frame(Cellosaurus=unique(full.df$Cellosaurus))
+samp_ids$improve_sample_id<-seq(1,length(unique(full.df$Cellosaurus)))
 
 #now we need to add in the missing ones
-if(nrow(no_id)>0){
-  extra_ids<-data.frame(DepMap=no_id$DepMap)
-  extra_ids$improve_sample_id<-seq(max(samp_ids$improve_sample_id)+1,
-                                  max(samp_ids$improve_sample_id)+nrow(extra_ids))
+#if(nrow(no_id)>0){
+#  extra_ids<-data.frame(DepMap=no_id$DepMap)
+#  extra_ids$improve_sample_id<-seq(max(samp_ids$improve_sample_id)+1,
+#                                  max(samp_ids$improve_sample_id)+nrow(extra_ids))
+#
+#}
 
-}
-full.df<-rbind(left_join(has_id,samp_ids),
-               left_join(no_id,extra_ids))
+#full.df<-rbind(left_join(has_id,samp_ids),
+#               left_join(no_id,extra_ids))
 
 long.df<-full.df%>%
-  tidyr::pivot_longer(cols=c(DepMap,Sanger,CCLE,COSMIC,WTSI,Cellosaurus),names_to='id_source',
+  left_join(samp_ids)|>
+  dplyr::select(-c(StrippedCellLineName))|>
+  tidyr::pivot_longer(cols=c(PatientID,DepMap,Sanger,CCLE,COSMIC,Cellosaurus),names_to='other_id_source',
                       values_to='other_id')%>%
   mutate(model_type='cell line')%>%
   subset(!is.na(other_id))%>%
   subset(other_id!="")
 
 
-write.table(long.df,'samples.csv',sep=',',row.names=F,col.names=T)
+write.table(long.df,'/tmp/cell_line_samples.csv',sep=',',row.names=F,col.names=T)
 
