@@ -2,7 +2,7 @@
 library(readr)
 library(dplyr)
 
-main<-function(drugfile='drugs.tsv.gz',expfile='experiments.tsv.gz'){
+main<-function(drugfile='/tmp/drugs.tsv.gz',expfile='/tmp/experiments.tsv.gz'){
 
   drugs<-readr::read_tsv(drugfile)
   exp<-readr::read_tsv(expfile)
