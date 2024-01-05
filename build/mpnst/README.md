@@ -16,6 +16,8 @@ docker run -v $PWD:/tmp mpnst Rscript sample_gen.R
 3. Pull the data and map to the samples. 
 
 ```
-docker run -v $PWD:/tmp mpnst Rscript
+docker run -v $PWD:/tmp mpnst Rscript mpnst_get_rna.R $SYNAPSE_AUTH_TOKEN
+docker run -v $PWD:/tmp mpnst Rscript mpnst_get_cnv.R $SYNAPSE_AUTH_TOKEN
+docker run -v $PWD:/tmp mpnst Rscript mpnst_get_wes.R $SYNAPSE_AUTH_TOKEN
 
 ```
