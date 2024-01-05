@@ -35,6 +35,7 @@ genes_df <- fread("genes.csv")
 
 # Extract the RNASeq Synapse IDs
 rna_seq_ids <- samples_df$RNASeq
+#print(samples_df)
 
 # Download .sf files from Synapse
 for (syn_id in rna_seq_ids) {
@@ -43,7 +44,8 @@ for (syn_id in rna_seq_ids) {
 
   # Check if the file already exists to avoid re-downloading
   if (!file.exists(file_path)) {
-    # Download the file from Synapse
+                                        # Download the file from Synapse
+    print(paste('Getting',syn_id))
     syn_file <- synGet(syn_id)
     file.copy(syn_file$path, file_path)
   }
