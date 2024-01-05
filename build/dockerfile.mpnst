@@ -15,7 +15,7 @@ ADD mpnst/*.R .
 ADD mpnst/*.py .
 ADD genes.csv .
 ADD knowledge_based_isoform_selection_v1.3.txt .
-ADD synapse_NF-MPNST_samples.csv .
+ADD mpnst/synapse_NF-MPNST_samples.csv .
 ADD utils/* .
 
 # installing python libraries
