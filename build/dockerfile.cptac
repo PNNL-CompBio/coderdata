@@ -12,7 +12,6 @@ WORKDIR /app
 
 ADD cptac/requirements.txt .
 ADD cptac/*.py .
-ADD cell_line/cell_line_samples.csv .
 ADD genes.csv .
 
 # installing python libraries
