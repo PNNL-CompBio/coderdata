@@ -1,0 +1,27 @@
+FROM r-base:4.2.1
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update --allow-insecure-repositories
+RUN apt-get install -y --allow-unauthenticated build-essential libpq-dev python3.10 python3-pip python3-setuptools python3-dev python3-venv libcurl4-openssl-dev libxml2-dev 
+
+RUN python3 -m venv /opt/venv
+RUN /opt/venv/bin/pip3 install --upgrade pip
+
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+WORKDIR /app
+
+ADD mpnst/requirements.txt .
+ADD mpnst/requirements.r .
+ADD mpnst/*.R .
+ADD mpnst/*.py .
+ADD genes.csv .
+ADD knowledge_based_isoform_selection_v1.3.txt .
+ADD mpnst/synapse_NF-MPNST_samples.csv .
+ADD utils/* .
+
+# installing python libraries
+RUN /opt/venv/bin/pip3 install -r requirements.txt
+
+# installing r libraries
+RUN Rscript requirements.r
+
+VOLUME ["/tmp"]
