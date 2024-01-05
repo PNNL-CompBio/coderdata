@@ -10,3 +10,10 @@
 .RData
 .Ruserdata
 .httr-oauth
+*~
+*#
+coderdata.egg-info
+__pycache__
+tests/__pycache__
+dist
+build/lib

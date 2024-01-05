@@ -17,7 +17,7 @@ joined.df<-entrez%>%full_join(ens)%>%
   mutate(other_id_source='ensembl_gene')
 
 #save to file and version
-write.table(joined.df,'../genes.csv',sep=',',row.names=F)
+write.table(joined.df,'/tmp/genes.csv',sep=',',row.names=F)
 
 ##store this file somewhere!
 

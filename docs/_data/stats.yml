@@ -1,0 +1,17 @@
+cell_line:
+  cell_lines: 0
+  genes: 0
+  drugs: 0
+cptac:
+  cancer_types: 0
+  genes: 0
+  drugs: 0
+hcmi:
+  cancer_types: 0
+  genes: 0
+beataml:
+  cancer_types: 0
+  genes: 0
+  drugs: 0
+
+#This should be retrievable using coderdata for each dataset after the merge chunk. Just grab uniques.
