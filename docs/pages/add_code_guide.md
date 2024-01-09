@@ -49,4 +49,4 @@ Contributors are encouraged to follow these guidelines closely for effective int
 
 ---
 
-[Back to Contribution page](pages/contribution.md)
+[Back to Contribution page](/contribution.md)
