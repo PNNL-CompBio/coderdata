@@ -10,6 +10,13 @@ title: CoderData
 ## Introduction
 CoderData is a comprehensive package designed for handling cancer benchmark data in Python. It offers functionalities to download datasets, load them into Python environments, and reformat them according to user needs.
 
+## Installation
+To install `coderdata`, simply run the following command in your terminal:
+
+```bash
+pip install coderdata
+```
+
 ## Downloading Data
 The `download` function in CoderData facilitates the downloading of datasets from Figshare. Users can specify a dataset prefix to filter the required files.
 
@@ -34,7 +41,7 @@ In Python, the download process is handled through the download_data_by_prefix f
 The DatasetLoader class in CoderData is designed for loading datasets into Python. It automatically initializes attributes for each dataset type like transcriptomics, proteomics, and mutations.
 <div class="code-box">
     <p>import coderdata as cd</p>
-    <p><span class="code-comment"># Initialize the loader for a specific dataset type</span></p>
+    <p><span class="code-comment"># Initialize the DatasetLoader for a specific dataset type</span></p>
     <p>hcmi = cd.DatasetLoader('hcmi')</p>
     <p><span class="code-comment"># Access a datatype of the loaded dataset</span></p>
     <p>transcriptomics_data = hcmi.transcriptomics</p>
