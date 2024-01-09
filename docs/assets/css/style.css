@@ -55,9 +55,9 @@ body {
 }
 
 .navbar {
-    position: fixed;
-    /* right: 40;
-    top: 0; */
+    /* position: fixed; */
+    right: 40;
+    top: 0;
     display: flex;
     height: 100%;
     align-items: center; 
@@ -89,7 +89,7 @@ body {
 
 /* Dropdown menu styling */
 .dropdown {
-    /* position: relative; */
+    position: relative;
     display: inline-block;
 }
 
