@@ -47,9 +47,6 @@ Please ensure your contributions adhere to the following guidelines:
 - **Documentation**: Any code contribution should be accompanied by relevant documentation updates.
 - **Testing**: Include tests for new features and bug fixes.
 
-### Additional Resources
-
-For a detailed guide on adding new code functionalities, please see our [Code Guide](/add_code_guide.md).
 
 ### Getting Help
 
