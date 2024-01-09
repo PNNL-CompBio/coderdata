@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Contribute to CoderData
+title: CoderData
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">

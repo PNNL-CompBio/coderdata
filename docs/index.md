@@ -13,14 +13,15 @@ There are two aspects of this package, the backend build section and the user fa
 The build section is a github workflow that generates four cancer datasets in a format that is easy for users and algorithms to ingest. 
 The python package allows users to easily download the data, load it into python and reformat it as desired.
 
-### Installation
+### Installation and Usage
+##### Bash / Command Line
+
 To install `coderdata`, simply run the following command in your terminal:
 
 ```bash
 pip install coderdata
 ```
 
-### Usage
 ##### Bash / Command line
 To download datasets, simply run the following command in your terminal. Remove the prefix argument if you'd like to install all datasets.
 
@@ -32,11 +33,13 @@ coderdata download --prefix hcmi
 To download, load, and call datasets in python, simply run the following commands. 
 
 <div class="code-box">
-    <p>import coderdata</p>
-    <p>coderdata.download_data_by_prefix('hcmi') # download all hcmi data to local directory.</p>
-    <p>hcmi_data = coderdata.DatasetLoader('hcmi') # load hcmi data from local directory into the DatasetLoader object.</p>
-    <p>hcmi_data.transcriptomics # call transcriptomics data from the DatasetLoader object.</p>
+    <p>import coderdata as cd </p>
+    <p>coderdata.download_data_by_prefix('hcmi')</p>
+    <p>hcmi_data = coderdata.DatasetLoader('hcmi')</p>
+    <p>hcmi_data.transcriptomics</p>
 </div>
+
+View our [Usage](pages/usage.md) page for full instructions.
 
 
 ### Datasets
