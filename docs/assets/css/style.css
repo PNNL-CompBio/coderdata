@@ -55,9 +55,9 @@ body {
 }
 
 .navbar {
-    /* position: fixed; Fixed position to the header */
-    right: 40;
-    top: 0;
+    position: fixed;
+    /* right: 40;
+    top: 0; */
     display: flex;
     height: 100%;
     align-items: center; 
@@ -251,7 +251,7 @@ pre > code.language-python {
 .code-box p {
     margin: 0; /* Removes the default paragraph margin */
     line-height: normal; /* Sets line height to normal to remove extra spacing */
-    padding: 0; /* Ensures there's no padding adding extra space */
+    padding: 4px; /* Ensures there's no padding adding extra space */
 }
 
 .flex-container {
