@@ -89,7 +89,7 @@ body {
 
 /* Dropdown menu styling */
 .dropdown {
-    position: relative;
+    /* position: relative; */
     display: inline-block;
 }
 
