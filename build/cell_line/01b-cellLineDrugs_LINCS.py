@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import numpy as np
+import argparse
 
 """
 Overview:
@@ -115,6 +116,13 @@ def add_improve_id(previous_df, new_df):
     return new_df
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--drugFile',dest='drgfile',default=None,help='Cell line drug file')
+
+    opts = parser.parse_args()
+
+    drugs_url = opts.drgfile
+
     # 1. Get LINCS drug information from GEO
     LINCS_drugs_url = "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE101nnn/GSE101406/suppl/GSE101406%5FBroad%5FLINCS%5Fpert%5Finfo.txt.gz"
     LINCS_drugs = pd.read_table(LINCS_drugs_url, delimiter = "\t") # cols: pert_id, canonical_smiles, inchi_key, pert_iname, pert_type
@@ -123,7 +131,7 @@ if __name__ == "__main__":
     LINCS_drugs.rename(columns={"inchi_key": "InChIKey"}, inplace=True)
     
     # 2. Get current drug data from FigShare
-    drugs_url = "https://figshare.com/ndownloader/files/42357210"
+#    drugs_url = "https://figshare.com/ndownloader/files/42357210"
     drugs = pd.read_table(drugs_url, compression="gzip")
     
     # 3. Get PubChem information for new drugs
