@@ -55,6 +55,7 @@ The DatasetLoader class in CoderData is designed for loading datasets into Pytho
 You can reformat datasets into long or wide formats using the reformat_dataset method. By default, data is in the long format.
 Reformatting from long to wide retains three data types, entrez_id and improve_sample_id, value of interest (such as transcriptomics).
 <div class="code-box">
+    <p>import coderdata as cd</p>
     <p><span class="code-comment"># Reformat a specific dataset</span></p>
     <p>hcmi.reformat_dataset('transcriptomics', 'wide') </p>
     <p><span class="code-comment"># Reformat all datasets</span></p>
@@ -66,6 +67,7 @@ Reformatting from long to wide retains three data types, entrez_id and improve_s
 ## Reloading Datasets
 The reload_datasets method is useful for reloading specific datasets or all datasets from local storage, especially if the data files have been updated or altered.
 <div class="code-box">
+    <p>import coderdata as cd</p>
     <p><span class="code-comment"># Reload a specific dataset</span></p>
     <p>hcmi.reload_datasets('transcriptomics')</p>
     <p><span class="code-comment"># Reload all datasets</span></p>
@@ -75,6 +77,7 @@ The reload_datasets method is useful for reloading specific datasets or all data
 ## Information Function (Not yet created)
 The information function tells you which datatypes are available and which format they are in for a particular DatasetLoader object.
 <div class="code-box">
+    <p>import coderdata as cd</p>
     <p><span class="code-comment"># Get information about the datasets</span></p>
     <p>hcmi.information()</p>
 </div>
