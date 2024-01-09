@@ -24,10 +24,11 @@ This guide outlines the steps for contributors looking to add new code functiona
 - **Local Testing**: Test the Docker container locally to confirm correct functionality.
 
 ### 4. GitHub Actions for Automation
-- **Workflow Setup**: Design a GitHub Actions workflow to automate the script execution. This should include:
+- **Workflow Setup**: Design a GitHub Actions workflow to automate the script execution. You may directly update our version, or create a seperate workflow and we could join it to ours.  This should include:
   - Trigger mechanisms (schedule or events).
   - Secret management for credentials.
   - Error logging and handling.
+  - Seperate steps for samples file generation and the rest of the data generation.
 
 ### 5. Updating Documentation
 - **Documentation Revision**: Update the project documentation to reflect your new script's purpose and usage.
@@ -39,7 +40,6 @@ This guide outlines the steps for contributors looking to add new code functiona
 
 ### 7. Pull Request and Code Review
 - **Create a Pull Request**: Submit your changes via a pull request to the main CoderData repository.
-- **Engage in Code Review**: Collaborate with the community and project maintainers during the review process.
 
 ### 8. Align with Repository Standards
 - **Review Project Guidelines**: Familiarize yourself with the CoderData project's standards and practices to align your contribution accordingly.
