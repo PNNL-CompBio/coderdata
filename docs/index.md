@@ -105,9 +105,9 @@ View our [Usage](pages/usage.md) page for full instructions.
 
 <div class="flex-container"> 
     <div class="flex-item">
-        <embed src="{{ 'assets/stats/Fig0_Overview.pdf' | relative_url }}" type="application/pdf" />
+        <img src="{{ 'assets/stats/Fig0_Overview.png' | relative_url }}" alt="Summary 1" />
     </div>
     <div class="flex-item">
-        <embed src="{{ 'assets/stats/Fig5_Sample_Summary.pdf' | relative_url }}" type="application/pdf" />
+        <img src="{{ 'assets/stats/Fig5_Sample_Summary.png' | relative_url }}" alt="Summary 2" />
     </div>
 </div>
