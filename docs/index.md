@@ -7,30 +7,30 @@ title: CoderData
 
 <!-- # Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package -->
 
-### Introduction
-CoderData is a cancer benchmark data package developed in Python and R. 
-There are two aspects of this package, the backend build section and the user facing python package.
-The build section is a github workflow that generates four cancer datasets in a format that is easy for users and algorithms to ingest. 
-The python package allows users to easily download the data, load it into python and reformat it as desired.
+### Introduction  
+CoderData is a cancer benchmark data package developed in Python and R.   
+There are two aspects of this package, the backend build section and the user facing python package.  
+The build section is a github workflow that generates four cancer datasets in a format that is easy for users and algorithms to ingest.   
+The python package allows users to easily download the data, load it into python and reformat it as desired.  
 
-### Installation and Usage
-##### Bash / Command Line
+### Installation and Usage  
+##### Bash / Command Line  
 
-To install `coderdata`, simply run the following command in your terminal:
+To install coderdata, simply run the following command in your terminal:
 
 ```bash
 pip install coderdata
 ```
 
-##### Bash / Command line
-To download datasets, simply run the following command in your terminal. Remove the prefix argument if you'd like to install all datasets.
+##### Bash / Command line  
+To download datasets, simply run the following command in your terminal. Remove the prefix argument if you'd like to install all datasets.  
 
 ```bash
 coderdata download --prefix hcmi
 ```
 
 ##### Python
-To download, load, and call datasets in python, simply run the following commands. 
+To download, load, and call datasets in python, simply run the following commands.   
 
 <div class="code-box">
     <p>import coderdata as cd </p>
