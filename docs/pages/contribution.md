@@ -53,3 +53,7 @@ For a detailed guide on adding new code functionalities, please see our [Code Gu
 ### Getting Help
 
 If you need help with making a contribution or have any questions, feel free to reach out to us via our GitHub issues.
+
+
+---  
+Your contributions are essential to the growth and improvement of CoderData. We look forward to collaborating with you!  
