@@ -41,12 +41,9 @@ body {
     width: auto;
 }
 
-
-
 .header span,div {
     margin-right: 20px; /* Adds spacing to the right of each span */
 }
-
 
 .header-logo {
     height: 100%;
@@ -249,9 +246,9 @@ pre > code.language-python {
 }
 
 .code-box p {
-    margin: 0; /* Removes the default paragraph margin */
+    margin: 2px; /* Removes the default paragraph margin */
     line-height: normal; /* Sets line height to normal to remove extra spacing */
-    padding: 4px; /* Ensures there's no padding adding extra space */
+    padding: 2px; /* Ensures there's no padding adding extra space */
 }
 
 .flex-container {
