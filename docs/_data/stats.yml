@@ -1,7 +1,7 @@
 beataml:
   cancer_types: 1
   drugs: 151
-  genes: 19060
+  genes: 19059
   samples: 1022
 cell_line:
   cell_lines: 204
