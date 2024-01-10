@@ -1,8 +1,6 @@
 ---
 layout: default
 title: CoderData
-pdf_exists: true
-png_exists: true
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -44,12 +42,10 @@ This data focuses on acute myeloid leukemia tumor data. Data includes drug respo
 ### Visualization
 
 <div class="flex-container"> 
-    {% if page.pdf_exists %}
     <div class="flex-item">
-        <embed src="{{ 'assets/stats/Fig2_BeatAML.pdf' | relative_url }}" type="application/pdf" />
+        <img src="{{ 'assets/stats/Fig2_BeatAML.png' | relative_url }}" alt="BeatAML Figure" />
     </div>
     {% endif %}
-    {% if page.png_exists %}
     <div class="flex-item">
         <img src="{{ 'assets/stats/beataml_circos.png' | relative_url }}" alt="BeatAML Circos" />
     </div>

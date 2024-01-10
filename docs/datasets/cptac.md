@@ -1,8 +1,6 @@
 ---
 layout: default
 title: CoderData
-pdf_exists: true
-png_exists: true
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -16,6 +14,8 @@ The python package allows users to easily download the data, load it into python
 
 ### CPTAC Summary
 
+The Clinical Proteomic Tumor Analysis Consortium ([CPTAC](https://gdc.cancer.gov/about-gdc/contributed-genomic-data-cancer-research/clinical-proteomic-tumor-analysis-consortium-cptac#:~:text=The%20National%20Cancer%20Institute's%20Clinical,and%20genome%20analysis%2C%20or%20proteogenomics.
+)) project is a collaborative network funded by the National Cancer Institute (NCI) focused on improving our understanding of cancer biology through the integration of transcriptomic, proteomic, and genomic data. 
 
 {% if site.data.cptac_table %}
 <table>
@@ -40,12 +40,11 @@ The python package allows users to easily download the data, load it into python
 ### Visualization
 
 <div class="flex-container"> 
-    {% if page.pdf_exists %}
     <div class="flex-item">
-        <embed src="{{ 'assets/stats/Fig3_CPTAC.pdf' | relative_url }}" type="application/pdf" />
+        <img src="{{ 'assets/stats/Fig3_CPTAC.png' | relative_url }}" alt="CPTAC Figure" />
+
     </div>
     {% endif %}
-    {% if page.png_exists %}
     <div class="flex-item">
         <img src="{{ 'assets/stats/cptac_circos.png' | relative_url }}" alt="Cell Line Circos" />
     </div>
