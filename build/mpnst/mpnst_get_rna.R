@@ -31,19 +31,21 @@ samples_df <- fread("synapse_NF-MPNST_samples.csv")
 samples_df <- samples_df[samples_df$RNASeq != ""]
 
 # gene mapping table
-genes_df <- fread("../genes.csv")
+genes_df <- fread("genes.csv")
 
 # Extract the RNASeq Synapse IDs
 rna_seq_ids <- samples_df$RNASeq
+#print(samples_df)
 
 # Download .sf files from Synapse
 for (syn_id in rna_seq_ids) {
   # Define the file path
   file_path <- file.path(path, paste0(syn_id, "_quant.sf"))
-  
+
   # Check if the file already exists to avoid re-downloading
   if (!file.exists(file_path)) {
-    # Download the file from Synapse
+                                        # Download the file from Synapse
+    print(paste('Getting',syn_id))
     syn_file <- synGet(syn_id)
     file.copy(syn_file$path, file_path)
   }
