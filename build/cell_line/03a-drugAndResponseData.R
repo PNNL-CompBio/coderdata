@@ -104,11 +104,11 @@ getDoseRespData<-function(dset,studyName,improve_samples){
   doseRep<-doseDat%>%
     dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
     left_join(full.map)%>%
-    dplyr::select(drug=improve_drug_id,CELL=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
+    dplyr::select(Drug=improve_drug_id,improve_sample_id=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
     #dplyr::mutate(DOSE=-log10(Dose/1000))###curve fitting code requires -log10(M), these are mM
     #rename(GROWTH=RESPONSE)%>%
-    mutate(SOURCE='pharmacoGX')%>%
-    mutate(STUDY=studyName)
+    mutate(source='pharmacoGX')%>%
+    mutate(study=studyName)
 
   print(head(doseRep))
 
@@ -131,8 +131,8 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
   all.dose.rep<-do.call(rbind,lapply(cell.lines,function(cel){
 
   # print(cel)
-   files<-subset(all.dsets,`Dataset Name`==cel)%>%
-      dplyr::select(`PSet Name`)%>%
+      files<-subset(all.dsets,`Dataset Name`==cel)%>%
+          dplyr::select(`PSet Name`)%>%
       unlist()
 
 
@@ -184,7 +184,7 @@ main<-function(){
 	    ##here are the improve sample id indices
 	 samples <- read_csv(sfile,
                    quote='"')|>
-		     dplyr::select(other_id,improve_sample_id)|>
+		     dplyr::select(other_id,improve_sample_id,other_names)|>
 		       unique()
 
        cl1<-c('CTRPv2','FIMM','GDSC')

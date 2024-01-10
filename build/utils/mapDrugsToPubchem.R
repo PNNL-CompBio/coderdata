@@ -127,17 +127,18 @@ buildDrugTable<-function(druglist,path_to_file='drugs.tsv.gz'){
       ##now append the missing
       missing<-setdiff(tolower(newlist),tolower(props$chem_name))
 
-      print(paste("still missing",length(missing),'drug names, creating ids'))
-   #   print(head(missing))
-  #    print(tail(props))
-      joined.df<-rbind(props,
-                         data.frame(formula=rep(NA,length(missing)),
-                                    weight=rep(NA,length(missing)),
-                                    canSMILES=rep(NA,length(missing)),
-                                    isoSMILES=rep(NA,length(missing)),
-                                    InChIKey=rep(NA,length(missing)),
-                                    chem_name=missing,
-                                    improve_drug_id=rep(NA,length(missing))))
+      print(paste("still missing",length(missing),'drug names:'))
+      print(head(missing))
+                                        #    print(tail(props))
+      joined.df <- props
+      ## joined.df<-rbind(props,
+      ##                    data.frame(formula=rep(NA,length(missing)),
+      ##                               weight=rep(NA,length(missing)),
+      ##                               canSMILES=rep(NA,length(missing)),
+      ##                               isoSMILES=rep(NA,length(missing)),
+      ##                               InChIKey=rep(NA,length(missing)),
+      ##                               chem_name=missing,
+      ##                               improve_drug_id=rep(NA,length(missing))))
 
       if(!exists('improve_drugs')){
           improve_drugs<<-joined.df
@@ -147,26 +148,26 @@ buildDrugTable<-function(druglist,path_to_file='drugs.tsv.gz'){
       }
 
       ##let's add identifiers to the unmatched
-      matched<-subset(improve_drugs,!is.na(improve_drug_id))
-      unmatched<-subset(improve_drugs,is.na(improve_drug_id))
+      ## matched<-subset(improve_drugs,!is.na(improve_drug_id))
+      ## unmatched<-subset(improve_drugs,is.na(improve_drug_id))
 
-      if(nrow(unmatched)>0){
-                     ##get max improve id
-            orig<-matched%>%
-              tidyr::separate(improve_drug_id,into=c('source', 'value'),sep='_')%>%
-              subset(source=='IMP')
+      ## if(nrow(unmatched)>0){
+      ##                ##get max improve id
+      ##       orig<-matched%>%
+      ##         tidyr::separate(improve_drug_id,into=c('source', 'value'),sep='_')%>%
+      ##         subset(source=='IMP')
 
-            maxval<-max(as.numeric(orig$value),na.rm=T)
-            if(!is.finite(maxval))
-		            maxval<-0
-            print(maxval)
-            unmatched$improve_drug_id<-paste0('IMP_',seq(maxval+1,maxval+nrow(unmatched)))
+      ##       maxval<-max(as.numeric(orig$value),na.rm=T)
+      ##       if(!is.finite(maxval))
+      ##   	            maxval<-0
+      ##       print(maxval)
+      ##       unmatched$improve_drug_id<-paste0('IMP_',seq(maxval+1,maxval+nrow(unmatched)))
 
-            improve_drugs<<-rbind(matched,unmatched)
-         }
-      else{
-           improve_drugs<<-matched
-      }
+      ##       improve_drugs<<-rbind(matched,unmatched)
+      ##    }
+      ## else{
+      ##      improve_drugs<<-matched
+      ## }
       improve_drugs<<-unique(improve_drugs)
           ##write new table on every iteration that adds values in case it fails
       write.table(improve_drugs,file=gzfile(path_to_file),sep='\t',
