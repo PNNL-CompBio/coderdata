@@ -8,10 +8,11 @@ title: CoderData
 <!-- ## Usage of CoderData -->
 
 ## Introduction
-CoderData is a comprehensive package designed for handling cancer benchmark data in Python. It offers functionalities to download datasets, load them into Python environments, and reformat them according to user needs.
+CoderData is a comprehensive package designed for handling cancer benchmark data in Python.  
+It offers functionalities to download datasets, load them into Python environments, and reformat them according to user needs.
 
 ## Installation
-To install `coderdata`, simply run the following command in your terminal:
+To install, confirm that you have python avilable and then run the following command in your terminal:
 
 ```bash
 pip install coderdata
@@ -38,7 +39,8 @@ In Python, the download process is handled through the download_data_by_prefix f
 </div>
 
 ## Loading Data
-The DatasetLoader class in CoderData is designed for loading datasets into Python. It automatically initializes attributes for each dataset type like transcriptomics, proteomics, and mutations.
+The DatasetLoader class in CoderData is designed for loading datasets into Python.  
+It automatically initializes attributes for each dataset type like transcriptomics, proteomics, and mutations.
 <div class="code-box">
     <p>import coderdata as cd</p>
     <p><span class="code-comment"># Initialize the DatasetLoader for a specific dataset type</span></p>
@@ -52,8 +54,8 @@ The DatasetLoader class in CoderData is designed for loading datasets into Pytho
 </div>
 
 ## Reformatting Datasets
-You can reformat datasets into long or wide formats using the reformat_dataset method. By default, data is in the long format.
-Reformatting from long to wide retains three data types, entrez_id and improve_sample_id, value of interest (such as transcriptomics).
+You can reformat datasets into long or wide formats using the reformat_dataset method. By default, data is in the long format.  
+Reformatting from long to wide retains three data types, entrez_id and improve_sample_id, value of interest (such as transcriptomics).  
 <div class="code-box">
     <p>import coderdata as cd</p>
     <p><span class="code-comment"># Reformat a specific dataset</span></p>
@@ -83,4 +85,5 @@ The information function tells you which datatypes are available and which forma
 </div>
 
 ## Conclusion
-CoderData provides a robust and flexible way to work with cancer benchmark data. By using these functionalities, researchers and data scientists can easily manipulate and analyze complex datasets in their Python environments
+CoderData provides a robust and flexible way to work with cancer benchmark data.   
+By using these functionalities, researchers and data scientists can easily manipulate and analyze complex datasets in their Python environments
