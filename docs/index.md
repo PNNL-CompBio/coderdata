@@ -73,6 +73,7 @@ View our [Usage](pages/usage.md) page for full instructions.
                         <p>Cancer Types: {{ site.data.stats.hcmi.cancer_types }} </p>
                         <p>Samples: {{ site.data.stats.hcmi.samples }} </p>
                         <p>Genes: {{ site.data.stats.hcmi.genes }} </p>
+                        <p>Drugs: {{ site.data.stats.hcmi.drugs }} </p>
                         <span class="dot dot_transcriptomics"></span> 
                         <span class="dot dot_proteomics"></span> 
                         <span class="dot dot_mutations"></span> 
