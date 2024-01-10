@@ -13,8 +13,7 @@ CoderData, a cancer benchmark data package, is developed in Python and R. It com
 ### Ways to Contribute
 There are several ways you can contribute to CoderData:
 
-1. **Code Contributions**: If you're interested in adding features, fixing bugs, or improving performance, please submit a pull request via our GitHub repository.
-For a detailed guide on adding new code functionalities, please see our [Code Guide](/add_code_guide.md).
+1. **Code Contributions**: If you're interested in adding features, fixing bugs, or improving performance, please submit a pull request via our GitHub repository. For more details on adding new data or code functionalities, use our [Code Guide](/add_code_guide.md).
 
 2. **Data Contributions**: We are always looking for more datasets to include. If you have access to cancer datasets, consider contributing them to our project. You may add them directly or create an issue on our page and we can reach out to discuss.
 
@@ -47,6 +46,9 @@ Please ensure your contributions adhere to the following guidelines:
 - **Documentation**: Any code contribution should be accompanied by relevant documentation updates.
 - **Testing**: Include tests for new features and bug fixes.
 
+### Additional Resources
+
+For a detailed guide on adding new code functionalities, please see our [Code Guide](/add_code_guide.md).
 
 ### Getting Help
 
