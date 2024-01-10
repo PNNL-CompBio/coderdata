@@ -47,6 +47,7 @@ This guide outlines the steps for contributors looking to add new code functiona
 ### Conclusion
 Contributors are encouraged to follow these guidelines closely for effective integration of new code into the CoderData project. We appreciate your contributions and look forward to your innovative enhancements to the project.
 
+
 ---
 
-[Back to Contribution page](/contribution.md)
+Your contributions are essential to the growth and improvement of CoderData. We look forward to collaborating with you!  
