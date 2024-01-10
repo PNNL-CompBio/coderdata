@@ -28,7 +28,7 @@ os.system(cmd)
 allfiles=[a for a in os.listdir('./') if 'DoseResponse' in a]
 print(allfiles)
 for a in allfiles:
-    os.system('python fit_curve.py --input '+a+' --output '+a)
+    os.system('/opt/venv/bin/python fit_curve.py --input '+a+' --output '+a)
 
 ###step 3c concatenate all files
 os.system('cat *.0 > experiments_orig.tsv')
