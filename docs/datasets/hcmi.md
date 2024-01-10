@@ -1,8 +1,6 @@
 ---
 layout: default
 title: CoderData
-pdf_exists: true
-png_exists: true
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -43,12 +41,10 @@ This data encompasses numerous cancer types and includes cell line, organoid, an
 ### Visualization
 
 <div class="flex-container"> 
-    {% if page.pdf_exists %}
     <div class="flex-item">
-        <embed src="{{ 'assets/stats/Fig1_HCMI.pdf' | relative_url }}" type="application/pdf" />
+        <img src="{{ 'assets/stats/Fig1_HCMI.png' | relative_url }}" alt="HCMI Figure" />
     </div>
     {% endif %}
-    {% if page.png_exists %}
     <div class="flex-item">
         <img src="{{ 'assets/stats/hcmi_circos.png' | relative_url }}" alt="HCMI Circos" />
     </div>
