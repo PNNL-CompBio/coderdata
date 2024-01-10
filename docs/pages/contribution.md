@@ -42,9 +42,9 @@ There are several ways you can contribute to CoderData:
 
 Please ensure your contributions adhere to the following guidelines:
 
-- **Code Style**: Follow the coding style and best practices used in the project.
-- **Documentation**: Any code contribution should be accompanied by relevant documentation updates.
-- **Testing**: Include tests for new features and bug fixes.
+- ***Code Style***: Follow the coding style and best practices used in the project.
+- ***Documentation***: Any code contribution should be accompanied by relevant documentation updates.
+- ***Testing***: Include tests for new features and bug fixes.
 
 ### Additional Resources
 
