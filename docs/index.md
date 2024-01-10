@@ -53,6 +53,7 @@ View our [Usage](pages/usage.md) page for full instructions.
                 {% case dataset %}
                     {% when 'cell_line' %}
                         <p>Cell Lines: {{ site.data.stats.cell_line.cell_lines }} </p>
+                        <p>Samples: {{ site.data.stats.cell_line.samples }} </p>
                         <p>Genes: {{ site.data.stats.cell_line.genes }} </p>
                         <p>Drugs: {{ site.data.stats.cell_line.drugs }} </p>
                         <span class="dot dot_transcriptomics"></span> 
@@ -61,6 +62,7 @@ View our [Usage](pages/usage.md) page for full instructions.
                         <span class="dot dot_copy_number"></span> 
                     {% when 'cptac' %}
                         <p>Cancer Types: {{ site.data.stats.cptac.cancer_types }} </p>
+                        <p>Samples: {{ site.data.stats.cptac.samples }} </p>
                         <p>Genes: {{ site.data.stats.cptac.genes }} </p>
                         <p>Drugs: {{ site.data.stats.cptac.drugs }} </p>
                         <span class="dot dot_transcriptomics"></span> 
@@ -69,6 +71,7 @@ View our [Usage](pages/usage.md) page for full instructions.
                         <span class="dot dot_copy_number"></span> 
                     {% when 'hcmi' %}
                         <p>Cancer Types: {{ site.data.stats.hcmi.cancer_types }} </p>
+                        <p>Samples: {{ site.data.stats.hcmi.samples }} </p>
                         <p>Genes: {{ site.data.stats.hcmi.genes }} </p>
                         <span class="dot dot_transcriptomics"></span> 
                         <span class="dot dot_proteomics"></span> 
@@ -76,6 +79,7 @@ View our [Usage](pages/usage.md) page for full instructions.
                         <span class="dot dot_copy_number"></span> 
                     {% when 'beataml' %}
                         <p>Cancer Types: {{ site.data.stats.beataml.cancer_types }}</p>
+                        <p>Samples: {{ site.data.stats.beataml.samples }} </p>
                         <p>Genes: {{ site.data.stats.beataml.genes }}</p>
                         <p>Drugs: {{ site.data.stats.beataml.drugs }}</p>
                         <span class="dot dot_transcriptomics"></span> 
