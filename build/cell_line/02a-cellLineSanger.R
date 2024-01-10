@@ -43,10 +43,10 @@ getAll<-function(dt=names(filenames)){
 
   options(timeout=10000)
   ###run through each file and rewrite
-  newres<-lapply(df,function(value){
+  newres<-lapply(dt,function(value){
 
     fi=filenames[[value]]
-     fname=paste0('sanger_',value,'.csv.gz')
+     fname=paste0('/tmp/sanger_',value,'.csv.gz')
     print(paste('now reading',fi,'to store as',fname))
     ##now every data type is parsed slightly differently, so we need to change our formatting
     ##and mapping to get it into a unified 3 column schema
