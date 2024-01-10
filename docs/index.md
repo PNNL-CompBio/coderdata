@@ -34,8 +34,8 @@ To download, load, and call datasets in python, simply run the following command
 
 <div class="code-box">
     <p>import coderdata as cd </p>
-    <p>coderdata.download_data_by_prefix('hcmi')</p>
-    <p>hcmi_data = coderdata.DatasetLoader('hcmi')</p>
+    <p>cd.download_data_by_prefix('hcmi')</p>
+    <p>hcmi_data = cd.DatasetLoader('hcmi')</p>
     <p>hcmi_data.transcriptomics</p>
 </div>
 
