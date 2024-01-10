@@ -12,10 +12,10 @@ WORKDIR /app
 
 ADD cptac/requirements.txt .
 ADD cptac/*.py .
-ADD cell_line/cell_line_samples.csv .
 ADD genes.csv .
 
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
 VOLUME ["/tmp"]
+ENTRYPOINT ["python3","getCptacData.py"]
