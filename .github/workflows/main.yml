@@ -120,6 +120,17 @@ jobs:
           name: beataml-samples
           path: beataml-samples
 
+# Placeholder
+  build-mpnst-samples:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-20.04
+    environment: build
+    needs: [build-beataml-samples]
+    steps:
+      #Add upload artifact from CPTAC Samples 
+      - name: Checkout  MPNST
+        uses: actions/checkout@v2
+
   build-hcmi:
     if: github.actor != 'github-actions[bot]'
     needs: [build-hcmi-samples]
@@ -246,9 +257,19 @@ jobs:
           name: cptac-files
           path: cptac-files
 
+#placeholder
+  build-mpnst:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-mpnst-samples]
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout code MPNST
+        uses: actions/checkout@v2
+
   data-visualization:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac]
+    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
     environment: build
     runs-on: ubuntu-20.04
     steps:
@@ -278,6 +299,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: cell-line-files
+      # - name: Download artifacts from MPNST
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: mpnst-files
       - name: Download artifacts from cptac
         uses: actions/download-artifact@v2
         with:
@@ -361,7 +386,7 @@ jobs:
           fi
   gen-stats-and-push:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac]
+    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
     environment: build
     runs-on: ubuntu-20.04
     steps:
@@ -372,10 +397,6 @@ jobs:
           git config user.name "jjacobson95"
           git config user.email "jeremy.jacobson3402@gmail.com"
           git pull
-      - name: Download artifacts from data-vis
-        uses: actions/download-artifact@v2
-        with:
-          name: data-vis
       - name: Download artifacts from HCMI
         uses: actions/download-artifact@v2
         with:
@@ -388,6 +409,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: cell-line-files
+      # - name: Download artifacts from MPNST
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: mpnst-files
       - name: Download artifacts from cptac
         uses: actions/download-artifact@v2
         with:
@@ -410,7 +435,7 @@ jobs:
 
   upload-to-figshare:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac]
+    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
     environment: build
     runs-on: ubuntu-20.04
     steps:
@@ -432,6 +457,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: cell-line-files
+      # - name: Download artifacts from MPNST
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: mpnst-files
       - name: Create all-files directory
         run: mkdir all-files
       - name: List files cwd
