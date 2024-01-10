@@ -11,11 +11,11 @@ if(!require('PharmacoGx')){
 all.dsets<-PharmacoGx::availablePSets()
 ##first define a generic dose response function
 
-improve_samples<<-readr::read_csv('cell_line_samples.csv')
+#improve_samples<<-readr::read_csv('cell_line_samples.csv')
 #' getDoseRespData
 #' Generic function to get dose and response data from PGX object
 #' out of dataset object, and store with dataset name
-getDoseRespData<-function(dset,studyName){
+getDoseRespData<-function(dset,studyName,improve_samples){
 
   mapping <- sensitivityInfo(dset)##get the dataset dose response data
 
@@ -104,7 +104,7 @@ getDoseRespData<-function(dset,studyName){
   doseRep<-doseDat%>%
     dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
     left_join(full.map)%>%
-    dplyr::select(DRUG=improve_drug_id,CELL=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
+    dplyr::select(drug=improve_drug_id,CELL=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
     #dplyr::mutate(DOSE=-log10(Dose/1000))###curve fitting code requires -log10(M), these are mM
     #rename(GROWTH=RESPONSE)%>%
     mutate(SOURCE='pharmacoGX')%>%
@@ -125,7 +125,8 @@ getDoseRespData<-function(dset,studyName){
 
 
 #' getCellLineData - gets cell line dose response data
-getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')){
+getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE'),
+                              samples){
   ###first get cell lines
   all.dose.rep<-do.call(rbind,lapply(cell.lines,function(cel){
 
@@ -151,7 +152,7 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
         url=subset(all.dsets,`PSet Name`==f)$Download
       #print(url)
 
-        dres<-getDoseRespData(dset,cel)
+        dres<-getDoseRespData(dset,cel,samples)
        # print(dres)
       }
       return(dres)
@@ -181,19 +182,19 @@ main<-function(){
 
 
 	    ##here are the improve sample id indices
-	 samples <<- read_csv(sfile,
+	 samples <- read_csv(sfile,
                    quote='"')|>
 		     dplyr::select(other_id,improve_sample_id)|>
 		       unique()
 
        cl1<-c('CTRPv2','FIMM','GDSC')
-       dl1<-getCellLineDoseData(cl1)
+       dl1<-getCellLineDoseData(cl1,samples)
 
        cl2<-c('gCSI','PRISM','CCLE')
-       dl2<-getCellLineDoseData(cl2)
+       dl2<-getCellLineDoseData(cl2,samples)
 
        cl2<-c('NCI60') ###this is the biggest dataset by far, and has lots of drugs that require lookup
-       dl2<-getCellLineDoseData(cl2)
+       dl2<-getCellLineDoseData(cl2,samples)
 
 }
 

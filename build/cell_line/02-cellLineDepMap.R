@@ -70,7 +70,7 @@ getProteomics<-function(){
       dplyr::distinct()
     res$study='DepMap'
     res$source='Broad'
-  write_csv(res,file=gzfile('proteomics.csv.gz'))
+  write_csv(res,file=gzfile('/tmp/proteomics.csv.gz'))
 }
 
 
@@ -92,7 +92,7 @@ do_all<-function(values=names(filenames)){
   newres<-lapply(values,function(value){
 
     fi=filenames[[value]]
-    fname=paste0('depmap_',value,'.csv.gz')
+    fname=paste0('/tmp/depmap_',value,'.csv.gz')
     print(paste('now reading',fi,'to store as',fname))
     ##now every data type is parsed slightly differently, so we need to change our formatting
     ##and mapping to get it into a unified 3 column schema
