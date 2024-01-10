@@ -282,7 +282,7 @@ generate_group_summary_plot <- function(all_file_names) {
     scale_fill_manual(values = c("beataml" = "#fc8d62", "hcmi" = "#8da0cb", "cell_line" = "#66c2a5", "cptac" = "#8511c1")) +
     theme_minimal()
   
-  ggsave('Fig5_Sample_Summary.pdf', p, height = 8, width = 10)
+  ggsave('Fig5_Sample_Summary.png', p, height = 8, width = 10)
 }
 
 # Data file names for each group
