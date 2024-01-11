@@ -14,7 +14,7 @@ The python package allows users to easily download the data, load it into python
 
 ### BeatAML Summary
 
-Beat acute myeloid leukemia (BeatAML) data was collected though the [GitHub](https://biodev.github.io/BeatAML2/) and [Synapse](https://www.synapse.org/#!Synapse:syn24171150).
+Beat acute myeloid leukemia (BeatAML) data was collected though the <a href="https://biodev.github.io/BeatAML2/" target="_blank">GitHub</a> and <a href="https://www.synapse.org/#!Synapse:syn24171150" target="_blank">Synapse</a>.
 This data focuses on acute myeloid leukemia tumor data. Data includes drug response, proteomics, and transcriptomics datasets.
 
 
