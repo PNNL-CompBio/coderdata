@@ -25,7 +25,7 @@ get_IMPROVE_LINCS <- function(gfile,dfile,sfile) {
 
   # originally pulled from Figshare: https://figshare.com/ndownloader/files/43613697
   samples = readr::read_csv(sfile)|>
-    dplyr::select(other_id,improve_sample_id)|>
+    dplyr::select(other_names,improve_sample_id)|>
     unique()
   return(list(genes = genes, drugs = drugs, samples = samples))
 }
@@ -68,7 +68,7 @@ build_L1000 <- function(genes, drugs, samples) {
 
   # add relevant columns
   L1000.full <- na.omit(L1000.full)
-  colnames(L1000.full)[1] <- "other_id" # match samples column name
+  colnames(L1000.full)[1] <- "other_names" # match samples column name
   colnames(L1000.full)[4] <- "gene_symbol" # match genes column name
   colnames(L1000.full)[3] <- "chem_name"
   L1000.full$data_type <- "transcriptomics"
@@ -82,7 +82,10 @@ build_L1000 <- function(genes, drugs, samples) {
   # drugs by "chem_name"
   res<-L1000.full|>
     dplyr::left_join(samples)|>
-    dplyr::left_join(genes)|>
+      dplyr::left_join(genes)|>
+  res<- res|>
+      dplyr::select(entrez_id,data_value,data_type,perturbation_type,source,study,chem_name,improve_sample_id)|>
+      distinct()|>
     dplyr::left_join(drugs, relationship = "many-to-many")|>
     dplyr::select(entrez_id,improve_sample_id,data_value,data_type,
                   improve_drug_id,perturbation_type,source,study)|>
@@ -94,7 +97,7 @@ build_L1000 <- function(genes, drugs, samples) {
 
 getCMap <- function(gfile,dfile,sfile) {
   meta.df <- get_IMPROVE_LINCS(gfile,dfile,sfile)
-  getL1000(meta.df[[1]], meta.df[[2]], meta.df[[3]])
+  build_L1000(meta.df[[1]], meta.df[[2]], meta.df[[3]])
   #getP100(meta.df[[1]], meta.df[[2]], meta.df[[3]])
   #getGCP(meta.df[[1]], meta.df[[2]], meta.df[[3]])
 
@@ -102,49 +105,53 @@ getCMap <- function(gfile,dfile,sfile) {
   #getScreen()
 }
 
+main<-function(){
+    args = commandArgs(trailingOnly=TRUE)
 
-args = commandArgs(trailingOnly=TRUE)
+    genefile=args[1]
+    drugfile=args[2]
+    sampfile=args[3]
 
-genefile=args[1]
-drugfile=args[2]
-sampfile=args[3]
-
-getCMap(genefile,drugfile,sampfile)
+    getCMap(genefile,drugfile,sampfile)
 
 #### Step 3: rewrite each file ####
-filenames=list(perturbations='insert-figshare-link')
-newres<-lapply(names(filenames),function(value){
+    ## filenames=list(perturbations='insert-figshare-link')
+    ## newres<-lapply(names(filenames),function(value){
 
-  fi=filenames[[value]]
-  fname=paste0(value,'.csv.gz')
-  print(paste('now reading',fi,'to store as',fname))
-  ## now every data type is parsed slightly differently,
-  ## so we need to change our formatting and mapping
-  ## to get it into a unified 3 column schema
+    ##     fi=filenames[[value]]
+    ##     fname=paste0(value,'.csv.gz')
+    ##     print(paste('now reading',fi,'to store as',fname))
+    ##     ## now every data type is parsed slightly differently,
+    ##     ## so we need to change our formatting and mapping
+    ##     ## to get it into a unified 3 column schema
 
-    if(value=='perturbations'){ # if perturbations in transcriptomics
-      exp_file <- readr::read_csv(fi)
+    ##     if(value=='perturbations'){ # if perturbations in transcriptomics
+    ##         exp_file <- readr::read_csv(fi)
 
-      res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
-                                names_to='gene_entrez',values_to='data_value',
-                                values_transform=list(expression=as.numeric))|>
-        tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene','entrez_par'))|>
-        mutate(entrez_id=stringr::str_replace_all(entrez_par,'\\)|\\(',''))|>
-        dplyr::select(-c(entrez_par,gene))|>
-        distinct()
+    ##         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
+    ##                                   names_to='gene_entrez',values_to='data_value',
+    ##                                   values_transform=list(expression=as.numeric))|>
+    ##             tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene','entrez_par'))|>
+    ##             mutate(entrez_id=stringr::str_replace_all(entrez_par,'\\)|\\(',''))|>
+    ##             dplyr::select(-c(entrez_par,gene))|>
+    ##             distinct()
 
-      colnames(res)[1]<-'other_id'
-      vars=c('data_value','data_type','perturbation','perturbation_type')
-    }
+    ##         colnames(res)[1]<-'other_id'
+    ##         vars=c('data_value','data_type','perturbation','perturbation_type')
+    ##     }
 
-  ##do the last join with samples
-  full<-res|>
-    dplyr::left_join(samples)|>
-    dplyr::select(c('entrez_id','improve_sample_id',vars))|>
-    dplyr::distinct()|>
-    dplyr::mutate(source='Broad',study='LINCS')
+    ##     ##do the last join with samples
+    ##     full<-res|>
+    ##         dplyr::left_join(samples)|>
+    ##         dplyr::select(c('entrez_id','improve_sample_id',vars))|>
+    ##         dplyr::distinct()|>
+    ##         dplyr::mutate(source='Broad',study='LINCS')
 
-  write_csv(full,file=gzfile(fname))
-  return(fi)
+    ##     write_csv(full,file=gzfile(fname))
+    ##     return(fi)
 
-})
+    ## })
+
+}
+
+main()
