@@ -45,10 +45,8 @@ This data focuses on acute myeloid leukemia tumor data. Data includes drug respo
     <div class="flex-item">
         <img src="{{ 'assets/stats/Fig2_BeatAML.png' | relative_url }}" alt="BeatAML Figure" />
     </div>
-    {% endif %}
     <div class="flex-item">
         <img src="{{ 'assets/stats/beataml_circos.png' | relative_url }}" alt="BeatAML Circos" />
     </div>
-    {% endif %}
 </div>
 
