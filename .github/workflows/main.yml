@@ -424,14 +424,18 @@ jobs:
       - name: Run stats generation script
         run: |
           python scripts/gen_stats.py
-      - name: Commit and push changes
+      - name: Git add and push new changes if they exist. 
         run: |
           git pull
           mv stats.yml docs/_data/stats.yml
           git add -f docs/_data/stats.yml
           git status
-          git commit -m "Add stats.yml to docs/_data"
-          git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Add stats.yml to docs/_data"
+            git push
+          fi
 
   upload-to-figshare:
     if: github.actor != 'github-actions[bot]'

@@ -14,7 +14,7 @@ The build section is a github workflow that generates four cancer datasets in a 
 The python package allows users to easily download the data, load it into python and reformat it as desired.
 
 ### HCMI Summary
-Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) [Data Portal](https://portal.gdc.cancer.gov/projects/HCMI-CMDC).
+Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) <a href="https://portal.gdc.cancer.gov/projects/HCMI-CMDC" target="_blank">Data Portal</a>.
 This data encompasses numerous cancer types and includes cell line, organoid, and tumor data. Data includes the transcriptomics, somatic mutation, and copy number datasets.
 
 {% if site.data.hcmi_table %}

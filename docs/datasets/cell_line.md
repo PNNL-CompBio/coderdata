@@ -14,8 +14,9 @@ The python package allows users to easily download the data, load it into python
 
 ### Cell Line Summary
 
-The cell line datasets were collected from numerous resources such as the [LINCS project](https://lincsproject.org/), [DepMap](https://depmap.org/portal/), and the [Sanger Institute](https://www.sanger.ac.uk/).
+The cell line datasets were collected from numerous resources such as the <a href="https://lincsproject.org/" target="_blank">LINCS project</a>, <a href="https://depmap.org/portal/" target="_blank">DepMap</a>, and the <a href="https://www.sanger.ac.uk/" target="_blank">Sanger Institute</a>.
 This data will allow scientists to explore the drugs response for thousands of drugs across hundreds of cell lines.
+
 
 
 {% if site.data.cell_line_table %}
