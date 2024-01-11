@@ -90,7 +90,7 @@ combined_cnn_df <- combined_cnn_df[, .(entrez_id, improve_sample_id, CNV, copy_c
 
 # Convert the 'entrez_id' gene IDs to entrez IDs from gene.csv file.
 # gene mapping table
-genes_df <- fread("../genes.csv")
+genes_df <- fread("genes.csv")
 unique_mapping <- genes_df[, .SD[1], by = .(gene_symbol)]
 tmp <- merge(combined_cnn_df, unique_mapping, by.x = "entrez_id", by.y = "gene_symbol", all.x = TRUE)
 

@@ -44,9 +44,7 @@ The Clinical Proteomic Tumor Analysis Consortium ([CPTAC](https://gdc.cancer.gov
         <img src="{{ 'assets/stats/Fig3_CPTAC.png' | relative_url }}" alt="CPTAC Figure" />
 
     </div>
-    {% endif %}
     <div class="flex-item">
         <img src="{{ 'assets/stats/cptac_circos.png' | relative_url }}" alt="Cell Line Circos" />
     </div>
-    {% endif %}
 </div>
