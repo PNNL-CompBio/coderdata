@@ -31,7 +31,7 @@ samples_df <- fread("synapse_NF-MPNST_samples.csv")
 samples_df <- samples_df[samples_df$RNASeq != ""]
 
 # gene mapping table
-genes_df <- fread("genes.csv")
+genes_df <- fread("../genes.csv")
 
 # Extract the RNASeq Synapse IDs
 rna_seq_ids <- samples_df$RNASeq
@@ -68,7 +68,6 @@ sf_files <- list.files(path, pattern = "_quant.sf$", full.names = TRUE)
 for (file_name in sf_files) {
   # Read the .sf file
   sf_df <- fread(file_name)
-
   # Pre-process sf_df: Remove version numbers from ENST IDs
   sf_df[, Name := gsub("\\..*", "", Name)]
 
