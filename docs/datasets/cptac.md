@@ -14,8 +14,11 @@ The python package allows users to easily download the data, load it into python
 
 ### CPTAC Summary
 
-The Clinical Proteomic Tumor Analysis Consortium ([CPTAC](https://gdc.cancer.gov/about-gdc/contributed-genomic-data-cancer-research/clinical-proteomic-tumor-analysis-consortium-cptac#:~:text=The%20National%20Cancer%20Institute's%20Clinical,and%20genome%20analysis%2C%20or%20proteogenomics.
-)) project is a collaborative network funded by the National Cancer Institute (NCI) focused on improving our understanding of cancer biology through the integration of transcriptomic, proteomic, and genomic data. 
+The Clinical Proteomic Tumor Analysis Consortium (<a href="https://gdc.cancer.gov/about-gdc/contributed-genomic-data-cancer-research/clinical-proteomic-tumor-analysis-consortium-cptac#:~:text=The%20National%20Cancer%20Institute's%20Clinical,and%20genome%20analysis%2C%20or%20proteogenomics" target="_blank">CPTAC</a>) 
+project is a collaborative network funded by the National Cancer Institute (NCI) focused on improving our understanding of cancer biology through the integration of transcriptomic, proteomic, and genomic data.
+
+
+
 
 {% if site.data.cptac_table %}
 <table>
