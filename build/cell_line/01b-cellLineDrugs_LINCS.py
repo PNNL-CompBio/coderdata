@@ -34,7 +34,7 @@ def retrieve_drug_info(compound_name):
     response = requests.get(url)
 
     if response.status_code != 200:
-        return np.nan, np.nan, np.nan, np.nan, np.nan
+        return np.nan, np.nan, np.nan, np.nan, np.nan,np.nan
     
     data = response.json()
     if "PropertyTable" in data:
@@ -44,10 +44,11 @@ def retrieve_drug_info(compound_name):
         inchikey = properties.get("InChIKey", np.nan)
         formula = properties.get("MolecularFormula", np.nan)
         weight = properties.get("MolecularWeight", np.nan)
+        pubchem_id=properties.get('CID',np.nan)
 
-        return canSMILES, isoSMILES, inchikey, formula, weight
+        return canSMILES, isoSMILES, inchikey, formula, weight, pubchem_id
     else:
-        return np.nan, np.nan, np.nan, np.nan, np.nan
+        return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
 def update_LINCS_dataframe_with_pubchem(d_df):
     """
@@ -83,6 +84,7 @@ def update_LINCS_dataframe_with_pubchem(d_df):
         d_df.at[idx, "InChIKey"] = values[2]
         d_df.at[idx, "formula"] = values[3]
         d_df.at[idx, "weight"] = values[4]
+        d_df.at[idx, 'pubchem_id'] = values[5]
     
     return d_df
 
@@ -147,9 +149,9 @@ if __name__ == "__main__":
     # 5. Make sure IMPROVE chem_name = pert_iname from LINCS
     old_drugs = drugs[drugs['isoSMILES'].isin(new_drugs['isoSMILES'])]
     old_drugs = old_drugs.merge(new_drugs, 'left', 'isoSMILES')
-    old_drugs = old_drugs[['formula_y','weight_y','canSMILES_y','isoSMILES','InChIKey_y','chem_name_y','pubchem_id','improve_drug_id_x']].drop_duplicates()
+    old_drugs = old_drugs[['formula_y','weight_y','canSMILES_y','isoSMILES','InChIKey_y','chem_name_y','pubchem_id_x','improve_drug_id_x']].drop_duplicates()
     old_drugs.rename(columns={'formula_y': 'formula', 'weight_y': 'weight', 'canSMILES_y': 'canSMILES',
-                              'InChIKey_y': 'InChIKey', 'chem_name_y': 'chem_name', 'improve_drug_id_x': 'improve_drug_id'}, inplace=True)
+                              'InChIKey_y': 'InChIKey', 'chem_name_y': 'chem_name', 'improve_drug_id_x': 'improve_drug_id', 'pubchem_id_x': 'pubchem_id'}, inplace=True)
     
 
     more_old_drugs = drugs[drugs['InChIKey'].isin(LINCS_drugs['InChIKey'])]
