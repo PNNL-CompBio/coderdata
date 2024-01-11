@@ -47,9 +47,7 @@ This data will allow scientists to explore the drugs response for thousands of d
     <div class="flex-item">
         <img src="{{ 'assets/stats/Fig4_CCLE.png' | relative_url }}" alt="Cell Line Figure" />
     </div>
-    {% endif %}
     <div class="flex-item">
         <img src="{{ 'assets/stats/cell_line_circos.png' | relative_url }}" alt="Cell Line Circos" />
     </div>
-    {% endif %}
 </div>
