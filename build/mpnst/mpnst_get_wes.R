@@ -20,7 +20,7 @@ synLogin(authToken = PAT)
 path <- "./tmp_WES"
 dir.create(path, showWarnings = FALSE)
 
-# Read the sample mapping CSV and genes.csv
+# Read the sample mapping CSV
 samples_df <- fread("synapse_NF-MPNST_samples.csv")
 
 # Remove rows with missing or empty 'Mutations' values
