@@ -11,7 +11,7 @@ docker run -v $PWD:/tmp/ cell-line Rscript 02a-cellLineSanger.R /tmp/genes.csv /
 docker run -v $PWD:/tmp/ cell-line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv
 docker run -v $PWD:/tmp/ cell-line /opt/venv/bin/python 03-curves_and_drug_mapping.py --curSampleFile=/tmp/cell_line_samples.csv
 docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 01b-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
-docker run -v $PWD:/tmp/ cell-line Rscript 02b-cellLineLINCS.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/cell_line_samples.csv
+docker run -v $PWD:/tmp/ cell-line Rscript 02b-cellLineLINCS.R /tmp/genes.csv /tmp/lincs_drugs.tsv /tmp/cell_line_samples.csv
 
 ```
 
