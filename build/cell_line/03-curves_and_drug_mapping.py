@@ -21,7 +21,13 @@ opts = parser.parse_args()
 samplefile = opts.samplefile
 
 ####step 3a - get dose response data
-cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile
+cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile+' CTRPv2,FIMM,GDSC'
+os.system(cmd)
+
+cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile+' gCSI,PRISM,CCLE'
+os.system(cmd)
+
+cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile+' NCI60'
 os.system(cmd)
 
 ########Step 3b fit curves

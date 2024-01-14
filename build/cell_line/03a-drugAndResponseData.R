@@ -174,11 +174,12 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
 
 main<-function(){
 	args = commandArgs(trailingOnly=TRUE)
-	if(length(args)!=1){
-	  print('Usage: Rscript 03-drugAndResponseData.R [samplefile]')
+	if(length(args)!=2){
+	  print('Usage: Rscript 03-drugAndResponseData.R [samplefile] [datasets]')
 	  exit()
 	  }
 	sfile = args[1]
+        dsets<-unlist(strsplit(args[2],split=','))
 
 
 	    ##here are the improve sample id indices
@@ -187,14 +188,14 @@ main<-function(){
 		     dplyr::select(other_id,improve_sample_id,other_names)|>
 		       unique()
 
-       cl1<-c('CTRPv2','FIMM','GDSC')
-       dl1<-getCellLineDoseData(cl1,samples)
+#       cl1<-c('CTRPv2','FIMM','GDSC')
+       dl1<-getCellLineDoseData(dsets,samples)
 
-       cl2<-c('gCSI','PRISM','CCLE')
-       dl2<-getCellLineDoseData(cl2,samples)
+ #      cl2<-c('gCSI','PRISM','CCLE')
+ #      dl2<-getCellLineDoseData(cl2,samples)
 
-       cl2<-c('NCI60') ###this is the biggest dataset by far, and has lots of drugs that require lookup
-       dl2<-getCellLineDoseData(cl2,samples)
+#       cl2<-c('NCI60') ###this is the biggest dataset by far, and has lots of drugs that require lookup
+#       dl2<-getCellLineDoseData(cl2,samples)
 
 }
 
