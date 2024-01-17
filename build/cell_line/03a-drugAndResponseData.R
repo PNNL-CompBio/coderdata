@@ -104,11 +104,11 @@ getDoseRespData<-function(dset,studyName,improve_samples){
   doseRep<-doseDat%>%
     dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
     left_join(full.map)%>%
-    dplyr::select(drug=improve_drug_id,CELL=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
+    dplyr::select(Drug=improve_drug_id,improve_sample_id=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
     #dplyr::mutate(DOSE=-log10(Dose/1000))###curve fitting code requires -log10(M), these are mM
     #rename(GROWTH=RESPONSE)%>%
-    mutate(SOURCE='pharmacoGX')%>%
-    mutate(STUDY=studyName)
+    mutate(source='pharmacoGX')%>%
+    mutate(study=studyName)
 
   print(head(doseRep))
 
@@ -131,8 +131,8 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
   all.dose.rep<-do.call(rbind,lapply(cell.lines,function(cel){
 
   # print(cel)
-   files<-subset(all.dsets,`Dataset Name`==cel)%>%
-      dplyr::select(`PSet Name`)%>%
+      files<-subset(all.dsets,`Dataset Name`==cel)%>%
+          dplyr::select(`PSet Name`)%>%
       unlist()
 
 
@@ -174,27 +174,28 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
 
 main<-function(){
 	args = commandArgs(trailingOnly=TRUE)
-	if(length(args)!=1){
-	  print('Usage: Rscript 03-drugAndResponseData.R [samplefile]')
+	if(length(args)!=2){
+	  print('Usage: Rscript 03-drugAndResponseData.R [samplefile] [datasets]')
 	  exit()
 	  }
 	sfile = args[1]
+        dsets<-unlist(strsplit(args[2],split=','))
 
 
 	    ##here are the improve sample id indices
 	 samples <- read_csv(sfile,
                    quote='"')|>
-		     dplyr::select(other_id,improve_sample_id)|>
+		     dplyr::select(other_id,improve_sample_id,other_names)|>
 		       unique()
 
-       cl1<-c('CTRPv2','FIMM','GDSC')
-       dl1<-getCellLineDoseData(cl1,samples)
+#       cl1<-c('CTRPv2','FIMM','GDSC')
+       dl1<-getCellLineDoseData(dsets,samples)
 
-       cl2<-c('gCSI','PRISM','CCLE')
-       dl2<-getCellLineDoseData(cl2,samples)
+ #      cl2<-c('gCSI','PRISM','CCLE')
+ #      dl2<-getCellLineDoseData(cl2,samples)
 
-       cl2<-c('NCI60') ###this is the biggest dataset by far, and has lots of drugs that require lookup
-       dl2<-getCellLineDoseData(cl2,samples)
+#       cl2<-c('NCI60') ###this is the biggest dataset by far, and has lots of drugs that require lookup
+#       dl2<-getCellLineDoseData(cl2,samples)
 
 }
 

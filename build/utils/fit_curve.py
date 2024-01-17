@@ -67,7 +67,7 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     d2: maximum fixed dose log10(M)
     '''
     if popt is None:
-        cols = 'AUC IC50 EC50 EC50se R2fit Einf HS AAC1 AUC1 DSS1'.split(' ')
+        cols = 'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
         return pd.Series([np.nan] * len(cols), index=cols)
     einf, ec50, hs = popt
     perr = np.sqrt(np.diag(pcov))
@@ -85,9 +85,9 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     int10x = compute_area(xmin, ic10x, *popt)
     dss1 = (0.9 * (ic10x - xmin) - int10x) / (0.9 * (xmax - xmin)) if xmin < ic10x else 0
     auc = (response_integral(d2, *popt) - response_integral(d1, *popt)) / (d2 - d1)
-    metrics = pd.Series({'AUC':auc, 'IC50':ic50, 'EC50':ec50,
-                         'EC50se':ec50se, 'R2fit':r2, 'Einf':einf, 'HS':hs,
-                         'AAC1':aac1, 'AUC1':auc1, 'DSS1':dss1}).round(4)
+    metrics = pd.Series({'auc':auc, 'ic50':ic50, 'ec50':ec50,
+                         'ec50se':ec50se, 'r2fit':r2, 'einf':einf, 'hs':hs,
+                         'aac1':aac1, 'auc1':auc1, 'dss1':dss1}).round(4)
     return metrics
 
 
@@ -140,7 +140,7 @@ def fit_exp(df_exp, title=None, dmin=None, dmax=None, save=False):
 
     plt.xlim(dmax, dmin)
     plt.ylim(0, np.max([105, np.max(yy)]))
-    plt.plot(xx, yy*100, 'r-', label='fit: Einf=%.3f, EC50=%.3f, HS=%.3f' % tuple(popt))
+    plt.plot(xx, yy*100, 'r-', label='fit: einf=%.3f, ec50=%.3f, hs=%.3f' % tuple(popt))
     plt.plot(xdata, ydata.clip(lower=0, upper=1.0)*100, 'b*', label='')
     plt.xlabel('Dose (-log10(M))')
     plt.ylabel('Growth%')
@@ -161,7 +161,7 @@ def fit_response(df_all, cell, drug, source, study=None, save=False):
 #    drug_ids = ud.drug_name_to_ids(drug) or [drug]
 
     #df_exp = df_all[df_all.CELL.isin(cell_ids) & df_all.DRUG.isin(drug_ids)].copy()
-    df_exp = df_all[(df_all.CELL == cell) & (df_all.DRUG == drug)].copy()
+    df_exp = df_all[(df_all.improve_sample_id == cell) & (df_all.Drug == drug)].copy()
     df_exp.GROWTH = (df_exp.GROWTH/2 + 0.5)
     df_exp = df_exp[df_exp.SOURCE == source]
 
@@ -192,7 +192,7 @@ def process_df(df, fname, sep='\t', ngroups=None):
     # df = df1.copy()
     i = 0
     header = None
-    cols = ['SOURCE', 'CELL', 'DRUG', 'STUDY']
+    cols = ['source', 'improve_sample_id', 'Drug', 'study']
     groups = df.groupby(cols)
     f = open(fname, 'w')
     for name, group in tqdm(groups):
@@ -218,7 +218,7 @@ def process_df(df, fname, sep='\t', ngroups=None):
 
 def process_df_part(df, fname, sep='\t', start=0, count=None):
     header = None
-    cols = ['SOURCE', 'CELL', 'DRUG', 'STUDY']
+    cols = ['source', 'improve_sample_id', 'Drug', 'study']
     groups = df.groupby(cols)
     # count = count or (len(groups) - start)
     count = count or (4484081 - start)
@@ -327,7 +327,7 @@ def plot_curves(df_all, cell='LOXIMVI', drug='paclitaxel', study=None, max_reps=
 #    drug_ids = ud.drug_name_to_ids(drug)
 
     #df_exps = df_all[df_all.CELL.isin(cell_ids) & df_all.DRUG.isin(drug_ids)].copy()
-    df_exps = df_all[(df_all['CELL']==cell) & (df_all['DRUG']==drug)].copy()
+    df_exps = df_all[(df_all['CELL']==cell) & (df_all['Drug']==drug)].copy()
     df_exps.GROWTH = (df_exps.GROWTH/2 + 0.5)
 
     title = f'{cell} treated with {drug}'
@@ -384,7 +384,7 @@ def plot_curves(df_all, cell='LOXIMVI', drug='paclitaxel', study=None, max_reps=
     plt.savefig(f'{out}.png', dpi=360)
     plt.close()
 
-    df_metrics.index.name = 'Source'
+    df_metrics.index.name = 'source'
     df_metrics.to_csv(f'{out}.csv', float_format='%.5g')
     print(f'Saved {out}.png and {out}.csv.')
 

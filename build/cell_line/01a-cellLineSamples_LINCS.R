@@ -7,30 +7,36 @@
 library(readr)
 library(dplyr)
 
+
+args = commandArgs(trailingOnly=TRUE)
+sampfile = args[1]
+print(sampfile)
 #### 1. Read in existing samples.csv file ####
-samples = readr::read_csv('https://figshare.com/ndownloader/files/40576103',
-                          quote='"')
+samples = readr::read_csv(sampfile)
+#samples = readr::read_csv('https://figshare.com/ndownloader/files/40576103',
+#                          quote='"')
 
 #### 2. Read in LINCS samples information ####
 LINCS.link <- 'https://ftp.ncbi.nlm.nih.gov/geo/series/GSE101nnn/GSE101406/suppl/GSE101406%5FBroad%5FLINCS%5Fcell%5Finfo.txt.gz'
 LINCS.info <- readr::read_delim(LINCS.link, "\t")
 
 #### 3. Create new IMPROVE IDs for new samples ####
-common_name <- LINCS.info[!(LINCS.info$cell_id %in% samples$other_id) &
-                          !(LINCS.info$cell_id %in% samples$other_names) &
-                          !(LINCS.info$cell_id %in% samples$common_name), ]$cell_id
-species <- "Homo sapiens (Human)"
-improve_sample_id <- seq(max(samples$improve_sample_id)+1, length.out=length(common_name))
-id_source <- "LINCS"
-other_names <- NA
-model_type <- "cell line"
+### no need to, they are alread in improve ids
+#common_name <- LINCS.info[!(LINCS.info$cell_id %in% samples$other_id) &
+#                          !(LINCS.info$cell_id %in% samples$other_names) &
+#                          !(LINCS.info$cell_id %in% samples$common_name), ]$cell_id
+#species <- "Homo sapiens (Human)"
+#improve_sample_id <- seq(max(samples$improve_sample_id)+1, length.out=length(common_name))
+#id_source <- "LINCS"
+#other_names <- NA
+#model_type <- "cell line"
 
-cancer_type <- c()
-other_id <- c()
-for (i in 1:length(common_name)) {
-  cancer_type[i] <- LINCS.info[LINCS.info$cell_id == common_name[i], ]$primary_site
-  other_id[i] <- LINCS.info[LINCS.info$cell_id == common_name[i], ]$provider_catalog_id
-}
+#cancer_type <- c()
+#other_id <- c()
+#for (i in 1:length(common_name)) {
+#  cancer_type[i] <- LINCS.info[LINCS.info$cell_id == common_name[i], ]$primary_site
+#  other_id[i] <- LINCS.info[LINCS.info$cell_id == common_name[i], ]$provider_catalog_id
+#}
 
 new.samples <- data.frame(common_name, cancer_type, other_names, species,
                           improve_sample_id, id_source, other_id, model_type)
