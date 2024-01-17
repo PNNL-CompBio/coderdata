@@ -598,7 +598,12 @@ jobs:
           'test_download_and_load_cptac.py', 
           'test_download_and_load_hcmi.py', 
           'test_download_cptac_cli.py', 
-          'test_download_hcmi_cli.py'
+          'test_download_hcmi_cli.py',
+          'test_reformat_datasets.py',
+          'test_reload_one.py',
+          'test_reload_all.py',
+          'test_join_datasets.py',
+          'test_info.py'
         ]
     outputs:
       result: ${{ steps.test-outcome.outcome }}
