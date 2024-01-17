@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import numpy as np
+import argparse
 
 """
 Overview:
@@ -33,7 +34,7 @@ def retrieve_drug_info(compound_name):
     response = requests.get(url)
 
     if response.status_code != 200:
-        return np.nan, np.nan, np.nan, np.nan, np.nan
+        return np.nan, np.nan, np.nan, np.nan, np.nan,np.nan
     
     data = response.json()
     if "PropertyTable" in data:
@@ -43,10 +44,11 @@ def retrieve_drug_info(compound_name):
         inchikey = properties.get("InChIKey", np.nan)
         formula = properties.get("MolecularFormula", np.nan)
         weight = properties.get("MolecularWeight", np.nan)
+        pubchem_id=properties.get('CID',np.nan)
 
-        return canSMILES, isoSMILES, inchikey, formula, weight
+        return canSMILES, isoSMILES, inchikey, formula, weight, pubchem_id
     else:
-        return np.nan, np.nan, np.nan, np.nan, np.nan
+        return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
 def update_LINCS_dataframe_with_pubchem(d_df):
     """
@@ -82,6 +84,7 @@ def update_LINCS_dataframe_with_pubchem(d_df):
         d_df.at[idx, "InChIKey"] = values[2]
         d_df.at[idx, "formula"] = values[3]
         d_df.at[idx, "weight"] = values[4]
+        d_df.at[idx, 'pubchem_id'] = values[5]
     
     return d_df
 
@@ -115,6 +118,13 @@ def add_improve_id(previous_df, new_df):
     return new_df
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--drugFile',dest='drgfile',default=None,help='Cell line drug file')
+
+    opts = parser.parse_args()
+
+    drugs_url = opts.drgfile
+
     # 1. Get LINCS drug information from GEO
     LINCS_drugs_url = "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE101nnn/GSE101406/suppl/GSE101406%5FBroad%5FLINCS%5Fpert%5Finfo.txt.gz"
     LINCS_drugs = pd.read_table(LINCS_drugs_url, delimiter = "\t") # cols: pert_id, canonical_smiles, inchi_key, pert_iname, pert_type
@@ -123,7 +133,7 @@ if __name__ == "__main__":
     LINCS_drugs.rename(columns={"inchi_key": "InChIKey"}, inplace=True)
     
     # 2. Get current drug data from FigShare
-    drugs_url = "https://figshare.com/ndownloader/files/42357210"
+#    drugs_url = "https://figshare.com/ndownloader/files/42357210"
     drugs = pd.read_table(drugs_url, compression="gzip")
     
     # 3. Get PubChem information for new drugs
@@ -139,9 +149,9 @@ if __name__ == "__main__":
     # 5. Make sure IMPROVE chem_name = pert_iname from LINCS
     old_drugs = drugs[drugs['isoSMILES'].isin(new_drugs['isoSMILES'])]
     old_drugs = old_drugs.merge(new_drugs, 'left', 'isoSMILES')
-    old_drugs = old_drugs[['formula_y','weight_y','canSMILES_y','isoSMILES','InChIKey_y','chem_name_y','pubchem_id','improve_drug_id_x']].drop_duplicates()
+    old_drugs = old_drugs[['formula_y','weight_y','canSMILES_y','isoSMILES','InChIKey_y','chem_name_y','pubchem_id_x','improve_drug_id_x']].drop_duplicates()
     old_drugs.rename(columns={'formula_y': 'formula', 'weight_y': 'weight', 'canSMILES_y': 'canSMILES',
-                              'InChIKey_y': 'InChIKey', 'chem_name_y': 'chem_name', 'improve_drug_id_x': 'improve_drug_id'}, inplace=True)
+                              'InChIKey_y': 'InChIKey', 'chem_name_y': 'chem_name', 'improve_drug_id_x': 'improve_drug_id', 'pubchem_id_x': 'pubchem_id'}, inplace=True)
     
 
     more_old_drugs = drugs[drugs['InChIKey'].isin(LINCS_drugs['InChIKey'])]
