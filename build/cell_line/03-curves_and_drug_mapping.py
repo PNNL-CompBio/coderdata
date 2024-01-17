@@ -21,18 +21,24 @@ opts = parser.parse_args()
 samplefile = opts.samplefile
 
 ####step 3a - get dose response data
-cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile
+cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile+' CTRPv2,FIMM,GDSC'
+os.system(cmd)
+
+cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile+' gCSI,PRISM,CCLE'
+os.system(cmd)
+
+cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile+' NCI60'
 os.system(cmd)
 
 ########Step 3b fit curves
 allfiles=[a for a in os.listdir('./') if 'DoseResponse' in a]
 print(allfiles)
 for a in allfiles:
-    os.system('python fit_curve.py --input '+a+' --output '+a)
+    os.system('/opt/venv/bin/python fit_curve.py --input '+a+' --output '+a)
 
 ###step 3c concatenate all files
-os.system('cat *.0 > experiments_orig.tsv')
+os.system('cat *.0 > /tmp/experiments_orig.tsv')
 
 ##now fix drug identifiers in experiments and drug files
 
-os.system('Rscript remapDrugsToSmiles.R drugs.tsv.gz experiments_orig.tsv')
+os.system('Rscript remapDrugsToSmiles.R /tmp/drugs.tsv.gz /tmp/experiments_orig.tsv')
