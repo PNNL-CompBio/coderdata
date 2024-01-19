@@ -39,7 +39,7 @@ getDoseRespData<-function(dset,studyName,improve_samples){
     mapping<-dplyr::rename(mapping,sampleid='cellid')
 
   ##query to build the drug ids
-  drug.map<-buildDrugTable(unique(mapping$treatmentid,'drugs.tsv.gz'))%>%
+  drug.map<-buildDrugTable(unique(mapping$treatmentid),'/tmp/drugs.tsv.gz')%>%
     dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
     distinct()
 
