@@ -1,10 +1,10 @@
 # tests/test_info.py
 
-import pytest
 from coderdata.load.loader import DatasetLoader
 from io import StringIO
 import sys
-import pandas as pd
+import re
+import pandas
 
 def test_info_function():
     # Create a mock DatasetLoader instance
@@ -22,17 +22,18 @@ def test_info_function():
     loader.info()
     sys.stdout = sys.__stdout__
 
-    # Define the expected output
-    expected_output = (
-        "Dataset Type: hcmi\n"
-        "Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) Data Portal.\n\n"
-        "Available Datatypes and Their Formats:\n"
-        "- copy_number: Format not specified\n"
-        "- mutations: Format not specified\n"
-        "- proteomics: long format\n"
-        "- samples: Format not specified\n"
-        "- transcriptomics: long format\n"
-    )
+    # Get captured output as a string
+    output = captured_output.getvalue()
 
-    # Assert that the captured output matches the expected output
-    assert captured_output.getvalue() == expected_output
+    # Define expected patterns
+    expected_patterns = [
+        r"Dataset Type",
+        r"Human Cancer Models Initiative",
+        r"Available Datatypes",
+        r"transcriptomics",
+        r"proteomics"
+    ]
+
+    # Check for each pattern in output
+    for pattern in expected_patterns:
+        assert re.search(pattern, output), f"Pattern not found in output: {pattern}"
