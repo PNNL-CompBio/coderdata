@@ -22,7 +22,7 @@ buildDrugTable<-function(druglist,path_to_file='drugs.tsv.gz'){
       new_drugs<-setdiff(tolower(druglist),tolower(improve_drugs$chem_name))
       print(paste('of those drugs',length(new_drugs),'are not in database'))
       druglist<-new_drugs
-  }
+  }##reduce druglist to those that are no in list
 
   if(length(druglist)>0){
     ##lets divude queries into 500 because it's easier
@@ -129,7 +129,7 @@ buildDrugTable<-function(druglist,path_to_file='drugs.tsv.gz'){
 
       print(paste("still missing",length(missing),'drug names:'))
       print(head(missing))
-                                        #    print(tail(props))
+  #    print(tail(props))
       joined.df <- props
       ## joined.df<-rbind(props,
       ##                    data.frame(formula=rep(NA,length(missing)),
@@ -169,6 +169,7 @@ buildDrugTable<-function(druglist,path_to_file='drugs.tsv.gz'){
       ##      improve_drugs<<-matched
       ## }
       improve_drugs<<-unique(improve_drugs)
+       print('writing new drug file')
           ##write new table on every iteration that adds values in case it fails
       write.table(improve_drugs,file=gzfile(path_to_file),sep='\t',
                   quote=F,col.names=T,row.names=F)
