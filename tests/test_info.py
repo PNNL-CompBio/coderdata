@@ -4,7 +4,7 @@ from coderdata.load.loader import DatasetLoader
 from io import StringIO
 import sys
 import re
-import pandas
+import pandas as pd
 
 def test_info_function():
     # Create a mock DatasetLoader instance
