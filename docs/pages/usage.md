@@ -99,30 +99,30 @@ The `reload_datasets` method is useful for reloading specific datasets or all da
 ## Info Function 
 The `info` method tells you which datatypes are available, their long/wide format, and which datasets they came from.
 <div class="code-box">
-    <p><span class="code-comment"># Get information about the joined datasets</span></p>
-    <p>joined_dataset4.information()</p>
-    <p><span class="code-comment"># The output is as follows - </span></p>
-    <p><span class="code-comment">
-    This is a joined dataset comprising of:
-    - beataml: Beat acute myeloid leukemia (BeatAML) data was collected though GitHub and Synapse.
-    - hcmi: Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) Data Portal.
-    - cell_line: The cell line datasets were collected from numerous resources such as the LINCS project, DepMap, and the Sanger Institute.
-    - cptac: The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI).
+    <span class="code-comment"># Get information about the joined datasets</span><br>
+    joined_dataset4.information()<br>
+    <span class="code-comment"># The output is as follows - </span><br>
+    <span class="code-comment">
+    This is a joined dataset comprising of:<br>
+    - beataml: Beat acute myeloid leukemia (BeatAML) data was collected though GitHub and Synapse.<br>
+    - hcmi: Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) Data Portal.<br>
+    - cell_line: The cell line datasets were collected from numerous resources such as the LINCS project, DepMap, and the Sanger Institute.<br>
+    - cptac: The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI).<br>
 
-    Available Datatypes and Their Formats
-    - copy_number: long format
-    - mutations: long format
-    - proteomics: long format
-    - samples: long format
-    - transcriptomics: long format
+    Available Datatypes and Their Formats<br>
+    - copy_number: long format<br>
+    - mutations: long format<br>
+    - proteomics: long format<br>
+    - samples: long format<br>
+    - transcriptomics: long format<br>
 
-    Datatype Origins:
-    - proteomics: Data from beataml, cell_line, cptac
-    - transcriptomics: Data from beataml, cell_line, hcmi, cptac
-    - copy_number: Data from cell_line, hcmi, cptac
-    - mutations: Data from beataml, cell_line, hcmi, cptac
+    Datatype Origins:<br>
+    - proteomics: Data from beataml, cell_line, cptac<br>
+    - transcriptomics: Data from beataml, cell_line, hcmi, cptac<br>
+    - copy_number: Data from cell_line, hcmi, cptac<br>
+    - mutations: Data from beataml, cell_line, hcmi, cptac<br>
     - samples: Data from beataml, cell_line, hcmi, cptac 
-    </span></p>
+    </span>
 </div>
 
 ## Conclusion
