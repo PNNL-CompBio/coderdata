@@ -22,7 +22,7 @@ path <- "./tmp_CNN"
 dir.create(path, showWarnings = FALSE)
 
 # Read the sample mapping CSV and genes.csv
-samples_df <- fread("synapse_NF-MPNST_samples.csv")
+samples_df <- fread("mpnst/synapse_NF-MPNST_samples.csv")
 
 # Remove rows with missing or empty 'Copy_number' values
 samples_df <- samples_df[samples_df$Copy_number != ""]
@@ -90,7 +90,7 @@ combined_cnn_df <- combined_cnn_df[, .(entrez_id, improve_sample_id, CNV, copy_c
 
 # Convert the 'entrez_id' gene IDs to entrez IDs from gene.csv file.
 # gene mapping table
-genes_df <- fread("../genes.csv")
+genes_df <- fread("genes.csv")
 unique_mapping <- genes_df[, .SD[1], by = .(gene_symbol)]
 tmp <- merge(combined_cnn_df, unique_mapping, by.x = "entrez_id", by.y = "gene_symbol", all.x = TRUE)
 
@@ -112,10 +112,10 @@ tmp[, copy_call := fcase(
 )]
 
 # Write the combined data to a CSV file
-fwrite(tmp, "MPNST_cnn_mutation_seq.csv")
+fwrite(tmp, "mpnst/MPNST_cnn_mutation_seq.csv")
 
 # Check if the final CSV file exists and has data
-if(file.exists("MPNST_cnn_mutation_seq.csv") && (file.info("MPNST_cnn_mutation_seq.csv")$size > 0)) {
+if(file.exists("mpnst/MPNST_cnn_mutation_seq.csv") && (file.info("mpnst/MPNST_cnn_mutation_seq.csv")$size > 0)) {
   # Remove the 'tmp' directory and its contents
   unlink(path, recursive = TRUE, force = TRUE)
   cat("The 'tmp_CNN' directory has been successfully removed.\n")
