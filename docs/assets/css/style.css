@@ -261,10 +261,12 @@ pre > code.language-python {
 }
 
 .flex-item {
-    margin: 10px; /* Adds some space around each item */
-    flex-basis: calc(50% - 20px); /* Adjust the width of each item minus margin */
+    margin: 10px;
+    flex-basis: calc(50% - 20px);
     box-sizing: border-box;
     height: 100%;
+    background-color: white;
+    border: 1px solid black;
 }
 
 
