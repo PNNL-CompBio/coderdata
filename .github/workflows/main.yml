@@ -60,6 +60,7 @@ jobs:
       - name: Copy Cell Line sample from build location. 
         run: |
           cp build/cell_line/cell_line_samples.csv .
+          cp build/cell_line/requirements.txt .
           cp build/cptac/*.py .
           cp build/genes.csv .
       - name: Build CPTAC Image
@@ -298,6 +299,7 @@ jobs:
         run: |
           cp build/cptac/*.py .
           cp build/genes.csv .
+          cp build/cell_line/requirements.txt .
       - name: List files cwd
         run: ls -lah 
       - name: Build CPTAC Image
