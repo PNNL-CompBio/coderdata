@@ -76,8 +76,8 @@ jobs:
           docker run -v $PWD:/tmp/ cell_line-samples-builder Rscript 01-cellLineSamples.R
       - name: Copy file from Cell-line Samples Container
         run: |
-          mkdir cptac-samples genes-file
-          mv cell_line_samples.csv cptac-samples
+          mkdir cell-line-samples genes-file
+          mv cell_line_samples.csv cell-line-samples
           mv genes.csv genes-file
       - name: Upload artifacts for Cell-line
         uses: actions/upload-artifact@v2
