@@ -63,6 +63,10 @@ jobs:
           cp build/cell_line/requirements.txt .
           cp build/cptac/*.py .
           cp build/genes.csv .
+      - name: List files cwd
+        run: ls -lah 
+      - name: cat reqs
+        run: cat requirements.txt
       - name: Build CPTAC Image
         run: docker build -t cptac-samples-builder -f build/docker/Dockerfile.cptac .
       - name: Run CPTAC samples Container
