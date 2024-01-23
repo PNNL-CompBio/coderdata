@@ -9,8 +9,8 @@ RUN /opt/venv/bin/pip3 install --upgrade pip
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 
-ADD cell_line/requirements.txt .
-ADD cell_line/requirements.r .
+ADD ../cell_line/requirements.txt .
+ADD ../cell_line/requirements.r .
 
 # installing r libraries
 RUN Rscript requirements.r
