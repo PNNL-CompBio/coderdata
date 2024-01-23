@@ -65,7 +65,7 @@ jobs:
       - name: Build CPTAC Image
         run: docker build -t cptac-samples-builder -f build/docker/Dockerfile.cptac .
       - name: Run CPTAC samples Container
-        run: docker run -v $PWD:/tmp --name cptac-samples-builder --geneFile=genes.csv --prevSampleFile=/tmp/cell_line_samples.csv 
+        run: docker run -v $PWD:/tmp cptac-samples-builder --geneFile=genes.csv --prevSampleFile=/tmp/cell_line_samples.csv 
       - name: Copy file from CPTAC Samples Container
         run: |
           mkdir cptac-samples
@@ -304,7 +304,7 @@ jobs:
         run: docker build -t cptac-builder -f build/docker/Dockerfile.cptac .
       - name: Run HCMI Container
         run: |
-          docker run -v $PWD:/tmp --name cptac-builder --geneFile=genes.csv --curSampleFile=/tmp/cptac_samples.csv   
+          docker run -v $PWD:/tmp cptac-builder --geneFile=genes.csv --curSampleFile=/tmp/cptac_samples.csv   
       - name: Copy files from HCMI Container
         run: |
           mkdir cptac-files
