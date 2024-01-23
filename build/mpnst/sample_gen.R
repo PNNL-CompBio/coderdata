@@ -3,12 +3,12 @@
 # Load required libraries
 library(data.table)
 
-main <- fread("NF_MPNST_samples.csv")
-previous_aml <- fread("../beatAML/beataml_samples.csv")
+main <- fread("mpnst/NF_MPNST_samples.csv")
+previous_aml <- fread("beatAML/beataml_samples.csv")
 max_id <- max(previous_aml$improve_sample_id)
 main$improve_sample_id <- seq(from = max_id + 1, length.out = nrow(main))
 
-synapse_main <- fread("synapse_NF-MPNST_samples.csv")
+synapse_main <- fread("mpnst/synapse_NF-MPNST_samples.csv")
 # Step 1: Create a dictionary from 'main'
 id_dict <- setNames(main$improve_sample_id, main$other_id)
 
@@ -20,6 +20,6 @@ synapse_main$ID <- id_dict[synapse_main$Sample]
 # synapse_main$ID[is.na(synapse_main$ID)] <- -1  # Assign a placeholder like -1 for unmatched rows
 
 # Step 3: Save the updated 'synapse_main'
-fwrite(synapse_main, "synapse_NF-MPNST_samples.csv")
-fwrite(main, "NF_MPNST_samples.csv") # updated sample file
+fwrite(synapse_main, "mpnst/synapse_NF-MPNST_samples.csv")
+fwrite(main, "mpnst/NF_MPNST_samples.csv") # updated sample file
 
