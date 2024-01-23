@@ -57,6 +57,27 @@ jobs:
       #Add upload artifact from CPTAC Samples 
       - name: Checkout  CPTAC
         uses: actions/checkout@v2
+      - name: Copy Cell Line sample from build location. 
+        run: |
+          cp build/cell_line/cell_line_samples.csv .
+          cp build/cptac/*.py .
+          cp build/genes.csv .
+      - name: Build CPTAC Image
+        run: docker build -t cptac-samples-builder -f build/docker/Dockerfile.cptac .
+      - name: Run CPTAC samples Container
+        run: docker run -v $PWD:/tmp --name cptac-samples-builder --geneFile=genes.csv --prevSampleFile=/tmp/cell_line_samples.csv 
+      - name: Copy file from CPTAC Samples Container
+        run: |
+          mkdir cptac-samples
+          # for file in cptac_samples.csv; do
+          #   docker cp hcmi-samples-container:/usr/src/app/$file hcmi-samples/$file
+          # done
+          mv cptac_samples.csv cptac-samples
+      - name: Upload artifacts for CPTAC
+        uses: actions/upload-artifact@v2
+        with:
+          name: cptac_samples
+          path: cptac_samples
 
   build-hcmi-samples:
     if: github.actor != 'github-actions[bot]'
@@ -68,9 +89,13 @@ jobs:
         uses: actions/checkout@v2
         #Add upload artifact from CPTAC Samples when ready
         #temp fix below
-      - name: Copy CPTAC sample from build location. 
-        run: |
-          cp build/cptac/cptac_samples.csv .
+      # - name: Copy CPTAC sample from build location. 
+      #   run: |
+      #     cp build/cptac/cptac_samples.csv .
+      - name: Download artifacts from CPTAC
+        uses: actions/download-artifact@v2
+        with:
+          name: cptac_samples
       - name: Build HCMI Image
         run: docker build -t hcmi-samples-builder -f build/docker/Dockerfile.hcmi .
       - name: Run HCMI samples Container
@@ -229,29 +254,67 @@ jobs:
           name: cell-line-files
           path: cell-line-files
 
+  # build-cptac:
+  #   if: github.actor != 'github-actions[bot]'
+  #   needs: [build-cptac-samples]
+  #   runs-on: ubuntu-20.04
+  #   environment: build
+  #   steps:
+  #     - name: Checkout code cptac
+  #       uses: actions/checkout@v2
+  #     - name: List files cwd before
+  #       run: ls -lah
+  #     - name: Install coderdata
+  #       run: pip install coderdata
+  #     - name: Download cptac data from coder data
+  #       run: coderdata download --prefix cptac
+  #     - name: List files cwd after
+  #       run: ls -lah 
+  #     - name: Copy files from BeatAML Container
+  #       run: |
+  #         mkdir cptac-files
+  #         for file in *cptac*sv*; do
+  #           cp $file cptac-files/$file
+  #         done
+  #     - name: Upload artifact for cptac
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: cptac-files
+  #         path: cptac-files
+
   build-cptac:
     if: github.actor != 'github-actions[bot]'
     needs: [build-cptac-samples]
     runs-on: ubuntu-20.04
     environment: build
     steps:
-      - name: Checkout code cptac
+      - name: Checkout  CPTAC
         uses: actions/checkout@v2
-      - name: List files cwd before
-        run: ls -lah
-      - name: Install coderdata
-        run: pip install coderdata
-      - name: Download cptac data from coder data
-        run: coderdata download --prefix cptac
-      - name: List files cwd after
+      - name: Download artifacts from CPTAC
+        uses: actions/download-artifact@v2
+        with:
+          name: cptac-samples
+      - name: Copy files from build location. 
+        run: |
+          cp build/cptac/*.py .
+          cp build/genes.csv .
+      - name: List files cwd
         run: ls -lah 
-      - name: Copy files from BeatAML Container
+      - name: Build CPTAC Image
+        run: docker build -t cptac-builder -f build/docker/Dockerfile.cptac .
+      - name: Run HCMI Container
+        run: |
+          docker run -v $PWD:/tmp --name cptac-builder --geneFile=genes.csv --curSampleFile=/tmp/cptac_samples.csv   
+      - name: Copy files from HCMI Container
         run: |
           mkdir cptac-files
-          for file in *cptac*sv*; do
-            cp $file cptac-files/$file
-          done
-      - name: Upload artifact for cptac
+          # for file in hcmi_samples.csv hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
+          #   docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
+          # done
+          cp cptac_* cptac-files
+      - name: Get HCMI container logs
+        run: docker logs cptac-builder
+      - name: Upload artifacts for HCMI
         uses: actions/upload-artifact@v2
         with:
           name: cptac-files
