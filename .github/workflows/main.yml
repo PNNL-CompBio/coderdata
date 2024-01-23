@@ -105,8 +105,8 @@ jobs:
           name: cell-line-samples
       - name: Download artifacts from Cell Line (genes)
         uses: actions/download-artifact@v2  
-          with:
-            name: genes-file
+        with:
+          name: genes-file
       - name: Copy Cell Line sample from build location. 
         run: |
           cp build/cptac/requirements.txt .
@@ -312,12 +312,12 @@ jobs:
       #     cp build/utils/* .
       - name: Download artifacts from Cell Line (samples)
         uses: actions/download-artifact@v2  
-          with:
-            name: cell-line-samples
+        with:
+          name: cell-line-samples
       - name: Download artifacts from Cell Line (genes)
         uses: actions/download-artifact@v2  
-          with:
-            name: genes-file
+        with:
+          name: genes-file
       - name: List files cwd
         run: ls -lah 
       - name: cat reqs
@@ -357,8 +357,8 @@ jobs:
           name: cptac-samples
       - name: Download artifacts from Cell Line (genes)
         uses: actions/download-artifact@v2  
-          with:
-            name: genes-file
+        with:
+          name: genes-file
       - name: Copy files from build location. 
         run: |
           cp build/cptac/*.py .
