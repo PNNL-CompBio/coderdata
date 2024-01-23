@@ -81,8 +81,8 @@ jobs:
       - name: Upload artifacts for CPTAC
         uses: actions/upload-artifact@v2
         with:
-          name: cptac_samples
-          path: cptac_samples
+          name: cptac-samples
+          path: cptac-samples
 
   build-hcmi-samples:
     if: github.actor != 'github-actions[bot]'
