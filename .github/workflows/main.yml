@@ -324,20 +324,21 @@ jobs:
         run: cat requirements.txt
       - name: Build Cell-line Image
         run: docker build -t cell_line-builder -f build/docker/Dockerfile.cell_line .
-      - name: Run Cell-line samples Container
+      - name: Run Cell-line 02a-cellLineSanger.R Container
         run: |
-          echo "Starting Docker Run sets"
-          echo "Starting 02a-cellLineSanger.R"
           docker run -v $PWD:/tmp cell_line-builder Rscript 02a-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv
-          echo "Starting 02-cellLineDepMap.R"
+      - name: Run Cell-line 02-cellLineDepMap.R Container
+        run: |
           docker run -v $PWD:/tmp cell_line-builder Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv
-          echo "Starting 03-curves_and_drug_mapping.py"
+      - name: Run Cell-line 03-curves_and_drug_mapping.py Container
+        run: |
           docker run -v $PWD:/tmp cell_line-builder /opt/venv/bin/python 03-curves_and_drug_mapping.py --curSampleFile=/tmp/cell_line_samples.csv
-          echo "Starting 01b-cellLineDrugs_LINCS.py"
+      - name: Run Cell-line 01b-cellLineDrugs_LINCS.py Container
+        run: |
           docker run -v $PWD:/tmp cell_line-builder /opt/venv/bin/python 01b-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
-          echo "Starting Rscript 02b-cellLineLINCS.R"
+      - name: Run Cell-line 02b-cellLineLINCS.R Container
+        run: |
           docker run -v $PWD:/tmp cell_line-builder Rscript 02b-cellLineLINCS.R /tmp/genes.csv /tmp/lincs_drugs.tsv /tmp/cell_line_samples.csv
-          echo "Finished"
       - name: List files cwd
         run: ls -lah 
       - name: Copy files from Cell Line Container
