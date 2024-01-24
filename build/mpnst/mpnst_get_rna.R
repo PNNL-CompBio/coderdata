@@ -25,13 +25,13 @@ path <- "./tmp"
 dir.create(path, showWarnings = FALSE)
 
 # Read the sample mapping CSV and genes.csv
-samples_df <- fread("synapse_NF-MPNST_samples.csv")
+samples_df <- fread("mpnst/synapse_NF-MPNST_samples.csv")
 
 # Remove rows with missing or empty 'RNASeq' values
 samples_df <- samples_df[samples_df$RNASeq != ""]
 
 # gene mapping table
-genes_df <- fread("../genes.csv")
+genes_df <- fread("genes.csv")
 
 # Extract the RNASeq Synapse IDs
 rna_seq_ids <- samples_df$RNASeq
@@ -120,10 +120,10 @@ combined_df <- combined_df[, .(improve_sample_id, transcriptomics, entrez_id, so
 head(combined_df)
 
 # Write the combined data to a CSV file
-fwrite(combined_df, "MPNST_RNA_seq.csv")
+fwrite(combined_df, "mpnst/MPNST_RNA_seq.csv")
 
 # Check if the final CSV file exists and has data
-if(file.exists("MPNST_RNA_seq.csv") && (file.info("MPNST_RNA_seq.csv")$size > 0)) {
+if(file.exists("mpnst/MPNST_RNA_seq.csv") && (file.info("mpnst/MPNST_RNA_seq.csv")$size > 0)) {
   # Remove the 'tmp' directory and its contents
   unlink(path, recursive = TRUE, force = TRUE)
   cat("The 'tmp' directory has been successfully removed.\n")
