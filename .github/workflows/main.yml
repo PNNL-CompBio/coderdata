@@ -323,22 +323,22 @@ jobs:
       - name: cat reqs
         run: cat requirements.txt
       - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell_line .
+        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
       - name: Run Cell-line 02a-cellLineSanger.R Container
         run: |
           docker run -v $PWD:/tmp/ cell-line Rscript 02a-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv
       - name: Run Cell-line 02-cellLineDepMap.R Container
         run: |
-          docker run -v $PWD:/tmp cell_line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv
+          docker run -v $PWD:/tmp cell-line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv
       - name: Run Cell-line 03-curves_and_drug_mapping.py Container
         run: |
-          docker run -v $PWD:/tmp cell_line /opt/venv/bin/python 03-curves_and_drug_mapping.py --curSampleFile=/tmp/cell_line_samples.csv
+          docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 03-curves_and_drug_mapping.py --curSampleFile=/tmp/cell_line_samples.csv
       - name: Run Cell-line 01b-cellLineDrugs_LINCS.py Container
         run: |
-          docker run -v $PWD:/tmp cell_line /opt/venv/bin/python 01b-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
+          docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 01b-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
       - name: Run Cell-line 02b-cellLineLINCS.R Container
         run: |
-          docker run -v $PWD:/tmp cell_line Rscript 02b-cellLineLINCS.R /tmp/genes.csv /tmp/lincs_drugs.tsv /tmp/cell_line_samples.csv
+          docker run -v $PWD:/tmp cell-line Rscript 02b-cellLineLINCS.R /tmp/genes.csv /tmp/lincs_drugs.tsv /tmp/cell_line_samples.csv
       - name: List files cwd
         run: ls -lah 
       - name: Copy files from Cell Line Container
