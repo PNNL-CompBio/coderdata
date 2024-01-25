@@ -63,7 +63,7 @@ getAll<-function(dt=names(filenames)){
         mutate(copy_number=2^gatk_mean_log2_copy_ratio,.keep='all')|>
         distinct()|>
         left_join(genes)|>
-        dplyr::select(other_id,source,copy_number,entrez_id,sanger='cn_category')|>
+        dplyr::select(other_id,source,copy_number,entrez_id,sanger_copy_call='cn_category')|>
         left_join(smap)|>
         distinct()
 
