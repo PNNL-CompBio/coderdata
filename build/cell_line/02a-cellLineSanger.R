@@ -55,7 +55,7 @@ getAll<-function(dt=names(filenames)){
       exp_file <- readr::read_csv(fi) ##already in long form <3 <3 <3
 
       smap<-samples|>
-        subset(id_source=='Sanger')|>
+        subset(other_id_source=='Sanger')|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
 
       res<-exp_file|>
@@ -69,7 +69,7 @@ getAll<-function(dt=names(filenames)){
 
       ##calibrate the copy call
       res<-res|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
-        dplyr::mutate(improve=ifelse(copy_number<0.5210507,'deep del',
+        dplyr::mutate(improve_copy_call=ifelse(copy_number<0.5210507,'deep del',
                                        ifelse(copy_number<0.7311832,'het loss',
                                               ifelse(copy_number<1.214125,'diploid',
                                                      ifelse(copy_number<1.422233,'gain','amp')))))|>
@@ -257,7 +257,7 @@ main<-function(){
 	    ##here are the improve sample id indices
 	 samples <<- read_csv(sfile,
                    quote='"')|>
-		     dplyr::select(other_id,improve_sample_id)|>
+		     dplyr::select(other_id,improve_sample_id,other_id_source)|>
 		       unique()
 	getAll()
 
