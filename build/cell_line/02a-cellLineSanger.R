@@ -196,6 +196,7 @@ getAll<-function(dt=names(filenames)){
 
       colnames(res)[1]<-'other_id'
       vars=c('miRNA')
+      full<-res
 
     }else if(value=='proteomics'){
       res=download.file(fi,'/tmp/tmp.zip')
@@ -214,12 +215,13 @@ getAll<-function(dt=names(filenames)){
         left_join(genes)|>
         dplyr::select(-gene_symbol)|>
         left_join(smap)|>
-        mutate(source='Sanger',study='Sanger')
+          mutate(source='Sanger',study='Sanger')
+      full<-res
 
     }
 
     ##do the last join with samples
-    #full<-res|>
+    #full<-res#|>
     #  left_join(samples)
 
     missed<-full|>subset(is.na(improve_sample_id))|>
