@@ -123,7 +123,7 @@ getAll<-function(dt=names(filenames)){
 
 #      res$variant_classification=unlist(lapply(res$effect,function(x) names(variant_schema)[grep(x,variant_schema)]))
       res<-res|>dplyr::select(-effect)
-      write_csv(full,file=fname)
+      write_csv(res,file=fname)
       return(fi)
     }
     else if(value=='transcriptomics'){ #if gene expression
