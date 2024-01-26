@@ -39,6 +39,8 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
                      Splice_Site=c('Splice_Site','SPLICE_SITE','splice_region'),
                      Translation_Start_Site=c('Translation_Start_Site','start_lost'))
 
+vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
+colnames(vtab)<-c('variant_classification','effect')
 getAll<-function(dt=names(filenames)){
 
   options(timeout=10000)
@@ -113,9 +115,13 @@ getAll<-function(dt=names(filenames)){
 
       res<-exp_file|>
         left_join(smap)|>
-        mutate(study='Sanger')
+          mutate(study='Sanger')|>
+          left_join(as.data.frame(vtab))|>
+          dplyr::select(-effect)|>
+          subset(!is.na(improve_sample_id))|>
+          distinct()
 
-      res$variant_classification=unlist(lapply(res$effect,function(x) names(variant_schema)[grep(x,variant_schema)]))
+#      res$variant_classification=unlist(lapply(res$effect,function(x) names(variant_schema)[grep(x,variant_schema)]))
       res<-res|>dplyr::select(-effect)
       write_csv(full,file=fname)
       return(fi)
