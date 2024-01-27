@@ -101,7 +101,7 @@ getAll<-function(dt=names(filenames)){
 
       colnames(res)[1]<-'other_id'
       vars=c('methylation','start','end')
-
+      full<-res
 
     }else if(value=='mutation'){ ####IF DATA REPRESENTS MUTATIONS#####
       res=download.file(fi,'/tmp/tmp.zip')
