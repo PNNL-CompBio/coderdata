@@ -83,6 +83,8 @@ getAll<-function(dt=names(filenames)){
                             names_to='copy_call_source',
                             values_to='copy_call')
 
+      full<-lres
+
     }else if(value=='methylation'){ ###IF DATA REPRESENT RRBS###
       exp_file <- readr::read_csv(fi)[-c(1:2),]
       #the gene names are not unique and in some weird format, i willt ry to keep both in the metadata
@@ -229,7 +231,6 @@ getAll<-function(dt=names(filenames)){
     ##do the last join with samples
     #full<-res#|>
     #  left_join(samples)
-
     missed<-full|>subset(is.na(improve_sample_id))|>
       dplyr::select(improve_sample_id,other_id)|>
       distinct()
