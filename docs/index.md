@@ -52,7 +52,7 @@ View our [Usage](pages/usage.md) page for full instructions.
             <div class="dataset-blurb">
                 {% case dataset %}
                     {% when 'cell_line' %}
-                        <p>Cell Lines: {{ site.data.stats.cell_line.cell_lines }} </p>
+                        <p>Cancer Types: {{ site.data.stats.cell_line.cell_lines }} </p>
                         <p>Samples: {{ site.data.stats.cell_line.samples }} </p>
                         <p>Genes: {{ site.data.stats.cell_line.genes }} </p>
                         <p>Drugs: {{ site.data.stats.cell_line.drugs }} </p>
