@@ -1,8 +1,6 @@
 ---
 layout: default
 title: CoderData
-pdf_exists: true
-png_exists: true
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -15,6 +13,11 @@ The build section is a github workflow that generates four cancer datasets in a 
 The python package allows users to easily download the data, load it into python and reformat it as desired.
 
 ### Cell Line Summary
+
+The cell line datasets were collected from numerous resources such as the <a href="https://lincsproject.org/" target="_blank">LINCS project</a>, <a href="https://depmap.org/portal/" target="_blank">DepMap</a>, and the <a href="https://www.sanger.ac.uk/" target="_blank">Sanger Institute</a>.
+This data will allow scientists to explore the drugs response for thousands of drugs across hundreds of cell lines.
+
+
 
 {% if site.data.cell_line_table %}
 <table>
@@ -42,14 +45,10 @@ The python package allows users to easily download the data, load it into python
 ### Visualization
 
 <div class="flex-container"> 
-    {% if page.pdf_exists %}
     <div class="flex-item">
-        <embed src="{{ 'assets/stats/Fig4_CCLE.pdf' | relative_url }}" type="application/pdf" />
+        <img src="{{ 'assets/stats/Fig4_CCLE.png' | relative_url }}" alt="Cell Line Figure" />
     </div>
-    {% endif %}
-    {% if page.png_exists %}
     <div class="flex-item">
         <img src="{{ 'assets/stats/cell_line_circos.png' | relative_url }}" alt="Cell Line Circos" />
     </div>
-    {% endif %}
 </div>
