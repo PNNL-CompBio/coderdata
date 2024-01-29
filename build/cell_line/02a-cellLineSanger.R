@@ -101,7 +101,7 @@ getAll<-function(dt=names(filenames)){
 
       colnames(res)[1]<-'other_id'
       vars=c('methylation','start','end')
-      full<-res
+
 
     }else if(value=='mutation'){ ####IF DATA REPRESENTS MUTATIONS#####
       res=download.file(fi,'/tmp/tmp.zip')
@@ -124,7 +124,7 @@ getAll<-function(dt=names(filenames)){
           distinct()
 
 #      res$variant_classification=unlist(lapply(res$effect,function(x) names(variant_schema)[grep(x,variant_schema)]))
-      res<-res|>dplyr::select(-effect)
+#      res<-res|>dplyr::select(-effect)
       write_csv(res,file=fname)
       return(fi)
     }
@@ -214,7 +214,7 @@ getAll<-function(dt=names(filenames)){
       exp_file <- readr::read_tsv(fi,skip=1)[-1,-1]
       colnames(exp_file)[1]<-'other_id'
 
-      smap<-samps|>
+      smap<-samples|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
 
       res<-exp_file|>
