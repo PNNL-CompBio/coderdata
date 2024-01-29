@@ -1,5 +1,5 @@
 numpy==1.23
 pandas==2.1
-cptac
+cptac==1.5.8
 argparse
 pathvalidate
