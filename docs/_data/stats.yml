@@ -1,17 +1,20 @@
-cell_line:
-  cell_lines: 0
-  genes: 0
-  drugs: 0
-cptac:
-  cancer_types: 0
-  genes: 0
-  drugs: 0
-hcmi:
-  cancer_types: 0
-  genes: 0
 beataml:
-  cancer_types: 0
-  genes: 0
+  cancer_types: 1
+  drugs: 151
+  genes: 19059
+  samples: 1022
+cell_line:
+  cell_lines: 204
+  drugs: 57717
+  genes: 25480
+  samples: 1861
+cptac:
+  cancer_types: 10
   drugs: 0
-
-#This should be retrievable using coderdata for each dataset after the merge chunk. Just grab uniques.
+  genes: 38428
+  samples: 1139
+hcmi:
+  cancer_types: 29
+  drugs: 0
+  genes: 39098
+  samples: 909

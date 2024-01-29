@@ -41,12 +41,9 @@ body {
     width: auto;
 }
 
-
-
 .header span,div {
     margin-right: 20px; /* Adds spacing to the right of each span */
 }
-
 
 .header-logo {
     height: 100%;
@@ -55,7 +52,7 @@ body {
 }
 
 .navbar {
-    /* position: fixed; Fixed position to the header */
+    /* position: fixed; */
     right: 40;
     top: 0;
     display: flex;
@@ -96,6 +93,9 @@ body {
 .dropdown-content {
     display: none;
     position: absolute;
+    height: auto;
+    /* top: 100%; */
+    /* left: 0; */
     background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -246,9 +246,9 @@ pre > code.language-python {
 }
 
 .code-box p {
-    margin: 0; /* Removes the default paragraph margin */
+    margin: 2px; /* Removes the default paragraph margin */
     line-height: normal; /* Sets line height to normal to remove extra spacing */
-    padding: 0; /* Ensures there's no padding adding extra space */
+    padding: 2px; /* Ensures there's no padding adding extra space */
 }
 
 .flex-container {
@@ -261,21 +261,27 @@ pre > code.language-python {
 }
 
 .flex-item {
-    margin: 10px; /* Adds some space around each item */
-    flex-basis: calc(50% - 20px); /* Adjust the width of each item minus margin */
+    margin: 10px;
+    flex-basis: calc(50% - 20px);
     box-sizing: border-box;
     height: 100%;
+    background-color: white;    
+    border: 1px solid black;
+    border-radius: 2px;
+    border-color: #001a37;
 }
 
 
 .flex-item embed {
     width: 100%; /* Makes the image and PDF take the full width of their container */
     height: 100%; /* Keeps the aspect ratio of the image and scales the height accordingly */
+    border-radius: 2px;
+    border-color: #001a37;
 }
 
 
 .flex-item img {
-    width: 65%; /* Makes the image and PDF take the full width of their container */
+    width: 85%; /* Makes the image and PDF take the full width of their container */
     height: 100%; /* Keeps the aspect ratio of the image and scales the height accordingly */
     border-radius: 2px;
     border-color: #001a37;
@@ -329,4 +335,53 @@ th {
 .legend .dot {
     margin-left: 5px;
     margin-right: 20px; 
+}
+
+
+.code-comment {
+    color: green;
+}
+
+
+
+/* Adjustments for smaller screens */
+@media (max-width: 768px) {
+    .header {
+        height: 100px;
+        padding: 5px 10px; 
+    }
+
+    .header-logo {
+        height: 80%;
+        width: auto;
+    }
+
+    .title-and-description {
+        display: block;
+        text-align: center; 
+    }
+
+    .title-and-description .title {
+        font-size: 18px; 
+    }
+
+    .title-and-description .description {
+        display: none; 
+    }
+}
+
+/* Further adjustments for even smaller screens */
+@media (max-width: 480px) {
+    .header {
+        height: 80px; 
+    }
+
+    .header-logo {
+        height: 70%; 
+    }
+
+    .title-and-description .title {
+        font-size: 16px; 
+    }
+
 }
