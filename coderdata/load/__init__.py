@@ -1,2 +1,2 @@
-from .loader import DatasetLoader
+from .loader import DatasetLoader, join_datasets
 

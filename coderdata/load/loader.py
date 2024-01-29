@@ -4,9 +4,6 @@ import pandas as pd
 import gzip
 import os
 
-
-
-
 class DatasetLoader:
     def __init__(self, dataset_type, data_directory="."):
         """
@@ -38,6 +35,7 @@ class DatasetLoader:
         self.data_directory = data_directory
         self.load_datasets(dataset_type, data_directory)
         self.data_format_params = {
+        'samples': ('improve_sample_id', 'cancer_type', 'model_type'),
         'transcriptomics': ('improve_sample_id', 'entrez_id', 'transcriptomics'),
         'proteomics': ('improve_sample_id', 'entrez_id', 'proteomics'),
         'mutations': ('improve_sample_id', 'entrez_id', 'mutations'),
@@ -46,11 +44,11 @@ class DatasetLoader:
     }
 
     def load_datasets(self, dataset_type, data_directory):
+        print("Processing Data...")
         for file_name in os.listdir(data_directory):
             if file_name.startswith(dataset_type) and (file_name.endswith(('.csv', '.tsv', '.csv.gz', '.tsv.gz'))):
                 file_path = os.path.join(data_directory, file_name)
                 dataset_name = file_name[len(dataset_type):].split('.')[0].strip('_')
-                print("Loading:", dataset_name)
                 if hasattr(self, dataset_name):
                     dataframe = self.load_file(file_path)
                     setattr(self, dataset_name, dataframe)
@@ -248,3 +246,122 @@ class DatasetLoader:
                 if dataset_name in file_name:
                     return os.path.join(self.data_directory, file_name)
         return None
+        
+    def info(self):
+        """
+        Display information about the datasets and datatypes.
+        """
+        # Dataset descriptions
+        descriptions = {
+            'cell_line': 'The cell line datasets were collected from numerous resources such as the LINCS project, DepMap, and the Sanger Institute.',
+            'cptac': 'The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI).',
+            'hcmi': 'Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) Data Portal.',
+            'beataml': 'Beat acute myeloid leukemia (BeatAML) data was collected though GitHub and Synapse.'
+        }
+
+        # Check if this is a joined dataset
+        if hasattr(self, 'source_of_datatype'):
+            print("This is a joined dataset comprising of:")
+            for source in set(sum(self.source_of_datatype.values(), [])):
+                if source in descriptions:
+                    print(f"- {source}: {descriptions[source]}")
+        else:
+            print(f"Dataset Type: {self.dataset_type}")
+            if self.dataset_type in descriptions:
+                print(descriptions[self.dataset_type])
+        
+        # Print information about available datatypes and their formats
+        print("\nAvailable Datatypes and Their Formats:")
+        for attr in dir(self):
+            if isinstance(getattr(self, attr), pd.DataFrame) and not getattr(self, attr).empty:
+                format_params = self.data_format_params.get(attr, [])
+                if len(format_params) == 3:  # Assuming format_params has three elements: id_vars, var_name, value_name
+                    id_vars, var_name, value_name = format_params
+                    format_type = 'long' if self.is_long_format(getattr(self, attr), id_vars, var_name, value_name) else 'wide'
+                    print(f"- {attr}: {format_type} format")
+                else:
+                    print(f"- {attr}: Format not specified")
+
+
+def join_datasets(*args):
+    """
+    Joins datasets from multiple DatasetLoader instances or dataset type strings. 
+    Includes datasets even if they exist in only one instance.
+
+    Parameters
+    ----------
+    *args : variable number of DatasetLoader instances or dataset type strings
+        
+    Returns
+    -------
+    DatasetLoader object
+        A new DatasetLoader instance with the joined datasets.
+    """
+    if not args:
+        raise ValueError("At least one dataset or loader must be provided.")
+
+    loaders = []
+
+    for arg in args:
+        if isinstance(arg, str):
+            loaders.append(DatasetLoader(arg))
+        elif isinstance(arg, DatasetLoader):
+            loaders.append(arg)
+        else:
+            raise ValueError("Arguments must be either dataset type strings or DatasetLoader instances.")
+
+    joined_loader = DatasetLoader(loaders[0].dataset_type)
+    joined_loader.source_of_datatype = {}
+
+    all_data_types = set()
+    for loader in loaders:
+        all_data_types.update(set(loader.data_format_params.keys()))
+
+    for attr in all_data_types:
+        merged_df = pd.DataFrame()
+        sources = set()
+
+        for loader in loaders:
+            df = getattr(loader, attr, pd.DataFrame())
+            if not df.empty:
+                format_params = loader.data_format_params.get(attr, [])
+                if len(format_params) == 3:  # Assuming format_params has three elements: id_vars, var_name, value_name
+                    id_vars, var_name, value_name = format_params
+                    if not loader.is_long_format(df, id_vars, var_name, value_name):
+                        print(f"Cannot merge {attr} as it is not in long format in {loader.dataset_type}.")
+                        return None  # Or handle this scenario appropriately
+
+                merge_keys = loader.data_format_params.get(attr, [])
+
+                for key in merge_keys:
+                    if key in df.columns:
+                        if merged_df.empty or key not in merged_df.columns:
+                            continue
+
+                        # Check if data types are different
+                        if df[key].dtype != merged_df[key].dtype:
+                            try:
+                                # Try converting both columns to float
+                                df[key] = df[key].astype(float)
+                                merged_df[key] = merged_df[key].astype(float)
+                            except ValueError:
+                                # If conversion to float fails, convert to string
+                                df[key] = df[key].astype(str)
+                                merged_df[key] = merged_df[key].astype(str)
+
+                if merged_df.empty:
+                    merged_df = df
+                else:
+                    merged_df = pd.merge(merged_df, df, on=merge_keys, how='outer')
+
+                if hasattr(loader, 'source_of_datatype') and attr in loader.source_of_datatype:
+                    sources.update(loader.source_of_datatype[attr])
+                else:
+                    sources.add(loader.dataset_type)
+
+        if not merged_df.empty:
+            setattr(joined_loader, attr, merged_df)
+            joined_loader.source_of_datatype[attr] = list(sources)
+
+    return joined_loader
+

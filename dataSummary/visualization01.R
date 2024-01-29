@@ -138,7 +138,7 @@ fig0<-ggplot(stats,aes(x=cancer_type,y=numSamps,fill=model_type))+
   ggtitle('Samples by tumor type')
 
 print(fig0)
-ggsave('Fig0_Overview.pdf',fig0,height=8,width=10)
+ggsave('Fig0_Overview.png',fig0,height=9,width=12)
 
 # Subset data for each type
 data_type1 <- subset(stats, sampleSource == 'HCMI')
@@ -171,10 +171,9 @@ fig4 <- ggplot(data_type4, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   ggtitle('Cancer and Tissue Types - CCLE')
 
-ggsave('Fig1_HCMI.pdf',fig1,height=8,width=10)
-ggsave('Fig2_BeatAML.pdf',fig2,height=8,width=10)
-ggsave('Fig3_CPTAC.pdf',fig3,height=8,width=10)
-ggsave('Fig4_CCLE.pdf',fig4,height=8,width=10)
-
+ggsave('Fig1_HCMI.png', fig1, height=9, width=12)
+ggsave('Fig2_BeatAML.png', fig2, height=9, width=12)
+ggsave('Fig3_CPTAC.png', fig3, height=9, width=12)
+ggsave('Fig4_CCLE.png', fig4, height=9, width=12)
 
 
