@@ -341,3 +341,47 @@ th {
 .code-comment {
     color: green;
 }
+
+
+
+/* Adjustments for smaller screens */
+@media (max-width: 768px) {
+    .header {
+        height: 100px;
+        padding: 5px 10px; 
+    }
+
+    .header-logo {
+        height: 80%;
+        width: auto;
+    }
+
+    .title-and-description {
+        display: block;
+        text-align: center; 
+    }
+
+    .title-and-description .title {
+        font-size: 18px; 
+    }
+
+    .title-and-description .description {
+        display: none; 
+    }
+}
+
+/* Further adjustments for even smaller screens */
+@media (max-width: 480px) {
+    .header {
+        height: 80px; 
+    }
+
+    .header-logo {
+        height: 70%; 
+    }
+
+    .title-and-description .title {
+        font-size: 16px; 
+    }
+
+}
