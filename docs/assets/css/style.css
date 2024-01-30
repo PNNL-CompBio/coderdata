@@ -431,7 +431,7 @@ th {
     
     .navbar.open {
         display: flex;
-        top: 105px;
+        top: 140px;
         height: 14px;
     }
 
@@ -447,7 +447,7 @@ th {
     }
 
     .header-logo {
-        height: 50%;
+        height: 60%;
         width: auto;
     }
 
@@ -480,11 +480,11 @@ th {
 @media (max-width: 480px) {
 
     .header-logo {
-        height: 70%; 
+        height: 50%; 
     }
 
     .title-and-description .title {
         font-size: 16px; 
     }
 
-}
+} */
