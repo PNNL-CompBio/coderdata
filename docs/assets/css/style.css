@@ -439,12 +439,12 @@ th {
         height: 240px;
         padding: 5px 10px; 
     }
-    body {
+    .navbar.open + body {
         padding-top: 250px; /* Increased to push the content down below the larger header */
     }
 
     .header-logo {
-        height: 60%;
+        height: 100%;
         width: auto;
     }
 
@@ -457,9 +457,9 @@ th {
         font-size: 18px; 
     }
 
-    .title-and-description .description {
+    /* .title-and-description .description {
         display: none; 
-    }
+    } */
 }
 
 /* Responsive Styles */
@@ -476,7 +476,7 @@ th {
 @media (max-width: 480px) {
 
     .header-logo {
-        height: 50%; 
+        height: 80%; 
     }
 
     .title-and-description .title {
