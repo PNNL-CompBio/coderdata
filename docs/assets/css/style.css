@@ -427,11 +427,11 @@ th {
     .navbar.open {
         display: flex;
         top: 105px;
-        height: 14px
+        height: 14px;
     }
 
 }
 
-.navbar.open + .content {
-    margin-top: 20px;
+.navbar.open + .header {
+    height: 160px;
 }
