@@ -341,12 +341,12 @@ th {
 
 @media (max-width: 900px) {
     .header {
-        height: 100px;
+        height: 160px;
         padding: 5px 10px; 
     }
-    .navbar.open + .header {
+    /* .navbar.open + .header {
         height: 160px;
-    }
+    } */
 
     .header-logo {
         height: 80%;
