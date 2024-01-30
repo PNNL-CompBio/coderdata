@@ -83,7 +83,7 @@ body {
 
 .dropdown {
     position: relative;
-    /* display: inline-block; */
+    display: inline-block;
 }
 
 .dropdown-content {
@@ -413,7 +413,7 @@ th {
         position: absolute;
         top: 100%; /* Positioned right below the header */
         left: 0; /* Align to the left edge */
-        width: 90%; /* Take full width */
+        width: 100%; /* Take full width */
         background-color: #001c38; /* Match your header background color */
         flex-direction: column; /* Stack items vertically */
         align-items: flex-start; /* Align items to the start (left) */
@@ -426,6 +426,7 @@ th {
 
     .navbar.open {
         display: flex;
+        top: 120px;
     }
 
     .dropdown-content {
