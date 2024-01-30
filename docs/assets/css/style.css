@@ -420,13 +420,14 @@ th {
     }
 
     .navbar div {
-        width: 30%; /* Each item takes full width */
+        width: 20%; /* Each item takes full width */
         text-align: left; /* Align text to the left */
     }
 
     .navbar.open {
         display: flex;
-        top: 110px;
+        top: 105px;
+        height: 14px
     }
 
 }
