@@ -435,13 +435,14 @@ th {
         height: 14px;
     }
 
-    .header {
+    /* .header { */
+        /* height: 240px; */
+        /* padding: 5px 10px;  */
+    /* } */
+    .navbar.open + .header {
         height: 240px;
         padding: 5px 10px; 
     }
-    /* .navbar.open + .header {
-        height: 160px;
-    } */
     body {
         padding-top: 250px; /* Increased to push the content down below the larger header */
     }
@@ -475,7 +476,6 @@ th {
 .navbar.open + .header {
     height: 160px;
 } */
-
 
 @media (max-width: 480px) {
 
