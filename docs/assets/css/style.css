@@ -252,7 +252,7 @@ pre > code.language-python {
     align-items: center;
     flex-wrap: wrap; /* Allows items to wrap onto the next line on smaller screens */
     width: 95%;
-    height: 500px;
+    height: auto;
 }
 
 .flex-item {
@@ -281,7 +281,6 @@ pre > code.language-python {
     border-radius: 2px;
     border-color: #001a37;
 }
-
 
 
 
@@ -355,7 +354,7 @@ th {
     }
 
     .header-logo {
-        height: 80%;
+        height: 50%;
         width: auto;
     }
 
@@ -401,7 +400,7 @@ th {
     display: block;
     height: 3px;
     width: 100%;
-    background-color: white;
+    background-color: #001c38;
 }
 
 /* Responsive Styles */
@@ -413,7 +412,7 @@ th {
     .navbar {
         display: none;
         position: absolute;
-        top: 100%; /* Positioned right below the header */
+        top: 120%; /* Positioned right below the header */
         left: 0; /* Align to the left edge */
         width: 100%; /* Take full width */
         background-color: #001c38; /* Match your header background color */
