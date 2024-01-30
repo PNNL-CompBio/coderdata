@@ -432,13 +432,9 @@ th {
     .navbar.open {
         display: flex;
         top: 140px;
-        height: 14px;
+        height: 140px;
     }
 
-    /* .header { */
-        /* height: 240px; */
-        /* padding: 5px 10px;  */
-    /* } */
     .navbar.open + .header {
         height: 240px;
         padding: 5px 10px; 
@@ -487,4 +483,4 @@ th {
         font-size: 16px; 
     }
 
-} */
+}
