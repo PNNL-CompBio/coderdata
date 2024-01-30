@@ -420,16 +420,13 @@ th {
     }
 
     .navbar div {
-        width: 100%; /* Each item takes full width */
+        width: 30%; /* Each item takes full width */
         text-align: left; /* Align text to the left */
     }
 
     .navbar.open {
         display: flex;
-        top: 120px;
+        top: 110px;
     }
 
-    .dropdown-content {
-        position: static; /* Override absolute positioning */
-    }
 }
