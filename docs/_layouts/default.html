@@ -27,9 +27,9 @@
     </div>
 
     <div class="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
+        <div></div>
+        <div></div>
+        <div></div>
     </div>
 
     <div class="navbar">
@@ -59,10 +59,10 @@
 {{ content }}
 
 <script>
-    // JavaScript for toggling the navbar
-    document.querySelector('.hamburger').addEventListener('click', function() {
-        document.querySelector('.navbar').classList.toggle('open');
-    });
+    document.querySelector('.hamburger-menu').addEventListener('click', function() {
+        this.classList.toggle('open');
+        document.querySelector('.title').classList.toggle('menu-open');
+      });
 </script>
 
 </body>
