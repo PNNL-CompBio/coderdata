@@ -49,619 +49,598 @@ jobs:
       #     path: beataml-samples
 
 
-  build-cell-line-samples:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    steps:
-      #Add upload artifact from Cell-line Samples 
-      - name: Checkout  Cell Line
-        uses: actions/checkout@v2
-      # - name: Copy Cell Line sample from build location. 
-      #   run: |
-      #     cp build/cell_line/requirements.txt .
-      #     cp build/cell_line/requirements.r .
-      #     cp build/cell_line/*.R .
-      #     cp build/cell_line/*.py .
-      #     cp build/utils/* .
-      - name: List files cwd
-        run: ls -lah 
-      - name: cat reqs
-        run: cat requirements.txt
-      - name: Build Cell-line Image
-        run: docker build -t cell_line-samples-builder -f build/docker/Dockerfile.cell_line .
-      - name: Run Cell-line samples Container
-        run: |
-          docker run -v $PWD:/tmp/ cell_line-samples-builder Rscript 00-buildGeneFile.R
-          docker run -v $PWD:/tmp/ cell_line-samples-builder Rscript 01-cellLineSamples.R
-      - name: Copy file from Cell-line Samples Container
-        run: |
-          mkdir cell-line-samples genes-file
-          mv cell_line_samples.csv cell-line-samples
-          mv genes.csv genes-file
-      - name: Upload artifacts for Cell-line
-        uses: actions/upload-artifact@v2
-        with:
-          name: cell-line-samples
-          path: cell-line-samples
-      - name: Upload artifacts for genes
-        uses: actions/upload-artifact@v2
-        with:
-          name: genes-file
-          path: genes-file
+#   build-cell-line-samples:
+#     if: github.actor != 'github-actions[bot]'
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     steps:
+#       #Add upload artifact from Cell-line Samples 
+#       - name: Checkout  Cell Line
+#         uses: actions/checkout@v2
+#       # - name: Copy Cell Line sample from build location. 
+#       #   run: |
+#       #     cp build/cell_line/requirements.txt .
+#       #     cp build/cell_line/requirements.r .
+#       #     cp build/cell_line/*.R .
+#       #     cp build/cell_line/*.py .
+#       #     cp build/utils/* .
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: cat reqs
+#         run: cat requirements.txt
+#       - name: Build Cell-line Image
+#         run: docker build -t cell_line-samples-builder -f build/docker/Dockerfile.cell_line .
+#       - name: Run Cell-line samples Container
+#         run: |
+#           docker run -v $PWD:/tmp/ cell_line-samples-builder Rscript 00-buildGeneFile.R
+#           docker run -v $PWD:/tmp/ cell_line-samples-builder Rscript 01-cellLineSamples.R
+#       - name: Copy file from Cell-line Samples Container
+#         run: |
+#           mkdir cell-line-samples genes-file
+#           mv cell_line_samples.csv cell-line-samples
+#           mv genes.csv genes-file
+#       - name: Upload artifacts for Cell-line
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: cell-line-samples
+#           path: cell-line-samples
+#       - name: Upload artifacts for genes
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: genes-file
+#           path: genes-file
 
-  build-cptac-samples:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-cell-line-samples]
-    steps:
-      #Add upload artifact from CPTAC Samples 
-      - name: Checkout  CPTAC
-        uses: actions/checkout@v2
-      - name: Download artifacts from cell-line
-        uses: actions/download-artifact@v2
-        with:
-          name: cell-line-samples
-      - name: Download artifacts from Cell Line (genes)
-        uses: actions/download-artifact@v2  
-        with:
-          name: genes-file
-      - name: Copy Cell Line sample from build location. 
-        run: |
-          cp build/cptac/requirements.txt .
-          cp build/cptac/*.py .
-          # copy build/genes.csv .
-      - name: List files cwd
-        run: ls -lah 
-      - name: cat reqs
-        run: cat requirements.txt
-      - name: Build CPTAC Image
-        run: docker build -t cptac-samples-builder -f build/docker/Dockerfile.cptac .
-      - name: Run CPTAC samples Container
-        run: docker run -v $PWD:/tmp cptac-samples-builder --geneFile=genes.csv --prevSampleFile=/tmp/cell_line_samples.csv 
-      - name: Copy file from CPTAC Samples Container
-        run: |
-          mkdir cptac-samples
-          mv cptac_samples.csv cptac-samples
-      - name: Upload artifacts for CPTAC
-        uses: actions/upload-artifact@v2
-        with:
-          name: cptac-samples
-          path: cptac-samples
+#   build-cptac-samples:
+#     if: github.actor != 'github-actions[bot]'
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     needs: [build-cell-line-samples]
+#     steps:
+#       #Add upload artifact from CPTAC Samples 
+#       - name: Checkout  CPTAC
+#         uses: actions/checkout@v2
+#       - name: Download artifacts from cell-line
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: cell-line-samples
+#       - name: Download artifacts from Cell Line (genes)
+#         uses: actions/download-artifact@v2  
+#         with:
+#           name: genes-file
+#       - name: Copy Cell Line sample from build location. 
+#         run: |
+#           cp build/cptac/requirements.txt .
+#           cp build/cptac/*.py .
+#           # copy build/genes.csv .
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: cat reqs
+#         run: cat requirements.txt
+#       - name: Build CPTAC Image
+#         run: docker build -t cptac-samples-builder -f build/docker/Dockerfile.cptac .
+#       - name: Run CPTAC samples Container
+#         run: docker run -v $PWD:/tmp cptac-samples-builder --geneFile=genes.csv --prevSampleFile=/tmp/cell_line_samples.csv 
+#       - name: Copy file from CPTAC Samples Container
+#         run: |
+#           mkdir cptac-samples
+#           mv cptac_samples.csv cptac-samples
+#       - name: Upload artifacts for CPTAC
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: cptac-samples
+#           path: cptac-samples
 
-  build-hcmi-samples:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-cptac-samples]
-    steps:
-      - name: Checkout  HCMI
-        uses: actions/checkout@v2
-      - name: Download artifacts from CPTAC
-        uses: actions/download-artifact@v2
-        with:
-          name: cptac-samples
-      - name: Build HCMI Image
-        run: docker build -t hcmi-samples-builder -f build/docker/Dockerfile.hcmi .
-      - name: Run HCMI samples Container
-        run: docker run --name hcmi-samples-container hcmi-samples-builder python 01-createHCMISamplesFile.py
-      - name: Copy file from HCMI Samples Container
-        run: |
-          mkdir hcmi-samples
-          for file in hcmi_samples.csv; do
-            docker cp hcmi-samples-container:/usr/src/app/$file hcmi-samples/$file
-          done
-      - name: Get HCMI container logs
-        run: docker logs hcmi-samples-container 
-      - name: Upload artifacts for HCMI
-        uses: actions/upload-artifact@v2
-        with:
-          name: hcmi-samples
-          path: hcmi-samples
+#   build-hcmi-samples:
+#     if: github.actor != 'github-actions[bot]'
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     needs: [build-cptac-samples]
+#     steps:
+#       - name: Checkout  HCMI
+#         uses: actions/checkout@v2
+#       - name: Download artifacts from CPTAC
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: cptac-samples
+#       - name: Build HCMI Image
+#         run: docker build -t hcmi-samples-builder -f build/docker/Dockerfile.hcmi .
+#       - name: Run HCMI samples Container
+#         run: docker run --name hcmi-samples-container hcmi-samples-builder python 01-createHCMISamplesFile.py
+#       - name: Copy file from HCMI Samples Container
+#         run: |
+#           mkdir hcmi-samples
+#           for file in hcmi_samples.csv; do
+#             docker cp hcmi-samples-container:/usr/src/app/$file hcmi-samples/$file
+#           done
+#       - name: Get HCMI container logs
+#         run: docker logs hcmi-samples-container 
+#       - name: Upload artifacts for HCMI
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: hcmi-samples
+#           path: hcmi-samples
 
-  build-beataml-samples:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-hcmi-samples]
-    steps:
-      #Add upload artifact from CPTAC Samples 
-      - name: Checkout  BeatAML
-        uses: actions/checkout@v2
-      - name: Download artifacts from HCMI
-        uses: actions/download-artifact@v2
-        with:
-          name: hcmi-samples
-      - name: Build BeatAML Image
-        run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
-      - name: Run BeatAML Container with samples option
-        run: docker run --name beataml-samples-container beataml-builder python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }} --samples
-      - name: Copy file from BeatAML Samples Container
-        run: |
-          mkdir beataml-samples
-          for file in beataml_samples.csv; do
-            docker cp beataml-samples-container:/usr/src/app/$file beataml-samples/$file
-          done
-      - name: Get BeatAML container logs
-        run: docker logs beataml-samples-container 
-      - name: Upload artifacts for BeatAML
-        uses: actions/upload-artifact@v2
-        with:
-          name: beataml-samples
-          path: beataml-samples
+#   build-beataml-samples:
+#     if: github.actor != 'github-actions[bot]'
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     needs: [build-hcmi-samples]
+#     steps:
+#       #Add upload artifact from CPTAC Samples 
+#       - name: Checkout  BeatAML
+#         uses: actions/checkout@v2
+#       - name: Download artifacts from HCMI
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: hcmi-samples
+#       - name: Build BeatAML Image
+#         run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
+#       - name: Run BeatAML Container with samples option
+#         run: docker run --name beataml-samples-container beataml-builder python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }} --samples
+#       - name: Copy file from BeatAML Samples Container
+#         run: |
+#           mkdir beataml-samples
+#           for file in beataml_samples.csv; do
+#             docker cp beataml-samples-container:/usr/src/app/$file beataml-samples/$file
+#           done
+#       - name: Get BeatAML container logs
+#         run: docker logs beataml-samples-container 
+#       - name: Upload artifacts for BeatAML
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: beataml-samples
+#           path: beataml-samples
 
-# Placeholder
-  build-mpnst-samples:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-beataml-samples]
-    steps:
-      #Add upload artifact from CPTAC Samples 
-      - name: Checkout  MPNST
-        uses: actions/checkout@v2
+# # Placeholder
+#   build-mpnst-samples:
+#     if: github.actor != 'github-actions[bot]'
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     needs: [build-beataml-samples]
+#     steps:
+#       #Add upload artifact from CPTAC Samples 
+#       - name: Checkout  MPNST
+#         uses: actions/checkout@v2
 
-  build-hcmi:
-    if: github.actor != 'github-actions[bot]'
-    needs: [build-hcmi-samples]
-    runs-on: ubuntu-20.04
-    environment: build
-    steps:
-      - name: Checkout  HCMI
-        uses: actions/checkout@v2
-      - name: Download artifacts from HCMI
-        uses: actions/download-artifact@v2
-        with:
-          name: hcmi-samples
-      - name: List files cwd
-        run: ls -lah 
-      - name: Build HCMI Image
-        run: docker build -t hcmi-builder -f build/docker/Dockerfile.hcmi .
-      - name: Run HCMI Container
-        run: |
-          docker run --name hcmi-container hcmi-builder /bin/bash -c "python 02-getHCMIData.py -m full_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t copy_number -o hcmi_copy_number.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t mutations -o hcmi_mutations.csv"
-      - name: Copy files from HCMI Container
-        run: |
-          mkdir hcmi-files
-          for file in hcmi_samples.csv hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
-            docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
-          done
-      - name: Get HCMI container logs
-        run: docker logs hcmi-container
-      - name: Upload artifacts for HCMI
-        uses: actions/upload-artifact@v2
-        with:
-          name: hcmi-files
-          path: hcmi-files
+#   build-hcmi:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [build-hcmi-samples]
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     steps:
+#       - name: Checkout  HCMI
+#         uses: actions/checkout@v2
+#       - name: Download artifacts from HCMI
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: hcmi-samples
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: Build HCMI Image
+#         run: docker build -t hcmi-builder -f build/docker/Dockerfile.hcmi .
+#       - name: Run HCMI Container
+#         run: |
+#           docker run --name hcmi-container hcmi-builder /bin/bash -c "python 02-getHCMIData.py -m full_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t copy_number -o hcmi_copy_number.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t mutations -o hcmi_mutations.csv"
+#       - name: Copy files from HCMI Container
+#         run: |
+#           mkdir hcmi-files
+#           for file in hcmi_samples.csv hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
+#             docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
+#           done
+#       - name: Get HCMI container logs
+#         run: docker logs hcmi-container
+#       - name: Upload artifacts for HCMI
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: hcmi-files
+#           path: hcmi-files
 
-  build-beataml:
-    if: github.actor != 'github-actions[bot]'
-    needs: [build-beataml-samples]
-    runs-on: ubuntu-20.04
-    environment: build
-    steps:
-      - name: Checkout code BeatAML
-        uses: actions/checkout@v2
-      - name: Download artifacts from HCMI
-        uses: actions/download-artifact@v2
-        with:
-          name: beataml-samples
-      - name: List files cwd
-        run: ls -lah 
-      - name: Build BeatAML Image
-        run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
-      - name: Run BeatAML Container
-        run: docker run --name beataml-container beataml-builder python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }}
-      - name: Copy files from BeatAML Container
-        run: |
-          mkdir beataml-files
-          for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv beataml_drugs.tsv beataml_experiments.csv; do
-            docker cp beataml-container:/usr/src/app/$file beataml-files/$file
-          done
-      - name: Get BeatAML container logs
-        run: docker logs beataml-container
-      - name: Upload artifact for BeatAML
-        uses: actions/upload-artifact@v2
-        with:
-          name: beataml-files
-          path: beataml-files
+#   build-beataml:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [build-beataml-samples]
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     steps:
+#       - name: Checkout code BeatAML
+#         uses: actions/checkout@v2
+#       - name: Download artifacts from HCMI
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: beataml-samples
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: Build BeatAML Image
+#         run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
+#       - name: Run BeatAML Container
+#         run: docker run --name beataml-container beataml-builder python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }}
+#       - name: Copy files from BeatAML Container
+#         run: |
+#           mkdir beataml-files
+#           for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv beataml_drugs.tsv beataml_experiments.csv; do
+#             docker cp beataml-container:/usr/src/app/$file beataml-files/$file
+#           done
+#       - name: Get BeatAML container logs
+#         run: docker logs beataml-container
+#       - name: Upload artifact for BeatAML
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: beataml-files
+#           path: beataml-files
 
-  # build-cell-line:
-  #   if: github.actor != 'github-actions[bot]'
-  #   needs: [build-cell-line-samples]
-  #   runs-on: ubuntu-20.04
-  #   environment: build
-  #   steps:
-  #     - name: Checkout code Cell Line
-  #       uses: actions/checkout@v2
-  #     - name: List files cwd before
-  #       run: ls -lah 
-  #     - name: Install coderdata
-  #       run: pip install coderdata
-  #     - name: Download cell_line data from coder data
-  #       run: coderdata download --prefix cell_line
-  #     - name: List files cwd after
-  #       run: ls -lah 
-  #     - name: Copy files from cell line Container
-  #       run: |
-  #         mkdir cell-line-files
-  #         for file in *cell_line*sv*; do
-  #           cp $file cell-line-files/$file
-  #         done
-  #     - name: Upload artifact for Cell Line
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: cell-line-files
-  #         path: cell-line-files
+#   # build-cell-line:
+#   #   if: github.actor != 'github-actions[bot]'
+#   #   needs: [build-cell-line-samples]
+#   #   runs-on: ubuntu-20.04
+#   #   environment: build
+#   #   steps:
+#   #     - name: Checkout code Cell Line
+#   #       uses: actions/checkout@v2
+#   #     - name: List files cwd before
+#   #       run: ls -lah 
+#   #     - name: Install coderdata
+#   #       run: pip install coderdata
+#   #     - name: Download cell_line data from coder data
+#   #       run: coderdata download --prefix cell_line
+#   #     - name: List files cwd after
+#   #       run: ls -lah 
+#   #     - name: Copy files from cell line Container
+#   #       run: |
+#   #         mkdir cell-line-files
+#   #         for file in *cell_line*sv*; do
+#   #           cp $file cell-line-files/$file
+#   #         done
+#   #     - name: Upload artifact for Cell Line
+#   #       uses: actions/upload-artifact@v2
+#   #       with:
+#   #         name: cell-line-files
+#   #         path: cell-line-files
 
-  build-cell-line:
-    if: github.actor != 'github-actions[bot]'
-    needs: [build-cell-line-samples]
-    runs-on: ubuntu-20.04
-    environment: build
-    steps:
-      - name: Checkout  Cell Line
-        uses: actions/checkout@v2
-      # - name: Copy Cell Line sample from build location. 
-      #   run: |
-      #     cp build/cell_line/requirements.txt .
-      #     cp build/cell_line/requirements.r .
-      #     cp build/cell_line/*.R .
-      #     cp build/cell_line/*.py .
-      #     cp build/utils/* .
-      - name: Download artifacts from Cell Line (samples)
-        uses: actions/download-artifact@v2  
-        with:
-          name: cell-line-samples
-      - name: Download artifacts from Cell Line (genes)
-        uses: actions/download-artifact@v2  
-        with:
-          name: genes-file
-      - name: List files cwd
-        run: ls -lah 
-      - name: cat reqs
-        run: cat requirements.txt
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run Cell-line 02a-cellLineSanger.R Container
-        run: |
-          docker run -v $PWD:/tmp/ cell-line Rscript 02a-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv
-      - name: Run Cell-line 02-cellLineDepMap.R Container
-        run: |
-          docker run -v $PWD:/tmp cell-line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv
-      - name: Run Cell-line 03-curves_and_drug_mapping.py Container
-        run: |
-          docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 03-curves_and_drug_mapping.py --curSampleFile=/tmp/cell_line_samples.csv
-      - name: Run Cell-line 01b-cellLineDrugs_LINCS.py Container
-        run: |
-          docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 01b-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
-      - name: Run Cell-line 02b-cellLineLINCS.R Container
-        run: |
-          docker run -v $PWD:/tmp cell-line Rscript 02b-cellLineLINCS.R /tmp/genes.csv /tmp/lincs_drugs.tsv /tmp/cell_line_samples.csv
-      - name: List files cwd
-        run: ls -lah 
-      - name: Copy files from Cell Line Container
-        run: |
-          mkdir cell-line-files
-          cp cell_line_* cell-line-files
-      - name: Upload artifacts for Cell Line
-        uses: actions/upload-artifact@v2
-        with:
-          name: cell-line-files
-          path: cell-line-files
+#   build-cell-line:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [build-cell-line-samples]
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     steps:
+#       - name: Checkout  Cell Line
+#         uses: actions/checkout@v2
+#       # - name: Copy Cell Line sample from build location. 
+#       #   run: |
+#       #     cp build/cell_line/requirements.txt .
+#       #     cp build/cell_line/requirements.r .
+#       #     cp build/cell_line/*.R .
+#       #     cp build/cell_line/*.py .
+#       #     cp build/utils/* .
+#       - name: Download artifacts from Cell Line (samples)
+#         uses: actions/download-artifact@v2  
+#         with:
+#           name: cell-line-samples
+#       - name: Download artifacts from Cell Line (genes)
+#         uses: actions/download-artifact@v2  
+#         with:
+#           name: genes-file
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: cat reqs
+#         run: cat requirements.txt
+#       - name: Build Cell-line Image
+#         run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
+#       - name: Run Cell-line 02a-cellLineSanger.R Container
+#         run: |
+#           docker run -v $PWD:/tmp/ cell-line Rscript 02a-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv
+#       - name: Run Cell-line 02-cellLineDepMap.R Container
+#         run: |
+#           docker run -v $PWD:/tmp cell-line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv
+#       - name: Run Cell-line 03-curves_and_drug_mapping.py Container
+#         run: |
+#           docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 03-curves_and_drug_mapping.py --curSampleFile=/tmp/cell_line_samples.csv
+#       - name: Run Cell-line 01b-cellLineDrugs_LINCS.py Container
+#         run: |
+#           docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 01b-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
+#       - name: Run Cell-line 02b-cellLineLINCS.R Container
+#         run: |
+#           docker run -v $PWD:/tmp cell-line Rscript 02b-cellLineLINCS.R /tmp/genes.csv /tmp/lincs_drugs.tsv /tmp/cell_line_samples.csv
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: Copy files from Cell Line Container
+#         run: |
+#           mkdir cell-line-files
+#           cp cell_line_* cell-line-files
+#       - name: Upload artifacts for Cell Line
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: cell-line-files
+#           path: cell-line-files
 
-  build-cptac:
-    if: github.actor != 'github-actions[bot]'
-    needs: [build-cptac-samples]
-    runs-on: ubuntu-20.04
-    environment: build
-    steps:
-      - name: Checkout  CPTAC
-        uses: actions/checkout@v2
-      - name: Download artifacts from CPTAC
-        uses: actions/download-artifact@v2
-        with:
-          name: cptac-samples
-      - name: Download artifacts from Cell Line (genes)
-        uses: actions/download-artifact@v2  
-        with:
-          name: genes-file
-      - name: Copy files from build location. 
-        run: |
-          cp build/cptac/*.py .
-          cp build/cptac/requirements.txt .
-          # copy build/genes.csv .
-      - name: List files cwd
-        run: ls -lah 
-      - name: Build CPTAC Image
-        run: docker build -t cptac-builder -f build/docker/Dockerfile.cptac .
-      - name: Run CPTAC Container
-        run: |
-          docker run -v $PWD:/tmp cptac-builder --geneFile=genes.csv --curSampleFile=/tmp/cptac_samples.csv   
-      - name: Copy files from CPTAC Container
-        run: |
-          mkdir cptac-files
-          cp cptac_* cptac-files
-      - name: Upload artifacts for CPTAC
-        uses: actions/upload-artifact@v2
-        with:
-          name: cptac-files
-          path: cptac-files
+#   build-cptac:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [build-cptac-samples]
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     steps:
+#       - name: Checkout  CPTAC
+#         uses: actions/checkout@v2
+#       - name: Download artifacts from CPTAC
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: cptac-samples
+#       - name: Download artifacts from Cell Line (genes)
+#         uses: actions/download-artifact@v2  
+#         with:
+#           name: genes-file
+#       - name: Copy files from build location. 
+#         run: |
+#           cp build/cptac/*.py .
+#           cp build/cptac/requirements.txt .
+#           # copy build/genes.csv .
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: Build CPTAC Image
+#         run: docker build -t cptac-builder -f build/docker/Dockerfile.cptac .
+#       - name: Run CPTAC Container
+#         run: |
+#           docker run -v $PWD:/tmp cptac-builder --geneFile=genes.csv --curSampleFile=/tmp/cptac_samples.csv   
+#       - name: Copy files from CPTAC Container
+#         run: |
+#           mkdir cptac-files
+#           cp cptac_* cptac-files
+#       - name: Upload artifacts for CPTAC
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: cptac-files
+#           path: cptac-files
 
-#placeholder
-  build-mpnst:
-    if: github.actor != 'github-actions[bot]'
-    needs: [build-mpnst-samples]
-    runs-on: ubuntu-20.04
-    environment: build
-    steps:
-      - name: Checkout code MPNST
-        uses: actions/checkout@v2
+# #placeholder
+#   build-mpnst:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [build-mpnst-samples]
+#     runs-on: ubuntu-20.04
+#     environment: build
+#     steps:
+#       - name: Checkout code MPNST
+#         uses: actions/checkout@v2
 
-  data-visualization:
-    if: github.actor != 'github-actions[bot]'
-    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
-    environment: build
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-      - name: Install R packages
-        run: |
-          R -e "install.packages('RColorBrewer', dependencies=TRUE, repos='http://cran.rstudio.com/')"
-          R -e "install.packages('circlize', dependencies=TRUE, repos='http://cran.rstudio.com/')"
-          R -e "install.packages('dplyr', dependencies=TRUE, repos='http://cran.rstudio.com/')"
-          R -e "install.packages('readr', dependencies=TRUE, repos='http://cran.rstudio.com/')"
-          R -e "install.packages('tools', dependencies=TRUE, repos='http://cran.rstudio.com/')"
-          R -e "install.packages('ggplot2', dependencies=TRUE, repos='http://cran.rstudio.com/')"
-          R -e "install.packages('reshape2', dependencies=TRUE, repos='http://cran.rstudio.com/')"
-          R -e "install.packages('ComplexUpset', dependencies=TRUE, repos='http://cran.rstudio.com/')"
-      - name: checkout repo content
-        uses: actions/checkout@v2
-      - name: Download artifacts from HCMI
-        uses: actions/download-artifact@v2
-        with:
-          name: hcmi-files
-      - name: Download artifacts from BeatAML
-        uses: actions/download-artifact@v2
-        with:
-          name: beataml-files
-      - name: Download artifacts from Cell Line
-        uses: actions/download-artifact@v2
-        with:
-          name: cell-line-files
-      # - name: Download artifacts from MPNST
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: mpnst-files
-      - name: Download artifacts from cptac
-        uses: actions/download-artifact@v2
-        with:
-          name: cptac-files
-      # - name: Install coderdata and skip build steps
-      #   run: pip install coderdata
-      # - name: Download cptac data from coder data
-      #   run: coderdata download --prefix cptac
-      # - name: Download cell_line data from coder data
-      #   run: coderdata download --prefix cell_line
-      # - name: Download all data from coder data
-      #   run: coderdata download 
-      - name: Create all-files directory
-        run: mkdir all-files
-      - name: List files cwd
-        run: ls -lah 
-      - name: List files dataSummary dir
-        run: ls -lah dataSummary
-      - name: Gzip all non-samples csv files in current dir.
-        run: |
-          find . -type f -name '*.csv' ! -name '*samples*' -exec gzip -k "{}" +
-      - name: Run Visualization01
-        if: success() || failure()
-        run: Rscript dataSummary/visualization01.R
-      - name: Run Visualization02
-        if: success() || failure()
-        run: Rscript dataSummary/visualization02.R
-      - name: setup data-vis dir
-        if: success() || failure()
-        run: |
-          mkdir -p data-vis
-          rsync -av --remove-source-files --include='*.png' --include='*.pdf' --include='*table.csv' --exclude='*' . data-vis/
-      - name: Upload artifacts
-        if: success() || failure()
-        uses: actions/upload-artifact@v2
-        with:
-          name: data-vis
-          path: data-vis
+#   data-visualization:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
+#     environment: build
+#     runs-on: ubuntu-20.04
+#     steps:
+#       - name: Set up R
+#         uses: r-lib/actions/setup-r@v2
+#       - name: Install R packages
+#         run: |
+#           R -e "install.packages('RColorBrewer', dependencies=TRUE, repos='http://cran.rstudio.com/')"
+#           R -e "install.packages('circlize', dependencies=TRUE, repos='http://cran.rstudio.com/')"
+#           R -e "install.packages('dplyr', dependencies=TRUE, repos='http://cran.rstudio.com/')"
+#           R -e "install.packages('readr', dependencies=TRUE, repos='http://cran.rstudio.com/')"
+#           R -e "install.packages('tools', dependencies=TRUE, repos='http://cran.rstudio.com/')"
+#           R -e "install.packages('ggplot2', dependencies=TRUE, repos='http://cran.rstudio.com/')"
+#           R -e "install.packages('reshape2', dependencies=TRUE, repos='http://cran.rstudio.com/')"
+#           R -e "install.packages('ComplexUpset', dependencies=TRUE, repos='http://cran.rstudio.com/')"
+#       - name: checkout repo content
+#         uses: actions/checkout@v2
+#       - name: Download artifacts from HCMI
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: hcmi-files
+#       - name: Download artifacts from BeatAML
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: beataml-files
+#       - name: Download artifacts from Cell Line
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: cell-line-files
+#       # - name: Download artifacts from MPNST
+#       #   uses: actions/download-artifact@v2
+#       #   with:
+#       #     name: mpnst-files
+#       - name: Download artifacts from cptac
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: cptac-files
+#       # - name: Install coderdata and skip build steps
+#       #   run: pip install coderdata
+#       # - name: Download cptac data from coder data
+#       #   run: coderdata download --prefix cptac
+#       # - name: Download cell_line data from coder data
+#       #   run: coderdata download --prefix cell_line
+#       # - name: Download all data from coder data
+#       #   run: coderdata download 
+#       - name: Create all-files directory
+#         run: mkdir all-files
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: List files dataSummary dir
+#         run: ls -lah dataSummary
+#       - name: Gzip all non-samples csv files in current dir.
+#         run: |
+#           find . -type f -name '*.csv' ! -name '*samples*' -exec gzip -k "{}" +
+#       - name: Run Visualization01
+#         if: success() || failure()
+#         run: Rscript dataSummary/visualization01.R
+#       - name: Run Visualization02
+#         if: success() || failure()
+#         run: Rscript dataSummary/visualization02.R
+#       - name: setup data-vis dir
+#         if: success() || failure()
+#         run: |
+#           mkdir -p data-vis
+#           rsync -av --remove-source-files --include='*.png' --include='*.pdf' --include='*table.csv' --exclude='*' . data-vis/
+#       - name: Upload artifacts
+#         if: success() || failure()
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: data-vis
+#           path: data-vis
 
-  data-visualization-save-to-docs:
-    if: github.actor != 'github-actions[bot]'
-    needs: [data-visualization]
-    environment: build
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout repo content
-        uses: actions/checkout@v2
-      - name: Setup Git config and pull
-        run: |
-          git config user.name "jjacobson95"
-          git config user.email "jeremy.jacobson3402@gmail.com"
-          git pull
-      - name: Download artifacts from data-vis
-        uses: actions/download-artifact@v2
-        with:
-          name: data-vis
-      - name: List files cwd
-        run: ls -lah 
-      - name: List files .. 
-        run: ls -lah .. 
-      - name: List files all 
-        run: ls -lah * 
-      - name: Move files to docs directory
-        run: |
-          rsync -av --remove-source-files --include='*.png' --include='*.pdf' --exclude='*' . docs/assets/stats
-          rsync -av --remove-source-files --include='*table.csv' --exclude='*' . docs/_data
-      #    rsync -av --remove-source-files --include='*.png' --include='*.pdf' --include='*table.csv' --exclude='*' . docs/
-      - name: List files in docs after moving
-        run: ls -lah docs
-      - name: List files in local after moving
-        run: ls -lah 
-      - name: Git add and push new changes. 
-        run: |
-          git add -f docs/*
-          git status
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Add data visualization artifacts to docs"
-            git push
-          fi
-  gen-stats-and-push:
-    if: github.actor != 'github-actions[bot]'
-    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
-    environment: build
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout repo content
-        uses: actions/checkout@v2
-      - name: Setup Git config and pull
-        run: |
-          git config user.name "jjacobson95"
-          git config user.email "jeremy.jacobson3402@gmail.com"
-          git pull
-      - name: Download artifacts from HCMI
-        uses: actions/download-artifact@v2
-        with:
-          name: hcmi-files
-      - name: Download artifacts from BeatAML
-        uses: actions/download-artifact@v2
-        with:
-          name: beataml-files
-      - name: Download artifacts from Cell Line
-        uses: actions/download-artifact@v2
-        with:
-          name: cell-line-files
-      # - name: Download artifacts from MPNST
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: mpnst-files
-      - name: Download artifacts from cptac
-        uses: actions/download-artifact@v2
-        with:
-          name: cptac-files
-      - name: Install coderdata
-        run: |
-          pip install coderdata
-          pip install pyyaml
-      - name: Run stats generation script
-        run: |
-          python scripts/gen_stats.py
-      - name: Git add and push new changes if they exist. 
-        run: |
-          git pull
-          mv stats.yml docs/_data/stats.yml
-          git add -f docs/_data/stats.yml
-          git status
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Add stats.yml to docs/_data"
-            git push
-          fi
+#   data-visualization-save-to-docs:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [data-visualization]
+#     environment: build
+#     runs-on: ubuntu-20.04
+#     steps:
+#       - name: Checkout repo content
+#         uses: actions/checkout@v2
+#       - name: Setup Git config and pull
+#         run: |
+#           git config user.name "jjacobson95"
+#           git config user.email "jeremy.jacobson3402@gmail.com"
+#           git pull
+#       - name: Download artifacts from data-vis
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: data-vis
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: List files .. 
+#         run: ls -lah .. 
+#       - name: List files all 
+#         run: ls -lah * 
+#       - name: Move files to docs directory
+#         run: |
+#           rsync -av --remove-source-files --include='*.png' --include='*.pdf' --exclude='*' . docs/assets/stats
+#           rsync -av --remove-source-files --include='*table.csv' --exclude='*' . docs/_data
+#       #    rsync -av --remove-source-files --include='*.png' --include='*.pdf' --include='*table.csv' --exclude='*' . docs/
+#       - name: List files in docs after moving
+#         run: ls -lah docs
+#       - name: List files in local after moving
+#         run: ls -lah 
+#       - name: Git add and push new changes. 
+#         run: |
+#           git add -f docs/*
+#           git status
+#           if git diff --staged --quiet; then
+#             echo "No changes to commit"
+#           else
+#             git commit -m "Add data visualization artifacts to docs"
+#             git push
+#           fi
+#   gen-stats-and-push:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
+#     environment: build
+#     runs-on: ubuntu-20.04
+#     steps:
+#       - name: Checkout repo content
+#         uses: actions/checkout@v2
+#       - name: Setup Git config and pull
+#         run: |
+#           git config user.name "jjacobson95"
+#           git config user.email "jeremy.jacobson3402@gmail.com"
+#           git pull
+#       - name: Download artifacts from HCMI
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: hcmi-files
+#       - name: Download artifacts from BeatAML
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: beataml-files
+#       - name: Download artifacts from Cell Line
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: cell-line-files
+#       # - name: Download artifacts from MPNST
+#       #   uses: actions/download-artifact@v2
+#       #   with:
+#       #     name: mpnst-files
+#       - name: Download artifacts from cptac
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: cptac-files
+#       - name: Install coderdata
+#         run: |
+#           pip install coderdata
+#           pip install pyyaml
+#       - name: Run stats generation script
+#         run: |
+#           python scripts/gen_stats.py
+#       - name: Git add and push new changes if they exist. 
+#         run: |
+#           git pull
+#           mv stats.yml docs/_data/stats.yml
+#           git add -f docs/_data/stats.yml
+#           git status
+#           if git diff --staged --quiet; then
+#             echo "No changes to commit"
+#           else
+#             git commit -m "Add stats.yml to docs/_data"
+#             git push
+#           fi
 
-  upload-to-figshare:
-    if: github.actor != 'github-actions[bot]'
-    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
-    environment: build
-    runs-on: ubuntu-20.04
-    steps:
-      - name: checkout repo content
-        uses: actions/checkout@v2
-      - name: Download artifacts from HCMI
-        uses: actions/download-artifact@v2
-        with:
-          name: hcmi-files
-      - name: Download artifacts from BeatAML
-        uses: actions/download-artifact@v2
-        with:
-          name: beataml-files
-      - name: Download artifacts from CPTAC
-        uses: actions/download-artifact@v2
-        with:
-          name: cptac-files
-      - name: Download artifacts from Cell Line
-        uses: actions/download-artifact@v2
-        with:
-          name: cell-line-files
-      # - name: Download artifacts from MPNST
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: mpnst-files
-      - name: Create all-files directory
-        run: mkdir all-files
-      - name: List files cwd
-        run: ls -lah 
-      - name: Move files to all-files
-        run: |
-          rsync -av --remove-source-files --include='*.csv' --include='*.tsv' --include='*.gz' --exclude='*' . all-files/
-      - name: gzip all files in all-files
-        run: gzip all-files/*
-      - name: gunzip all samples files in all-files
-        run: gunzip all-files/*samples*
-      - name: List files in all-files
-        run: ls -lah all-files/
-      # - name: Upload to Figshare
-      #   # This can be updated to trigger with tag releases.
-      #   # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
-      #   #This is a short term alternative. Links to branch. Not as pretty but okay for now.
+#   upload-to-figshare:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
+#     environment: build
+#     runs-on: ubuntu-20.04
+#     steps:
+#       - name: checkout repo content
+#         uses: actions/checkout@v2
+#       - name: Download artifacts from HCMI
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: hcmi-files
+#       - name: Download artifacts from BeatAML
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: beataml-files
+#       - name: Download artifacts from CPTAC
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: cptac-files
+#       - name: Download artifacts from Cell Line
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: cell-line-files
+#       # - name: Download artifacts from MPNST
+#       #   uses: actions/download-artifact@v2
+#       #   with:
+#       #     name: mpnst-files
+#       - name: Create all-files directory
+#         run: mkdir all-files
+#       - name: List files cwd
+#         run: ls -lah 
+#       - name: Move files to all-files
+#         run: |
+#           rsync -av --remove-source-files --include='*.csv' --include='*.tsv' --include='*.gz' --exclude='*' . all-files/
+#       - name: gzip all files in all-files
+#         run: gzip all-files/*
+#       - name: gunzip all samples files in all-files
+#         run: gunzip all-files/*samples*
+#       - name: List files in all-files
+#         run: ls -lah all-files/
+#       # - name: Upload to Figshare
+#       #   # This can be updated to trigger with tag releases.
+#       #   # run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.event.release.tag_name }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} -p False
+#       #   #This is a short term alternative. Links to branch. Not as pretty but okay for now.
         
-      #   #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
-      #   run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish 
-      - name: Extract version from setup.py
-        id: version
-        run: echo "PACKAGE_VERSION=$(grep 'version=' setup.py | sed -n "s/.*version='\(.*\)'.*/\1/p")" >> $GITHUB_ENV
-      - name: Upload to Figshare
-        run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ env.PACKAGE_VERSION }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish
-      - name: List files in all-files
-        run: ls -lah all-files/
-      - name: Setup Git config
-        run: |
-          git config user.name "jjacobson95"
-          git config user.email "jeremy.jacobson3402@gmail.com"
-      - name: Commit and push changes
-        run: |
-          git pull
-          mv figshare_latest.yml docs/_data
-          git add -f docs/*
-          git status
-          git commit -m "Add figshare_latest.yml to docs/_data"
-          git push
-  # build-docs:
-  #   if: github.actor != 'github-actions[bot]'
-  #   runs-on: ubuntu-20.04
-  #   environment: build
-  #   steps:
-  #     - name: Checkout  repo
-  #       uses: actions/checkout@v2
-  #     - name: pip install reqs
-  #       run: |
-  #         pip install -r requirements.txt 
-  #         pip install tabulate
-  #     - name: Run docs script
-  #       run: python scripts/update_docs_CI.py
-  #     - name: Setup Git config
-  #       run: |
-  #         git config user.name "jjacobson95"
-  #         git config user.email "jeremy.jacobson3402@gmail.com"
-  #     - name: Commit and push changes
-  #       run: |
-  #         git pull
-  #         git add docs/*
-  #         git commit -m "Add figshare stats to docs"
-  #         git push
+#       #   #To do: Extract version number from setup.py and run there. This can occur after merge with package dev branch.
+#       #   run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ github.ref }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish 
+#       - name: Extract version from setup.py
+#         id: version
+#         run: echo "PACKAGE_VERSION=$(grep 'version=' setup.py | sed -n "s/.*version='\(.*\)'.*/\1/p")" >> $GITHUB_ENV
+#       - name: Upload to Figshare
+#         run: python scripts/push_to_figshare.py --directory all-files --title "CODERData${{ env.PACKAGE_VERSION }}" --token ${{ secrets.FIGSHARE_TOKEN_SECRET }} --project_id 189342 --publish
+#       - name: List files in all-files
+#         run: ls -lah all-files/
+#       - name: Setup Git config
+#         run: |
+#           git config user.name "jjacobson95"
+#           git config user.email "jeremy.jacobson3402@gmail.com"
+#       - name: Commit and push changes
+#         run: |
+#           git pull
+#           mv figshare_latest.yml docs/_data
+#           git add -f docs/*
+#           git status
+#           git commit -m "Add figshare_latest.yml to docs/_data"
+#           git push
+
+
   build-docs:
     if: github.actor != 'github-actions[bot]'
-    needs: [data-visualization-save-to-docs, upload-to-figshare, gen-stats-and-push]
+    # needs: [data-visualization-save-to-docs, upload-to-figshare, gen-stats-and-push]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -692,139 +671,139 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  update-package-download-function:
-    if: github.actor != 'github-actions[bot]'
-    needs: [upload-to-figshare]
-    environment: build
-    runs-on: ubuntu-20.04
-    steps:
-      - name: checkout repo content
-        uses: actions/checkout@v2
-      - name: Update figshare path in downloader.py
-        run: |
-          python scripts/update_download_function.py -y docs/_data/figshare_latest.yml -d coderdata/download/downloader.py
-          cat coderdata/download/downloader.py
-      - name: Setup Git config
-        run: |
-          git config user.name "jjacobson95"
-          git config user.email "jeremy.jacobson3402@gmail.com"
-      - name: Commit and push changes
-        run: |
-          git pull
-          git add coderdata/download/downloader.py
-          git commit -m "update downloader.py"
-          git push
+#   update-package-download-function:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [upload-to-figshare]
+#     environment: build
+#     runs-on: ubuntu-20.04
+#     steps:
+#       - name: checkout repo content
+#         uses: actions/checkout@v2
+#       - name: Update figshare path in downloader.py
+#         run: |
+#           python scripts/update_download_function.py -y docs/_data/figshare_latest.yml -d coderdata/download/downloader.py
+#           cat coderdata/download/downloader.py
+#       - name: Setup Git config
+#         run: |
+#           git config user.name "jjacobson95"
+#           git config user.email "jeremy.jacobson3402@gmail.com"
+#       - name: Commit and push changes
+#         run: |
+#           git pull
+#           git add coderdata/download/downloader.py
+#           git commit -m "update downloader.py"
+#           git push
 
-  run-tests:
-    if: github.actor != 'github-actions[bot]'
-    needs: [update-package-download-function]
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        test-file: [
-          'test_download_and_load_beataml.py', 
-          'test_download_and_load_cell_line.py', 
-          'test_download_beataml_cli.py', 
-          'test_download_cell_line_cli.py',
-          'test_download_and_load_cptac.py', 
-          'test_download_and_load_hcmi.py', 
-          'test_download_cptac_cli.py', 
-          'test_download_hcmi_cli.py',
-          'test_reformat_datasets.py',
-          'test_reload_one.py',
-          'test_reload_all.py',
-          'test_join_datasets.py',
-          'test_info.py'
-        ]
-    outputs:
-      result: ${{ steps.test-outcome.outcome }}
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest-xdist
-    - name: Install as package
-      run: |
-        pip install .
-    - name: Run test
-      id: test-outcome
-      run: |
-        pytest -n 4 tests/${{ matrix.test-file }}
+#   run-tests:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [update-package-download-function]
+#     runs-on: ubuntu-latest
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         test-file: [
+#           'test_download_and_load_beataml.py', 
+#           'test_download_and_load_cell_line.py', 
+#           'test_download_beataml_cli.py', 
+#           'test_download_cell_line_cli.py',
+#           'test_download_and_load_cptac.py', 
+#           'test_download_and_load_hcmi.py', 
+#           'test_download_cptac_cli.py', 
+#           'test_download_hcmi_cli.py',
+#           'test_reformat_datasets.py',
+#           'test_reload_one.py',
+#           'test_reload_all.py',
+#           'test_join_datasets.py',
+#           'test_info.py'
+#         ]
+#     outputs:
+#       result: ${{ steps.test-outcome.outcome }}
+#     steps:
+#     - uses: actions/checkout@v2
+#       with:
+#         fetch-depth: 0
+#     - name: Set up Python
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: '3.10'
+#     - name: Install dependencies
+#       run: |
+#         python -m pip install --upgrade pip
+#         pip install -r requirements.txt
+#         pip install pytest-xdist
+#     - name: Install as package
+#       run: |
+#         pip install .
+#     - name: Run test
+#       id: test-outcome
+#       run: |
+#         pytest -n 4 tests/${{ matrix.test-file }}
 
-  build-and-publish:
-    if: github.actor != 'github-actions[bot]'
-    needs: [run-tests]
-    runs-on: ubuntu-latest
-    environment: build
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+#   build-and-publish:
+#     if: github.actor != 'github-actions[bot]'
+#     needs: [run-tests]
+#     runs-on: ubuntu-latest
+#     environment: build
+#     steps:
+#     - uses: actions/checkout@v2
+#       with:
+#         fetch-depth: 0
 
-    - name: Fetch tags from main branch
-      run: |
-        git fetch origin 'refs/tags/*:refs/tags/*'
+#     - name: Fetch tags from main branch
+#       run: |
+#         git fetch origin 'refs/tags/*:refs/tags/*'
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
+#     - name: Set up Python
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install setuptools wheel twine packaging
+#     - name: Install dependencies
+#       run: |
+#         python -m pip install --upgrade pip
+#         pip install setuptools wheel twine packaging
 
-    - name: Update version
-      run: |
-        # Extract the current version from setup.py
-        CURRENT_VERSION=$(grep -oP "version='\K[0-9]+\.[0-9]+\.[0-9]+" setup.py)
-        echo "Current version: $CURRENT_VERSION"
+#     - name: Update version
+#       run: |
+#         # Extract the current version from setup.py
+#         CURRENT_VERSION=$(grep -oP "version='\K[0-9]+\.[0-9]+\.[0-9]+" setup.py)
+#         echo "Current version: $CURRENT_VERSION"
 
-        # Fetch tags and get the latest tag, removing the 'v' prefix
-        git fetch --tags
-        LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1` | sed 's/^v//')
-        echo "Latest tag: $LATEST_TAG"
+#         # Fetch tags and get the latest tag, removing the 'v' prefix
+#         git fetch --tags
+#         LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1` | sed 's/^v//')
+#         echo "Latest tag: $LATEST_TAG"
 
-        # Use Python to compare versions
-        HIGHER_VERSION=$(python -c "from packaging.version import parse as parse_version; \
-                                    current = parse_version('$CURRENT_VERSION'); \
-                                    latest = parse_version('$LATEST_TAG'); \
-                                    print(current if current > latest else latest)")
-        echo "Higher version: $HIGHER_VERSION"
+#         # Use Python to compare versions
+#         HIGHER_VERSION=$(python -c "from packaging.version import parse as parse_version; \
+#                                     current = parse_version('$CURRENT_VERSION'); \
+#                                     latest = parse_version('$LATEST_TAG'); \
+#                                     print(current if current > latest else latest)")
+#         echo "Higher version: $HIGHER_VERSION"
 
-        # If current version is higher, increment patch version in setup.py
-        if [ "$CURRENT_VERSION" == "$HIGHER_VERSION" ]; then
-          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
-          PATCH=$((VERSION_PARTS[2] + 1))
-          NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
-          echo "Incremented version: $NEW_VERSION"
-          sed -i "s/version='\([0-9]\+\.[0-9]\+\.\)[0-9]\+'/version='\1$PATCH'/" setup.py
+#         # If current version is higher, increment patch version in setup.py
+#         if [ "$CURRENT_VERSION" == "$HIGHER_VERSION" ]; then
+#           IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+#           PATCH=$((VERSION_PARTS[2] + 1))
+#           NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+#           echo "Incremented version: $NEW_VERSION"
+#           sed -i "s/version='\([0-9]\+\.[0-9]\+\.\)[0-9]\+'/version='\1$PATCH'/" setup.py
 
-          # Commit and push the updated setup.py
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git pull
-          git add setup.py
-          git commit -m "Increment version number to $NEW_VERSION [skip ci]"
-          git push
-        else
-          echo "No version increment needed"
-        fi
-    - name: Build local and publish to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_SECRET }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload dist/* --verbose
+#           # Commit and push the updated setup.py
+#           git config --local user.email "action@github.com"
+#           git config --local user.name "GitHub Action"
+#           git pull
+#           git add setup.py
+#           git commit -m "Increment version number to $NEW_VERSION [skip ci]"
+#           git push
+#         else
+#           echo "No version increment needed"
+#         fi
+#     - name: Build local and publish to PyPI
+#       env:
+#         TWINE_USERNAME: __token__
+#         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_SECRET }}
+#       run: |
+#         python setup.py sdist bdist_wheel
+#         twine upload dist/* --verbose
 
