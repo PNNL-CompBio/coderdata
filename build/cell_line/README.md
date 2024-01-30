@@ -4,7 +4,7 @@ following commands. All scripts write files in to the `/tmp/`
 directory, so mounting to that directly will help output the files
 
 ```
-docker build -f ../dockerfile.cell_line -t cell-line ../
+docker build -f ../../build/docker/Dockerfile.cell_line -t cell-line ../../
 docker run -v $PWD:/tmp/ cell-line Rscript 00-buildGeneFile.R
 docker run -v $PWD:/tmp/ cell-line Rscript 01-cellLineSamples.R
 docker run -v $PWD:/tmp/ cell-line Rscript 02a-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv
