@@ -409,14 +409,25 @@ th {
 
     .navbar {
         display: none;
+        position: absolute;
+        top: 100%; /* Positioned right below the header */
+        left: 0; /* Align to the left edge */
+        width: 100%; /* Take full width */
+        background-color: #001c38; /* Match your header background color */
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align items to the start (left) */
+    }
+
+    .navbar div {
+        width: 100%; /* Each item takes full width */
+        text-align: left; /* Align text to the left */
     }
 
     .navbar.open {
-        display: block;
-        position: absolute;
-        right: 0;
-        top: 60px; /* Adjust based on your header's height */
-        background-color: #001c38; /* Match your header background color */
-        width: 100%;
+        display: flex;
+    }
+
+    .dropdown-content {
+        position: static; /* Override absolute positioning */
     }
 }
