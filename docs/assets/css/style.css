@@ -83,7 +83,7 @@ body {
 
 .dropdown {
     position: relative;
-    display: inline-block;
+    /* display: inline-block; */
 }
 
 .dropdown-content {
@@ -92,6 +92,7 @@ body {
     height: auto;
     background-color: #f9f9f9;
     min-width: 160px;
+    max-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
 }
@@ -412,7 +413,7 @@ th {
         position: absolute;
         top: 100%; /* Positioned right below the header */
         left: 0; /* Align to the left edge */
-        width: 100%; /* Take full width */
+        width: 90%; /* Take full width */
         background-color: #001c38; /* Match your header background color */
         flex-direction: column; /* Stack items vertically */
         align-items: flex-start; /* Align items to the start (left) */
