@@ -339,7 +339,7 @@ th {
 
 
 
-@media (max-width: 768px) {
+@media (max-width: 790px) {
     .header {
         height: 100px;
         padding: 5px 10px; 
@@ -399,7 +399,7 @@ th {
 }
 
 /* Responsive Styles */
-@media (max-width: 768px) {
+@media (max-width: 790px) {
     .header .description {
         display: none;
     }
