@@ -396,6 +396,22 @@ th {
     background-color: white;
 }
 
+.hamburger-menu {
+    position: fixed; /* or 'absolute' depending on your layout */
+    right: 0;
+    top: 0;
+  }
+
+  .hamburger-menu.open {
+    padding-top: 50px; /* Adjust as needed */
+  }
+  
+  /* or adjust the title's position */
+  .title {
+    padding-left: 50px; /* when the menu is open */
+  }
+  
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .header .description {
@@ -414,8 +430,21 @@ th {
         display: block;
         position: absolute;
         right: 0;
-        top: 60px; /* Adjust based on your header's height */
-        background-color: #001c38; /* Match your header background color */
+        top: 60px; 
+        background-color: #001c38; 
         width: 100%;
     }
 }
+
+
+@media (max-width: 768px) {
+    .description {
+      font-size: smaller; /* Adjust the font size */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .description {
+      display: none; /* Hide the description on very small screens */
+    }
+  }
