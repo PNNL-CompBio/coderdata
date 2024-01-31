@@ -615,7 +615,7 @@ jobs:
 
   build-docs:
     if: github.actor != 'github-actions[bot]'
-    # needs: [data-visualization-save-to-docs, upload-to-figshare, gen-stats-and-push]
+    needs: [data-visualization-save-to-docs, upload-to-figshare, gen-stats-and-push]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
