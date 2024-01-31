@@ -59,20 +59,13 @@ body {
     padding-right: 20px;
 }
 
-.navbar a {
-    color: white;
-    text-decoration: none;
-    padding: 10px 15px;
-    font-size: 16px;
-}
-
 .navbar a:hover {
     background-color: #546E7A;
 }
 .navbar a {
     color: white;
     text-decoration: none;
-    padding: 5px 10px;
+    padding: 10px 20px;
     font-size: 16px;
 }
 
@@ -188,7 +181,7 @@ pre > code.language-python {
 
 
 
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
     /* .navbar a,
     .dropdown-content {
         display: none; 
@@ -201,7 +194,6 @@ pre > code.language-python {
 
     /* .dropdown-content {
         position: static; /* Override absolute positioning */
-    } */
 
     .navbar.open {
         display: flex;
@@ -258,19 +250,20 @@ pre > code.language-python {
     justify-content: space-around; /* Or use 'center' if you prefer */
     align-items: center;
     flex-wrap: wrap; /* Allows items to wrap onto the next line on smaller screens */
-    width: 95%;
+    width: 100%;
     height: auto;
 }
 
 .flex-item {
-    margin: 10px;
-    flex-basis: calc(50% - 20px);
+    margin: 5px;
     box-sizing: border-box;
     height: 100%;
     background-color: white;    
     border: 1px solid black;
     border-radius: 2px;
     border-color: #001a37;
+    width: 80%;
+    max-width: 825px;
 }
 
 
@@ -312,8 +305,7 @@ th {
     width: 10px;
     border-radius: 50%;
     display: inline-block;
-    margin-left: 5px;
-    margin-right: 20px; 
+    margin-right: 1px; 
 }
 
 .dot_transcriptomics { background-color: maroon; }
