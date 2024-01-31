@@ -300,7 +300,6 @@ jobs:
           docker volume prune
           docker network prune
           docker ps
-          docker stats
           docker system df
       - name: Run Cell-line 02-cellLineDepMap.R Container
         run: |
