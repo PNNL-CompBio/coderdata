@@ -441,7 +441,7 @@ th {
         height: 240px;
         padding: 5px 10px; 
     }
-    .navbar.open + body {
+    .navbar.open + .body {
         padding-top: 250px; /* Increased to push the content down below the larger header */
     }
 
@@ -464,7 +464,7 @@ th {
 }
 
 /* Responsive Styles */
-@media (max-width: 900px) {
+@media (max-width: 850px) {
     .header .description {
         display: none;
     }
