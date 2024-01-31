@@ -1,4 +1,4 @@
-.body {
+body {
     padding-top: 150px; /* Increased to push the content down below the larger header */
     background-color: #E0F2F1;
     font-family: Arial, sans-serif;
@@ -433,7 +433,7 @@ th {
         height: 240px;
         padding: 5px 10px; 
     }
-    .navbar.open + .body {
+    .navbar.open + body {
         padding-top: 260px; /* Increased to push the content down below the larger header */
     }
 
