@@ -82,13 +82,13 @@ body {
 
 
 .dropdown {
-    position: absolute;
+    position: relative;
     display: inline-block;
 }
 
 .dropdown-content {
     display: none;
-    position: relative;
+    position: absolute;
     height: auto;
     background-color: #f9f9f9;
     min-width: 160px;
