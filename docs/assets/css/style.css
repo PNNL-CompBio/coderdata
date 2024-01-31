@@ -448,10 +448,9 @@ th {
         width: auto;
     }
 
-    /* .title-and-description {
+    .title-and-description {
         display: block;
-        text-align: center; 
-    } */
+    }
 
     .title-and-description .title {
         font-size: 18px; 
