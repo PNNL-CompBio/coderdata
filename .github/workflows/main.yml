@@ -1,6 +1,5 @@
 name: CI
 
-
 on:
   push:
     branches:
@@ -14,41 +13,8 @@ permissions:
   pages: write
   id-token: write
 
-
 jobs:
-
 # Placeholder
-  # build-cell-line-samples:
-  #   if: github.actor != 'github-actions[bot]'
-  #   runs-on: ubuntu-20.04
-  #   environment: build
-  #   steps:
-  #     #Add upload artifact from CPTAC Samples 
-  #     - name: Checkout  Cell Line
-  #       uses: actions/checkout@v2
-      # - name: Download artifacts from HCMI
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: hcmi-samples
-      # - name: Build BeatAML Image
-      #   run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
-      # - name: Run BeatAML Container with samples option
-      #   run: docker run --name beataml-samples-container beataml-builder python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }} --samples
-      # - name: Copy file from BeatAML Samples Container
-      #   run: |
-      #     mkdir beataml-samples
-      #     for file in beataml_samples.csv; do
-      #       docker cp beataml-samples-container:/usr/src/app/$file beataml-samples/$file
-      #     done
-      # - name: Get BeatAML container logs
-      #   run: docker logs beataml-samples-container 
-      # - name: Upload artifacts for BeatAML
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: beataml-samples
-      #     path: beataml-samples
-
-
   build-cell-line-samples:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
@@ -327,9 +293,16 @@ jobs:
       - name: Run Cell-line 02a-cellLineSanger.R Container
         run: |
           docker run -v $PWD:/tmp/ cell-line Rscript 02a-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv
+      - name: docker save space and stats
+        run: |
+          docker image prune
+          docker container prune
+          docker volume prune
+          docker network prune
+          docker system df
       - name: Run Cell-line 02-cellLineDepMap.R Container
         run: |
-          docker run -v $PWD:/tmp cell-line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv
+          docker run --memory="16g" -v $PWD:/tmp cell-line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv
       - name: Run Cell-line 03-curves_and_drug_mapping.py Container
         run: |
           docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 03-curves_and_drug_mapping.py --curSampleFile=/tmp/cell_line_samples.csv
@@ -636,29 +609,8 @@ jobs:
           git status
           git commit -m "Add figshare_latest.yml to docs/_data"
           git push
-  # build-docs:
-  #   if: github.actor != 'github-actions[bot]'
-  #   runs-on: ubuntu-20.04
-  #   environment: build
-  #   steps:
-  #     - name: Checkout  repo
-  #       uses: actions/checkout@v2
-  #     - name: pip install reqs
-  #       run: |
-  #         pip install -r requirements.txt 
-  #         pip install tabulate
-  #     - name: Run docs script
-  #       run: python scripts/update_docs_CI.py
-  #     - name: Setup Git config
-  #       run: |
-  #         git config user.name "jjacobson95"
-  #         git config user.email "jeremy.jacobson3402@gmail.com"
-  #     - name: Commit and push changes
-  #       run: |
-  #         git pull
-  #         git add docs/*
-  #         git commit -m "Add figshare stats to docs"
-  #         git push
+
+
   build-docs:
     if: github.actor != 'github-actions[bot]'
     needs: [data-visualization-save-to-docs, upload-to-figshare, gen-stats-and-push]
