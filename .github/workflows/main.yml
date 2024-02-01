@@ -60,7 +60,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-cell-line-samples]
+    needs: [build-cell-line-samples, build-cell-line]
     steps:
       #Add upload artifact from CPTAC Samples 
       - name: Checkout  CPTAC
@@ -327,7 +327,7 @@ jobs:
 
   build-cptac:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-cptac-samples, build-cell-line]
+    needs: [build-cptac-samples]
     runs-on: ubuntu-20.04
     environment: build
     steps:
