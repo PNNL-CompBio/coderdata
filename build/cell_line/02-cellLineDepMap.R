@@ -59,9 +59,11 @@ getProteomics<-function(){
     tidyr::pivot_longer(cols=7:ncol(pdat),names_to='cellLine',values_to='proteomics',values_drop_na=TRUE)
 
   pfilt<-plong|>
-    dplyr::select(gene_symbol='Gene_Symbol',cellLine,proteomics)|>
-    dplyr::distinct()|>
-    tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')
+    tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')|>
+    dplyr::select(gene_symbol='Gene_Symbol',other_id,proteomics)|>
+    dplyr::distinct()
+
+    rm(pdat)
 
     smap<-samples|>
         subset(other_id%in%pfilt$other_id)|>
@@ -80,7 +82,8 @@ getProteomics<-function(){
       dplyr::distinct()
     res$study='DepMap'
     res$source='Broad'
-  write_csv(res,file=gzfile('/tmp/proteomics.csv.gz'))
+    write_csv(res,file=gzfile('/tmp/proteomics.csv.gz'))
+    rm(res)
 }
 
 
@@ -242,6 +245,7 @@ do_all<-function(values=names(filenames)){
     full<-res|>
       dplyr::left_join(samples)
 
+      rm(res)
     missed<-full|>subset(is.na(improve_sample_id))|>
       dplyr::select(improve_sample_id,other_id)|>
       distinct()
@@ -253,7 +257,8 @@ do_all<-function(values=names(filenames)){
       dplyr::distinct()|>
       dplyr::mutate(source='DepMap',study='Broad')
 
-    write_csv(full,file=gzfile(fname))
+      write_csv(full,file=gzfile(fname))
+      rm(full)
     return(fi)
 
   })
@@ -279,8 +284,9 @@ main<-function(){
                    quote='"')|>
 		     dplyr::select(other_id,improve_sample_id)|>
 		       unique()
-	do_all(names(filenames))
 	getProteomics()
+	do_all(names(filenames))
+
 
 }
 
