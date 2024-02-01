@@ -9,9 +9,9 @@ Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 #basename="https://figshare.com/articles/dataset/DepMap_23Q2_Public/22765112"
 
 #basename='https://ftp.mcs.anl.gov/pub/candle/public/improve/Data/Omics/Curated_CCLE_Multiomics_files/'
-filenames=list(transcriptomics='https://figshare.com/ndownloader/files/40449128',
-                            copy_number='https://figshare.com/ndownloader/files/40448840',
-                            mutations='https://figshare.com/ndownloader/files/40449638')
+filenames=list( mutations='https://figshare.com/ndownloader/files/40449638',
+               transcriptomics='https://figshare.com/ndownloader/files/40449128',
+                            copy_number='https://figshare.com/ndownloader/files/40448840')
 
 
 # the dictionary started with
@@ -42,6 +42,9 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
                      Splice_Site=c('Splice_Site','SPLICE_SITE','splice_region'),
                      Translation_Start_Site=c('Translation_Start_Site','start_lost'))
 
+vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
+colnames(vtab)<-c('variant_classification','VariantInfo')
+
 getProteomics<-function(){
   #pull directly from gygi lab
   proteomics <- 'https://gygi.hms.harvard.edu/data/ccle/Table_S2_Protein_Quant_Normalized.xlsx'
@@ -56,9 +59,11 @@ getProteomics<-function(){
     tidyr::pivot_longer(cols=7:ncol(pdat),names_to='cellLine',values_to='proteomics',values_drop_na=TRUE)
 
   pfilt<-plong|>
-    dplyr::select(gene_symbol='Gene_Symbol',cellLine,proteomics)|>
-    dplyr::distinct()|>
-    tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')
+    tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')|>
+    dplyr::select(gene_symbol='Gene_Symbol',other_id,proteomics)|>
+    dplyr::distinct()
+
+    rm(pdat)
 
     smap<-samples|>
         subset(other_id%in%pfilt$other_id)|>
@@ -77,7 +82,8 @@ getProteomics<-function(){
       dplyr::distinct()
     res$study='DepMap'
     res$source='Broad'
-  write_csv(res,file=gzfile('/tmp/proteomics.csv.gz'))
+    write_csv(res,file=gzfile('/tmp/proteomics.csv.gz'))
+    rm(res)
 }
 
 
@@ -157,12 +163,21 @@ do_all<-function(values=names(filenames)){
 
         res<-exp_file|>
           mutate(entrez_id=as.numeric(EntrezGeneID))|>
-          dplyr::select(-EntrezGeneID)|>
+            left_join(as.data.frame(vtab))|>
+            dplyr::select(-c(EntrezGeneID,VariantInfo))|>
+            distinct()|>
           subset(!is.na(entrez_id)) ##removes thos with unknonw entrez
 
-        res$variant_classification=unlist(lapply(res$VariantInfo,function(x) names(variant_schema)[grep(x,variant_schema)]))
+
+        smap<-samples|>
+            dplyr::select(improve_sample_id,other_id)|>
+            distinct()|>
+            subset(other_id%in%res$other_id)
+
+
+        #res$variant_classification=unlist(lapply(res$VariantInfo,function(x) names(variant_schema)[grep(x,variant_schema)]))
         full<-res|>  ###since we're already in ENTREZ we skip the mapping below
-          dplyr::left_join(samples)|>
+          dplyr::left_join(smap)|>
           #dplyr::rename(entrez_id=Entrez_id,mutations=Genome_Change,variant_classification=Variant_Classification)|>
           dplyr::select(entrez_id,improve_sample_id,mutation,variant_classification)|>
            dplyr::mutate(source='DepMap',study='CCLE')|>
@@ -230,6 +245,7 @@ do_all<-function(values=names(filenames)){
     full<-res|>
       dplyr::left_join(samples)
 
+      rm(res)
     missed<-full|>subset(is.na(improve_sample_id))|>
       dplyr::select(improve_sample_id,other_id)|>
       distinct()
@@ -241,7 +257,8 @@ do_all<-function(values=names(filenames)){
       dplyr::distinct()|>
       dplyr::mutate(source='DepMap',study='Broad')
 
-    write_csv(full,file=gzfile(fname))
+      write_csv(full,file=gzfile(fname))
+      rm(full)
     return(fi)
 
   })
@@ -267,8 +284,9 @@ main<-function(){
                    quote='"')|>
 		     dplyr::select(other_id,improve_sample_id)|>
 		       unique()
-	do_all(names(filenames))
 	getProteomics()
+	do_all(names(filenames))
+
 
 }
 
