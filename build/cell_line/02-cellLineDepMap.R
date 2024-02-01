@@ -9,9 +9,9 @@ Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 #basename="https://figshare.com/articles/dataset/DepMap_23Q2_Public/22765112"
 
 #basename='https://ftp.mcs.anl.gov/pub/candle/public/improve/Data/Omics/Curated_CCLE_Multiomics_files/'
-filenames=list(transcriptomics='https://figshare.com/ndownloader/files/40449128',
-                            copy_number='https://figshare.com/ndownloader/files/40448840',
-                            mutations='https://figshare.com/ndownloader/files/40449638')
+filenames=list( mutations='https://figshare.com/ndownloader/files/40449638',
+               transcriptomics='https://figshare.com/ndownloader/files/40449128',
+                            copy_number='https://figshare.com/ndownloader/files/40448840')
 
 
 # the dictionary started with
@@ -162,11 +162,14 @@ do_all<-function(values=names(filenames)){
           mutate(entrez_id=as.numeric(EntrezGeneID))|>
             left_join(as.data.frame(vtab))|>
             dplyr::select(-c(EntrezGeneID,VariantInfo))|>
+            distinct()|>
           subset(!is.na(entrez_id)) ##removes thos with unknonw entrez
 
 
         smap<-samples|>
-            dplyr::select(improve_sample_id,other_id)|>distinct()
+            dplyr::select(improve_sample_id,other_id)|>
+            distinct()|>
+            subset(other_id%in%res$other_id)
 
 
         #res$variant_classification=unlist(lapply(res$VariantInfo,function(x) names(variant_schema)[grep(x,variant_schema)]))
