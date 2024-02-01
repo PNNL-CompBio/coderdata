@@ -2,7 +2,7 @@
 library(readr)
 library(tidyr)
 library(dplyr)
-
+library(rio)
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 ###PATH TO depmap 23q2 on FigShare
@@ -47,8 +47,8 @@ getProteomics<-function(){
   proteomics <- 'https://gygi.hms.harvard.edu/data/ccle/Table_S2_Protein_Quant_Normalized.xlsx'
   options(timeout=300)
 
-  res<-download.file(proteomics,'prot.xlsx')
-  pdat<-readxl::read_xlsx('prot.xlsx',sheet = 'Normalized Protein Expression')
+#  res<-download.file(proteomics,'prot.xlsx')
+  pdat<-rio::import(proteomics,which=2)#readxl::read_xlsx('prot.xlsx',sheet = 'Normalized Protein Expression')
   pdat[,7:ncol(pdat)]<-apply(pdat[,7:ncol(pdat)],2,as.numeric)
   pdat<-pdat|>
     dplyr::select(!starts_with('Ten'))
@@ -61,12 +61,19 @@ getProteomics<-function(){
     tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')
 
     smap<-samples|>
-        subset(other_id%in%pfilt$other_id)
+        subset(other_id%in%pfilt$other_id)|>
+        distinct()
+
+    gmap<-genes|>
+        subset(gene_symbol%in%pfilt$gene_symbol)|>
+        dplyr::select(gene_symbol,entrez_id)|>
+        distinct()
 
   res<-pfilt|>
     dplyr::left_join(smap)|>
-    dplyr::left_join(genes)|>
-    dplyr::select(improve_sample_id,entrez_id,proteomics)|>
+    dplyr::left_join(gmap)|>
+      dplyr::select(improve_sample_id,entrez_id,proteomics)|>
+      subset(!is.na(entrez_id))|>
       dplyr::distinct()
     res$study='DepMap'
     res$source='Broad'

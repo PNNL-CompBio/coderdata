@@ -5,54 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ 'assets/css/style.css' | relative_url }}">
 </head>
-    <body>
+<body>
 
-    <div class="header">
-        <!-- <span>{{ page.title }}</span> -->
-        <a href="{{ '/' | absolute_url }}" class="header-logo">
-            <img src="{{ 'assets/images/coderdata_logo1.png' | absolute_url }}" alt="Logo" class="header-logo">
+<div class="header">
+    <a href="{{ '/' | absolute_url }}" class="header-logo">
+        <img src="{{ 'assets/images/coderdata_logo1.png' | absolute_url }}" alt="Logo" class="header-logo">
+    </a>
+    <div class="title-and-description">
+        <a href="{{ '/' | absolute_url }}" class="title">
+            <svg width="100%" height="60">
+                <defs>
+                    <linearGradient id="gradient-title" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:green; stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:white; stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <text fill="url(#gradient-title)" x="10" y="40" font-size="42" font-weight="bold">{{ page.title }}</text>
+            </svg>
         </a>
-        <div class="title-and-description">
-            <a href="{{ '/' | absolute_url }}" class="title">
-                <svg width="100%" height="60">
-                    <defs>
-                        <linearGradient id="gradient-title" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:green; stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:white; stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <text fill="url(#gradient-title)" x="10" y="40" font-size="42" font-weight="bold">{{ page.title }}</text>
-                </svg>
-            </a>
-            <span class="description">Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package</span>
-        </div>
-
-        <div class="navbar">
-            <div><a href="{{ '/pages/usage' | absolute_url }}">Usage</a></div>
-            <div class="dropdown">
-                <a href="#datasets">Datasets</a>
-                <div class="dropdown-content">
-                    <a href="{{ '/datasets/cell_line' | absolute_url }}">Cell Line</a>
-                    <a href="{{ '/datasets/cptac' | absolute_url }}">CPTAC</a>
-                    <a href="{{ '/datasets/hcmi' | absolute_url }}">HCMI</a>
-                    <a href="{{ '/datasets/beataml' | absolute_url }}">BeatAML</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#resources">Resources</a>
-                <div class="dropdown-content">
-                    <a href="https://github.com/PNNL-CompBio/coderdata/" target="_blank">GitHub</a>
-                    <a href="{{ site.data.figshare_latest.article_link }}" target="_blank">FigShare</a>
-                    <a href="https://pypi.org/project/coderdata/" target="_blank">PyPI</a>
-                    <a href="{{ '/pages/add_code_guide' | absolute_url }}">Contribution Guide</a>
-                </div>
-            </div>
-            <div><a href="{{ '/pages/contribution' | absolute_url }}">Contribute</a></div>
-        </div>
+        <span class="description">Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package</span>
     </div>
 
-    {{ content }}  
+    <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
 
-  
-    </body>
+    <div class="navbar">
+        <div><a href="{{ '/pages/usage' | absolute_url }}">Usage</a></div>
+        <div class="dropdown">
+            <a href="#datasets">Datasets</a>
+            <div class="dropdown-content">
+                <a href="{{ '/datasets/cell_line' | absolute_url }}">Cell Line</a>
+                <a href="{{ '/datasets/cptac' | absolute_url }}">CPTAC</a>
+                <a href="{{ '/datasets/hcmi' | absolute_url }}">HCMI</a>
+                <a href="{{ '/datasets/beataml' | absolute_url }}">BeatAML</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#resources">Resources</a>
+            <div class="dropdown-content">
+                <a href="https://github.com/PNNL-CompBio/coderdata/" target="_blank">GitHub</a>
+                <a href="{{ site.data.figshare_latest.article_link }}" target="_blank">FigShare</a>
+                <a href="https://pypi.org/project/coderdata/" target="_blank">PyPI</a>
+                <a href="{{ '/pages/add_code_guide' | absolute_url }}">Contribution Guide</a>
+            </div>
+        </div>
+        <div><a href="{{ '/pages/contribution' | absolute_url }}">Contribute</a></div>
+    </div>
+</div>
+
+{{ content }}
+
+<script>
+    // JavaScript for toggling the navbar
+    document.querySelector('.hamburger').addEventListener('click', function() {
+        document.querySelector('.navbar').classList.toggle('open');
+    });
+</script>
+
+</body>
 </html>
