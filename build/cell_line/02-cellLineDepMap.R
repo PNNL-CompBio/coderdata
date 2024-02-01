@@ -42,6 +42,9 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
                      Splice_Site=c('Splice_Site','SPLICE_SITE','splice_region'),
                      Translation_Start_Site=c('Translation_Start_Site','start_lost'))
 
+vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
+colnames(vtab)<-c('variant_classification','VariantInfo')
+
 getProteomics<-function(){
   #pull directly from gygi lab
   proteomics <- 'https://gygi.hms.harvard.edu/data/ccle/Table_S2_Protein_Quant_Normalized.xlsx'
@@ -157,12 +160,18 @@ do_all<-function(values=names(filenames)){
 
         res<-exp_file|>
           mutate(entrez_id=as.numeric(EntrezGeneID))|>
-          dplyr::select(-EntrezGeneID)|>
+            left_join(as.data.frame(vtab))|>
+            dplyr::select(-c(EntrezGeneID,VariantInfo))|>
           subset(!is.na(entrez_id)) ##removes thos with unknonw entrez
 
-        res$variant_classification=unlist(lapply(res$VariantInfo,function(x) names(variant_schema)[grep(x,variant_schema)]))
+
+        smap<-samples|>
+            dplyr::select(improve_sample_id,other_id)|>distinct()
+
+
+        #res$variant_classification=unlist(lapply(res$VariantInfo,function(x) names(variant_schema)[grep(x,variant_schema)]))
         full<-res|>  ###since we're already in ENTREZ we skip the mapping below
-          dplyr::left_join(samples)|>
+          dplyr::left_join(smap)|>
           #dplyr::rename(entrez_id=Entrez_id,mutations=Genome_Change,variant_classification=Variant_Classification)|>
           dplyr::select(entrez_id,improve_sample_id,mutation,variant_classification)|>
            dplyr::mutate(source='DepMap',study='CCLE')|>
