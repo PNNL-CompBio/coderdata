@@ -3,10 +3,10 @@
 #this is a helper file that loads the data
 source("mapDrugsToPubchem.R")
 
-if(!require('PharmacoGx')){
-  BiocManager::install("PharmacoGx",force=TRUE)
-  library('PharmacoGx')
-}
+#if(!require('PharmacoGx')){
+#  BiocManager::install("PharmacoGx",force=TRUE)
+library('PharmacoGx')
+#}
 
 all.dsets<-PharmacoGx::availablePSets()
 
