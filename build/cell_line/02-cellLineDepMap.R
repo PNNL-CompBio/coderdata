@@ -3,6 +3,8 @@ library(readr)
 library(tidyr)
 library(dplyr)
 library(rio)
+library(readxl)
+library(data.table)
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 ###PATH TO depmap 23q2 on FigShare
@@ -46,25 +48,65 @@ vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,lengt
 colnames(vtab)<-c('variant_classification','VariantInfo')
 
 getProteomics<-function(){
+    print('Getting proteomics')
   #pull directly from gygi lab
   proteomics <- 'https://gygi.hms.harvard.edu/data/ccle/Table_S2_Protein_Quant_Normalized.xlsx'
   options(timeout=300)
 
-#  res<-download.file(proteomics,'prot.xlsx')
-  pdat<-rio::import(proteomics,which=2)#readxl::read_xlsx('prot.xlsx',sheet = 'Normalized Protein Expression')
-  pdat[,7:ncol(pdat)]<-apply(pdat[,7:ncol(pdat)],2,as.numeric)
-  pdat<-pdat|>
-    dplyr::select(!starts_with('Ten'))
-  plong<-pdat|>
-    tidyr::pivot_longer(cols=7:ncol(pdat),names_to='cellLine',values_to='proteomics',values_drop_na=TRUE)
+  # res<-download.file(proteomics,'prot.xlsx')
+    pdat<-rio::import(proteomics,which=2)#
+ #   pdat<-readxl::read_xlsx('prot.xlsx',sheet = 'Normalized Protein Expression')
+   # print('Converting proteomics')
+  #pdat[,7:ncol(pdat)]<-apply(pdat[,7:ncol(pdat)],2,as.numeric)
 
-  pfilt<-plong|>
-    tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')|>
-    dplyr::select(gene_symbol='Gene_Symbol',other_id,proteomics)|>
-    dplyr::distinct()
+    print('Subsetting proteomics')
+   pdat<-pdat|>
+       dplyr::select(!starts_with('Ten'))
 
-    rm(pdat)
+   pdat<-pdat[,c(2,7:ncol(pdat))]
 
+    #rm(pdat)
+    print('Forcing to numeric')
+ #   pdat[,2:ncol(pdat)]<-apply(pdat[,2:ncol(pdat)],2,as.numeric)
+
+
+    print(colnames(pdat)[1:10])
+    pdat1<-pdat[,c(1,2:(ncol(pdat)/2))]
+    pdat1[,2:ncol(pdat1)]<-apply(pdat1[,2:ncol(pdat1)],2,as.numeric)
+    pdat2<-pdat[,c(1,(ncol(pdat)/2):ncol(pdat))]
+    pdat2[,2:ncol(pdat2)]<-apply(pdat2[,2:ncol(pdat2)],2,as.numeric)
+
+    print('Long to wide proteomics')
+    plong1<-pdat1|>
+        tidyr::pivot_longer(cols=2:ncol(pdat1),names_to='cellLine',values_to='proteomics',values_drop_na=TRUE)|>
+        tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')|>
+        dplyr::select(gene_symbol='Gene_Symbol',other_id,proteomics)#|>
+#        subset(!is.na(proteomics))|>
+#        distinct()
+
+    rm(pdat1)
+
+    print('second long to wide')
+    plong2<-pdat2|>
+        tidyr::pivot_longer(cols=2:ncol(pdat2),names_to='cellLine',values_to='proteomics',values_drop_na=TRUE)|>
+        tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')|>
+        dplyr::select(gene_symbol='Gene_Symbol',other_id,proteomics)#|>
+#        subset(!is.na(proteomics))|>
+#        distinct()
+
+    rm(pdat2)
+    print("binding tables")
+    pfilt<-rbind(plong1,plong2)|>
+        subset(!is.na(proteomics))|>
+        distinct()
+  #  rm(plong2)
+    rm(plong1)
+    rm(plong2)
+
+    print('Fixing columns')
+
+
+    print("Filtering genes and samples")
     smap<-samples|>
         subset(other_id%in%pfilt$other_id)|>
         distinct()
@@ -74,6 +116,7 @@ getProteomics<-function(){
         dplyr::select(gene_symbol,entrez_id)|>
         distinct()
 
+    print('Joining proteomics')
   res<-pfilt|>
     dplyr::left_join(smap)|>
     dplyr::left_join(gmap)|>
@@ -284,7 +327,7 @@ main<-function(){
                    quote='"')|>
 		     dplyr::select(other_id,improve_sample_id)|>
 		       unique()
-	getProteomics()
+        system(paste0('/opt/venv/bin/python 02a-depMapProts.py --gene ',gfile,' --sample ',sfile))
 	do_all(names(filenames))
 
 

@@ -15,7 +15,7 @@ all.dsets<-PharmacoGx::availablePSets()
 #' getDoseRespData
 #' Generic function to get dose and response data from PGX object
 #' out of dataset object, and store with dataset name
-getDoseRespData<-function(dset,studyName,improve_samples){
+getDoseRespData<-function(dset,studyName,improve_samples,drug.map){
 
   mapping <- sensitivityInfo(dset)##get the dataset dose response data
 
@@ -38,10 +38,7 @@ getDoseRespData<-function(dset,studyName,improve_samples){
   if('cellid'%in%names(mapping))
     mapping<-dplyr::rename(mapping,sampleid='cellid')
 
-  ##query to build the drug ids
-  drug.map<-buildDrugTable(unique(mapping$treatmentid,'drugs.tsv.gz'))%>%
-    dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
-    distinct()
+
 
   #reduce drug ids to only one pubchem id, in case there are more!
   red.drug.map<-drug.map|>
