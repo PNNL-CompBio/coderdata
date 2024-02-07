@@ -3,8 +3,6 @@ library(readr)
 library(tidyr)
 library(dplyr)
 library(rio)
-library(readxl)
-library(data.table)
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 ###PATH TO depmap 23q2 on FigShare
@@ -55,7 +53,6 @@ getProteomics<-function(){
 
   # res<-download.file(proteomics,'prot.xlsx')
     pdat<-rio::import(proteomics,which=2)#
- #   pdat<-readxl::read_xlsx('prot.xlsx',sheet = 'Normalized Protein Expression')
    # print('Converting proteomics')
   #pdat[,7:ncol(pdat)]<-apply(pdat[,7:ncol(pdat)],2,as.numeric)
 
