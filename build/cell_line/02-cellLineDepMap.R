@@ -5,17 +5,13 @@ library(dplyr)
 library(rio)
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
-###PATH TO depmap 23q2 on FigShare
-#basename="https://figshare.com/articles/dataset/DepMap_23Q2_Public/22765112"
-
-#basename='https://ftp.mcs.anl.gov/pub/candle/public/improve/Data/Omics/Curated_CCLE_Multiomics_files/'
-filenames=list( mutations='https://figshare.com/ndownloader/files/40449638',
+filenames=list(   copy_number='https://figshare.com/ndownloader/files/40448840',
                transcriptomics='https://figshare.com/ndownloader/files/40449128',
-                            copy_number='https://figshare.com/ndownloader/files/40448840')
+                              mutations='https://figshare.com/ndownloader/files/40449638')
+#                          )
 
 
 # the dictionary started with
-# CCLE data
 # CCLE data
 variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3prime_UTR_ess_splice'),
                      `5'Flank`=c("FIVE_PRIME_FLANK","5'Flank",'upstream'),
@@ -45,6 +41,7 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
 vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
 colnames(vtab)<-c('variant_classification','VariantInfo')
 
+##currently replaced by python script
 getProteomics<-function(){
     print('Getting proteomics')
   #pull directly from gygi lab
@@ -152,29 +149,40 @@ do_all<-function(values=names(filenames)){
     if(value=='copy_number'){
       exp_file <- readr::read_csv(fi)
 
+      print('Long to wide')
       res = exp_file|>
         tidyr::pivot_longer(cols=c(2:ncol(exp_file)),
                             names_to='gene_entrez',values_to='copy_number',
                             values_transform=list(copy_number=as.numeric))|>
         dplyr::distinct()
+      rm(exp_file)
 
+      colnames(res)[1]<-'other_id'
+
+      print('String manipulations')
       res<-res|>
-        tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene','entrez_id'))|>
-        dplyr::select(-gene)
-      res$entrez_id<-stringr::str_replace(res$entrez_id,'\\)','')
-      res$entrez_id<-stringr::str_replace(res$entrez_id,'\\(','')
+          tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene_symbol','entrez_id'))
 
+      print('join with gene')
+      res<-res|>
+          dplyr::select(-entrez_id)|>
+          left_join(genes)|>
+          dplyr::select(other_id,entrez_id,copy_number)|>
+          distinct()
+      ##these are messing things up
+    #  res$entrez_id<-stringr::str_replace(res$entrez_id,'\\)','')
+    #  res$entrez_id<-stringr::str_replace(res$entrez_id,'\\(','')
+
+      print('Adding copy calls')
       res<-res|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
         dplyr::mutate(copy_call=ifelse(copy_number<0.5210507,'deep del',
                                        ifelse(copy_number<0.7311832,'het loss',
                                               ifelse(copy_number<1.214125,'diploid',
                                                      ifelse(copy_number<1.422233,'gain','amp')))))|>
-      #  dplyr::left_join(genes)|>
           dplyr::distinct()|>
           subset(!is.na(copy_number))
 
 
-      colnames(res)[1]<-'other_id'
       vars=c('copy_number','copy_call')
 
 
@@ -208,6 +216,7 @@ do_all<-function(values=names(filenames)){
             distinct()|>
           subset(!is.na(entrez_id)) ##removes thos with unknonw entrez
 
+        rm(exp_file)
 
         smap<-samples|>
             dplyr::select(improve_sample_id,other_id)|>
@@ -228,16 +237,27 @@ do_all<-function(values=names(filenames)){
       }
       else if(value=='transcriptomics'){ #if gene expression
         exp_file <- readr::read_csv(fi)
-
+        print("wide to long")
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
                                   names_to='gene_entrez',values_to='transcriptomics',
-                                  values_transform=list(expression=as.numeric))|>
-          tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene','entrez_par'))|>
-          mutate(entrez_id=stringr::str_replace_all(entrez_par,'\\)|\\(',''))|>
-          dplyr::select(-c(entrez_par,gene))|>
+                                  values_transform=list(expression=as.numeric))
+        colnames(res)[1]<-'other_id'
+
+        print('fixing gene names')
+        res<-res|>
+          tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene_symbol','entrez_par'))
+
+      print('join with gene')
+      res<-res|>
+          dplyr::select(-entrez_par)|>
+          left_join(genes)|>
+          dplyr::select(other_id,entrez_id,expression)|>
           distinct()
 
-        colnames(res)[1]<-'other_id'
+    #mutate(entrez_id=stringr::str_replace_all(entrez_par,'\\)|\\(',''))|>
+    #      dplyr::select(-c(entrez_par,gene))|>
+    #      distinct()
+        rm(exp_file)
         vars=c('transcriptomics')
 
       }
@@ -247,6 +267,7 @@ do_all<-function(values=names(filenames)){
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
                                   names_to='gene_symbol',values_to='miRNA',values_transform=list(mirnas=as.numeric))
 
+        rm(exp_file)
         gmod<-genes
         gmod$gene_symbol<-tolower(gmod$gene_symbol)
 
@@ -281,25 +302,30 @@ do_all<-function(values=names(filenames)){
 
       }
 
-    ##do the last join with samples
-    full<-res|>
-      dplyr::left_join(samples)
+      ##do the last join with samples
+      smap<-samples|>
+          subset(other_id%in%res$other_id)|>
+          distinct()
 
+      print('joining with samples')
+      full<-res|>
+          dplyr::left_join(smap)
       rm(res)
-    missed<-full|>subset(is.na(improve_sample_id))|>
-      dplyr::select(improve_sample_id,other_id)|>
-      distinct()
-    print(paste('missing',nrow(missed),'identifiers'))
-    print(missed)
 
-    full<-full|>dplyr::select(c('entrez_id','improve_sample_id',vars))|>
-      subset(!is.na(improve_sample_id))|>
-      dplyr::distinct()|>
-      dplyr::mutate(source='DepMap',study='Broad')
+      missed<-full|>subset(is.na(improve_sample_id))|>
+          dplyr::select(improve_sample_id,other_id)|>
+          distinct()
+      print(paste('missing',nrow(missed),'identifiers'))
+      print(missed)
+
+      full<-full|>dplyr::select(c('entrez_id','improve_sample_id',vars))|>
+          subset(!is.na(improve_sample_id))|>
+          dplyr::distinct()|>
+          dplyr::mutate(source='DepMap',study='Broad')
 
       write_csv(full,file=gzfile(fname))
       rm(full)
-    return(fi)
+      return(fi)
 
   })
 }
