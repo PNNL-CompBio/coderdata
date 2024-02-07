@@ -251,7 +251,7 @@ do_all<-function(values=names(filenames)){
       res<-res|>
           dplyr::select(-entrez_par)|>
           left_join(genes)|>
-          dplyr::select(other_id,entrez_id,expression)|>
+          dplyr::select(other_id,entrez_id,transcriptomics)|>
           distinct()
 
     #mutate(entrez_id=stringr::str_replace_all(entrez_par,'\\)|\\(',''))|>
