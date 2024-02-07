@@ -50,7 +50,16 @@ docker run -v $PWD:/tmp cell-line Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,P
 ```
 ### Dose response and curve fitting
 This last command will generate the drug file, drugs.tsv.gz, which we
-can pass into the next commands. 
+can pass into the next commands. Then we will collect the dose
+response data and fit the curves for the following experiments:
+1. CTRPv2
+2. GDSCv1
+3. GDSCv2
+4. gCSI
+5. PRISM2020
+6. CCLE
+7. FIMM
+8. NCI60
 
 ```
 docker run -v $PWD:/tmp/ cell-line /opt/venv/bin/python 04-drug_dosasge_and_curves.py --curSampleFile=/tmp/cell_line_samples.csv
