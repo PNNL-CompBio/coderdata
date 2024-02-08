@@ -12,7 +12,6 @@ all.dsets<-PharmacoGx::availablePSets()
 ##first define a generic dose response function
 
 
-time_lookup=list(FIMM=
 
 #improve_samples<<-readr::read_csv('cell_line_samples.csv')
 #' getDoseRespData
@@ -91,6 +90,9 @@ getDoseRespData<-function(dset,studyName,improve_samples,drug.map){
       dplyr::select(exp_id,improve_sample_id,improve_drug_id)|>
       distinct()
 
+    print(paste('By drug name, found',length(unique(full.map$improve_drug_id)),
+              'drug matches out of',length(unique(mapping$treatmentid)),'for study',studyName))
+
   #all_ids<-unique(samps$other_id)
   #  dplyr::rename(other_id='sampleid')%>%##this maps it to the file
 
@@ -113,14 +115,24 @@ getDoseRespData<-function(dset,studyName,improve_samples,drug.map){
     tidyr::pivot_longer(cols=starts_with('dose'),names_to='doseNum',values_to='Response')
 
 
-  doseRep<-doseDat%>%
+    if(studyName=='PRISM')
+        time=120
+    else
+        time=72
+
+    doseRep<-doseDat%>%
     dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
     left_join(full.map)%>%
     dplyr::select(Drug=improve_drug_id,improve_sample_id=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
     #dplyr::mutate(DOSE=-log10(Dose/1000))###curve fitting code requires -log10(M), these are mM
     #rename(GROWTH=RESPONSE)%>%
     mutate(source='pharmacoGX')%>%
-    mutate(study=studyName)
+      mutate(study=studyName)|>
+        mutate(time_unit='hours')|>
+        mutate(time=time)
+
+
+
 
   print(head(doseRep))
 
