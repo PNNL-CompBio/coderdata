@@ -40,6 +40,7 @@ for a in allfiles:
     os.system('/opt/venv/bin/python fit_curve.py --input '+a+' --output '+a)
 
 ###step 4c concatenate all files
-os.system('cat *.0 > /tmp/experiments.tsv')
 
+os.system('cat *.0 > /tmp/experiments.tsv')
+os.system('gzip -f /tmp/experiments.tsv')
 
