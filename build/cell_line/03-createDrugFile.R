@@ -51,7 +51,7 @@ getCellLineDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
                     mapping<-dplyr::rename(mapping,treatmentid='drugid')
 
             ##query to build the drug ids
-            drug.map<-buildDrugTable(unique(mapping$treatmentid),'drugs.tsv.gz')%>%
+            drug.map<-buildDrugTable(unique(mapping$treatmentid),'/tmp/drugs.tsv.gz')%>%
                 dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
                 distinct()
 
