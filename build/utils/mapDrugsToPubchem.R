@@ -28,7 +28,7 @@ buildDrugTable<-function(druglist,path_to_file='drugs.tsv.gz'){
       new_drugs<-setdiff(tolower(druglist),tolower(improve_drugs$chem_name))
       print(paste('of those drugs',length(new_drugs),'are not in database'))
       druglist<-new_drugs
-  }
+  }##reduce druglist to those that are no in list
 
   if(length(druglist)>0){
     ##lets divude queries into 500 because it's easier

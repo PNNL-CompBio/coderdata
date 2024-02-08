@@ -1,8 +1,6 @@
 ---
 layout: default
 title: CoderData
-pdf_exists: true
-png_exists: true
 ---
 
 <link rel="stylesheet" href="assets/css/style.css">
@@ -16,7 +14,7 @@ The python package allows users to easily download the data, load it into python
 
 ### BeatAML Summary
 
-Beat acute myeloid leukemia (BeatAML) data was collected though the [GitHub](https://biodev.github.io/BeatAML2/) and [Synapse](https://www.synapse.org/#!Synapse:syn24171150).
+Beat acute myeloid leukemia (BeatAML) data was collected though the <a href="https://biodev.github.io/BeatAML2/" target="_blank">GitHub</a> and <a href="https://www.synapse.org/#!Synapse:syn24171150" target="_blank">Synapse</a>.
 This data focuses on acute myeloid leukemia tumor data. Data includes drug response, proteomics, and transcriptomics datasets.
 
 
@@ -44,15 +42,11 @@ This data focuses on acute myeloid leukemia tumor data. Data includes drug respo
 ### Visualization
 
 <div class="flex-container"> 
-    {% if page.pdf_exists %}
     <div class="flex-item">
-        <embed src="{{ 'assets/stats/Fig2_BeatAML.pdf' | relative_url }}" type="application/pdf" />
+        <img src="{{ 'assets/stats/Fig2_BeatAML.png' | relative_url }}" alt="BeatAML Figure" />
     </div>
-    {% endif %}
-    {% if page.png_exists %}
     <div class="flex-item">
         <img src="{{ 'assets/stats/beataml_circos.png' | relative_url }}" alt="BeatAML Circos" />
     </div>
-    {% endif %}
 </div>
 
