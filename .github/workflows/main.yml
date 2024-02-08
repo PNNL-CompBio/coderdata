@@ -295,10 +295,10 @@ jobs:
           docker run -v $PWD:/tmp/ cell-line Rscript 02a-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv
       - name: docker save space and stats
         run: |
-          docker image prune
-          docker container prune
-          docker volume prune
-          docker network prune
+          docker image prune -f 
+          docker container prune -f 
+          docker volume prune -f 
+          docker network prune -f 
           docker system df
       - name: Run Cell-line 02-cellLineDepMap.R Container
         run: |
