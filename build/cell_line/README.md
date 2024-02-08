@@ -62,7 +62,7 @@ response data and fit the curves for the following experiments:
 8. NCI60
 
 ```
-docker run -v $PWD:/tmp/ cell-line /opt/venv/bin/python 04-drug_dosasge_and_curves.py --curSampleFile=/tmp/cell_line_samples.csv
+docker run -v $PWD:/tmp/ cell-line /opt/venv/bin/python 04-drug_dosasge_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/cell_line_samples.csv
 
 ```
 

@@ -50,20 +50,21 @@ buildDrugTable<-function(druglist,path_to_file='drugs.tsv.gz'){
         missed_ids <-setdiff(tolower(newlist),tolower(pubchem_id$common_name))
 
 
-        print(paste('found',length(unique(pubchem_id$pubchem_id)),'new drugs, missed',length(missed_ids),'trying to find pubchem substance'))
-        ##maybe we need to look for suvstances too?
-        substance_id<-webchem::get_cid(missed_ids)%>%
-            rbind(.,webchem::get_cid(newlist,domain='substance'))|>
-            dplyr::rename(common_name='query',pubchem_id='cid')%>%
-            subset(!is.na(pubchem_id))|>
-            distinct()
+        ## print(paste('found',length(unique(pubchem_id$pubchem_id)),'new drugs, missed',length(missed_ids),'trying to find pubchem substance'))
+        ## ##maybe we need to look for suvstances too?
 
-        missed_ids <-setdiff(tolower(missed_ids),tolower(substance_id$common_name))
+        ## substance_id<-webchem::get_cid(missed_ids)%>%
+        ##     rbind(.,webchem::get_cid(newlist,domain='substance'))|>
+        ##     dplyr::rename(common_name='query',pubchem_id='cid')%>%
+        ##     subset(!is.na(pubchem_id))|>
+        ##     distinct()
 
-        if(nrow(substance_id)>0)
-            pubchem_id<-rbind(pubchem_id,substance_id)
+        ## missed_ids <-setdiff(tolower(missed_ids),tolower(substance_id$common_name))
 
-      print(paste('found',length(unique(substance_id$pubchem_id)),'new drugs, missed',length(missed_ids),'trying to find NSC'))
+        ## if(nrow(substance_id)>0)
+        ##     pubchem_id<-rbind(pubchem_id,substance_id)
+
+      print(paste('found',length(unique(pubchem_id$pubchem_id)),'new drugs, missed',length(missed_ids),'trying to find NSC'))
 
       nscs<-missed_ids[grep('nsc-',missed_ids)]
       #print(paste(length(nscs),'of those are NSC'))
