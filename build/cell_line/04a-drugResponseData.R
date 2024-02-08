@@ -48,9 +48,6 @@ getDoseRespData<-function(dset,studyName,improve_samples,drug.map){
     new.s.map<-subset(improve_samples,other_names%in%mapping$sampleid)
 
 
-
-
-
   #reduce drug ids to only one pubchem id, in case there are more!
  # red.drug.map<-drug.map|>
  #   subset(tolower(common_drug_name)%in%tolower(unique(mapping$treatmentid)))|>

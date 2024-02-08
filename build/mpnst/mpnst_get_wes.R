@@ -21,7 +21,7 @@ path <- "./tmp_WES"
 dir.create(path, showWarnings = FALSE)
 
 # Read the sample mapping CSV
-samples_df <- fread("synapse_NF-MPNST_samples.csv")
+samples_df <- fread("mpnst/synapse_NF-MPNST_samples.csv")
 
 # Remove rows with missing or empty 'Mutations' values
 samples_df <- samples_df[samples_df$Mutations != ""]
@@ -84,10 +84,10 @@ combined_maf_df <- rbindlist(list_of_maf_tables)
 combined_maf_df <- combined_maf_df[, .(improve_sample_id, mutations, entrez_id, variant_classification, source, study)]
 
 # Write the combined data to a CSV file
-fwrite(combined_maf_df, "MPNST_WES_mutation_seq.csv")
+fwrite(combined_maf_df, "mpnst/MPNST_WES_mutation_seq.csv")
 
 # Check if the final CSV file exists and has data
-if(file.exists("MPNST_WES_mutation_seq.csv") && (file.info("MPNST_WES_mutation_seq.csv")$size > 0)) {
+if(file.exists("mpnst/MPNST_WES_mutation_seq.csv") && (file.info("mpnst/MPNST_WES_mutation_seq.csv")$size > 0)) {
   # Remove the 'tmp' directory and its contents
   unlink(path, recursive = TRUE, force = TRUE)
   cat("The 'tmp_WES' directory has been successfully removed.\n")
