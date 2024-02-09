@@ -1,6 +1,6 @@
 # Load required libraries
 library(data.table)
-# library(biomaRt)# biomart issues still exist
+library(biomaRt)
 library(synapser)
 
 # Retrieve command line arguments
@@ -17,8 +17,8 @@ PAT <- args[1]
 # Log in to Synapse
 synLogin(authToken = PAT)
 
-# Define the Ensembl mart # biomart issues still exist
-# ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl") # biomart issues still exist; fix later...
+# Define the Ensembl mart
+ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 
 # Path to the directory to save .sf files
 path <- "./tmp"
@@ -54,14 +54,11 @@ for (syn_id in rna_seq_ids) {
 # Extract unique ENSG IDs from the genes_df
 unique_ensg_ids <- unique(genes_df$other_id)
 
-# Get the mapping from ENST to ENSG # biomart issues still exist
-# mapping <- getBM(attributes = c('ensembl_gene_id', 'ensembl_transcript_id'),
-#                  filters = 'ensembl_gene_id',
-#                  values = unique_ensg_ids,
-#                  mart = ensembl)
-mapping <- fread("knowledge_based_isoform_selection_v1.3.txt")
-mapping$gene <- sub("\\..*", "", mapping$gene)
-mapping$transcript <- sub("\\..*", "", mapping$transcript)
+# Get the mapping from ENST to ENSG
+mapping <- getBM(attributes = c('ensembl_gene_id', 'ensembl_transcript_id'),
+                 filters = 'ensembl_gene_id',
+                 values = unique_ensg_ids,
+                 mart = ensembl)
 
 # Initialize a list to store data tables
 list_of_data_tables <- list()
@@ -75,13 +72,13 @@ for (file_name in sf_files) {
   sf_df[, Name := gsub("\\..*", "", Name)]
 
   # Merge sf_df with mapping
-  sf_df <- merge(sf_df, mapping, by.x = "Name", by.y = "transcript")
+  sf_df <- merge(sf_df, mapping, by.x = "Name", by.y = "ensembl_transcript_id")
 
   # Get the sample ID from the file name
   sample_id <- gsub("_quant\\.sf", "", basename(file_name))
 
   # Aggregate TPMs by gene ID (ENSG)
-  sf_df_aggregated <- sf_df[, .(TPM = sum(TPM)), by = .(gene)]
+  sf_df_aggregated <- sf_df[, .(TPM = sum(TPM)), by = .(ensembl_gene_id)]
   sf_df_aggregated$sample_id <- sample_id
   # Append to the list
   list_of_data_tables[[length(list_of_data_tables) + 1]] <- sf_df_aggregated
@@ -101,7 +98,7 @@ combined_df[, source := "synapse"]
 combined_df[, study := "MPNST"]
 
 # Rename columns to match the target structure
-setnames(combined_df, old = c("gene", "TPM"), new = c("entrez_id", "transcriptomics"))
+setnames(combined_df, old = c("ensembl_gene_id", "TPM"), new = c("entrez_id", "transcriptomics"))
 
 # Reorder columns as per the target file structure
 combined_df <- combined_df[, .(improve_sample_id, transcriptomics, entrez_id, source, study)]
