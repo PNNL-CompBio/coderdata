@@ -133,3 +133,4 @@ if(file.exists("mpnst/MPNST_RNA_seq.csv") && (file.info("mpnst/MPNST_RNA_seq.csv
 } else {
   cat("There was an error in the script execution. 'tmp' directory not removed.\n")
 }
+
