@@ -58,18 +58,28 @@ getAll<-function(dt=names(filenames)){
       exp_file <- readr::read_csv(fi) ##already in long form <3 <3 <3
 
       smap<-samples|>
-        subset(other_id_source=='Sanger')|>
-        dplyr::select(improve_sample_id,other_id)|>distinct()
+          subset(other_id_source=='Sanger')|>
+          subset(other_id%in%exp_file$model_id)|>
+          dplyr::select(improve_sample_id,other_id)|>
+          distinct()
+
+        gmap<-genes|>
+            subset(gene_symbol%in%exp_file$symbol)|>
+            distinct()
+
+        print('wide to long')
 
       res<-exp_file|>
         dplyr::select(other_id='model_id',gene_symbol='symbol',gatk_mean_log2_copy_ratio,source,data_type,cn_category)|>
         mutate(copy_number=2^gatk_mean_log2_copy_ratio,.keep='all')|>
         distinct()|>
-        left_join(genes)|>
+        left_join(gmap)|>
         dplyr::select(other_id,source,copy_number,entrez_id,sanger_copy_call='cn_category')|>
         left_join(smap)|>
-        distinct()
+          distinct()
+       rm(exp_file)
 
+        print('copy call')
       ##calibrate the copy call
       res<-res|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
         dplyr::mutate(improve_copy_call=ifelse(copy_number<0.5210507,'deep del',
@@ -79,12 +89,12 @@ getAll<-function(dt=names(filenames)){
         dplyr::distinct()|>
         mutate(study='Sanger')
 
-      lres<-res|>
+      full<-res|>
         tidyr::pivot_longer(cols=c(improve_copy_call,sanger_copy_call),
                             names_to='copy_call_source',
                             values_to='copy_call')
-
-      full<-lres
+      rm(res)
+#      full<-lres
 
     }else if(value=='methylation'){ ###IF DATA REPRESENT RRBS###
       exp_file <- readr::read_csv(fi)[-c(1:2),]
@@ -124,9 +134,12 @@ getAll<-function(dt=names(filenames)){
           subset(!is.na(improve_sample_id))|>
           distinct()
 
+      rm(exp_file)
+
 #      res$variant_classification=unlist(lapply(res$effect,function(x) names(variant_schema)[grep(x,variant_schema)]))
 #      res<-res|>dplyr::select(-effect)
       write_csv(res,file=fname)
+      rm(res)
       return(fi)
     }
     else if(value=='transcriptomics'){ #if gene expression
@@ -151,22 +164,28 @@ getAll<-function(dt=names(filenames)){
       dat<-exp_file[-c(1:4),-1]
       colnames(dat)[1]<-'gene_symbol'
 
-      ddat<-apply(dat,2,unlist)|>as.data.frame()
-      ddat<-ddat|>
+      rm(exp_file)
+
+      ddat<-apply(dat,2,unlist)|>
+          as.data.frame()|>
+#      ddat<-ddat|>
         left_join(genes)|>
         dplyr::select(-gene_symbol)
 
+      rm(dat)
       ddat$entrez_id<-as.numeric(ddat$entrez_id)
       res = tidyr::pivot_longer(data=as.data.frame(ddat),cols=c(1:(ncol(ddat)-1)),
                                 names_to='other_id',values_to='transcriptomics',
                                 values_transform=list(expression=as.numeric))|>
-        distinct()
+          distinct()
+
+      rm(ddat)
       smap<-samps|>
         dplyr::select(improve_sample_id,other_id,study,source)|>distinct()
 
       full<-res|>
         left_join(smap)
-
+      rm(res)
     }
     else if(value=='miRNA'){ #if mirna expression
       exp_file <- readr::read_csv(fi)
@@ -225,7 +244,9 @@ getAll<-function(dt=names(filenames)){
         dplyr::select(-gene_symbol)|>
         left_join(smap)|>
           mutate(source='Sanger',study='Sanger')
+      rm(exp_file)
       full<-res
+      rm(res)
 
     }
 
@@ -243,7 +264,8 @@ getAll<-function(dt=names(filenames)){
       dplyr::select(-other_id)
 
     write_csv(full,file=gzfile(fname))
-    return(fi)
+      rm(full)
+      return(fi)
 
   })
 
