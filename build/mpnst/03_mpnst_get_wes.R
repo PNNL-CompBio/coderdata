@@ -94,3 +94,4 @@ if(file.exists("mpnst/MPNST_WES_mutation_seq.csv") && (file.info("mpnst/MPNST_WE
 } else {
   cat("There was an error in the script execution. 'tmp_WES' directory not removed.\n")
 }
+
