@@ -3,19 +3,21 @@
 #this is a helper file that loads the data
 source("mapDrugsToPubchem.R")
 
-if(!require('PharmacoGx')){
-  BiocManager::install("PharmacoGx",force=TRUE)
-  library('PharmacoGx')
-}
+#if(!require('PharmacoGx')){
+#  BiocManager::install("PharmacoGx",force=TRUE)
+library('PharmacoGx')
+#}
 
 all.dsets<-PharmacoGx::availablePSets()
 ##first define a generic dose response function
+
+
 
 #improve_samples<<-readr::read_csv('cell_line_samples.csv')
 #' getDoseRespData
 #' Generic function to get dose and response data from PGX object
 #' out of dataset object, and store with dataset name
-getDoseRespData<-function(dset,studyName,improve_samples){
+getDoseRespData<-function(dset,studyName,improve_samples,drug.map){
 
   mapping <- sensitivityInfo(dset)##get the dataset dose response data
 
@@ -34,50 +36,59 @@ getDoseRespData<-function(dset,studyName,improve_samples){
   if("drugid"%in%names(mapping))
     mapping<-dplyr::rename(mapping,treatmentid='drugid')
 
-  ##move cellid to sampleid
+
+
+    ##move cellid to sampleid
   if('cellid'%in%names(mapping))
     mapping<-dplyr::rename(mapping,sampleid='cellid')
 
-  ##query to build the drug ids
-  drug.map<-buildDrugTable(unique(mapping$treatmentid),'/tmp/drugs.tsv.gz')%>%
-    dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
-    distinct()
+    ###reduced drug and sample maps
+    new.d.map<-subset(drug.map,chem_name%in%mapping$treatmentid)|>
+        mutate(chem_name=tolower(chem_name))
+    new.s.map<-subset(improve_samples,other_names%in%mapping$sampleid)
+
 
   #reduce drug ids to only one pubchem id, in case there are more!
-  red.drug.map<-drug.map|>
-    subset(tolower(common_drug_name)%in%tolower(unique(mapping$treatmentid)))|>
-    tidyr::separate(improve_drug_id,into=c('pc','num'),sep='_')
+ # red.drug.map<-drug.map|>
+ #   subset(tolower(common_drug_name)%in%tolower(unique(mapping$treatmentid)))|>
+ #   tidyr::separate(improve_drug_id,into=c('pc','num'),sep='_')
 
   ##now for each PubChem/Improve duplicate, just get minimum id number
-  minvals<-red.drug.map|>
-    group_by(common_drug_name)|>
-    summarize(minVal=min(num))
+  #minvals<-red.drug.map|>
+  #  group_by(common_drug_name)|>
+  #  summarize(minVal=min(num))
 
   ##now reduce drug map to those minvals
-  new.drug.map<-red.drug.map|>
-    subset(num%in%minvals$minVal)|>
-    tidyr::unite('pc','num',col='improve_drug_id')
+  #new.drug.map<-red.drug.map|>
+  #  subset(num%in%minvals$minVal)|>
+  #  tidyr::unite('pc','num',col='improve_drug_id')
 
   ##first get the sample id
-  samp.map<-mapping%>%
-    dplyr::select(sampleid,exp_id,treatmentid)%>%distinct()
+  #samp.map<-mapping%>%
 
-  comm.map<-samp.map%>%
+
+    comm.map<-mapping|>
+        dplyr::select(sampleid,exp_id,treatmentid)%>%distinct()|>
     dplyr::rename(other_names='sampleid')%>%
     left_join(improve_samples)%>%
     subset(!is.na(improve_sample_id))
 
   print(paste('By common name, found',length(unique(comm.map$improve_sample_id)),
-              'matches out of',length(unique(mapping$sampleid)),'for study',studyName))
+              'cell line matches out of',length(unique(mapping$sampleid)),'for study',studyName))
 
-  ldmap<-new.drug.map%>%
-    mutate(chem_name=tolower(common_drug_name))
+  #ldmap<-new.d.map%>%
+  #  mutate(chem_name=tolower(common_drug_name))
   ##then join the sample id
   full.map<-comm.map%>%
     dplyr::select(exp_id,improve_sample_id,treatmentid)%>%
     mutate(chem_name=tolower(treatmentid))%>%
     distinct()%>%
-    left_join(ldmap)
+      left_join(new.d.map)|>
+      dplyr::select(exp_id,improve_sample_id,improve_drug_id)|>
+      distinct()
+
+    print(paste('By drug name, found',length(unique(full.map$improve_drug_id)),
+              'drug matches out of',length(unique(mapping$treatmentid)),'for study',studyName))
 
   #all_ids<-unique(samps$other_id)
   #  dplyr::rename(other_id='sampleid')%>%##this maps it to the file
@@ -101,14 +112,24 @@ getDoseRespData<-function(dset,studyName,improve_samples){
     tidyr::pivot_longer(cols=starts_with('dose'),names_to='doseNum',values_to='Response')
 
 
-  doseRep<-doseDat%>%
+    if(studyName=='PRISM')
+        time=120
+    else
+        time=72
+
+    doseRep<-doseDat%>%
     dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
     left_join(full.map)%>%
     dplyr::select(Drug=improve_drug_id,improve_sample_id=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
     #dplyr::mutate(DOSE=-log10(Dose/1000))###curve fitting code requires -log10(M), these are mM
     #rename(GROWTH=RESPONSE)%>%
     mutate(source='pharmacoGX')%>%
-    mutate(study=studyName)
+      mutate(study=studyName)|>
+        mutate(time_unit='hours')|>
+        mutate(time=time)
+
+
+
 
   print(head(doseRep))
 
@@ -126,7 +147,7 @@ getDoseRespData<-function(dset,studyName,improve_samples){
 
 #' getCellLineData - gets cell line dose response data
 getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE'),
-                              samples){
+                              samples,drugs){
   ###first get cell lines
   all.dose.rep<-do.call(rbind,lapply(cell.lines,function(cel){
 
@@ -152,7 +173,7 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
         url=subset(all.dsets,`PSet Name`==f)$Download
       #print(url)
 
-        dres<-getDoseRespData(dset,cel,samples)
+        dres<-getDoseRespData(dset,cel,samples,drugs)
        # print(dres)
       }
       return(dres)
@@ -174,14 +195,16 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
 
 main<-function(){
 	args = commandArgs(trailingOnly=TRUE)
-	if(length(args)!=2){
-	  print('Usage: Rscript 03-drugAndResponseData.R [samplefile] [datasets]')
+	if(length(args)!=3){
+	  print('Usage: Rscript 03-drugAndResponseData.R [samplefile] [drugfile] [datasets]')
 	  exit()
 	  }
 	sfile = args[1]
-        dsets<-unlist(strsplit(args[2],split=','))
+        dfile = args[2]
+        dsets<-unlist(strsplit(args[3],split=','))
 
 
+        drugs <-read_tsv(dfile,quote='"')
 	    ##here are the improve sample id indices
 	 samples <- read_csv(sfile,
                    quote='"')|>
@@ -189,7 +212,7 @@ main<-function(){
 		       unique()
 
 #       cl1<-c('CTRPv2','FIMM','GDSC')
-       dl1<-getCellLineDoseData(dsets,samples)
+       dl1<-getCellLineDoseData(dsets,samples,drugs)
 
  #      cl2<-c('gCSI','PRISM','CCLE')
  #      dl2<-getCellLineDoseData(cl2,samples)
