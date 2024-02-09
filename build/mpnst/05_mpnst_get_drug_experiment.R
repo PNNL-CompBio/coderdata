@@ -81,3 +81,4 @@ if(file.exists("mpnst/MPNST_drugs.tsv.gz") && (file.exists("mpnst/MPNST_experime
 } else {
   cat("There was an error in the script execution. 'tmp_drug' directory not removed.\n")
 }
+
