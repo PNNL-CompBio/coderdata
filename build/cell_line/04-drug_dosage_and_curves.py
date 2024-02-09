@@ -16,30 +16,31 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--curSampleFile',dest='samplefile',default=None,help='Cell line sample file')
 
+parser.add_argument('--drugfile',dest='dfile',default=None,help='Drug database')
+
 opts = parser.parse_args()
 
 samplefile = opts.samplefile
+drugfile = opts.dfile
 
-####step 3a - get dose response data
-cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile+' CTRPv2,FIMM,GDSC'
+####step 4a - get dose response data
+cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' CTRPv2,FIMM,GDSC'
 os.system(cmd)
 
-cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile+' gCSI,PRISM,CCLE'
+cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' gCSI,PRISM,CCLE'
 os.system(cmd)
 
-cmd = 'Rscript 03a-drugAndResponseData.R '+samplefile+' NCI60'
+cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' NCI60'
 os.system(cmd)
 
-########Step 3b fit curves
+########Step 4b fit curves
 allfiles=[a for a in os.listdir('./') if 'DoseResponse' in a]
 print(allfiles)
 for a in allfiles:
     os.system('/opt/venv/bin/python fit_curve.py --input '+a+' --output '+a)
 
-###step 3c concatenate all files
+###step 4c concatenate all files
+
 os.system('cat *.0 > /tmp/experiments.tsv')
 os.system('gzip -f /tmp/experiments.tsv')
 
-##now fix drug identifiers in experiments and drug files
-
-os.system('Rscript remapDrugsToSmiles.R /tmp/drugs.tsv.gz /tmp/experiments.tsv.gz')
