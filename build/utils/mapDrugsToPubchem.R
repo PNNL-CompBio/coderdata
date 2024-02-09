@@ -7,6 +7,17 @@ library(readr)
 options(timeout=10000)
 ##load existing gene/sample/drug files
 
+
+##calculate morgan and mordred
+calcDescripts<-function(smistrings){
+    ##use reticulate here
+    res = reticulate::import('rdkit.Chem.AllChem')
+    gen = res$GetMorganGenerator(radius=2)
+
+}
+
+
+
 #' buildDrugTable - This is a generic drug search function that
 #' returns the improve_drug_id for the specific drug of interest
 #' by either identifying it in the database, or querying it in
@@ -96,17 +107,6 @@ buildDrugTable<-function(druglist,path_to_file='drugs.tsv.gz'){
       }
       print(paste('now have',length(unique(pubchem_id$pubchem_id)),'matched drugs'))
 
-#      if(nrow(pubchem_id)==0){ ## if we found no new drugs in pubchem, we need to create some
-#        print("no new drugs found in pubchem")
-        #return(improve_drugs)
-#        props<-data.frame(formula=c(),
-#                          weight=c(),
-#                          canSMILES=c(),
-#                          isoSMILES=c(),
-#                          InChIKey=c(),
-#                          chem_name=c(),
-#                          improve_drug_id=c())
-#      }else{
         if(nrow(pubchem_id)>0){
                                         #now get chemical properties
         qres<-webchem::pc_prop(pubchem_id$pubchem_id,
