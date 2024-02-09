@@ -41,6 +41,7 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
 
 vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
 colnames(vtab)<-c('variant_classification','effect')
+
 getAll<-function(dt=names(filenames)){
 
   options(timeout=10000)
