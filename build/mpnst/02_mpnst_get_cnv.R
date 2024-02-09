@@ -122,3 +122,4 @@ if(file.exists("mpnst/MPNST_cnn_mutation_seq.csv") && (file.info("mpnst/MPNST_cn
 } else {
   cat("There was an error in the script execution. 'tmp_CNN' directory not removed.\n")
 }
+
