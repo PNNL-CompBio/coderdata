@@ -118,7 +118,7 @@ def generate_samples_file(prev_samples_path):
     full_samples.rename(columns={"specificDxAtInclusion": "other_names"}, inplace=True)
     full_samples['other_names'] = full_samples['other_names'].fillna('Control')
     full_samples["cancer_type"] = "ACUTE MYELOID LEUKAEMIA"
-    full_samples["model_type"] = "ex vivo"
+    full_samples["model_type"] = "tumor"
     full_samples["other_id_source"] = "beatAML"
     full_samples.drop_duplicates(subset='other_id', keep='first', inplace=True)
     
@@ -130,7 +130,7 @@ def generate_samples_file(prev_samples_path):
     prot_samples.rename(columns={"specificDxAtInclusion": "other_names"}, inplace=True)
     prot_samples.rename(columns={"specimenType": "common_name"}, inplace=True)
     prot_samples["cancer_type"] = "ACUTE MYELOID LEUKAEMIA"
-    prot_samples["model_type"] = "ex vivo"
+    prot_samples["model_type"] = "tumor"
     prot_samples["other_id_source"] = "beatAML"    
     
     all_samples = pd.concat([prot_samples, full_samples])
@@ -171,11 +171,11 @@ def retrieve_drug_info(compound_name):
         properties = data["PropertyTable"]["Properties"][0]
         canSMILES = properties.get("CanonicalSMILES", np.nan)
         isoSMILES = properties.get("IsomericSMILES", np.nan)
-        inchikey = properties.get("InChIKey", np.nan)
+        InChIKey = properties.get("InChIKey", np.nan)
         formula = properties.get("MolecularFormula", np.nan)
         weight = properties.get("MolecularWeight", np.nan)
 
-        return canSMILES, isoSMILES, inchikey, formula, weight
+        return canSMILES, isoSMILES, InChIKey, formula, weight
     else:
         return np.nan, np.nan, np.nan, np.nan, np.nan
     
@@ -222,7 +222,7 @@ def update_dataframe_with_pubchem(d_df):
         
         d_df.at[idx, "canSMILES"] = values[0]
         d_df.at[idx, "isoSMILES"] = values[1]
-        d_df.at[idx, "inchikey"] = values[2]
+        d_df.at[idx, "InChIKey"] = values[2]
         d_df.at[idx, "formula"] = values[3]
         d_df.at[idx, "weight"] = values[4]
     
@@ -408,14 +408,23 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
                          right_on='dbgap_dnaseq_sample', 
                          how='left')
 
-        mapped_df.rename(columns={"hgvsc": "mutations"}, inplace=True)
+        mapped_df.rename(columns={"hgvsc": "mutation"}, inplace=True)
         mapped_df.rename(columns={"labId": "sample_id"}, inplace=True)
         mapped_df.rename(columns={"Entrez_Gene_Id": "entrez_id"}, inplace=True)
         
-    elif data_type == "mutations":
-        df = df[['dbgap_sample_id','hgvsc', 'hgvsp', 'gene', 'variant_classification','t_vaf', 'refseq', 'symbol']]
-        mapped_df = df.merge(genes, left_on='symbol', right_on='gene_symbol', how='left').reindex(
-                        columns=['hgvsc', 'entrez_id', "dbgap_sample_id","variant_classification"])
+        mapping_dict.update({
+            'frameshift_variant': 'Frame_Shift_Variant',
+            'missense_variant': 'Missense_Mutation',
+            'stop_gained': 'Stop_Codon_Ins',
+            'inframe_deletion': 'In_Frame_Del',
+            'protein_altering_variant': 'Protein_Altering_Variant',  # ?
+            'splice_acceptor_variant': 'Splice_Site',
+            'splice_donor_variant': 'Splice_Site',
+            'start_lost': 'Start_Codon_Del',
+            'inframe_insertion': 'In_Frame_Ins',
+            'stop_lost': 'Stop_Codon_Del'
+        })
+        mapped_df['mutation_type'] = mapped_df['mutation_type'].map(mapping_dict)
 
 
     elif data_type == "proteomics":
@@ -619,7 +628,7 @@ if __name__ == "__main__":
         print("Starting Mutation Data")
         m_df = pd.read_csv(mutations_file, sep = '\t')
         m_df = map_and_combine(m_df, "mutations", entrez_map_file, "beataml_samples.csv", mutation_map_file)
-        m_df = m_df[["improve_sample_id","mutations", "entrez_id","variant_classification","source","study"]]
+        m_df = m_df[["improve_sample_id","mutation", "entrez_id","variant_classification","source","study"]]
         m_df.to_csv("beataml_mutations.csv",index=False)
         
         # Drug and Experiment Data
@@ -630,8 +639,7 @@ if __name__ == "__main__":
         d_res = merge_drug_info(d_df, drug_map)
         d_res = add_improve_id(drug_map, d_res)
         #Drug Data
-        drug_res = d_res[["improve_drug_id","chem_name","formula","weight","inchikey","canSMILES","isoSMILES"]]
-        drug_res.rename(columns={"inchikey": "inCHIKey"}, inplace=True)
+        drug_res = d_res[["improve_drug_id","chem_name","formula","weight","InChIKey","canSMILES","isoSMILES"]]
         drug_res.to_csv("beataml_drugs.tsv",sep="\t", index=False)
         
         print("Starting Experiment Data")
