@@ -209,7 +209,7 @@ jobs:
     steps:
       - name: Checkout code BeatAML
         uses: actions/checkout@v2
-      - name: Download artifacts from HCMI
+      - name: Download artifacts from Beataml Samples
         uses: actions/download-artifact@v2
         with:
           name: beataml-samples
@@ -232,6 +232,32 @@ jobs:
         with:
           name: beataml-files
           path: beataml-files
+
+
+  check-beataml-schema:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-beataml]
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout code BeatAML
+        uses: actions/checkout@v2
+      - name: Download artifacts from Beataml Samples
+        uses: actions/download-artifact@v2
+        with:
+          name: beataml-samples
+      - name: Download artifacts from Beataml 
+        uses: actions/download-artifact@v2
+        with:
+          name: beataml-files
+      - name: Download linkml
+          run: |
+            pip install linkml
+            pip install linkml-validator
+      - name: check dir
+          run: ls
+      - name: Run linkml schema checker
+          run: bash schema/check_beataml_linkml.sh
 
   # build-cell-line:
   #   if: github.actor != 'github-actions[bot]'

@@ -173,6 +173,9 @@ classes:
       dss1:
         range: float
         description: Check on this
+      r2fit:
+        range: float
+        description: Need Description
   Perturbations:
       slots:
         - entrez_id
@@ -206,6 +209,7 @@ enums:
       tumor:
   Variant:
     permissible_values:
+      3'Flank:
       3'UTR:
       5'Flank:
       5'UTR:
@@ -214,6 +218,8 @@ enums:
       De_novo_Start_OutOfFrame:
       Frame_Shift_Del:
       Frame_Shift_Ins:
+      Frameshift_Variant:
+      Protein_Altering_Variant:
       IGR:
       In_Frame_Del:
       In_Frame_Ins:
@@ -229,7 +235,8 @@ enums:
       Stop_Codon_Ins:
       Silent:
       Splice_Site:
-      Translationn_Start_Site:
+      Splice_Region:
+      Translation_Start_Site:
   CopyCall:
     permissible_values:
       amp:
