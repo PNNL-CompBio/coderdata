@@ -251,13 +251,13 @@ jobs:
         with:
           name: beataml-files
       - name: Download linkml
-          run: |
+        run: |
             pip install linkml
             pip install linkml-validator
       - name: check dir
-          run: ls
+        run: ls
       - name: Run linkml schema checker
-          run: bash schema/check_beataml_linkml.sh
+        run: bash schema/check_beataml_linkml.sh
 
   # build-cell-line:
   #   if: github.actor != 'github-actions[bot]'
