@@ -407,12 +407,14 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
                          left_on='dbgap_sample_id', 
                          right_on='dbgap_dnaseq_sample', 
                          how='left')
-
-        mapped_df.rename(columns={"hgvsc": "mutation"}, inplace=True)
-        mapped_df.rename(columns={"labId": "sample_id"}, inplace=True)
-        mapped_df.rename(columns={"Entrez_Gene_Id": "entrez_id"}, inplace=True)
         
-        mapping_dict.update({
+        mapped_df.rename(columns={
+            "hgvsc": "mutation",
+            "labId": "sample_id",
+            "Entrez_Gene_Id": "entrez_id"
+        }, inplace=True)
+        
+        mapping_dict = ({
             'frameshift_variant': 'Frame_Shift_Variant',
             'missense_variant': 'Missense_Mutation',
             'stop_gained': 'Stop_Codon_Ins',
