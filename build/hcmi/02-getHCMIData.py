@@ -426,7 +426,7 @@ def align_to_schema(data, data_type, chunksize=7500):
     columns = {
         "transcriptomics": ["entrez_id", "transcriptomics", "source", "study", "aliquot_id"],
         "copy_number": ["entrez_id", "copy_number", "copy_call", "source", "study", "aliquot_id"],
-        "mutations": ["entrez_id", "mutation", "variant_class", "source", "study", "aliquot_id"]
+        "mutations": ["entrez_id", "mutation", "variant_classification", "source", "study", "aliquot_id"]
     }
     selected_columns = columns.get(data_type, [])
 
@@ -762,4 +762,4 @@ def main():
 if __name__ == "__main__":
     main()
     
-   
+    

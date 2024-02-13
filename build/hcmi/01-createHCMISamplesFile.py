@@ -189,23 +189,24 @@ def align_to_linkml_schema(input_df):
     'Solid Tissue': 'tumor',
     '3D Organoid': 'organoid',
     'Peripheral Blood Components NOS': 'tumor',
-    'Buffy Coat': 'tumor',
-    None: 'tumor',  # ?
+    'Buffy Coat': np.nan,
+     None: np.nan,
     'Peripheral Whole Blood': 'tumor',
     'Adherent Cell Line': 'cell line',
     '3D Neurosphere': 'organoid',
     '2D Modified Conditionally Reprogrammed Cells': 'cell line',
-    'Pleural Effusion': 'tumor',
+    'Pleural Effusion': np.nan,
     'Human Original Cells': 'cell line',
-    'Not Reported': 'tumor',  # ?
-    'Mixed Adherent Suspension': 'tumor',
+    'Not Reported': np.nan, 
+    'Mixed Adherent Suspension': 'cell line',
     'Cell': 'cell line',
-    'Saliva': 'tumor'  # ?
+    'Saliva': np.nan
     }
 
     # Apply mapping
     input_df['model_type'] = input_df['model_type'].map(mapping_dict)
-
+    input_df.dropna(subset=['model_type'], inplace=True)
+    
     return input_df
 
 def main():
