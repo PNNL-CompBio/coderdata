@@ -1,33 +1,29 @@
 ## Build Instructions for MPNST Dataset
 
-To build the MPNST dataset, follow these steps, including an additional step specific to this dataset:
+To build the MPNST dataset, follow these steps:
 
-1. Update the Synapse identifier mapping file:
-   - [./synapse_NF-MPNST_sample.csv]()
-   - [./no_combo_manifest_updated_2_5_24.csv]() (this file only contains single treatment files' Synapse IDs).
-
-2. Build the Docker image:
+1. Build the Docker image:
    ```
    docker build -f dockerfile.mpnst -t mpnst . --build-arg HTTPS_PROXY=$HTTPS_PROXY
    ```
 
-3. Generate new identifiers for these samples to create a `mpnst_samples.csv` file:
+2. Generate new identifiers for these samples to create a
+   `MPNST_samples.csv` file. This pulls from the latest synapse
+   project metadata table.
    ```
-   docker run -v $PWD:/app mpnst Rscript mpnst/00_sample_gen.R
-   ```
-
-4. Pull the data and map it to the samples:
-   ```
-   docker run -v $PWD:/app mpnst Rscript mpnst/01_mpnst_get_rna.R $SYNAPSE_AUTH_TOKEN
-   docker run -v $PWD:/app mpnst Rscript mpnst/02_mpnst_get_cnv.R $SYNAPSE_AUTH_TOKEN
-   docker run -v $PWD:/app mpnst Rscript mpnst/03_mpnst_get_wes.R $SYNAPSE_AUTH_TOKEN
+   docker run -v $PWD:/tmp mpnst Rscript mpnst/00_sample_gen.R 
    ```
 
-5. Process drug and experiment data:
+3. Pull the data and map it to the samples. This uses the metadata
+   table pulled above.
    ```
-   docker run -v $PWD:/app mpnst Rscript mpnst/04_mpnst_get_synapse.R $SYNAPSE_AUTH_TOKEN
-   docker run -v $PWD:/app mpnst /opt/venv/bin/python utils/fit_curve.py --input tmp_drug/combined_data.tsv --output tmp_drug/zzz.out
-   docker run -v $PWD:/app mpnst Rscript mpnst/05_mpnst_get_drug_experiment.R
+   docker run -v $PWD:/tmp mpnst Rscript mpnst/01_mpnst_get_omics.R $SYNAPSE_AUTH_TOKEN /tmp/mpnst/MPNST_samples.csv /tmp/genes.csv
+   ```
+
+4. Process drug and experiment data. This uses the metadata from above
+   as well as the file directory on synapse:
+   ```
+   docker run -v $PWD:/app mpnst Rscript  mpnst/02_mpnst_get_drug_data.R $SYNAPSE_AUTH_TOKEN /tmp/mpnst/MPNST_samples.csv /tmp/cell_line/drugs.tsv.gz
    ```
 
 Please ensure that each step is followed in order for correct dataset compilation.
