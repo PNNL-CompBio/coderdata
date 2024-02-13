@@ -123,7 +123,7 @@ cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,NA),function(x){
     filtered_df <- long_df |>
         subset(is.finite(log2))|>
         filter(V1 %in% genes_df$gene) # get only protein coding genes and remove empty gene symbols
-    filtered_df <- filtered_df[, .(entrez_id = V1,
+    filtered_df <- filtered_df[, .(gene_symbol = V1,
                            improve_sample_id = sample$improve_sample_id[1],
                            copy_number = 2^log2,
                            source = "NF Data Portal",
@@ -132,7 +132,10 @@ cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,NA),function(x){
         dplyr::mutate(copy_call=ifelse(copy_number<0.5210507,'deep del',
                                        ifelse(copy_number<0.7311832,'het loss',
                                               ifelse(copy_number<1.214125,'diploid',
-                                                     ifelse(copy_number<1.422233,'gain','amp')))))
+                                              ifelse(copy_number<1.422233,'gain','amp')))))|>
+        left_join(genes_df)|>
+        dplyr::select(entrez_id,improve_sample_id,copy_number,copy_call,study,source)|>
+        distinct()
     res|>group_by(copy_call)|>summarize(n_distinct(entrez_id))
     return(distinct(res))
                                         # }

@@ -11,19 +11,19 @@ To build the MPNST dataset, follow these steps:
    `MPNST_samples.csv` file. This pulls from the latest synapse
    project metadata table.
    ```
-   docker run -v $PWD:/tmp mpnst Rscript mpnst/00_sample_gen.R beatAML/beataml_samples.csv
+   docker run -v $PWD:/tmp mpnst Rscript 00_sample_gen.R /tmp/beatAML/beataml_samples.csv $SYNAPSE_AUTH_TOKEN
    ```
 
 3. Pull the data and map it to the samples. This uses the metadata
    table pulled above.
    ```
-   docker run -v $PWD:/tmp mpnst Rscript mpnst/01_mpnst_get_omics.R $SYNAPSE_AUTH_TOKEN /tmp/mpnst/MPNST_samples.csv /tmp/genes.csv
+   docker run -v $PWD:/tmp mpnst Rscript 01_mpnst_get_omics.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/cell_line/genes.csv
    ```
 
 4. Process drug and experiment data. This uses the metadata from above
    as well as the file directory on synapse:
    ```
-   docker run -v $PWD:/app mpnst Rscript  mpnst/02_mpnst_get_drug_data.R $SYNAPSE_AUTH_TOKEN /tmp/mpnst/MPNST_samples.csv /tmp/cell_line/drugs.tsv.gz
+   docker run -v $PWD:/tmp mpnst Rscript  02_get_drug_data.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/cell_line/drugs.tsv.gz
    ```
 
 Please ensure that each step is followed in order for correct dataset compilation.
@@ -31,10 +31,10 @@ Please ensure that each step is followed in order for correct dataset compilatio
 ## MPNST Dataset Structure
 The MPNST dataset includes the following output files:
 ```
-├── MPNST_RNA_seq.csv
-├── MPNST_WES_mutation_seq.csv
-├── MPNST_cnn_mutation_seq.csv
+├── MPNST_transcriptomics.csv
+├── MPNST_mutations.csv
+├── MPNST_copy_number.csv
 ├── MPNST_drugs.tsv.gz
-├── MPNST_experiments.csv.gz
+├── MPNST_experiments.tsv.gz
 ```
 
