@@ -329,7 +329,7 @@ jobs:
       - name: Run Cell-line 02b-cellLineSanger.R Container
         run: |
           docker run -v $PWD:/tmp/ cell-line Rscript 02b-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv
-      - name: Run Cell-line 03-curves_and_drug_mapping.py Container
+      - name: Run Cell-line 03-createDrugFile.RContainer
         run: |
           docker run -v $PWD:/tmp cell-line Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
       - name: Run Cell-line 04-drug_dosage_and_curves.py Container
