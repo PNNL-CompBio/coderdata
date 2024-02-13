@@ -11,7 +11,7 @@ To build the MPNST dataset, follow these steps:
    `MPNST_samples.csv` file. This pulls from the latest synapse
    project metadata table.
    ```
-   docker run -v $PWD:/tmp mpnst Rscript mpnst/00_sample_gen.R 
+   docker run -v $PWD:/tmp mpnst Rscript mpnst/00_sample_gen.R beatAML/beataml_samples.csv
    ```
 
 3. Pull the data and map it to the samples. This uses the metadata
