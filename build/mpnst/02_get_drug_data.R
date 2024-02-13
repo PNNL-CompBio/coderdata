@@ -15,7 +15,7 @@ if (length(args) == 0) {
 # Set your personal access token
 PAT <- args[1]
 patients <- args[2]
-drugs <- args[3]
+drugfile <- args[3]
 
 # Log in to Synapse
 synLogin(authToken = PAT)
