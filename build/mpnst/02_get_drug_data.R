@@ -106,10 +106,20 @@ alldrugs<-do.call(rbind,lapply(mts_fold$V1,function(x){
 ##do the drug matching
 drug_df<-fread(drugfile)
 
-alldrugs<-alldrugs|>left_join(drug_df)
 
-fwrite(alldrugs,'curve_data.tsv')
+drug_map<-subset(drug_df,chem_name%in%alldrugs$chem_name)
+findrugs<-alldrugs|>left_join(drug_df)
 
+missing<-setdiff(alldrugs$chem_name,drug_map$chem_name)
+print(paste('missing',length(missing),'drugs:'))
+print(paste(missing,collapse=','))
 
+#TODO: add in new drug lookup
+
+fwrite(findrugs,'curve_data.tsv')
+
+pycmd = 'python fit_curve.py --input curve_data.tsv --output /tmp/experiments.tsv'
+print('running curve fitting')
+os.system(pycmd)
 ##then run the curve fitting
 
