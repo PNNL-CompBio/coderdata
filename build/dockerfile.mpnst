@@ -13,10 +13,10 @@ ADD mpnst/requirements.txt .
 ADD mpnst/requirements.r .
 ADD mpnst/*.R .
 ADD mpnst/*.py .
-ADD genes.csv .
-ADD knowledge_based_isoform_selection_v1.3.txt .
-ADD mpnst/synapse_NF-MPNST_samples.csv .
-ADD mpnst/no_combo_manifest_updated_2_5_24.csv .
+#ADD genes.csv .
+#ADD knowledge_based_isoform_selection_v1.3.txt .
+#ADD mpnst/synapse_NF-MPNST_samples.csv .
+#ADD mpnst/no_combo_manifest_updated_2_5_24.csv .
 ADD utils/* .
 
 # installing python libraries
