@@ -426,7 +426,7 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
             'inframe_insertion': 'In_Frame_Ins',
             'stop_lost': 'Stop_Codon_Del'
         })
-        mapped_df['mutation_type'] = mapped_df['mutation_type'].map(mapping_dict)
+        mapped_df['mutation'] = mapped_df['mutation'].map(mapping_dict)
 
 
     elif data_type == "proteomics":
