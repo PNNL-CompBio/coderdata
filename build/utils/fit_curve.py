@@ -24,10 +24,9 @@ def format_coderd_schema(fname):
     '''
     df = pd.read_table(fname)
     ##first rename Drug to improve_drug_id
-    new_df = pd.melt(df,id_vars=['source','improve_sample_id','Drug','study','time','time_unit'],value_vars=['auc','ic50','ec50','ec50se','r2fit','hs','aac1','auc1','dss1'],value_name='dose_response_value',var_name='dose_response_metri
-   ...: c')
+    new_df = pd.melt(df,id_vars=['source','improve_sample_id','Drug','study','time','time_unit'],value_vars=['auc','ic50','ec50','ec50se','r2fit','hs','aac1','auc1','dss1'],value_name='dose_response_value',var_name='dose_response_metric')
 
-    new_df.to_tsv(fname,sep='\t',index=False))
+    new_df.to_tsv(fname,sep='\t',index=False)
 
 HS_BOUNDS_ORIG = ([0, 10**-12, 0], [1, 1, 4])
 
@@ -419,7 +418,7 @@ def main():
     
     fname = args.output or 'combined_single_response_agg'
     process_df_part(df_all, fname)#, start=args.start, count=args.count)
-    format_coderd_schema(fname)
+    format_coderd_schema(fname+'.0')
 
 if __name__ == '__main__':
     main()
