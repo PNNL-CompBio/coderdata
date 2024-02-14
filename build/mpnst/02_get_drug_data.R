@@ -73,7 +73,7 @@ getDrugDataByParent<-function(parid,sampleId){
 
     res<-do.call(rbind,lapply(qtab$id,function(x){
         sname <- subset(qtab,id==x)
-        print(sname)
+        #print(sname)
         sname <-extract_date_hour(sname$name)
 
         #print(sname)
@@ -82,7 +82,7 @@ getDrugDataByParent<-function(parid,sampleId){
             mutate(improve_sample_id=sampleId,
                    DOSE=exp(dosage),
                    GROWTH=response /100,
-                   source = "NF DATA PORTAL",
+                   source = "NF Data Portal",
                    CELL = improve_sample_id,
                    chem_name = compound_name,
                    study = paste0('MT ',sname$date,' exp'),
@@ -108,18 +108,22 @@ drug_df<-fread(drugfile)
 
 
 drug_map<-subset(drug_df,chem_name%in%alldrugs$chem_name)
-findrugs<-alldrugs|>left_join(drug_df)
+findrugs<-alldrugs|>
+    left_join(drug_df)|>
+    mutate(time_unit='hours')|>
+    dplyr::select(CELL,DOSE,GROWTH,source,study,Drug=improve_drug_id,time,time_unit,improve_sample_id)|>
+    distinct()
 
 missing<-setdiff(alldrugs$chem_name,drug_map$chem_name)
 print(paste('missing',length(missing),'drugs:'))
 print(paste(missing,collapse=','))
 
 #TODO: add in new drug lookup
+print(head(findrugs))
+fwrite(findrugs,'/tmp/curve_data.tsv',sep='\t')
 
-fwrite(findrugs,'curve_data.tsv')
-
-pycmd = 'python fit_curve.py --input curve_data.tsv --output /tmp/experiments.tsv'
+pycmd = '/opt/venv/bin/python fit_curve.py --input /tmp/curve_data.tsv --output /tmp/experiments.tsv'
 print('running curve fitting')
-os.system(pycmd)
+system(pycmd)
 ##then run the curve fitting
 
