@@ -26,7 +26,7 @@ def format_coderd_schema(fname):
     ##first rename Drug to improve_drug_id
     new_df = pd.melt(df,id_vars=['source','improve_sample_id','Drug','study','time','time_unit'],value_vars=['auc','ic50','ec50','ec50se','r2fit','hs','aac1','auc1','dss1'],value_name='dose_response_value',var_name='dose_response_metric')
 
-    new_df.to_tsv(fname,sep='\t',index=False)
+    new_df.to_ssv(fname,sep='\t',index=False)
 
 HS_BOUNDS_ORIG = ([0, 10**-12, 0], [1, 1, 4])
 
