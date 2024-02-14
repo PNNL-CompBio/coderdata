@@ -106,7 +106,7 @@ def buildTumorSampleTable(sample_names,cancer_type,samples,maxval):
                                               'improve_sample_id':[maxval],\
                                               'id_source':['CPTAC3'],\
                                               'other_id':[samp],\
-                                              'model_type':['Tumor']}).reset_index(drop=True)])
+                                              'model_type':['tumor']}).reset_index(drop=True)])
 
 
     samples = samples.reset_index(drop=True)
@@ -327,8 +327,8 @@ def main():
     if build_data:
         ##now concatenate all the cancers into a single file
         for dtype,df in dat_files.items():
-            print('saving '+dtype+' file')
-            df.to_csv("/tmp/"+dtype+'.csv.gz',sep=',',index=False, compression='gzip')
+            print('saving '+"cptac_"+dtype+'.csv.gz'+' file')
+            df.to_csv("/tmp/"+"cptac_"+dtype+'.csv.gz',sep=',',index=False, compression='gzip')
 
 if __name__ == '__main__':
     main()
