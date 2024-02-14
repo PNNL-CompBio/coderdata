@@ -461,10 +461,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: cptac-files
-      - name: Download linkml
+      - name: Download linkml and gunzip files
         run: |
             pip install linkml
             pip install linkml-validator
+            gunzip *
       - name: check dir
         run: ls
       - name: Run linkml schema checker
