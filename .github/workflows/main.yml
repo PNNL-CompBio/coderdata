@@ -465,7 +465,7 @@ jobs:
         run: |
             pip install linkml
             pip install linkml-validator
-            gunzip *
+            find . -type f -name '*.gz' -exec gunzip {} +
       - name: check dir
         run: ls
       - name: Run linkml schema checker
