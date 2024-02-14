@@ -415,7 +415,7 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
         }, inplace=True)
         
         mapping_dict = ({
-            'frameshift_variant': 'Frame_Shift_Variant',
+            'frameshift_variant': 'Frameshift_Variant',
             'missense_variant': 'Missense_Mutation',
             'stop_gained': 'Stop_Codon_Ins',
             'inframe_deletion': 'In_Frame_Del',

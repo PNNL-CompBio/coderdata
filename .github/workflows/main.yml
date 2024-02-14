@@ -201,6 +201,31 @@ jobs:
           name: hcmi-files
           path: hcmi-files
 
+  check-hcmi-schema:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-hcmi]
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout code HCMI
+        uses: actions/checkout@v2
+      - name: Download artifacts from HCMI Samples
+        uses: actions/download-artifact@v2
+        with:
+          name: hcmi-samples
+      - name: Download artifacts from HCMI
+        uses: actions/download-artifact@v2
+        with:
+          name: hcmi-files
+      - name: Download linkml
+        run: |
+            pip install linkml
+            pip install linkml-validator
+      - name: check dir
+        run: ls
+      - name: Run linkml schema checker
+        run: bash schema/check_hcmi_linkml.sh
+
   build-beataml:
     if: github.actor != 'github-actions[bot]'
     needs: [build-beataml-samples]
@@ -356,6 +381,32 @@ jobs:
           name: cell-line-files
           path: cell-line-files
 
+  check-cell-line-schema:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-cell-line]
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout code Cell Line 
+        uses: actions/checkout@v2
+      - name: Download artifacts from Cell Line Samples
+        uses: actions/download-artifact@v2
+        with:
+          name: cell-line-samples
+      - name: Download artifacts from Cell Line 
+        uses: actions/download-artifact@v2
+        with:
+          name: cell-line-files
+      - name: Download linkml
+        run: |
+            pip install linkml
+            pip install linkml-validator
+      - name: check dir
+        run: ls
+      - name: Run linkml schema checker
+        run: bash schema/check_cell_line_linkml.sh
+
+
   build-cptac:
     if: github.actor != 'github-actions[bot]'
     needs: [build-cptac-samples]
@@ -394,6 +445,31 @@ jobs:
           name: cptac-files
           path: cptac-files
 
+  check-cptac-schema:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-cptac]
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout code CPTAC
+        uses: actions/checkout@v2
+      - name: Download artifacts from CPTAC Samples
+        uses: actions/download-artifact@v2
+        with:
+          name: cptac-samples
+      - name: Download artifacts from CPTAC
+        uses: actions/download-artifact@v2
+        with:
+          name: cptac-files
+      - name: Download linkml
+        run: |
+            pip install linkml
+            pip install linkml-validator
+      - name: check dir
+        run: ls
+      - name: Run linkml schema checker
+        run: bash schema/check_cptac_linkml.sh
+
 #placeholder
   build-mpnst:
     if: github.actor != 'github-actions[bot]'
@@ -404,9 +480,35 @@ jobs:
       - name: Checkout code MPNST
         uses: actions/checkout@v2
 
+# Placeholder
+  check-mpnst-schema:
+    if: github.actor != 'github-actions[bot]'
+    needs: [build-mpnst]
+    runs-on: ubuntu-20.04
+    environment: build
+    steps:
+      - name: Checkout code MPNST
+        uses: actions/checkout@v2
+      # - name: Download artifacts from MPNST Samples
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: mpnst-samples
+      # - name: Download artifacts from MPNST
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: mpnst-files
+      # - name: Download linkml
+      #   run: |
+      #       pip install linkml
+      #       pip install linkml-validator
+      # - name: check dir
+      #   run: ls
+      # - name: Run linkml schema checker
+      #   run: bash schema/check_mpnst_linkml.sh
+
   data-visualization:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
+    needs: [check-hcmi-schema, check-beataml-schema, check-cell-line-schema, check-cptac-schema, check-mpnst-schema]
     environment: build
     runs-on: ubuntu-20.04
     steps:
