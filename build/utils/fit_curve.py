@@ -18,6 +18,16 @@ from scipy.optimize import curve_fit
 
 #import uno_data as ud
 
+def format_coderd_schema(fname):
+    '''
+    formats output to comply with coderdata schema
+    '''
+    df = pd.read_table(fname)
+    ##first rename Drug to improve_drug_id
+    new_df = pd.melt(df,id_vars=['source','improve_sample_id','Drug','study','time','time_unit'],value_vars=['auc','ic50','ec50','ec50se','r2fit','hs','aac1','auc1','dss1'],value_name='dose_response_value',var_name='dose_response_metri
+   ...: c')
+
+    new_df.to_tsv(fname,sep='\t',index=False))
 
 HS_BOUNDS_ORIG = ([0, 10**-12, 0], [1, 1, 4])
 
@@ -218,7 +228,7 @@ def process_df(df, fname, sep='\t', ngroups=None):
 
 def process_df_part(df, fname, sep='\t', start=0, count=None):
     header = None
-    cols = ['source', 'improve_sample_id', 'Drug', 'study']
+    cols = ['source', 'improve_sample_id', 'Drug', 'study','time','time_unit']
     groups = df.groupby(cols)
     # count = count or (len(groups) - start)
     count = count or (4484081 - start)
@@ -401,6 +411,7 @@ def main():
     df_all = pd.read_table(args.input)
     #drop nas
     df_all = df_all.dropna()
+    #print(df_all)
     ##pharmacoGX data is micromolar, we need log transformed molar
     df_all.DOSE = np.log10(df_all.DOSE*1000000)
     ##need data to be between 0 and 1, not 0 and 100
@@ -408,6 +419,7 @@ def main():
     
     fname = args.output or 'combined_single_response_agg'
     process_df_part(df_all, fname)#, start=args.start, count=args.count)
+    format_coderd_schema(fname)
 
 if __name__ == '__main__':
     main()
