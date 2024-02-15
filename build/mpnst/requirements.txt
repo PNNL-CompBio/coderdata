@@ -1,7 +1,9 @@
-matplotlib
+pyarrow
 pandas
+matplotlib
 numpy
 argparse
 tqdm
 scikit-learn
 scipy
+requests
