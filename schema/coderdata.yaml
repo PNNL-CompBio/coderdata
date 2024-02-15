@@ -173,7 +173,7 @@ classes:
 enums:
   ResponseMetric:
     permissible_values:
-      auc:
+      fit auc:
         description: Area under the fitted curve
       fit ic50:
         description: Concetration at which inhibitor binding is reduced by half
@@ -185,6 +185,8 @@ enums:
         description: Fraction of cells not susceptible to the drug
       fit hs:
         description: Hill slop binding cooperativity
+      fit r2:
+        description: R2 value between fit and actual data
       aac:
         description: Area above curve measured by integrating the data points
       auc:
