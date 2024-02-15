@@ -146,33 +146,11 @@ classes:
       - time
       - time_unit
     attributes:
-      auc:
-        range: float
-        description: Area under the fitted curve
-      ic50:
-        range: float      
-        description: Concetration at which inhibitor binding is reduced by half
-      ec50:
-        range: float
-        description: Concentration required to have half cells with adverse effect
-      ec50se:
-        range: float
-        description: Standard error in EC50 calculation
-      einf:
-        range: float
-        description: Fraction of cells not susceptible to the drug
-      hs:
-        range: float
-        description: Hill slop binding cooperativity
-      aac1:
-        range: float
-        description: Area above curve measured by integrating the data points
-      auc1:
-        range: float
-        description: Area under the curve measured by integrating data points
-      dss1:
-        range: float
-        description: Check on this
+      dose_response_metric:
+        range: CurveMetric
+	description: Metric by which dose response value is measured
+      dose_response_value:
+        description: Value of metric
   Perturbations:
       slots:
         - entrez_id
@@ -193,6 +171,26 @@ classes:
           range: CellPerturbation
  
 enums:
+  ResponseMetric:
+    permissible_values:
+      auc:
+        description: Area under the fitted curve
+      fit ic50:
+        description: Concetration at which inhibitor binding is reduced by half
+      fit ec50:
+        description: Concentration required to have half cells with adverse effect
+      fit ec50se:
+        description: Standard error in EC50 calculation
+      fit einf:
+        description: Fraction of cells not susceptible to the drug
+      fit hs:
+        description: Hill slop binding cooperativity
+      aac:
+        description: Area above curve measured by integrating the data points
+      auc:
+        description: Area under the curve measured by integrating data points
+      dss:
+        description: I believe this is the drug sensitivity score
   CellPerturbation:
     permissible_values:
       gene_ko:
@@ -207,6 +205,7 @@ enums:
   Variant:
     permissible_values:
       3'UTR:
+      3'Flank:
       5'Flank:
       5'UTR:
       Undetermined:
@@ -228,8 +227,9 @@ enums:
       Stop_Codon_Del:
       Stop_Codon_Ins:
       Silent:
+      Splice_Region:
       Splice_Site:
-      Translationn_Start_Site:
+      Translation_Start_Site:
   CopyCall:
     permissible_values:
       amp:
