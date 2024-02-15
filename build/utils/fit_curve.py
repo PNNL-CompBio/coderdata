@@ -23,7 +23,7 @@ def format_coderd_schema(fname):
     df = pd.read_csv(fname,delimiter='\t')
     ##first rename Drug to improve_drug_id
     df2 = df.rename(columns={'Drug':'improve_drug_id'})
-    new_df = pd.melt(df2,id_vars=['source','improve_sample_id','improve_drug_id','study','time','time_unit'],value_vars=['fit auc','fit ic50','fit ec50','fit ec50se','fit einf','fit hs','aac','auc','dss'],value_name='dose_response_value',var_name='dose_response_metric')
+    new_df = pd.melt(df2,id_vars=['source','improve_sample_id','improve_drug_id','study','time','time_unit'],value_vars=['fit auc','fit ic50','fit ec50','fit r2','fit ec50se','fit einf','fit hs','aac','auc','dss'],value_name='dose_response_value',var_name='dose_response_metric')
 
     new_df.to_csv(fname,sep='\t',index=False)
 
@@ -75,7 +75,7 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     d2: maximum fixed dose log10(M)
     '''
     if popt is None:
-        cols = ['fit auc','fit ic50','fit ec50','fit ec50se','fit einf','fit hs','aac','auc','dss']#'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
+        cols = ['fit auc','fit ic50','fit ec50','fit ec50se','fit r2','fit einf','fit hs','aac','auc','dss']#'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
         return pd.Series([np.nan] * len(cols), index=cols)
     einf, ec50, hs = popt
     perr = np.sqrt(np.diag(pcov))
