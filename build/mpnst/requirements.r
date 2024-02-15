@@ -4,8 +4,8 @@ install.packages("data.table")
 install.packages("synapser", repos = c("http://ran.synapse.org", "http://cran.fhcrc.org"))
 install.packages("BiocManager")
 install.packages("webchem")
-BiocManager::install("biomaRt")
-
+#BiocManager::install("biomaRt")
+install.packages('R.utils')
 # improted from cell_line's requirements.r
 # install.packages("readr")
 install.packages("curl")
