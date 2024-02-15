@@ -4,7 +4,6 @@ import matplotlib
 # matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
-import pandas as pd
 
 import sys
 import argparse
@@ -19,14 +18,14 @@ from scipy.optimize import curve_fit
 #import uno_data as ud
 
 def format_coderd_schema(fname):
-    '''
-    formats output to comply with coderdata schema
-    '''
-    df = pd.read_table(fname)
+    """    formats output to comply with coderdata schema
+    """
+    df = pd.read_csv(fname,delimiter='\t')
     ##first rename Drug to improve_drug_id
-    new_df = pd.melt(df,id_vars=['source','improve_sample_id','Drug','study','time','time_unit'],value_vars=['auc','ic50','ec50','ec50se','r2fit','hs','aac1','auc1','dss1'],value_name='dose_response_value',var_name='dose_response_metric')
+    df2 = df.rename(columns={'Drug':'improve_drug_id'})
+    new_df = pd.melt(df2,id_vars=['source','improve_sample_id','improve_drug_id','study','time','time_unit'],value_vars=['fit auc','fit ic50','fit ec50','fit ec50se','fit einf','fit hs','aac','auc','dss'],value_name='dose_response_value',var_name='dose_response_metric')
 
-    new_df.to_ssv(fname,sep='\t',index=False)
+    new_df.to_csv(fname,sep='\t',index=False)
 
 HS_BOUNDS_ORIG = ([0, 10**-12, 0], [1, 1, 4])
 
@@ -76,7 +75,7 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     d2: maximum fixed dose log10(M)
     '''
     if popt is None:
-        cols = 'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
+        cols = ['fit auc','fit ic50','fit ec50','fit ec50se','fit einf','fit hs','aac','auc','dss']#'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
         return pd.Series([np.nan] * len(cols), index=cols)
     einf, ec50, hs = popt
     perr = np.sqrt(np.diag(pcov))
@@ -94,9 +93,9 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     int10x = compute_area(xmin, ic10x, *popt)
     dss1 = (0.9 * (ic10x - xmin) - int10x) / (0.9 * (xmax - xmin)) if xmin < ic10x else 0
     auc = (response_integral(d2, *popt) - response_integral(d1, *popt)) / (d2 - d1)
-    metrics = pd.Series({'auc':auc, 'ic50':ic50, 'ec50':ec50,
-                         'ec50se':ec50se, 'r2fit':r2, 'einf':einf, 'hs':hs,
-                         'aac1':aac1, 'auc1':auc1, 'dss1':dss1}).round(4)
+    metrics = pd.Series({'fit auc':auc, 'fit ic50':ic50, 'fit ec50':ec50,'fit einf':einf,
+                         'fit ec50se':ec50se, 'fit r2':r2, 'einf':einf, 'fit hs':hs,
+                         'aac':aac1, 'auc':auc1, 'dss':dss1}).round(4)
     return metrics
 
 
