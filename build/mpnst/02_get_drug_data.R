@@ -122,8 +122,11 @@ print(paste(missing,collapse=','))
 print(head(findrugs))
 fwrite(findrugs,'/tmp/curve_data.tsv',sep='\t')
 
-pycmd = '/opt/venv/bin/python fit_curve.py --input /tmp/curve_data.tsv --output /tmp/experiments.tsv'
+pycmd = '/opt/venv/bin/python fit_curve.py --input /tmp/curve_data.tsv --output /tmp/experiments'
 print('running curve fitting')
 system(pycmd)
-##then run the curve fitting
+
+##mmve file name
+file.rename('/tmp/experiments.0','/tmp/mpnst_experiments.tsv')
+
 
