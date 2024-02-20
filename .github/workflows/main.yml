@@ -105,6 +105,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
+    needs: [build-drugs-beataml]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -146,6 +147,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
+    needs: [build-drugs-cell-line-CTRPv2-GDSC-gCSI-PRISM-CCLE-FIMM]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -178,6 +180,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
+    needs: [build-drugs-cell-line-NCI60-pt1]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -210,6 +213,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
+    needs: [build-drugs-cell-line-NCI60-pt2]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -242,6 +246,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
+    needs: [build-drugs-cell-line-NCI60-pt3]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -273,6 +278,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
+    needs: [build-drugs-cell-line-NCI60-pt4]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
