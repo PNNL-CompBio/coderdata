@@ -57,7 +57,7 @@ jobs:
           path: genes-file
 
   build-drugs-beataml:
-   if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
     steps:
@@ -121,17 +121,17 @@ jobs:
           Rscript build/cell-line/requirements.r
           pip install -r build/cell-line/requirements.txt
       - name: Run cell-line CTRPv2 Drug retrieval
-        run: Rscript CreateDrugFileNew.R CTRPv2
+        run: Rscript build/cell_line/CreateDrugFileCL.R CTRPv2
       - name: Run cell-line GDSC Drug retrieval
-        run: Rscript CreateDrugFileNew.R GDSC
+        run: Rscript build/cell_line/CreateDrugFileCL.R GDSC
       - name: Run cell-line gCSI Drug retrieval
-        run: Rscript CreateDrugFileNew.R gCSI
+        run: Rscript build/cell_line/CreateDrugFileCL.R gCSI
       - name: Run cell-line PRISM Drug retrieval
-        run: Rscript CreateDrugFileNew.R PRISM
+        run: Rscript build/cell_line/CreateDrugFileCL.R PRISM
       - name: Run cell-line CCLE Drug retrieval
-        run: Rscript CreateDrugFileNew.R CCLE
+        run: Rscript build/cell_line/CreateDrugFileCL.R CCLE
       - name: Run cell-line FIMM Drug retrieval
-        run: Rscript CreateDrugFileNew.R FIMM
+        run: Rscript build/cell_line/CreateDrugFileCL.R FIMM
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-2
@@ -162,7 +162,7 @@ jobs:
           Rscript build/cell-line/requirements.r
           pip install -r build/cell-line/requirements.txt
       - name: Run cell-line NCI60 Drug retrieval
-        run: timeout 5h Rscript CreateDrugFileNew.R NCI60
+        run: timeout 5h Rscript build/cell_line/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-3
@@ -194,7 +194,7 @@ jobs:
           Rscript build/cell-line/requirements.r
           pip install -r build/cell-line/requirements.txt
       - name: Run cell-line NCI60 Drug retrieval
-        run: timeout 5h Rscript CreateDrugFileNew.R NCI60
+        run: timeout 5h Rscript build/cell_line/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-4
@@ -226,7 +226,7 @@ jobs:
           Rscript build/cell-line/requirements.r
           pip install -r build/cell-line/requirements.txt
       - name: Run cell-line NCI60 Drug retrieval
-        run: timeout 5h Rscript CreateDrugFileNew.R NCI60
+        run: timeout 5h Rscript build/cell_line/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-5
@@ -258,7 +258,7 @@ jobs:
           Rscript build/cell-line/requirements.r
           pip install -r build/cell-line/requirements.txt
       - name: Run cell-line NCI60 Drug retrieval
-        run: timeout 5h Rscript CreateDrugFileNew.R NCI60
+        run: timeout 5h Rscript build/cell_line/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-6
@@ -289,7 +289,7 @@ jobs:
           Rscript build/cell-line/requirements.r
           pip install -r build/cell-line/requirements.txt
       - name: Run cell-line NCI60 Drug retrieval
-        run: timeout 5h Rscript CreateDrugFileNew.R NCI60
+        run: timeout 5h Rscript build/cell_line/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-7
@@ -321,7 +321,7 @@ jobs:
           Rscript build/cell-line/requirements.r
           pip install -r build/cell-line/requirements.txt
       - name: Run cell-line NCI60 Drug retrieval
-        run: timeout 5h Rscript CreateDrugFileNew.R NCI60
+        run: timeout 5h Rscript build/cell_line/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-8
