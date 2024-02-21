@@ -67,7 +67,7 @@ jobs:
         run: |
           cp build/utils/pubchem_retrieval.py . 
       - name: Run beataml Drug retrieval
-        run: python build/beataml/beataml_drug_retrieval.py
+        run: python build/beatAML/beataml_drug_retrieval.py
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-1
