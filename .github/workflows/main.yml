@@ -142,7 +142,7 @@ jobs:
           docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R GDSC
       - name: Run cell-line gCSI Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL. gCSI
+          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R gCSI
       - name: Run cell-line PRISM Drug retrieval
         run: |
           docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R PRISM
@@ -1007,8 +1007,8 @@ jobs:
 
   upload-to-figshare:
     if: github.actor != 'github-actions[bot]'
-    # needs: [check-hcmi-schema, check-beataml-schema, check-cell-line-schema, check-cptac-schema, check-mpnst-schema]
-    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
+    needs: [check-hcmi-schema, check-beataml-schema, check-cell-line-schema, check-cptac-schema, check-mpnst-schema]
+    # needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
     environment: build
     runs-on: ubuntu-20.04
     steps:
