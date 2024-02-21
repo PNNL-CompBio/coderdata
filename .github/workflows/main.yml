@@ -140,7 +140,7 @@ jobs:
       - name: Run cell-line GDSC Drug retrieval
         run: |
           docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R GDSC
-      - name:Run cell-line gCSI Drug retrieval
+      - name: Run cell-line gCSI Drug retrieval
         run: |
           docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL. gCSI
       - name: Run cell-line PRISM Drug retrieval
