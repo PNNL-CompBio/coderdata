@@ -66,6 +66,9 @@ jobs:
       - name: Copy pubchem util to base dir
         run: |
           cp build/utils/pubchem_retrieval.py . 
+      - name: install reqs
+        run: |
+          pip install -r requirements.txt
       - name: Run beataml Drug retrieval
         run: python build/beatAML/beataml_drug_retrieval.py
       - name: Copy drugs file to artifact 
