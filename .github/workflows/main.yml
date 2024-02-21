@@ -124,24 +124,48 @@ jobs:
           name: additive-drugs-file-1
       - name: List files cwd
         run: ls -lah 
-      - name: Install R
-        uses: r-lib/actions/setup-r@v2
-      - name: Install R and Python Packages
-        run: |
-          Rscript build/cell_line/requirements.r
-          pip install -r build/cell_line/requirements.txt
+      # - name: Install R
+      #   uses: r-lib/actions/setup-r@v2
+      # - name: Install R and Python Packages
+      #   run: |
+      #     Rscript build/cell_line/requirements.r
+      #     pip install -r build/cell_line/requirements.txt
+      - name: Build Cell-line Image
+        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
       - name: Run cell-line CTRPv2 Drug retrieval
-        run: Rscript build/cell_line/CreateDrugFileCL.R CTRPv2
+        run: |
+          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R CTRPv2
+      - name: List files cwd
+        run: ls -lah 
       - name: Run cell-line GDSC Drug retrieval
-        run: Rscript build/cell_line/CreateDrugFileCL.R GDSC
-      - name: Run cell-line gCSI Drug retrieval
-        run: Rscript build/cell_line/CreateDrugFileCL.R gCSI
+        run: |
+          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R GDSC
+      - name:Run cell-line gCSI Drug retrieval
+        run: |
+          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL. gCSI
       - name: Run cell-line PRISM Drug retrieval
-        run: Rscript build/cell_line/CreateDrugFileCL.R PRISM
+        run: |
+          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R PRISM
       - name: Run cell-line CCLE Drug retrieval
-        run: Rscript build/cell_line/CreateDrugFileCL.R CCLE
+        run: |
+          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R CCLE
       - name: Run cell-line FIMM Drug retrieval
-        run: Rscript build/cell_line/CreateDrugFileCL.R FIMM
+        run: |
+          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R FIMM
+      # - name: Run cell-line CTRPv2 Drug retrieval
+      #   run: Rscript build/cell_line/CreateDrugFileCL.R CTRPv2
+      # - name: Run cell-line GDSC Drug retrieval
+      #   run: Rscript build/cell_line/CreateDrugFileCL.R GDSC
+      # - name: Run cell-line gCSI Drug retrieval
+      #   run: Rscript build/cell_line/CreateDrugFileCL.R gCSI
+      # - name: Run cell-line PRISM Drug retrieval
+      #   run: Rscript build/cell_line/CreateDrugFileCL.R PRISM
+      # - name: Run cell-line CCLE Drug retrieval
+      #   run: Rscript build/cell_line/CreateDrugFileCL.R CCLE
+      # - name: Run cell-line FIMM Drug retrieval
+      #   run: Rscript build/cell_line/CreateDrugFileCL.R FIMM
+      - name: List files cwd
+        run: ls -lah 
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-2
@@ -166,14 +190,20 @@ jobs:
           name: additive-drugs-file-2
       - name: List files cwd
         run: ls -lah 
-      - name: Install R
-        uses: r-lib/actions/setup-r@v2
-      - name: Install R and Python Packages
+      # - name: Install R
+      #   uses: r-lib/actions/setup-r@v2
+      # - name: Install R and Python Packages
+      #   run: |
+      #     Rscript build/cell_line/requirements.r
+      #     pip install -r build/cell_line/requirements.txt
+      - name: Build Cell-line Image
+        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
+      - name: Run cell-line CTRPv2 Drug retrieval
         run: |
-          Rscript build/cell_line/requirements.r
-          pip install -r build/cell_line/requirements.txt
-      - name: Run cell-line NCI60 Drug retrieval
-        run: timeout 5h Rscript build/cell_line/CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp cell-line timeout 5h Rscript CreateDrugFileCL.R NCI60
+          docker stop --time=30
+      # - name: Run cell-line NCI60 Drug retrieval
+      #   run: timeout 5h Rscript build/cell_line/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-3
