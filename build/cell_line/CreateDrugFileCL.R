@@ -1,8 +1,8 @@
 ###Here is a script that runs through all the data files one by one.
 library('reticulate')
-library('tidyverse')
+library('tidyr')
 #this is a helper file that loads the data
-source_python("build/utils/pubchem_retreival.py")
+source_python("../utils/pubchem_retreival.py")
 
 
 #if(!require('PharmacoGx')){
