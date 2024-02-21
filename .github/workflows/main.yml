@@ -70,7 +70,7 @@ jobs:
       - name: install reqs
         run: |
           pip install -r requirements.txt
-      - name: Amend PYTHONPATH
+      - name: Append PYTHONPATH
         run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
       - name: Run beataml Drug retrieval
         run: python beataml_drug_retrieval.py
@@ -125,7 +125,7 @@ jobs:
       - name: List files cwd
         run: ls -lah 
       - name: Install R
-        uses: r-lib/actions/setup-r@master
+        uses: r-lib/actions/setup-r@v2
       - name: Install R and Python Packages
         run: |
           Rscript build/cell-line/requirements.r
