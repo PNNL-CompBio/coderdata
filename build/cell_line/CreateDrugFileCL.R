@@ -1,5 +1,6 @@
 ###Here is a script that runs through all the data files one by one.
 library('reticulate')
+use_python("/opt/venv/bin/python3", required = TRUE)
 library('tidyr')
 #this is a helper file that loads the data
 source_python("pubchem_retrieval.py")
