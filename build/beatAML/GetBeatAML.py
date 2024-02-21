@@ -9,6 +9,7 @@ import subprocess
 import argparse
 
 
+
 def download_from_github(raw_url, save_path):
     """
     Download a file from a raw GitHub URL and save to the specified path.
@@ -574,7 +575,8 @@ if __name__ == "__main__":
         updated_raw_drug_file = "beatAML_drug_raw.tsv"
         
         drug_path = "beatAML_drug_processed.tsv.0"
-        drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
+#         drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
+        drug_map_path = "drugs.tsv"
         
         transcriptomics_file = "beataml_waves1to4_norm_exp_dbgap.txt"
         transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"
@@ -596,7 +598,7 @@ if __name__ == "__main__":
         print("Starting Curve Fitting Algorithm")
         # Run Curve fitting algorithm from scripts directory.
         # Note the file path to fit_curve.py may need to be changed.
-        command = ['python', 'fit_curve_beataml.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv']
+        command = ['python', 'fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv' '--beataml']
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if result.returncode == 0:
             print("Curve Fitting executed successfully!")
@@ -637,16 +639,21 @@ if __name__ == "__main__":
         print("Starting Drug Data")
         drug_map = format_drug_map(drug_map_path)
         d_df = format_drug_df(drug_path)
-        d_df = update_dataframe_with_pubchem(d_df)
-        d_res = merge_drug_info(d_df, drug_map)
-        d_res = add_improve_id(drug_map, d_res)
+        drug_map['chem_name'] = drug_map['chem_name'].str.lower()
+        d_df['chem_name'] = d_df['chem_name'].str.lower()
+        d_df = pd.merge(d_df, drug_map, on='chem_name', how='inner').drop_duplicates()
+        
+#         drug_test.update_dataframe_and_write_tsv(unique_names=unique_names,output_filename="py_impot_drugs.tsv")
+
+#         d_res = merge_drug_info(d_df, drug_map)
+#         d_res = add_improve_id(drug_map, d_res)
         #Drug Data
-        drug_res = d_res[["improve_drug_id","chem_name","formula","weight","InChIKey","canSMILES","isoSMILES"]]
+        drug_res = d_df[["improve_drug_id","chem_name","pubchem_id","formula","weight","InChIKey","canSMILES","isoSMILES"]]
         drug_res.to_csv("beataml_drugs.tsv",sep="\t", index=False)
         
         print("Starting Experiment Data")
         # Experiment Data
-        d_res = d_res.rename(columns={"CELL":"sample_id","AUC":"auc"})
+        d_res = d_df.rename(columns={"CELL":"sample_id","AUC":"auc"})
         exp_res = map_exp_to_improve(d_res,"beataml_samples.csv")
         exp_res = exp_res[["source","improve_sample_id","improve_drug_id","study","auc","ic50","ec50","ec50se","r2fit","einf","hs","aac1","auc1","dss1"]]
         exp_res.to_csv("beataml_experiments.csv", index=False)
