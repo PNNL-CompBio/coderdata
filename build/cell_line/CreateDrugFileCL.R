@@ -2,7 +2,7 @@
 library('reticulate')
 library('tidyr')
 #this is a helper file that loads the data
-source_python("build/utils/pubchem_retreival.py")
+source_python("build/utils/pubchem_retrieval.py")
 
 
 #if(!require('PharmacoGx')){
