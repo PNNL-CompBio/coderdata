@@ -63,8 +63,11 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
+      - name: Copy pubchem util to base dir
+        run: |
+          cp build/utils/pubchem_retrieval.py . 
       - name: Run beataml Drug retrieval
-        run: python /build/beataml/retrieve_drugs_beataml.py
+        run: python /build/beataml/beataml_drug_retrieval.py
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-1
