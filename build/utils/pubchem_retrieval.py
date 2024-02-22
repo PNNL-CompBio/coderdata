@@ -22,8 +22,8 @@ def fetch_url(url):
             last_request_time = current_time
         
         # Wait if the limit is reached
-        while request_counter >= 5:
-            time.sleep(0.1)  # Sleep a bit to check again
+        while request_counter >= 4:
+            time.sleep(0.2)  # Sleep a bit to check again
             current_time = time.time()
             if current_time - last_request_time >= 1:
                 request_counter = 0
