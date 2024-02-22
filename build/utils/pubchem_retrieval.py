@@ -13,6 +13,7 @@ lock = threading.Lock()
 
 
 def fetch_url(url):
+    global last_request_time, lock, request_counter
     with lock:
         current_time = time.time()
         # Reset counter if more than 1 second has passed
