@@ -2,16 +2,42 @@ import pandas as pd
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+import threading
+import time
+import signal
+import sys
+
+request_counter = 0
+last_request_time = time.time()
+lock = threading.Lock()
+
 
 def fetch_url(url):
+    with lock:
+        current_time = time.time()
+        # Reset counter if more than 1 second has passed
+        if current_time - last_request_time >= 1:
+            request_counter = 0
+            last_request_time = current_time
+        
+        # Wait if the limit is reached
+        while request_counter >= 5:
+            time.sleep(0.1)  # Sleep a bit to check again
+            current_time = time.time()
+            if current_time - last_request_time >= 1:
+                request_counter = 0
+                last_request_time = current_time
+        
+        request_counter += 1
+    
+    # Proceed with the request
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
     else:
         raise Exception(f"Failed to fetch {url}")
-
-def retrieve_drug_info2(compound_name, existing_synonyms, improve_drug_id_start):
-    lower_compound_name = compound_name.lower()
+    
+def retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start):
     if pd.isna(compound_name):
         return None, improve_drug_id_start
 
@@ -43,9 +69,9 @@ def retrieve_drug_info2(compound_name, existing_synonyms, improve_drug_id_start)
             if synonym_lower in existing_synonyms:
 #                 improve_drug_id = existing_synonyms[synonym_lower]
                 return None, improve_drug_id_start
-        else:
-            improve_drug_id = f"SMI_{improve_drug_id_start}"
-            improve_drug_id_start += 1
+            else:
+                improve_drug_id = f"SMI_{improve_drug_id_start}"
+                improve_drug_id_start += 1
 
         # Update existing_synonyms for all synonyms with the determined improve_drug_id
         for synonym in synonyms_list + [compound_name]:
@@ -65,7 +91,7 @@ def retrieve_drug_info2(compound_name, existing_synonyms, improve_drug_id_start)
 def fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms):
     all_data = []
     for compound_name in batch:
-        data, improve_drug_id_start = retrieve_drug_info2(compound_name, existing_synonyms, improve_drug_id_start)
+        data, improve_drug_id_start = retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start)
         if data:
             all_data.extend(data)
     return all_data, improve_drug_id_start
@@ -81,20 +107,37 @@ def read_existing_data(output_filename):
         return {}, 1
 
 
-def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv", batch_size=1):
-    existing_synonyms, improve_drug_id_start = read_existing_data(output_filename)
+def timeout_handler(signum, frame):
+    print("Time limit reached, exiting gracefully...")
+    sys.exit(0)
 
-    unique_names = [name.lower() for name in unique_names if not pd.isna(name)]
-    unique_names = list(set(unique_names) - set(existing_synonyms.keys()))
-    print(f"Drugs to search: {len(unique_names)}")
-    for i in range(0, len(unique_names), batch_size):
-        batch = unique_names[i:i+batch_size]
-        data, improve_drug_id_start = fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms)
-        if data:
-            file_exists = os.path.isfile(output_filename)
-            mode = 'a' if file_exists else 'w' 
-            with open(output_filename, mode) as f:
-                if not file_exists:
-                    f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tisoSMILES\tInChIKey\tformula\tweight\n")
-                for entry in data:
-                    f.write(f"{entry['improve_drug_id']}\t{entry['name']}\t{entry.get('CID', '')}\t{entry['CanonicalSMILES']}\t{entry.get('IsomericSMILES', '')}\t{entry['InChIKey']}\t{entry['MolecularFormula']}\t{entry['MolecularWeight']}\n")
+# Call this function from other scripts. 
+def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv", batch_size=1):
+    
+    time_limit=5*60*60 # 5 hours
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(time_limit)
+
+    try:
+        existing_synonyms, improve_drug_id_start = read_existing_data(output_filename)
+
+        unique_names = [name.lower() for name in unique_names if not pd.isna(name)]
+        unique_names = list(set(unique_names) - set(existing_synonyms.keys()))
+        print(f"Drugs to search: {len(unique_names)}")
+        for i in range(0, len(unique_names), batch_size):
+            batch = unique_names[i:i+batch_size]
+            data, improve_drug_id_start = fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms)
+            if data:
+                file_exists = os.path.isfile(output_filename)
+                mode = 'a' if file_exists else 'w' 
+                with open(output_filename, mode) as f:
+                    if not file_exists:
+                        f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tisoSMILES\tInChIKey\tformula\tweight\n")
+                    for entry in data:
+                        f.write(f"{entry['improve_drug_id']}\t{entry['name']}\t{entry.get('CID', '')}\t{entry['CanonicalSMILES']}\t{entry.get('IsomericSMILES', '')}\t{entry['InChIKey']}\t{entry['MolecularFormula']}\t{entry['MolecularWeight']}\n")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    finally:
+        # Cancel the alarm
+        signal.alarm(0)
+        
