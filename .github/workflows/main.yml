@@ -198,7 +198,7 @@ jobs:
       #     pip install -r build/cell_line/requirements.txt
       - name: Build Cell-line Image
         run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line CTRPv2 Drug retrieval
+      - name: Run cell-line NCI60 Drug retrieval
         run: |
           docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
           docker stop --time=30
