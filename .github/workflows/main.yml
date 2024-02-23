@@ -228,7 +228,7 @@ jobs:
           name: additive-drugs-file-3
       - name: List files cwd
         run: ls -lah 
-            - name: Build Cell-line Image
+      - name: Build Cell-line Image
         run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
       - name: Run cell-line NCI60 Drug retrieval
         run: |
@@ -288,7 +288,7 @@ jobs:
           name: additive-drugs-file-5
       - name: List files cwd
         run: ls -lah 
-           - name: Build Cell-line Image
+      - name: Build Cell-line Image
         run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
       - name: Run cell-line NCI60 Drug retrieval
         run: |
@@ -317,9 +317,7 @@ jobs:
           name: additive-drugs-file-6
       - name: List files cwd
         run: ls -lah 
-      - name: Install R
-        uses: r-lib/actions/setup-r@v2
-            - name: Build Cell-line Image
+      - name: Build Cell-line Image
         run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
       - name: Run cell-line NCI60 Drug retrieval
         run: |
@@ -348,9 +346,7 @@ jobs:
           name: additive-drugs-file-7
       - name: List files cwd
         run: ls -lah 
-      - name: Install R
-        uses: r-lib/actions/setup-r@v2
-            - name: Build Cell-line Image
+      - name: Build Cell-line Image
         run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
       - name: Run cell-line NCI60 Drug retrieval
         run: |
