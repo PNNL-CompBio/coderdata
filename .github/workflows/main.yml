@@ -534,7 +534,7 @@ jobs:
 
   build-beataml:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-beataml-samples,build-drugs-cell-line-NCI60-pt6]
+    needs: [build-beataml-samples,build-drugs-cell-line-capture-stragglers]
     runs-on: ubuntu-20.04
     environment: build
     steps:
@@ -620,7 +620,7 @@ jobs:
 
   build-cell-line:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-cell-line-samples,build-drugs-cell-line-NCI60-pt6]
+    needs: [build-cell-line-samples,build-drugs-cell-line-capture-stragglers]
     runs-on: ubuntu-20.04
     environment: build
     steps:
