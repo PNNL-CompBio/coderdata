@@ -61,8 +61,8 @@ View our [Usage](pages/usage.md) page for full instructions.
   </thead>
   <tbody>
     <tr>
-      <td>DepMap</td>
-      <td>{{site.data.stats.depmap.depmaps}}</td>
+      <td><a href="datasets/depmap" class="dataset-link">DepMap</a></td>
+      <td>{{site.data.stats.depmap.cell_lines}}</td>
       <td>{{site.data.stats.depmap.samples}}</td>
       <td>{{site.data.stats.depmap.genes}}</td>
       <td>{{site.data.stats.depmap.drugs}}</td>
@@ -72,7 +72,7 @@ View our [Usage](pages/usage.md) page for full instructions.
       <td>Yes</td>
     </tr>
     <tr>
-      <td>CPTAC</td>
+      <td><a href="datasets/cptac" class="dataset-link">CPTAC</a></td>
       <td>{{site.data.stats.cptac.cancer_types}}</td>
       <td>{{site.data.stats.cptac.samples}}</td>
       <td>{{site.data.stats.cptac.genes}}</td>
@@ -83,7 +83,7 @@ View our [Usage](pages/usage.md) page for full instructions.
       <td>Yes</td>
     </tr>
     <tr>
-      <td>HCMI</td>
+      <td><a href="datasets/hcmi" class="dataset-link">HCMI</a></td>
       <td>{{site.data.stats.hcmi.cancer_types}}</td>
       <td>{{site.data.stats.hcmi.samples}}</td>
       <td>{{site.data.stats.hcmi.genes}}</td>
@@ -94,7 +94,7 @@ View our [Usage](pages/usage.md) page for full instructions.
       <td>Yes</td>
     </tr>
     <tr>
-      <td>BeatAML</td>
+      <td><a href="datasets/beataml" class="dataset-link">BeatAML</a></td>
       <td>{{site.data.stats.beataml.cancer_types}}</td>
       <td>{{site.data.stats.beataml.samples}}</td>
       <td>{{site.data.stats.beataml.genes}}</td>
