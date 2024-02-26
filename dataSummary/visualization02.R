@@ -152,7 +152,7 @@ generate_circos_plot <- function(processed_data,prefix) {
     })
     
     # Add the legend
-    legend("center", legend = datasets, fill = dot_colors, cex = .6)
+    legend("center", legend = datasets, fill = dot_colors, cex = .5)
     dev.off()
   }
 }
@@ -281,7 +281,8 @@ generate_group_summary_plot <- function(all_file_names) {
          x = "Data Type",
          y = "Number of Samples") +
     scale_fill_manual(values = c("beataml" = "#fc8d62", "hcmi" = "#8da0cb", "depmap" = "#66c2a5", "cptac" = "#8511c1")) +
-    theme(plot.background = element_rect(fill = background_color, color = background_color))
+    theme(plot.background = element_rect(fill = background_color, color = background_color),
+    legend.background = element_rect(fill = background_color, color = background_color))
   ggsave('Fig5_Sample_Summary.png', p, height = 9, width = 12, bg = background_color)
 }
 
