@@ -44,7 +44,17 @@ View our [Usage](pages/usage.md) page for full instructions.
 
 ### Datasets
 
-<div class="dataset-section">
+
+| Dataset | Cancer Types | Samples | Genes | Drugs | Transcriptomics | Proteomics | Mutations | Copy Number |
+|---------|--------------|---------|-------|-------|-----------------|------------|-----------|-------------|
+| DepMap  | `{{ site.data.stats.depmap.depmaps }}` | `{{ site.data.stats.depmap.samples }}` | `{{ site.data.stats.depmap.genes }}` | `{{ site.data.stats.depmap.drugs }}` | Yes | Yes | Yes | Yes |
+| CPTAC   | `{{ site.data.stats.cptac.cancer_types }}` | `{{ site.data.stats.cptac.samples }}` | `{{ site.data.stats.cptac.genes }}` | `{{ site.data.stats.cptac.drugs }}` | Yes | Yes | Yes | Yes |
+| HCMI    | `{{ site.data.stats.hcmi.cancer_types }}` | `{{ site.data.stats.hcmi.samples }}` | `{{ site.data.stats.hcmi.genes }}` | `{{ site.data.stats.hcmi.drugs }}` | Yes | Yes | Yes | Yes |
+| BeatAML | `{{ site.data.stats.beataml.cancer_types }}` | `{{ site.data.stats.beataml.samples }}` | `{{ site.data.stats.beataml.genes }}` | `{{ site.data.stats.beataml.drugs }}` | Yes | Yes | No  | No  |
+
+
+
+<!-- <div class="dataset-section">
     {% assign datasets = 'depmap,cptac,hcmi,beataml' | split: ',' %}
     {% for dataset in datasets %}
         <div class="dataset-container">
@@ -90,15 +100,15 @@ View our [Usage](pages/usage.md) page for full instructions.
         </div>
     {% endfor %}
 
-</div>
+</div> -->
 
 
-<div class="legend">
+<!-- <div class="legend">
     <p>Transcriptomics<span class="dot dot_transcriptomics"></span></p>
     <p>Proteomics<span class="dot dot_proteomics"></span></p>
     <p>Mutations<span class="dot dot_mutations"></span></p>
     <p>Copy Number<span class="dot dot_copy_number"></span></p>
-</div>
+</div> -->
 
 
 ### Data Overview
