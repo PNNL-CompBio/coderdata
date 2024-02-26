@@ -20,37 +20,10 @@ infrastructure.
 
 # coderdata Data Model
 
-The goal of the data model is to collate drug response data together with molecular data in a way that can be easily ingested by machine learning models. The overall schema is shown below.
+The coderdata schema is maintained in [LinkML](schema/coderdata.yaml)
+and can be udpated via a commit to the repository. For more details,
+please see the [schema description](schema/README.md).
 
-<img src="origDataSchema.jpg" width=25% height=25%>
+## Building the data package
 
-We will store the data in tables that are represented by the files below. Each data-specific model can be generated from a smaller set of these tables. The schema for these tables is represented below. 
-
-For each dataset added, the files are comma-delimited and named follows:
-1. genes.csv
-2. drugs.tsv.gz --> Drug names have commas and quotes in them, therefore require tab delimited
-3. samples.csv
-4. experiments.csv.gz --> compressed to fit on github
-5. transcriptomics.csv.gz
-6. mutations.csv.gz 
-7. copy_number.csv.gz
-8. methylation.csv.gz
-9. mirnas.csv.gz
-
-## Building the data model
-
-Below is a description of how the data model is built.
-
-| Data model step | Description/Dependencies | Script | Destination | 
-| --- | --- | --- | --- |
-| Build cell line data | Runs through PGX and existing CCLE data to compile all values | [cell_line/buildInitialDataset.py](cell_line/buildInitialDataset.py) | [./cell_line] |
-| Build cptac data | This uses the genes files created in the [./cell_line] directory but generates additional samples. | [cptac/getCptacData.py](cptac/getCptacData.py) | [./cptac] |
-| Get HCMI data | This uses a fixed manifest to download the data into the proper schema | [hcmi/getHCMIData.py](hcmi/getHCMIData.py) | [./hcmi] |
-
-
-## Current data 
-What data is stored here? 
-
-## Using the data model
-
-Files are stored on FigShare. We need to build a script that pulls those data as needed.
+The data package is currently assembled via continuous automation,
