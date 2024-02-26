@@ -18,7 +18,7 @@ read_data <- function(file_path) {
 }
 
 read_and_preprocess_data <- function(file_names) {
-  allowed_datasets <- c("transcriptomics", "proteomics", "mutations", "miRNA", "methylation", "copy_number")
+  allowed_datasets <- c("transcriptomics", "proteomics", "mutations", "copy_number")
   datasets <- names(file_names)
   
   if (!all(datasets %in% allowed_datasets)) {
@@ -302,7 +302,6 @@ hcmi_names <- list(
 depmap_names <- list(
   transcriptomics = "depmap_transcriptomics.csv.gz",
   proteomics = "depmap_proteomics.csv.gz",
-  miRNA = "depmap_miRNA.csv.gz",
   copy_number = "depmap_copy_number.csv.gz",
   mutations = "depmap_mutations.csv.gz"
 )
