@@ -1,7 +1,10 @@
 ###Here is a script that runs through all the data files one by one.
-
+library('reticulate')
+use_python("/opt/venv/bin/python3", required = TRUE)
+library('tidyr')
 #this is a helper file that loads the data
-source("mapDrugsToPubchem.R")
+source_python("pubchem_retrieval.py")
+
 
 #if(!require('PharmacoGx')){
 #  BiocManager::install("PharmacoGx",force=TRUE)
@@ -13,7 +16,7 @@ all.dsets<-PharmacoGx::availablePSets()
 
 
 #' getCellLineData - gets cell line dose response data
-getCellLineDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')){
+getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')){
 
 
     for(cel in cell.lines){
@@ -51,9 +54,12 @@ getCellLineDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
                     mapping<-dplyr::rename(mapping,treatmentid='drugid')
 
             ##query to build the drug ids
-            drug.map<-buildDrugTable(unique(mapping$treatmentid),'/tmp/drugs.tsv.gz')%>%
-                dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
-                distinct()
+#             drug.map<-buildDrugTable(unique(mapping$treatmentid),'/tmp/drugs.tsv.gz')%>%
+#                 dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
+#                 distinct()
+            chem_list <- unique(mapping$treatmentid)
+            output_file_path <- 'drugs.tsv'
+            update_dataframe_and_write_tsv(unique_names=chem_list,output_filename=output_file_path)
 
         }
     }
@@ -67,14 +73,14 @@ main<-function(){
 	args = commandArgs(trailingOnly=TRUE)
 	if(length(args)!=1){
 	  print('Usage: Rscript 03-createDrugFile.R [datasets]')
-	  exit()
+# 	  exit()
 	  }
 #	sfile = args[1]
         dsets<-unlist(strsplit(args[1],split=','))
 
 
 
-       dl1<-getCellLineDrugData(dsets)
+       dl1<-getDepMapDrugData(dsets)
 
 
 }

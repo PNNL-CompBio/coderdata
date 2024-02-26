@@ -279,7 +279,7 @@ generate_group_summary_plot <- function(all_file_names) {
     labs(title = "Number of Samples by Data Type and Source",
          x = "Data Type",
          y = "Number of Samples") +
-    scale_fill_manual(values = c("beataml" = "#fc8d62", "hcmi" = "#8da0cb", "cell_line" = "#66c2a5", "cptac" = "#8511c1")) +
+    scale_fill_manual(values = c("beataml" = "#fc8d62", "hcmi" = "#8da0cb", "depmap" = "#66c2a5", "cptac" = "#8511c1")) +
     theme_minimal()
   
   ggsave('Fig5_Sample_Summary.png', p, height = 9, width = 12)
@@ -296,12 +296,12 @@ hcmi_names <- list(
   mutations = "hcmi_mutations.csv.gz",
   copy_number = "hcmi_copy_number.csv.gz"
 )
-cell_line_names <- list(
-  transcriptomics = "cell_line_transcriptomics.csv.gz",
-  proteomics = "cell_line_proteomics.csv.gz",
-  miRNA = "cell_line_miRNA.csv.gz",
-  copy_number = "cell_line_copy_number.csv.gz",
-  mutations = "cell_line_mutations.csv.gz"
+depmap_names <- list(
+  transcriptomics = "depmap_transcriptomics.csv.gz",
+  proteomics = "depmap_proteomics.csv.gz",
+  miRNA = "depmap_miRNA.csv.gz",
+  copy_number = "depmap_copy_number.csv.gz",
+  mutations = "depmap_mutations.csv.gz"
 )
 cptac_names <- list(
   transcriptomics = "cptac_transcriptomics.csv.gz",
@@ -314,7 +314,7 @@ cptac_names <- list(
 all_file_names <- list(
   beataml = beataml_names,
   hcmi = hcmi_names,
-  cell_line = cell_line_names,
+  depmap = depmap_names,
   cptac = cptac_names
 )
 
@@ -339,7 +339,7 @@ for (file_group_name in names(all_file_names)) {
 samples_names <- list(
   HCMI = "hcmi_samples.csv",
   BEATAML = "beataml_samples.csv",
-  Cell_Line = "cell_line_samples.csv",
+  DepMap = "depmap_samples.csv",
   CPTAC = "cptac_samples.csv"
 )
 

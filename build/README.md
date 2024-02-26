@@ -8,7 +8,7 @@ We have created a separate directory with scripts that collect data from distinc
 
 |Directory | Description | Files generated |
 |---- | ---- | --- |
-|[`/cell_line`](./cell_line) | DepMap omics data and multiple drug sensitivity datasets| |
+|[`/depmap`](./depmap) | DepMap omics data and multiple drug sensitivity datasets| |
 |[`/cptac`](./cptac) | CPTAC omics data measurements| |
 |[`/hcmi`](./hcmi)  | HCMI omics data measurements ||
 |[`/mpnst`](./mpnst)  | MPNST omics data measurements ||
