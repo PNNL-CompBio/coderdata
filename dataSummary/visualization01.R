@@ -134,7 +134,8 @@ background_color <- "#E0F2F1"
 fig0<-ggplot(stats,aes(x=cancer_type,y=numSamps,fill=model_type))+
   geom_bar(stat='identity',position='dodge')+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.background = element_rect(fill = background_color, color = background_color))+
+    plot.background = element_rect(fill = background_color, color = background_color),
+    legend.background = element_rect(fill = background_color, color = background_color))+
   scale_y_log10()+scale_fill_manual(values=color_palette)+
   ggtitle('Samples by tumor type')
 
@@ -157,30 +158,34 @@ fig1 <- ggplot(data_type1, aes(x=cancer_type, y=numSamps, fill=model_type)) +
         plot.background = element_rect(fill = background_color, color = background_color)) +
   ggtitle('Cancer and Tissue Types - HCMI')
 
-fig2 <- ggplot(data_type2, aes(x=cancer_type, y=numSamps, fill=model_type)) +
+fig2 <- ggplot(data_type2, aes(x=cancer_type, y=numSamps, fill=model_type),
+legend.background = element_rect(fill = background_color, color = background_color)) +
   geom_bar(stat='identity', position='dodge') +
   scale_fill_manual(values=color_palette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.background = element_rect(fill = background_color, color = background_color)) +
+        plot.background = element_rect(fill = background_color, color = background_color),
+        legend.background = element_rect(fill = background_color, color = background_color)) +
   ggtitle('Cancer and Tissue Types - BeatAML')
 
 fig3 <- ggplot(data_type3, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   geom_bar(stat='identity', position='dodge') +
   scale_fill_manual(values=color_palette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.background = element_rect(fill = background_color, color = background_color)) +
+        plot.background = element_rect(fill = background_color, color = background_color),
+        legend.background = element_rect(fill = background_color, color = background_color)) +
   ggtitle('Cancer and Tissue Types - CPTAC')
 
 fig4 <- ggplot(data_type4, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   geom_bar(stat='identity', position='dodge') +
   scale_fill_manual(values=color_palette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.background = element_rect(fill = background_color, color = background_color)) +
+        plot.background = element_rect(fill = background_color, color = background_color),
+        legend.background = element_rect(fill = background_color, color = background_color)) +
   ggtitle('Cancer and Tissue Types - CCLE')
 
-ggsave('Fig1_HCMI.png', fig1, height=15, width=20, bg = background_color)
-ggsave('Fig2_BeatAML.png', fig2, height=15, width=20, bg = background_color)
-ggsave('Fig3_CPTAC.png', fig3, height=15, width=20, bg = background_color)
-ggsave('Fig4_CCLE.png', fig4, height=15, width=20, bg = background_color)
+ggsave('Fig1_HCMI.png', fig1, height=9, width=12, bg = background_color)
+ggsave('Fig2_BeatAML.png', fig2, height=9, width=12, bg = background_color)
+ggsave('Fig3_CPTAC.png', fig3, height=9, width=12, bg = background_color)
+ggsave('Fig4_CCLE.png', fig4, height=9, width=12, bg = background_color)
 
 
