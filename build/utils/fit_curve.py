@@ -4,7 +4,6 @@ import matplotlib
 # matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
-import pandas as pd
 
 import sys
 import argparse
@@ -18,6 +17,15 @@ from scipy.optimize import curve_fit
 
 #import uno_data as ud
 
+def format_coderd_schema(fname):
+    """    formats output to comply with coderdata schema
+    """
+    df = pd.read_csv(fname,delimiter='\t')
+    ##first rename Drug to improve_drug_id
+    df2 = df.rename(columns={'Drug':'improve_drug_id'})
+    new_df = pd.melt(df2,id_vars=['source','improve_sample_id','improve_drug_id','study','time','time_unit'],value_vars=['fit auc','fit ic50','fit ec50','fit r2','fit ec50se','fit einf','fit hs','aac','auc','dss'],value_name='dose_response_value',var_name='dose_response_metric')
+
+    new_df.to_csv(fname,sep='\t',index=False)
 
 HS_BOUNDS_ORIG = ([0, 10**-12, 0], [1, 1, 4])
 
@@ -67,7 +75,7 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     d2: maximum fixed dose log10(M)
     '''
     if popt is None:
-        cols = 'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
+        cols = ['fit auc','fit ic50','fit ec50','fit ec50se','fit r2','fit einf','fit hs','aac','auc','dss']#'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
         return pd.Series([np.nan] * len(cols), index=cols)
     einf, ec50, hs = popt
     perr = np.sqrt(np.diag(pcov))
@@ -85,9 +93,9 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     int10x = compute_area(xmin, ic10x, *popt)
     dss1 = (0.9 * (ic10x - xmin) - int10x) / (0.9 * (xmax - xmin)) if xmin < ic10x else 0
     auc = (response_integral(d2, *popt) - response_integral(d1, *popt)) / (d2 - d1)
-    metrics = pd.Series({'auc':auc, 'ic50':ic50, 'ec50':ec50,
-                         'ec50se':ec50se, 'r2fit':r2, 'einf':einf, 'hs':hs,
-                         'aac1':aac1, 'auc1':auc1, 'dss1':dss1}).round(4)
+    metrics = pd.Series({'fit auc':auc, 'fit ic50':ic50, 'fit ec50':ec50,'fit einf':einf,
+                         'fit ec50se':ec50se, 'fit r2':r2, 'einf':einf, 'fit hs':hs,
+                         'aac':aac1, 'auc':auc1, 'dss':dss1}).round(4)
     return metrics
 
 
@@ -219,9 +227,7 @@ def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS):
 
 def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None):
     header = None
-    cols = ['source', 'improve_sample_id', 'Drug', 'study']
-    if beataml == True:
-        cols = ['SOURCE', 'CELL', 'DRUG', 'STUDY']
+    cols = ['source', 'improve_sample_id', 'Drug', 'study','time','time_unit']
     groups = df.groupby(cols)
     # count = count or (len(groups) - start)
     count = count or (4484081 - start)
@@ -402,13 +408,15 @@ def main():
     df_all = pd.read_table(args.input)
     #drop nas
     df_all = df_all.dropna()
+    #print(df_all)
     ##pharmacoGX data is micromolar, we need log transformed molar
     df_all.DOSE = np.log10(df_all.DOSE*1000000)
     ##need data to be between 0 and 1, not 0 and 100
     df_all.GROWTH=df_all.GROWTH/100.00
     
     fname = args.output or 'combined_single_response_agg'
-    process_df_part(df_all, fname, beataml=args.beataml)#, start=args.start, count=args.count)
+    process_df_part(df_all, fname)#, start=args.start, count=args.count)
+    format_coderd_schema(fname+'.0')
 
 if __name__ == '__main__':
     main()
