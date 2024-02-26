@@ -3,8 +3,8 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--sample',dest='samplefile',default=None,help='Cell line sample file')
-    parser.add_argument('--gene',dest='genefile',default=None,help='Cell line sample file')
+    parser.add_argument('--sample',dest='samplefile',default=None,help='DepMap sample file')
+    parser.add_argument('--gene',dest='genefile',default=None,help='DepMap sample file')
 
     opts = parser.parse_args()
 

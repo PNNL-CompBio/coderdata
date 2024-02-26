@@ -123,5 +123,5 @@ long.df<-full.df%>%
   subset(other_id!="")
 
 
-write.table(long.df,'/tmp/cell_line_samples.csv',sep=',',row.names=F,col.names=T)
+write.table(long.df,'/tmp/depmap_samples.csv',sep=',',row.names=F,col.names=T)
 

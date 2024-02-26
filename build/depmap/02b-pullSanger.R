@@ -275,7 +275,7 @@ getAll<-function(dt=names(filenames)){
 main<-function(){
 	args = commandArgs(trailingOnly=TRUE)
 	if(length(args)!=2){
-	  print('Usage: Rscript 02a-cellLineSanger.R [genefile] [samplefile]')
+	  print('Usage: Rscript 02a-pullSanger.R [genefile] [samplefile]')
 	  exit()
 	  }
 	gfile = args[1]
