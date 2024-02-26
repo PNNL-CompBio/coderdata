@@ -67,15 +67,16 @@ read_and_preprocess_data <- function(file_names) {
 
 # Circos plot function
 generate_circos_plot <- function(processed_data,prefix) {
+  background_color <- "#E0F2F1"
   save_name <- paste(prefix,"_circos",".png", sep = "")
   if (is.null(processed_data$data) || nrow(processed_data$data) == 0) {
     # This shouldn't trigger anymore.
-    png(save_name, width = 1600, height = 1600, res = 600)
+    png(save_name, width = 1600, height = 1600, res = 600, bg = background_color)
     plot(1, type = "n", ann = FALSE)
     text(1, 1, "No data available", cex = 1.5)
     dev.off()
   } else {
-    png(save_name, width = 1600, height = 1600, res = 600)
+    png(save_name, width = 1600, height = 1600, res = 600, bg = background_color)
     merged_data <- processed_data$data
     sector.data <- processed_data$sector_data
     datasets <- colnames(merged_data)[-1]
@@ -280,9 +281,8 @@ generate_group_summary_plot <- function(all_file_names) {
          x = "Data Type",
          y = "Number of Samples") +
     scale_fill_manual(values = c("beataml" = "#fc8d62", "hcmi" = "#8da0cb", "depmap" = "#66c2a5", "cptac" = "#8511c1")) +
-    theme_minimal()
-  
-  ggsave('Fig5_Sample_Summary.png', p, height = 9, width = 12)
+    theme(plot.background = element_rect(fill = background_color, color = background_color))
+  ggsave('Fig5_Sample_Summary.png', p, height = 9, width = 12, bg = background_color)
 }
 
 # Data file names for each group
