@@ -45,12 +45,67 @@ View our [Usage](pages/usage.md) page for full instructions.
 ### Datasets
 
 
-| Dataset | Cancer Types | Samples | Genes | Drugs | Transcriptomics | Proteomics | Mutations | Copy Number |
-|---------|--------------|---------|-------|-------|-----------------|------------|-----------|-------------|
-| DepMap  | `{{ site.data.stats.depmap.depmaps }}` | `{{ site.data.stats.depmap.samples }}` | `{{ site.data.stats.depmap.genes }}` | `{{ site.data.stats.depmap.drugs }}` | Yes | Yes | Yes | Yes |
-| CPTAC   | `{{ site.data.stats.cptac.cancer_types }}` | `{{ site.data.stats.cptac.samples }}` | `{{ site.data.stats.cptac.genes }}` | `{{ site.data.stats.cptac.drugs }}` | Yes | Yes | Yes | Yes |
-| HCMI    | `{{ site.data.stats.hcmi.cancer_types }}` | `{{ site.data.stats.hcmi.samples }}` | `{{ site.data.stats.hcmi.genes }}` | `{{ site.data.stats.hcmi.drugs }}` | Yes | Yes | Yes | Yes |
-| BeatAML | `{{ site.data.stats.beataml.cancer_types }}` | `{{ site.data.stats.beataml.samples }}` | `{{ site.data.stats.beataml.genes }}` | `{{ site.data.stats.beataml.drugs }}` | Yes | Yes | No  | No  |
+<table>
+  <thead>
+    <tr>
+      <th>Dataset</th>
+      <th>Cancer Types</th>
+      <th>Samples</th>
+      <th>Genes</th>
+      <th>Drugs</th>
+      <th>Transcriptomics</th>
+      <th>Proteomics</th>
+      <th>Mutations</th>
+      <th>Copy Number</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DepMap</td>
+      <td>site.data.stats.depmap.cell_lines</td>
+      <td>site.data.stats.depmap.samples</td>
+      <td>site.data.stats.depmap.genes</td>
+      <td>site.data.stats.depmap.drugs</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>CPTAC</td>
+      <td>site.data.stats.cptac.cancer_types</td>
+      <td>site.data.stats.cptac.samples</td>
+      <td>site.data.stats.cptac.genes</td>
+      <td>site.data.stats.cptac.drugs</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>HCMI</td>
+      <td>site.data.stats.hcmi.cancer_types</td>
+      <td>site.data.stats.hcmi.samples</td>
+      <td>site.data.stats.hcmi.genes</td>
+      <td>site.data.stats.hcmi.drugs</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>BeatAML</td>
+      <td>site.data.stats.beataml.cancer_types</td>
+      <td>site.data.stats.beataml.samples</td>
+      <td>site.data.stats.beataml.genes</td>
+      <td>site.data.stats.beataml.drugs</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
 
 
 
