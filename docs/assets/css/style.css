@@ -256,12 +256,12 @@ pre > code.language-python {
 
 .flex-item {
     margin: 5px;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
     height: 100%;
-    background-color: white;    
-    border: 1px solid black;
-    border-radius: 2px;
-    border-color: #001a37;
+    /* background-color: white;     */
+    /* border: 1px solid black; */
+    /* border-radius: 2px; */
+    /* border-color: #001a37; */
     width: 80%;
     max-width: 825px;
 }
@@ -278,8 +278,8 @@ pre > code.language-python {
 .flex-item img {
     width: 85%; 
     height: auto; 
-    border-radius: 2px;
-    border-color: #001a37;
+    /* border-radius: 2px; */
+    /* border-color: #001a37; */
 }
 
 
