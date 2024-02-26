@@ -62,10 +62,10 @@ View our [Usage](pages/usage.md) page for full instructions.
   <tbody>
     <tr>
       <td>DepMap</td>
-      <td>site.data.stats.depmap.cell_lines</td>
-      <td>site.data.stats.depmap.samples</td>
-      <td>site.data.stats.depmap.genes</td>
-      <td>site.data.stats.depmap.drugs</td>
+      <td>{{site.data.stats.depmap.depmaps}}</td>
+      <td>{{site.data.stats.depmap.samples}}</td>
+      <td>{{site.data.stats.depmap.genes}}</td>
+      <td>{{site.data.stats.depmap.drugs}}</td>
       <td>Yes</td>
       <td>Yes</td>
       <td>Yes</td>
@@ -73,10 +73,10 @@ View our [Usage](pages/usage.md) page for full instructions.
     </tr>
     <tr>
       <td>CPTAC</td>
-      <td>site.data.stats.cptac.cancer_types</td>
-      <td>site.data.stats.cptac.samples</td>
-      <td>site.data.stats.cptac.genes</td>
-      <td>site.data.stats.cptac.drugs</td>
+      <td>{{site.data.stats.cptac.cancer_types}}</td>
+      <td>{{site.data.stats.cptac.samples}}</td>
+      <td>{{site.data.stats.cptac.genes}}</td>
+      <td>{{site.data.stats.cptac.drugs}}</td>
       <td>Yes</td>
       <td>Yes</td>
       <td>Yes</td>
@@ -84,10 +84,10 @@ View our [Usage](pages/usage.md) page for full instructions.
     </tr>
     <tr>
       <td>HCMI</td>
-      <td>site.data.stats.hcmi.cancer_types</td>
-      <td>site.data.stats.hcmi.samples</td>
-      <td>site.data.stats.hcmi.genes</td>
-      <td>site.data.stats.hcmi.drugs</td>
+      <td>{{site.data.stats.hcmi.cancer_types}}</td>
+      <td>{{site.data.stats.hcmi.samples}}</td>
+      <td>{{site.data.stats.hcmi.genes}}</td>
+      <td>{{site.data.stats.hcmi.drugs}}</td>
       <td>Yes</td>
       <td>Yes</td>
       <td>Yes</td>
@@ -95,10 +95,10 @@ View our [Usage](pages/usage.md) page for full instructions.
     </tr>
     <tr>
       <td>BeatAML</td>
-      <td>site.data.stats.beataml.cancer_types</td>
-      <td>site.data.stats.beataml.samples</td>
-      <td>site.data.stats.beataml.genes</td>
-      <td>site.data.stats.beataml.drugs</td>
+      <td>{{site.data.stats.beataml.cancer_types}}</td>
+      <td>{{site.data.stats.beataml.samples}}</td>
+      <td>{{site.data.stats.beataml.genes}}</td>
+      <td>{{site.data.stats.beataml.drugs}}</td>
       <td>Yes</td>
       <td>Yes</td>
       <td>No</td>
