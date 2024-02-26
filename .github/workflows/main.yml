@@ -15,41 +15,41 @@ permissions:
 
 jobs:
 # Placeholder
-  build-cell-line-samples:
+  build-depmap-samples:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
     steps:
-      #Add upload artifact from Cell-line Samples 
-      - name: Checkout  Cell Line
+      #Add upload artifact from depmap Samples 
+      - name: Checkout  DepMap
         uses: actions/checkout@v2
-      # - name: Copy Cell Line sample from build location. 
+      # - name: Copy DepMap sample from build location. 
       #   run: |
-      #     cp build/cell_line/requirements.txt .
-      #     cp build/cell_line/requirements.r .
-      #     cp build/cell_line/*.R .
-      #     cp build/cell_line/*.py .
+      #     cp build/depmap/requirements.txt .
+      #     cp build/depmap/requirements.r .
+      #     cp build/depmap/*.R .
+      #     cp build/depmap/*.py .
       #     cp build/utils/* .
       - name: List files cwd
         run: ls -lah 
       - name: cat reqs
         run: cat requirements.txt
-      - name: Build Cell-line Image
-        run: docker build -t cell_line-samples-builder -f build/docker/Dockerfile.cell_line .
-      - name: Run Cell-line samples Container
+      - name: Build depmap Image
+        run: docker build -t depmap-samples-builder -f build/docker/Dockerfile.depmap .
+      - name: Run depmap samples Container
         run: |
-          docker run -v $PWD:/tmp/ cell_line-samples-builder Rscript 00-buildGeneFile.R
-          docker run -v $PWD:/tmp/ cell_line-samples-builder Rscript 01-cellLineSamples.R
-      - name: Copy file from Cell-line Samples Container
+          docker run -v $PWD:/tmp/ depmap-samples-builder Rscript 00-buildGeneFile.R
+          docker run -v $PWD:/tmp/ depmap-samples-builder Rscript 01-depmapSamples.R
+      - name: Copy file from depmap Samples Container
         run: |
-          mkdir cell-line-samples genes-file
-          mv cell_line_samples.csv cell-line-samples
+          mkdir depmap-samples genes-file
+          mv depmap_samples.csv depmap-samples
           mv genes.csv genes-file
-      - name: Upload artifacts for Cell-line
+      - name: Upload artifacts for depmap
         uses: actions/upload-artifact@v2
         with:
-          name: cell-line-samples
-          path: cell-line-samples
+          name: depmap-samples
+          path: depmap-samples
       - name: Upload artifacts for genes
         uses: actions/upload-artifact@v2
         with:
@@ -110,7 +110,7 @@ jobs:
   #         name: additive-drugs-file
   #         path: additive-drugs-file
 
-  build-drugs-cell-line-CTRPv2-GDSC-gCSI-PRISM-CCLE-FIMM:
+  build-drugs-depmap-CTRPv2-GDSC-gCSI-PRISM-CCLE-FIMM:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
@@ -128,42 +128,42 @@ jobs:
       #   uses: r-lib/actions/setup-r@v2
       # - name: Install R and Python Packages
       #   run: |
-      #     Rscript build/cell_line/requirements.r
-      #     pip install -r build/cell_line/requirements.txt
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line CTRPv2 Drug retrieval
+      #     Rscript build/depmap/requirements.r
+      #     pip install -r build/depmap/requirements.txt
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap CTRPv2 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R CTRPv2
+          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R CTRPv2
       - name: List files cwd
         run: ls -lah 
-      - name: Run cell-line GDSC Drug retrieval
+      - name: Run depmap GDSC Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R GDSC
-      - name: Run cell-line gCSI Drug retrieval
+          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R GDSC
+      - name: Run depmap gCSI Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R gCSI
-      - name: Run cell-line PRISM Drug retrieval
+          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R gCSI
+      - name: Run depmap PRISM Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R PRISM
-      - name: Run cell-line CCLE Drug retrieval
+          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R PRISM
+      - name: Run depmap CCLE Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R CCLE
-      - name: Run cell-line FIMM Drug retrieval
+          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R CCLE
+      - name: Run depmap FIMM Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line Rscript CreateDrugFileCL.R FIMM
-      # - name: Run cell-line CTRPv2 Drug retrieval
-      #   run: Rscript build/cell_line/CreateDrugFileCL.R CTRPv2
-      # - name: Run cell-line GDSC Drug retrieval
-      #   run: Rscript build/cell_line/CreateDrugFileCL.R GDSC
-      # - name: Run cell-line gCSI Drug retrieval
-      #   run: Rscript build/cell_line/CreateDrugFileCL.R gCSI
-      # - name: Run cell-line PRISM Drug retrieval
-      #   run: Rscript build/cell_line/CreateDrugFileCL.R PRISM
-      # - name: Run cell-line CCLE Drug retrieval
-      #   run: Rscript build/cell_line/CreateDrugFileCL.R CCLE
-      # - name: Run cell-line FIMM Drug retrieval
-      #   run: Rscript build/cell_line/CreateDrugFileCL.R FIMM
+          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R FIMM
+      # - name: Run depmap CTRPv2 Drug retrieval
+      #   run: Rscript build/depmap/CreateDrugFileCL.R CTRPv2
+      # - name: Run depmap GDSC Drug retrieval
+      #   run: Rscript build/depmap/CreateDrugFileCL.R GDSC
+      # - name: Run depmap gCSI Drug retrieval
+      #   run: Rscript build/depmap/CreateDrugFileCL.R gCSI
+      # - name: Run depmap PRISM Drug retrieval
+      #   run: Rscript build/depmap/CreateDrugFileCL.R PRISM
+      # - name: Run depmap CCLE Drug retrieval
+      #   run: Rscript build/depmap/CreateDrugFileCL.R CCLE
+      # - name: Run depmap FIMM Drug retrieval
+      #   run: Rscript build/depmap/CreateDrugFileCL.R FIMM
       - name: List files cwd
         run: ls -lah 
       - name: Copy drugs file to artifact 
@@ -176,11 +176,11 @@ jobs:
           name: additive-drugs-file-2
           path: additive-drugs-file-2
 
-  build-drugs-cell-line-NCI60-pt1:
+  build-drugs-depmap-NCI60-pt1:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-CTRPv2-GDSC-gCSI-PRISM-CCLE-FIMM]
+    needs: [build-drugs-depmap-CTRPv2-GDSC-gCSI-PRISM-CCLE-FIMM]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -194,15 +194,15 @@ jobs:
       #   uses: r-lib/actions/setup-r@v2
       # - name: Install R and Python Packages
       #   run: |
-      #     Rscript build/cell_line/requirements.r
-      #     pip install -r build/cell_line/requirements.txt
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      #     Rscript build/depmap/requirements.r
+      #     pip install -r build/depmap/requirements.txt
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
-      # - name: Run cell-line NCI60 Drug retrieval
-      #   run:  Rscript build/cell_line/CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+      # - name: Run depmap NCI60 Drug retrieval
+      #   run:  Rscript build/depmap/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-3
@@ -214,11 +214,11 @@ jobs:
           path: additive-drugs-file-3
 
 
-  build-drugs-cell-line-NCI60-pt2:
+  build-drugs-depmap-NCI60-pt2:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt1]
+    needs: [build-drugs-depmap-NCI60-pt1]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -228,11 +228,11 @@ jobs:
           name: additive-drugs-file-3
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-4
@@ -244,11 +244,11 @@ jobs:
           path: additive-drugs-file-4
 
 
-  build-drugs-cell-line-NCI60-pt3:
+  build-drugs-depmap-NCI60-pt3:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt2]
+    needs: [build-drugs-depmap-NCI60-pt2]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -258,11 +258,11 @@ jobs:
           name: additive-drugs-file-4
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-5
@@ -274,11 +274,11 @@ jobs:
           path: additive-drugs-file-5
 
 
-  build-drugs-cell-line-NCI60-pt4:
+  build-drugs-depmap-NCI60-pt4:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt3]
+    needs: [build-drugs-depmap-NCI60-pt3]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -288,11 +288,11 @@ jobs:
           name: additive-drugs-file-5
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-6
@@ -303,11 +303,11 @@ jobs:
           name: additive-drugs-file-6
           path: additive-drugs-file-6
 
-  build-drugs-cell-line-NCI60-pt5:
+  build-drugs-depmap-NCI60-pt5:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt4]
+    needs: [build-drugs-depmap-NCI60-pt4]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -317,11 +317,11 @@ jobs:
           name: additive-drugs-file-6
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-7
@@ -332,11 +332,11 @@ jobs:
           name: additive-drugs-file-7
           path: additive-drugs-file-7
 
-  build-drugs-cell-line-NCI60-pt6:
+  build-drugs-depmap-NCI60-pt6:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt5]
+    needs: [build-drugs-depmap-NCI60-pt5]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -346,11 +346,11 @@ jobs:
           name: additive-drugs-file-7
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-8
@@ -361,11 +361,11 @@ jobs:
           name: additive-drugs-file-8
           path: additive-drugs-file-8
 
-  build-drugs-cell-line-NCI60-pt7:
+  build-drugs-depmap-NCI60-pt7:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt6]
+    needs: [build-drugs-depmap-NCI60-pt6]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -375,11 +375,11 @@ jobs:
           name: additive-drugs-file-8
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-9
@@ -390,11 +390,11 @@ jobs:
           name: additive-drugs-file-9
           path: additive-drugs-file-9
 
-  build-drugs-cell-line-NCI60-pt8:
+  build-drugs-depmap-NCI60-pt8:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt7]
+    needs: [build-drugs-depmap-NCI60-pt7]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -404,11 +404,11 @@ jobs:
           name: additive-drugs-file-9
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-10
@@ -419,11 +419,11 @@ jobs:
           name: additive-drugs-file-10
           path: additive-drugs-file-10
 
-  build-drugs-cell-line-NCI60-pt9:
+  build-drugs-depmap-NCI60-pt9:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt8]
+    needs: [build-drugs-depmap-NCI60-pt8]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -433,11 +433,11 @@ jobs:
           name: additive-drugs-file-10
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-11
@@ -448,11 +448,11 @@ jobs:
           name: additive-drugs-file-11
           path: additive-drugs-file-11
 
-  build-drugs-cell-line-NCI60-pt10:
+  build-drugs-depmap-NCI60-pt10:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt9]
+    needs: [build-drugs-depmap-NCI60-pt9]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -462,11 +462,11 @@ jobs:
           name: additive-drugs-file-11
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-12
@@ -477,11 +477,11 @@ jobs:
           name: additive-drugs-file-12
           path: additive-drugs-file-12
 
-  build-drugs-cell-line-NCI60-pt11:
+  build-drugs-depmap-NCI60-pt11:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt10]
+    needs: [build-drugs-depmap-NCI60-pt10]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -491,11 +491,11 @@ jobs:
           name: additive-drugs-file-12
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-13
@@ -506,11 +506,11 @@ jobs:
           name: additive-drugs-file-13
           path: additive-drugs-file-13
 
-  build-drugs-cell-line-capture-stragglers:
+  build-drugs-depmap-capture-stragglers:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-cell-line-NCI60-pt11]
+    needs: [build-drugs-depmap-NCI60-pt11]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -520,11 +520,11 @@ jobs:
           name: additive-drugs-file-13
       - name: List files cwd
         run: ls -lah 
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
-      - name: Run cell-line NCI60 Drug retrieval
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp cell-line  Rscript CreateDrugFileCL.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
+          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-14
@@ -541,20 +541,20 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-cell-line-samples]
+    needs: [build-depmap-samples]
     steps:
       #Add upload artifact from CPTAC Samples 
       - name: Checkout  CPTAC
         uses: actions/checkout@v2
-      - name: Download artifacts from cell-line
+      - name: Download artifacts from depmap
         uses: actions/download-artifact@v2
         with:
-          name: cell-line-samples
-      - name: Download artifacts from Cell Line (genes)
+          name: depmap-samples
+      - name: Download artifacts from DepMap (genes)
         uses: actions/download-artifact@v2  
         with:
           name: genes-file
-      - name: Copy Cell Line sample from build location. 
+      - name: Copy DepMap sample from build location. 
         run: |
           cp build/cptac/requirements.txt .
           cp build/cptac/*.py .
@@ -566,7 +566,7 @@ jobs:
       - name: Build CPTAC Image
         run: docker build -t cptac-samples-builder -f build/docker/Dockerfile.cptac .
       - name: Run CPTAC samples Container
-        run: docker run -v $PWD:/tmp cptac-samples-builder --geneFile=genes.csv --prevSampleFile=/tmp/cell_line_samples.csv 
+        run: docker run -v $PWD:/tmp cptac-samples-builder --geneFile=genes.csv --prevSampleFile=/tmp/depmap_samples.csv 
       - name: Copy file from CPTAC Samples Container
         run: |
           mkdir cptac-samples
@@ -709,7 +709,7 @@ jobs:
 
   build-beataml:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-beataml-samples,build-drugs-cell-line-capture-stragglers]
+    needs: [build-beataml-samples,build-drugs-depmap-capture-stragglers]
     runs-on: ubuntu-20.04
     environment: build
     steps:
@@ -769,54 +769,54 @@ jobs:
       - name: Run linkml schema checker
         run: bash schema/check_beataml_linkml.sh
 
-  # build-cell-line:
+  # build-depmap:
   #   if: github.actor != 'github-actions[bot]'
-  #   needs: [build-cell-line-samples]
+  #   needs: [build-depmap-samples]
   #   runs-on: ubuntu-20.04
   #   environment: build
   #   steps:
-  #     - name: Checkout code Cell Line
+  #     - name: Checkout code DepMap
   #       uses: actions/checkout@v2
   #     - name: List files cwd before
   #       run: ls -lah 
   #     - name: Install coderdata
   #       run: pip install coderdata
-  #     - name: Download cell_line data from coder data
-  #       run: coderdata download --prefix cell_line
+  #     - name: Download depmap data from coder data
+  #       run: coderdata download --prefix depmap
   #     - name: List files cwd after
   #       run: ls -lah 
-  #     - name: Copy files from cell line Container
+  #     - name: Copy files from DepMap Container
   #       run: |
-  #         mkdir cell-line-files
-  #         for file in *cell_line*sv*; do
-  #           cp $file cell-line-files/$file
+  #         mkdir depmap-files
+  #         for file in *depmap*sv*; do
+  #           cp $file depmap-files/$file
   #         done
-  #     - name: Upload artifact for Cell Line
+  #     - name: Upload artifact for DepMap
   #       uses: actions/upload-artifact@v2
   #       with:
-  #         name: cell-line-files
-  #         path: cell-line-files
+  #         name: depmap-files
+  #         path: depmap-files
 
-  build-cell-line:
+  build-depmap:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-cell-line-samples,build-drugs-cell-line-capture-stragglers]
+    needs: [build-depmap-samples,build-drugs-depmap-capture-stragglers]
     runs-on: ubuntu-20.04
     environment: build
     steps:
-      - name: Checkout  Cell Line
+      - name: Checkout  DepMap
         uses: actions/checkout@v2
-      # - name: Copy Cell Line sample from build location. 
+      # - name: Copy DepMap sample from build location. 
       #   run: |
-      #     cp build/cell_line/requirements.txt .
-      #     cp build/cell_line/requirements.r .
-      #     cp build/cell_line/*.R .
-      #     cp build/cell_line/*.py .
+      #     cp build/depmap/requirements.txt .
+      #     cp build/depmap/requirements.r .
+      #     cp build/depmap/*.R .
+      #     cp build/depmap/*.py .
       #     cp build/utils/* .
-      - name: Download artifacts from Cell Line (samples)
+      - name: Download artifacts from DepMap (samples)
         uses: actions/download-artifact@v2  
         with:
-          name: cell-line-samples
-      - name: Download artifacts from Cell Line (genes)
+          name: depmap-samples
+      - name: Download artifacts from DepMap (genes)
         uses: actions/download-artifact@v2  
         with:
           name: genes-file
@@ -830,8 +830,8 @@ jobs:
         run: ls -lah 
       - name: cat reqs
         run: cat requirements.txt
-      - name: Build Cell-line Image
-        run: docker build -f build/docker/Dockerfile.cell_line -t cell-line .
+      - name: Build depmap Image
+        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
       - name: docker save space and stats
         run: |
           docker image prune -f 
@@ -839,55 +839,55 @@ jobs:
           docker volume prune -f 
           docker network prune -f 
           docker system df
-      - name: Run Cell-line 02-cellLineDepMap.R Container
+      - name: Run depmap 02-pullDepMap.R Container
         run: |
-          docker run -v $PWD:/tmp/ cell-line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv
-      - name: Run Cell-line 02b-cellLineSanger.R Container
+          docker run -v $PWD:/tmp/ depmap Rscript 02-pullDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv
+      - name: Run depmap 02b-pullSanger.R Container
         run: |
-          docker run -v $PWD:/tmp/ cell-line Rscript 02b-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv
-      # - name: Run Cell-line 03-createDrugFile.RContainer
+          docker run -v $PWD:/tmp/ depmap Rscript 02b-pullSanger.R /tmp/genes.csv /tmp/depmap_samples.csv
+      # - name: Run depmap 03-createDrugFile.RContainer
       #   run: |
-      #     docker run -v $PWD:/tmp cell-line Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
-      - name: Run Cell-line 04-drug_dosage_and_curves.py Container
+      #     docker run -v $PWD:/tmp depmap Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
+      - name: Run depmap 04-drug_dosage_and_curves.py Container
         run: |
-          docker run -v $PWD:/tmp/ cell-line /opt/venv/bin/python 04-drug_dosage_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/cell_line_samples.csv
-      - name: Run Cell-line 01b-cellLineDrugs_LINCS.py Container
+          docker run -v $PWD:/tmp/ depmap /opt/venv/bin/python 04-drug_dosage_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/depmap_samples.csv
+      - name: Run depmap 01b-pullDrugs_LINCS.py Container
         run: |
-          docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 01b-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
-      - name: Run Cell-line 04-cellLineDrugs_LINCS.py Container
+          docker run -v $PWD:/tmp depmap /opt/venv/bin/python 01b-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
+      - name: Run depmap 04-pullDrugs_LINCS.py Container
         run: |
-          docker run -v $PWD:/tmp cell-line /opt/venv/bin/python 04-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
-      - name: Run Cell-line 05-LINCS_perturbations.py Container
+          docker run -v $PWD:/tmp depmap /opt/venv/bin/python 04-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
+      - name: Run depmap 05-LINCS_perturbations.py Container
         run: |
-          docker run -v $PWD:/tmp/ cell-line Rscript 05-LINCS_perturbations.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/cell_line_samples.csv
+          docker run -v $PWD:/tmp/ depmap Rscript 05-LINCS_perturbations.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/depmap_samples.csv
       - name: List files cwd
         run: ls -lah 
-      - name: Copy files from Cell Line Container
+      - name: Copy files from DepMap Container
         run: |
-          mkdir cell-line-files
-          cp cell_line_* cell-line-files
-      - name: Upload artifacts for Cell Line
+          mkdir depmap-files
+          cp depmap_* depmap-files
+      - name: Upload artifacts for DepMap
         uses: actions/upload-artifact@v2
         with:
-          name: cell-line-files
-          path: cell-line-files
+          name: depmap-files
+          path: depmap-files
 
-  check-cell-line-schema:
+  check-depmap-schema:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-cell-line]
+    needs: [build-depmap]
     runs-on: ubuntu-20.04
     environment: build
     steps:
-      - name: Checkout code Cell Line 
+      - name: Checkout code DepMap 
         uses: actions/checkout@v2
-      - name: Download artifacts from Cell Line Samples
+      - name: Download artifacts from DepMap Samples
         uses: actions/download-artifact@v2
         with:
-          name: cell-line-samples
-      - name: Download artifacts from Cell Line 
+          name: depmap-samples
+      - name: Download artifacts from DepMap 
         uses: actions/download-artifact@v2
         with:
-          name: cell-line-files
+          name: depmap-files
       - name: Download linkml
         run: |
             pip install linkml
@@ -895,7 +895,7 @@ jobs:
       - name: check dir
         run: ls
       - name: Run linkml schema checker
-        run: bash schema/check_cell_line_linkml.sh
+        run: bash schema/check_depmap_linkml.sh
 
 
   build-cptac:
@@ -910,7 +910,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: cptac-samples
-      - name: Download artifacts from Cell Line (genes)
+      - name: Download artifacts from DepMap (genes)
         uses: actions/download-artifact@v2  
         with:
           name: genes-file
@@ -1000,7 +1000,7 @@ jobs:
 
   data-visualization:
     if: github.actor != 'github-actions[bot]'
-    needs: [check-hcmi-schema, check-beataml-schema, check-cell-line-schema, check-cptac-schema, check-mpnst-schema]
+    needs: [check-hcmi-schema, check-beataml-schema, check-depmap-schema, check-cptac-schema, check-mpnst-schema]
     environment: build
     runs-on: ubuntu-20.04
     steps:
@@ -1026,10 +1026,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: beataml-files
-      - name: Download artifacts from Cell Line
+      - name: Download artifacts from DepMap
         uses: actions/download-artifact@v2
         with:
-          name: cell-line-files
+          name: depmap-files
       # - name: Download artifacts from MPNST
       #   uses: actions/download-artifact@v2
       #   with:
@@ -1042,8 +1042,8 @@ jobs:
       #   run: pip install coderdata
       # - name: Download cptac data from coder data
       #   run: coderdata download --prefix cptac
-      # - name: Download cell_line data from coder data
-      #   run: coderdata download --prefix cell_line
+      # - name: Download depmap data from coder data
+      #   run: coderdata download --prefix depmap
       # - name: Download all data from coder data
       #   run: coderdata download 
       - name: Create all-files directory
@@ -1117,7 +1117,7 @@ jobs:
           fi
   gen-stats-and-push:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
+    needs: [build-hcmi, build-beataml, build-depmap, build-cptac, build-mpnst]
     environment: build
     runs-on: ubuntu-20.04
     steps:
@@ -1136,10 +1136,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: beataml-files
-      - name: Download artifacts from Cell Line
+      - name: Download artifacts from DepMap
         uses: actions/download-artifact@v2
         with:
-          name: cell-line-files
+          name: depmap-files
       # - name: Download artifacts from MPNST
       #   uses: actions/download-artifact@v2
       #   with:
@@ -1170,8 +1170,8 @@ jobs:
 
   upload-to-figshare:
     if: github.actor != 'github-actions[bot]'
-    needs: [check-hcmi-schema, check-beataml-schema, check-cell-line-schema, check-cptac-schema, check-mpnst-schema]
-    # needs: [build-hcmi, build-beataml, build-cell-line, build-cptac, build-mpnst]
+    needs: [check-hcmi-schema, check-beataml-schema, check-depmap-schema, check-cptac-schema, check-mpnst-schema]
+    # needs: [build-hcmi, build-beataml, build-depmap, build-cptac, build-mpnst]
     environment: build
     runs-on: ubuntu-20.04
     steps:
@@ -1189,10 +1189,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: cptac-files
-      - name: Download artifacts from Cell Line
+      - name: Download artifacts from DepMap
         uses: actions/download-artifact@v2
         with:
-          name: cell-line-files
+          name: depmap-files
       # - name: Download artifacts from MPNST
       #   uses: actions/download-artifact@v2
       #   with:
@@ -1303,9 +1303,9 @@ jobs:
       matrix:
         test-file: [
           'test_download_and_load_beataml.py', 
-          'test_download_and_load_cell_line.py', 
+          'test_download_and_load_depmap.py', 
           'test_download_beataml_cli.py', 
-          'test_download_cell_line_cli.py',
+          'test_download_depmap_cli.py',
           'test_download_and_load_cptac.py', 
           'test_download_and_load_hcmi.py', 
           'test_download_cptac_cli.py', 

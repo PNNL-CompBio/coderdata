@@ -119,7 +119,7 @@ getProteomics<-function(){
       dplyr::distinct()
     res$study='DepMap'
     res$source='Broad'
-    write_csv(res,file=gzfile('/tmp/proteomics.csv.gz'))
+    write_csv(res,file=gzfile('/tmp/depmap_proteomics.csv.gz'))
     rm(res)
 }
 
@@ -334,7 +334,7 @@ do_all<-function(values=names(filenames)){
 main<-function(){
 	args = commandArgs(trailingOnly=TRUE)
 	if(length(args)!=2){
-	  print('Usage: Rscript 02-cellLineDepMap.R [genefile] [samplefile]')
+	  print('Usage: Rscript 02-pullDepMap.R [genefile] [samplefile]')
 	  exit()
 	  }
 	gfile = args[1]

@@ -32,7 +32,7 @@ mergeSamples<-function(){
   ## We have many more cancer types here, so we try to map what we have to CPTAC names and then adjust the rest
   ##
   ###########################
-  cell_line<-readr::read_csv('../build/cell_line/samples.csv')|>
+  cell_line<-readr::read_csv('../build/depmap/samples.csv')|>
     dplyr::mutate(`Cell line cancer type`=cancer_type)|>
     mutate(sampleSource='CCLE')
 
@@ -130,8 +130,8 @@ mergeSamples<-function(){
 # cptac<-readr::read_csv('../build/cptac/samples.csv')|>
 #   mutate(cancer_type=stringr::str_replace_all(cancer_type,'Head and Neck','Head and neck'))
 #
-# #cell_line<-readr::read_csv('../build/cell_line/samples_curated.csv')
-# cell_line<-readr::read_csv("../build/cell_line/samples.csv")
+# #cell_line<-readr::read_csv('../build/depmap/samples_curated.csv')
+# cell_line<-readr::read_csv("../build/depmap/samples.csv")
 # allec<-grep('Endometrial',cell_line$cancer_type)
 # cell_line$cancer_type[allec]<-'Uterine Corpus Endometrial Carcinoma'
 #
@@ -315,7 +315,7 @@ plotTranscripts<-function(){
   #fulldat$Gex=fulldat$improve_sample_id%in%gsamps
   gex<-readr::read_csv('../build/cptac/transcriptomics.csv.gz')|>
     # dplyr::rename(expression='transcriptomics')|>
-    rbind(readr::read_csv('../build/cell_line/transcriptomics.csv.gz')|>
+    rbind(readr::read_csv('../build/depmap/transcriptomics.csv.gz')|>
             dplyr::select(entrez_id,improve_sample_id,transcriptomics,source,study))|>
     rbind(readr::read_csv('../build/hcmi/transcriptomics.csv'))|>
     rbind(readr::read_csv("../build/beatAML/transcriptomics.csv"))|>
@@ -341,7 +341,7 @@ plotProteomics<-function(){
   prot<-readr::read_csv('../build/cptac/proteomics.csv.gz')|>
     rbind(readr::read_csv('../build/beatAML/proteomics.csv'))|>
     dplyr::select(improve_sample_id,entrez_id,proteomics)|>
-    rbind(readr::read_csv('../build/cell_line/proteomics.csv.gz'))|>
+    rbind(readr::read_csv('../build/depmap/proteomics.csv.gz'))|>
     subset(improve_sample_id%in%fulldat$improve_sample_id)
 
 
@@ -364,7 +364,7 @@ plotProteomics<-function(){
 plotCopyNumber<-function(){
   cp<-readr::read_csv('../build/cptac/CNV.csv.gz')|>
     dplyr::rename(copy_number='CNV')
-  cc<-readr::read_csv('../build/cell_line/copy_number.csv.gz')
+  cc<-readr::read_csv('../build/depmap/copy_number.csv.gz')
   #ca<-readr::read_csv("../beatAML/")
   ch<-readr::read_csv('../build/hcmi/copy_number.csv')
   cnv<-rbind(cp,cc,ch)
@@ -409,7 +409,7 @@ plotMutations<-function(){
   library(ggplot2)
   mut<-readr::read_csv('../build/cptac/somatic_mutation.csv.gz')
    # dplyr::rename(entrez_id='entrez_gene')
-  mut2<-readr::read_csv('../build/cell_line/mutations.csv.gz')|>
+  mut2<-readr::read_csv('../build/depmap/mutations.csv.gz')|>
     dplyr::rename(mutation='mutations')
 
   mut3<-readr::read_csv('../build/hcmi/mutations.csv')|>
