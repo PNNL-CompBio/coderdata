@@ -3,7 +3,7 @@ beataml:
   drugs: 151
   genes: 19059
   samples: 1022
-cell_line:
+depmap:
   cell_lines: 204
   drugs: 57717
   genes: 25480

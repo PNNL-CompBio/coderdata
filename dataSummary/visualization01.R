@@ -30,28 +30,28 @@ mergeSamples<-function(){
   ## We have many more cancer types here, so we try to map what we have to CPTAC names and then adjust the rest
   ##
   ###########################
-  cell_line<-readr::read_csv('cell_line_samples.csv')|>
+  depmap<-readr::read_csv('depmap_samples.csv')|>
     dplyr::mutate(`Cell line cancer type`=cancer_type)|>
     mutate(sampleSource='CCLE')
   
-  allec<-grep('Endometrial',cell_line$`Cell line cancer type`)
-  cell_line$`Cell line cancer type`[allec]<-'Uterine corpus endometrial carcinoma'
+  allec<-grep('Endometrial',depmap$`Cell line cancer type`)
+  depmap$`Cell line cancer type`[allec]<-'Uterine corpus endometrial carcinoma'
   
-  cell_line<-cell_line|>
+  depmap<-depmap|>
     left_join(cmaps)
   
   ##first we collect the names of the cancers that are NOT in CPTAC
-  other_cans<-which(is.na(cell_line$`CPTAC Cancer type`))
-  cell_line$`CPTAC Cancer type`[other_cans]<-cell_line$`Cell line cancer type`[other_cans]
-  cell_line<-cell_line|>
+  other_cans<-which(is.na(depmap$`CPTAC Cancer type`))
+  depmap$`CPTAC Cancer type`[other_cans]<-depmap$`Cell line cancer type`[other_cans]
+  depmap<-depmap|>
     dplyr::select(improve_sample_id,`CPTAC Cancer type`,model_type,species,sampleSource)|>
     distinct()
   
   #then we rename the NA values to 'Other' if we want
-  #other_cans<-which(is.na(cell_line$`CPTAC Cancer type`))
-  #cell_line$`CPTAC Cancer type`[other_cans]<-'Other'
+  #other_cans<-which(is.na(depmap$`CPTAC Cancer type`))
+  #depmap$`CPTAC Cancer type`[other_cans]<-'Other'
   # or just remove them
-  cell_line<-cell_line|>
+  depmap<-depmap|>
     subset(!is.na(`CPTAC Cancer type`))
   
   ###########################
@@ -91,7 +91,7 @@ mergeSamples<-function(){
   
   
   ##now we join thomdelsem into a single table, with cancer type
-  fulldat<<-rbind(cptac,cell_line,hcmi)|>
+  fulldat<<-rbind(cptac,depmap,hcmi)|>
     dplyr::rename(cancer_type=`CPTAC Cancer type`)|>
     subset()
   
