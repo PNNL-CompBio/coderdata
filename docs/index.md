@@ -45,17 +45,17 @@ View our [Usage](pages/usage.md) page for full instructions.
 ### Datasets
 
 <div class="dataset-section">
-    {% assign datasets = 'cell_line,cptac,hcmi,beataml' | split: ',' %}
+    {% assign datasets = 'depmap,cptac,hcmi,beataml' | split: ',' %}
     {% for dataset in datasets %}
         <div class="dataset-container">
             <a href="datasets/{{ dataset }}" class="dataset-link">{{ dataset | capitalize }}</a>
             <div class="dataset-blurb">
                 {% case dataset %}
-                    {% when 'cell_line' %}
-                        <p>Cancer Types: {{ site.data.stats.cell_line.cell_lines }} </p>
-                        <p>Samples: {{ site.data.stats.cell_line.samples }} </p>
-                        <p>Genes: {{ site.data.stats.cell_line.genes }} </p>
-                        <p>Drugs: {{ site.data.stats.cell_line.drugs }} </p>
+                    {% when 'depmap' %}
+                        <p>Cancer Types: {{ site.data.stats.depmap.depmaps }} </p>
+                        <p>Samples: {{ site.data.stats.depmap.samples }} </p>
+                        <p>Genes: {{ site.data.stats.depmap.genes }} </p>
+                        <p>Drugs: {{ site.data.stats.depmap.drugs }} </p>
                         <span class="dot dot_transcriptomics"></span> 
                         <span class="dot dot_proteomics"></span> 
                         <span class="dot dot_mutations"></span> 
