@@ -277,6 +277,7 @@ generate_group_summary_plot <- function(all_file_names) {
   }
   
   # Plot the data
+  background_color <- "#E0F2F1"
   p <- ggplot(samples_df, aes(x = DataType, y = Samples, fill = Source)) +
     geom_bar(stat = "identity", position = "dodge") +
     labs(title = "Number of Samples by Data Type and Source",
