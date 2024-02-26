@@ -155,7 +155,8 @@ fig1 <- ggplot(data_type1, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   geom_bar(stat='identity', position='dodge') +
   scale_fill_manual(values=color_palette) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.background = element_rect(fill = background_color, color = background_color)) +
+        plot.background = element_rect(fill = background_color, color = background_color),
+        legend.background = element_rect(fill = background_color, color = background_color)) +
   ggtitle('Cancer and Tissue Types - HCMI')
 
 fig2 <- ggplot(data_type2, aes(x=cancer_type, y=numSamps, fill=model_type),
