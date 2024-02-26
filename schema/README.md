@@ -18,9 +18,18 @@ model. Currently we have the following objects in our model:
 | Gene | Human gene identifiers|
 | Samples | Samples in which omics and drugs are measured | 
 | Drugs | Drugs evaluated on samples |
+| Drug Descriptor | Computational descriptions of drug properties |
 | Transcriptomics | Gene exrpression data |
 | Mutations | Gene mutation data |
 | Copy Number | Copy number data |
 | Proteomics | Proteomics data|
 | Experiments | Drug experiments that measure the viability of the cell | 
 | Perturbations | Experiments that measure molecular changes of the cell | 
+| Combinations | Synergy calculations from pairs of drugs
+
+
+### Schema image
+
+The data model is shown here:
+<img src="coderdataSchema.jpg" width=25% height=25%>
+
