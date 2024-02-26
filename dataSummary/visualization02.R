@@ -71,15 +71,17 @@ generate_circos_plot <- function(processed_data,prefix) {
   save_name <- paste(prefix,"_circos",".png", sep = "")
   if (is.null(processed_data$data) || nrow(processed_data$data) == 0) {
     # This shouldn't trigger anymore.
-    png(save_name, width = 1600, height = 1600, res = 600, bg = background_color)
+    png(save_name, width = 1400, height = 1400, res = 600, bg = background_color)
     plot(1, type = "n", ann = FALSE)
     text(1, 1, "No data available", cex = 1.5)
     dev.off()
+    gc()
   } else {
-    png(save_name, width = 1600, height = 1600, res = 600, bg = background_color)
+    png(save_name, width = 1400, height = 1400, res = 600, bg = background_color)
     merged_data <- processed_data$data
     sector.data <- processed_data$sector_data
     datasets <- colnames(merged_data)[-1]
+    gc()
     
     # Colors
     dot_colors <- c("#fc8d62", "#8da0cb", "#e78ac3","#66c2a5", "#ffd92f","#a6d854")
@@ -152,7 +154,7 @@ generate_circos_plot <- function(processed_data,prefix) {
     })
     
     # Add the legend
-    legend("center", legend = datasets, fill = dot_colors, cex = .5)
+    legend("center", legend = datasets, fill = dot_colors, cex = .5, bty = "n")
     dev.off()
   }
 }
