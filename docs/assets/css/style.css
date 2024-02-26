@@ -251,7 +251,7 @@ pre > code.language-python {
     align-items: center;
     flex-wrap: wrap; /* Allows items to wrap onto the next line on smaller screens */
     width: 100%;
-    height: auto;
+    height: 400;
 }
 
 .flex-item {
