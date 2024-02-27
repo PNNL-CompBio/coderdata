@@ -91,6 +91,17 @@ classes:
         range: float
       pubchem_id:
         description: PubChem Identifier for this drug, can be many.
+  Drug Descriptor:
+    description: Computational summary of drug chemical properties
+    slots:
+      - improve_drug_id
+    attributes:
+      structural_descriptor:
+        description: string name describing structural descriptor
+      descriptor_value:
+        range: linkml: Any
+	description: value representing descriptor value
+	
   Transcriptomics:
     description:
     slots:
@@ -157,6 +168,8 @@ classes:
         - improve_sample_id
         - time
         - time_unit
+	- source
+	- study
       attributes:
         data_value:
           range: float
@@ -169,7 +182,20 @@ classes:
         perturbation_type:
           description: The perturbagen that was used
           range: CellPerturbation
- 
+   Combinations:
+      slots:
+        - improve_sample_id
+	- source
+	- study
+      attributes:
+        drug_one_id:
+	  description: improve_drug_id of first drug
+	drug_two_id:
+	  description: imrrove_drug_id of second drug
+	synergy_metric:
+	  description: metric calculated
+	synergy_value:
+	  description: value of metric
 enums:
   ResponseMetric:
     permissible_values:
