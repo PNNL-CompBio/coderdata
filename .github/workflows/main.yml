@@ -196,7 +196,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-drugs-beataml]
+    needs: [build-drugs-beataml,depmap-docker-build]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
