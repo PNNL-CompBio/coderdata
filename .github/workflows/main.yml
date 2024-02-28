@@ -15,8 +15,85 @@ permissions:
 
 jobs:
 # Placeholder
+
+  depmap-docker-build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN_SECRET }}
+    - name: Build and push depmap images
+      run: |
+        docker build -t jjacobson95/depmap -f build/docker/Dockerfile.depmap .
+        docker push jjacobson95/depmap
+
+  cptac-docker-build:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN_SECRET }}
+    - name: Build and push cptac images
+      run: |
+        docker build -t jjacobson95/cptac -f build/docker/Dockerfile.cptac .
+        docker push jjacobson95/cptac
+
+  hcmi-docker-build:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN_SECRET }}
+    - name: Build and push hcmi images
+      run: |
+        docker build -t jjacobson95/hcmi -f build/docker/Dockerfile.hcmi .
+        docker push jjacobson95/hcmi
+
+  beataml-docker-build:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN_SECRET }}
+    - name: Build and push beataml image
+      run: |
+        docker build -t jjacobson95/beataml -f build/docker/Dockerfile.beataml .
+        docker push jjacobson95/beataml
+
+  #placeholder
+  mpnst-docker-build:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+    - uses: actions/checkout@v2
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN_SECRET }}
+
   build-depmap-samples:
     if: github.actor != 'github-actions[bot]'
+    needs: [depmap-docker-build]
     runs-on: ubuntu-20.04
     environment: build
     steps:
@@ -34,12 +111,12 @@ jobs:
         run: ls -lah 
       - name: cat reqs
         run: cat requirements.txt
-      - name: Build depmap Image
-        run: docker build -t depmap-samples-builder -f build/docker/Dockerfile.depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap samples Container
         run: |
-          docker run -v $PWD:/tmp/ depmap-samples-builder Rscript 00-buildGeneFile.R
-          docker run -v $PWD:/tmp/ depmap-samples-builder Rscript 01-depmapSamples.R
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 00-buildGeneFile.R
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 01-depmapSamples.R
       - name: Copy file from depmap Samples Container
         run: |
           mkdir depmap-samples genes-file
@@ -134,40 +211,28 @@ jobs:
       #   run: |
       #     Rscript build/depmap/requirements.r
       #     pip install -r build/depmap/requirements.txt
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap CTRPv2 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R CTRPv2
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R CTRPv2
       - name: List files cwd
         run: ls -lah 
       - name: Run depmap GDSC Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R GDSC
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R GDSC
       - name: Run depmap gCSI Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R gCSI
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R gCSI
       - name: Run depmap PRISM Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R PRISM
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R PRISM
       - name: Run depmap CCLE Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R CCLE
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R CCLE
       - name: Run depmap FIMM Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R FIMM
-      # - name: Run depmap CTRPv2 Drug retrieval
-      #   run: Rscript build/depmap/CreateDrugFileCL.R CTRPv2
-      # - name: Run depmap GDSC Drug retrieval
-      #   run: Rscript build/depmap/CreateDrugFileCL.R GDSC
-      # - name: Run depmap gCSI Drug retrieval
-      #   run: Rscript build/depmap/CreateDrugFileCL.R gCSI
-      # - name: Run depmap PRISM Drug retrieval
-      #   run: Rscript build/depmap/CreateDrugFileCL.R PRISM
-      # - name: Run depmap CCLE Drug retrieval
-      #   run: Rscript build/depmap/CreateDrugFileCL.R CCLE
-      # - name: Run depmap FIMM Drug retrieval
-      #   run: Rscript build/depmap/CreateDrugFileCL.R FIMM
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R FIMM
       - name: List files cwd
         run: ls -lah 
       - name: Copy drugs file to artifact 
@@ -200,11 +265,11 @@ jobs:
       #   run: |
       #     Rscript build/depmap/requirements.r
       #     pip install -r build/depmap/requirements.txt
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       # - name: Run depmap NCI60 Drug retrieval
       #   run:  Rscript build/depmap/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
@@ -232,11 +297,11 @@ jobs:
           name: additive-drugs-file-3
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-4
@@ -262,11 +327,11 @@ jobs:
           name: additive-drugs-file-4
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-5
@@ -292,11 +357,11 @@ jobs:
           name: additive-drugs-file-5
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-6
@@ -321,11 +386,11 @@ jobs:
           name: additive-drugs-file-6
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-7
@@ -350,11 +415,11 @@ jobs:
           name: additive-drugs-file-7
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-8
@@ -379,11 +444,11 @@ jobs:
           name: additive-drugs-file-8
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-9
@@ -408,11 +473,11 @@ jobs:
           name: additive-drugs-file-9
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-10
@@ -437,11 +502,11 @@ jobs:
           name: additive-drugs-file-10
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-11
@@ -466,11 +531,11 @@ jobs:
           name: additive-drugs-file-11
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-12
@@ -495,11 +560,11 @@ jobs:
           name: additive-drugs-file-12
       - name: List files cwd
         run: ls -lah 
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-13
@@ -526,11 +591,11 @@ jobs:
         run: ls -lah 
       - name: List files cwd
         run: rm ignore_chems.txt
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
-      - name: Run depmap NCI60 Drug retrieval
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
+      - name: Run depmap straggler Drug retrieval
         run: |
-          docker run -v $PWD:/tmp depmap  Rscript CreateDrugFileCL.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-14
@@ -545,7 +610,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-depmap-samples]
+    needs: [build-depmap-samples,cptac-docker-build]
     steps:
       #Add upload artifact from CPTAC Samples 
       - name: Checkout  CPTAC
@@ -558,19 +623,15 @@ jobs:
         uses: actions/download-artifact@v2  
         with:
           name: genes-file
-      - name: Copy DepMap sample from build location. 
-        run: |
-          cp build/cptac/requirements.txt .
-          cp build/cptac/*.py .
-          # copy build/genes.csv .
-      - name: List files cwd
-        run: ls -lah 
-      - name: cat reqs
-        run: cat requirements.txt
-      - name: Build CPTAC Image
-        run: docker build -t cptac-samples-builder -f build/docker/Dockerfile.cptac .
+      # - name: Copy DepMap sample from build location. 
+      #   run: |
+      #     cp build/cptac/requirements.txt .
+      #     cp build/cptac/*.py .
+      #     # copy build/genes.csv .
+      - name: Pull cptac image
+        run: docker pull jjacobson95/cptac
       - name: Run CPTAC samples Container
-        run: docker run -v $PWD:/tmp cptac-samples-builder --geneFile=genes.csv --prevSampleFile=/tmp/depmap_samples.csv 
+        run: docker run -v $PWD:/tmp jjacobson95/cptac --geneFile=genes.csv --prevSampleFile=depmap_samples.csv 
       - name: Copy file from CPTAC Samples Container
         run: |
           mkdir cptac-samples
@@ -585,7 +646,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-cptac-samples]
+    needs: [build-cptac-samples,hcmi-docker-build]
     steps:
       - name: Checkout  HCMI
         uses: actions/checkout@v2
@@ -593,10 +654,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: cptac-samples
-      - name: Build HCMI Image
-        run: docker build -t hcmi-samples-builder -f build/docker/Dockerfile.hcmi .
+      # - name: Build HCMI Image
+      #   run: docker build -t hcmi-samples-builder -f build/docker/Dockerfile.hcmi .
+      - name: Pull hcmi image
+        run: docker pull jjacobson95/hcmi
       - name: Run HCMI samples Container
-        run: docker run --name hcmi-samples-container hcmi-samples-builder python 01-createHCMISamplesFile.py
+        run: docker run -v $PWD:/usr/src/app --name hcmi-samples-container jjacobson95/hcmi python 01-createHCMISamplesFile.py
       - name: Copy file from HCMI Samples Container
         run: |
           mkdir hcmi-samples
@@ -615,7 +678,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-hcmi-samples]
+    needs: [build-hcmi-samples,beataml-docker-build]
     steps:
       #Add upload artifact from CPTAC Samples 
       - name: Checkout  BeatAML
@@ -624,10 +687,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: hcmi-samples
-      - name: Build BeatAML Image
-        run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
+      - name: Pull beataml image
+        run: docker pull jjacobson95/beataml
       - name: Run BeatAML Container with samples option
-        run: docker run --name beataml-samples-container beataml-builder python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }} --samples
+        run: docker run -v $PWD:/usr/src/app --name beataml-samples-container jjacobson95/beataml python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }} --samples
       - name: Copy file from BeatAML Samples Container
         run: |
           mkdir beataml-samples
@@ -647,7 +710,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
-    needs: [build-beataml-samples]
+    needs: [build-beataml-samples,mpnst-docker-build]
     steps:
       #Add upload artifact from CPTAC Samples 
       - name: Checkout  MPNST
@@ -667,11 +730,13 @@ jobs:
           name: hcmi-samples
       - name: List files cwd
         run: ls -lah 
-      - name: Build HCMI Image
-        run: docker build -t hcmi-builder -f build/docker/Dockerfile.hcmi .
+      # - name: Build HCMI Image
+      #   run: docker build -t hcmi-builder -f build/docker/Dockerfile.hcmi .
+      - name: Pull hcmi image
+        run: docker pull jjacobson95/hcmi
       - name: Run HCMI Container
         run: |
-          docker run --name hcmi-container hcmi-builder /bin/bash -c "python 02-getHCMIData.py -m full_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t copy_number -o hcmi_copy_number.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t mutations -o hcmi_mutations.csv"
+          docker run -v $PWD:/usr/src/app --name hcmi-container jjacobson95/hcmi /bin/bash -c "python 02-getHCMIData.py -m full_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t copy_number -o hcmi_copy_number.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t mutations -o hcmi_mutations.csv"
       - name: Copy files from HCMI Container
         run: |
           mkdir hcmi-files
@@ -729,10 +794,10 @@ jobs:
           name: additive-drugs-file-14
       - name: List files cwd
         run: ls -lah 
-      - name: Build BeatAML Image
-        run: docker build -t beataml-builder -f build/docker/Dockerfile.beataml .
+      - name: Pull beataml image
+        run: docker pull jjacobson95/beataml
       - name: Run BeatAML Container
-        run: docker run --name beataml-container beataml-builder python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }}
+        run: docker run -v $PWD:/usr/src/app --name beataml-container jjacobson95/beataml python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }}
       - name: Copy files from BeatAML Container
         run: |
           mkdir beataml-files
@@ -834,8 +899,8 @@ jobs:
         run: ls -lah 
       - name: cat reqs
         run: cat requirements.txt
-      - name: Build depmap Image
-        run: docker build -f build/docker/Dockerfile.depmap -t depmap .
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
       - name: docker save space and stats
         run: |
           docker image prune -f 
@@ -845,25 +910,25 @@ jobs:
           docker system df
       - name: Run depmap 02-pullDepMap.R Container
         run: |
-          docker run -v $PWD:/tmp/ depmap Rscript 02-pullDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 02-pullDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv
       - name: Run depmap 02b-pullSanger.R Container
         run: |
-          docker run -v $PWD:/tmp/ depmap Rscript 02b-pullSanger.R /tmp/genes.csv /tmp/depmap_samples.csv
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 02b-pullSanger.R /tmp/genes.csv /tmp/depmap_samples.csv
       # - name: Run depmap 03-createDrugFile.RContainer
       #   run: |
       #     docker run -v $PWD:/tmp depmap Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
       - name: Run depmap 04-drug_dosage_and_curves.py Container
         run: |
-          docker run -v $PWD:/tmp/ depmap /opt/venv/bin/python 04-drug_dosage_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/depmap_samples.csv
+          docker run -v $PWD:/tmp/ jjacobson95/depmap /opt/venv/bin/python 04-drug_dosage_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/depmap_samples.csv
       - name: Run depmap 01b-pullDrugs_LINCS.py Container
         run: |
-          docker run -v $PWD:/tmp depmap /opt/venv/bin/python 01b-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
+          docker run -v $PWD:/tmp jjacobson95/depmap /opt/venv/bin/python 01b-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
       - name: Run depmap 04-pullDrugs_LINCS.py Container
         run: |
-          docker run -v $PWD:/tmp depmap /opt/venv/bin/python 04-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
+          docker run -v $PWD:/tmp jjacobson95/depmap /opt/venv/bin/python 04-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
       - name: Run depmap 05-LINCS_perturbations.py Container
         run: |
-          docker run -v $PWD:/tmp/ depmap Rscript 05-LINCS_perturbations.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/depmap_samples.csv
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 05-LINCS_perturbations.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/depmap_samples.csv
       - name: List files cwd
         run: ls -lah 
       - name: Copy files from DepMap Container
@@ -925,11 +990,11 @@ jobs:
           # copy build/genes.csv .
       - name: List files cwd
         run: ls -lah 
-      - name: Build CPTAC Image
-        run: docker build -t cptac-builder -f build/docker/Dockerfile.cptac .
+      - name: Pull cptac image
+        run: docker pull jjacobson95/cptac
       - name: Run CPTAC Container
         run: |
-          docker run -v $PWD:/tmp cptac-builder --geneFile=genes.csv --curSampleFile=/tmp/cptac_samples.csv   
+          docker run -v $PWD:/tmp jjacobson95/cptac --geneFile=genes.csv --curSampleFile=/tmp/cptac_samples.csv   
       - name: Copy files from CPTAC Container
         run: |
           mkdir cptac-files
