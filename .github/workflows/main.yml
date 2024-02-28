@@ -116,8 +116,8 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap samples Container
         run: |
-          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 00-buildGeneFile.R
-          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 01-depmapSamples.R
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript /app/00-buildGeneFile.R
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript /app/01-depmapSamples.R
       - name: Copy file from depmap Samples Container
         run: |
           mkdir depmap-samples genes-file
@@ -216,24 +216,24 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap CTRPv2 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R CTRPv2
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R CTRPv2
       - name: List files cwd
         run: ls -lah 
       - name: Run depmap GDSC Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R GDSC
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R GDSC
       - name: Run depmap gCSI Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R gCSI
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R gCSI
       - name: Run depmap PRISM Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R PRISM
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R PRISM
       - name: Run depmap CCLE Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R CCLE
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R CCLE
       - name: Run depmap FIMM Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R FIMM
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R FIMM
       - name: List files cwd
         run: ls -lah 
       - name: Copy drugs file to artifact 
@@ -270,7 +270,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       # - name: Run depmap NCI60 Drug retrieval
       #   run:  Rscript build/depmap/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
@@ -302,7 +302,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-4
@@ -332,7 +332,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-5
@@ -362,7 +362,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-6
@@ -391,7 +391,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-7
@@ -420,7 +420,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-8
@@ -449,7 +449,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-9
@@ -478,7 +478,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-10
@@ -507,7 +507,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-11
@@ -536,7 +536,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-12
@@ -565,7 +565,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap NCI60 Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-13
@@ -596,7 +596,7 @@ jobs:
         run: docker pull jjacobson95/depmap
       - name: Run depmap straggler Drug retrieval
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript CreateDrugFileCL.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
       - name: Copy drugs file to artifact 
         run: |
           mkdir additive-drugs-file-14
@@ -911,25 +911,25 @@ jobs:
           docker system df
       - name: Run depmap 02-pullDepMap.R Container
         run: |
-          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 02-pullDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript /app/02-pullDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv
       - name: Run depmap 02b-pullSanger.R Container
         run: |
-          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 02b-pullSanger.R /tmp/genes.csv /tmp/depmap_samples.csv
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript /app/02b-pullSanger.R /tmp/genes.csv /tmp/depmap_samples.csv
       # - name: Run depmap 03-createDrugFile.RContainer
       #   run: |
       #     docker run -v $PWD:/tmp depmap Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
       - name: Run depmap 04-drug_dosage_and_curves.py Container
         run: |
-          docker run -v $PWD:/tmp/ jjacobson95/depmap /opt/venv/bin/python 04-drug_dosage_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/depmap_samples.csv
+          docker run -v $PWD:/tmp/ jjacobson95/depmap /opt/venv/bin/python /app/04-drug_dosage_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/depmap_samples.csv
       - name: Run depmap 01b-pullDrugs_LINCS.py Container
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap /opt/venv/bin/python 01b-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
+          docker run -v $PWD:/tmp jjacobson95/depmap /opt/venv/bin/python /app/01b-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
       - name: Run depmap 04-pullDrugs_LINCS.py Container
         run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap /opt/venv/bin/python 04-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
+          docker run -v $PWD:/tmp jjacobson95/depmap /opt/venv/bin/python /app/04-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
       - name: Run depmap 05-LINCS_perturbations.py Container
         run: |
-          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript 05-LINCS_perturbations.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/depmap_samples.csv
+          docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript /app/05-LINCS_perturbations.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/depmap_samples.csv
       - name: List files cwd
         run: ls -lah 
       - name: Copy files from DepMap Container
