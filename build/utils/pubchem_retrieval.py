@@ -11,9 +11,6 @@ request_counter = 0
 last_request_time = time.time()
 lock = threading.Lock()
 
-# This will change to False when the script is triggered to end via the timer 
-should_continue = True
-
 
 def fetch_url(url):
     global last_request_time, lock, request_counter
@@ -41,7 +38,7 @@ def fetch_url(url):
     else:
         raise Exception(f"Failed to fetch {url}")
     
-def retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start):
+def retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start,ignore_chems):
     if pd.isna(compound_name):
         return None, improve_drug_id_start
 
@@ -61,6 +58,8 @@ def retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start):
                 results[key] = data
             except Exception as exc:
                 print(f'{compound_name} generated an exception: {exc}')
+                with open(ignore_chems,"a") as f:
+                    f.write(f"{compound_name}\n")
                 return None, improve_drug_id_start
 
     if all(key in results for key in ["properties", "synonyms"]):
@@ -92,10 +91,10 @@ def retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start):
     else:
         return None, improve_drug_id_start
 
-def fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms):
+def fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms,ignore_chems):
     all_data = []
     for compound_name in batch:
-        data, improve_drug_id_start = retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start)
+        data, improve_drug_id_start = retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start,ignore_chems)
         if data:
             all_data.extend(data)
     return all_data, improve_drug_id_start
@@ -112,14 +111,12 @@ def read_existing_data(output_filename):
 
 
 def timeout_handler(signum, frame):
-    global should_continue
     print("Time limit reached, exiting gracefully...")
-    should_continue = False
+    sys.exit(0)
 
 # Call this function from other scripts. 
-def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv", batch_size=1):
-    global should_continue
-
+def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv",ignore_chems="ignore_chems.txt", batch_size=1):
+    
     time_limit=5*60*60 # 5 hours
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(time_limit)
@@ -129,12 +126,19 @@ def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv"
 
         unique_names = [name.lower() for name in unique_names if not pd.isna(name)]
         unique_names = list(set(unique_names) - set(existing_synonyms.keys()))
+        
+        ignore_chem_list = set()
+        if os.path.exists(ignore_chems):
+            with open(ignore_chems, 'r') as file:
+                for line in file:
+                    ignore_chem_list.add(line.strip())
+                
+        unique_names = list(set(unique_names) - ignore_chem_list)
+                
         print(f"Drugs to search: {len(unique_names)}")
         for i in range(0, len(unique_names), batch_size):
-            if not should_continue:
-                break  # Stop processing if the script is flagged to end
             batch = unique_names[i:i+batch_size]
-            data, improve_drug_id_start = fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms)
+            data, improve_drug_id_start = fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms,ignore_chems)
             if data:
                 file_exists = os.path.isfile(output_filename)
                 mode = 'a' if file_exists else 'w' 
@@ -143,9 +147,12 @@ def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv"
                         f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tisoSMILES\tInChIKey\tformula\tweight\n")
                     for entry in data:
                         f.write(f"{entry['improve_drug_id']}\t{entry['name']}\t{entry.get('CID', '')}\t{entry['CanonicalSMILES']}\t{entry.get('IsomericSMILES', '')}\t{entry['InChIKey']}\t{entry['MolecularFormula']}\t{entry['MolecularWeight']}\n")
+                with open(ignore_chems,"a") as f:
+                    f.write(f"{entry['name']}\n")
+                    
+                    
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
     finally:
         # Cancel the alarm
         signal.alarm(0)
-        
