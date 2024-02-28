@@ -741,9 +741,10 @@ jobs:
       - name: Copy files from HCMI Container
         run: |
           mkdir hcmi-files
-          for file in hcmi_samples.csv hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
+          for file in hcmi_transcriptomics.csv hcmi_copy_number.csv hcmi_mutations.csv; do
             docker cp hcmi-container:/usr/src/app/$file hcmi-files/$file
           done
+          cp hcmi_samples.csv hcmi-files
       - name: Get HCMI container logs
         run: docker logs hcmi-container
       - name: Upload artifacts for HCMI
@@ -802,9 +803,10 @@ jobs:
       - name: Copy files from BeatAML Container
         run: |
           mkdir beataml-files
-          for file in beataml_samples.csv beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv beataml_drugs.tsv beataml_experiments.csv; do
+          for file in beataml_transcriptomics.csv beataml_proteomics.csv beataml_mutations.csv beataml_drugs.tsv beataml_experiments.csv; do
             docker cp beataml-container:/usr/src/app/$file beataml-files/$file
           done
+          cp beataml_samples.csv beataml-files
       - name: Get BeatAML container logs
         run: docker logs beataml-container
       - name: Upload artifact for BeatAML
