@@ -418,7 +418,7 @@ def align_to_schema(data, data_type, chunksize=7500):
     pl.DataFrame
         The final form of the dataframe.
     """
-    samples_path = "hcmi_samples.csv"
+    samples_path = "/tmp/hcmi_samples.csv"
     samples = pl.read_csv(samples_path)
     samples = samples.drop(["cancer_type", "common_name", "other_names", "model_type", "other_id_source"])
 
