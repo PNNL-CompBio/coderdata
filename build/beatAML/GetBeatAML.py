@@ -559,8 +559,8 @@ if __name__ == "__main__":
     supplimentary_file = '1-s2.0-S1535610822003129-mmc2.xlsx'
     download_from_github(supplementary_url, supplimentary_file)
     
-    prev_samples_path = "hcmi_samples.csv"
-    improve_map_file = "beataml_samples.csv"
+    prev_samples_path = "/tmp/hcmi_samples.csv"
+    improve_map_file = "/tmp/beataml_samples.csv"
     
     if args.samples:
         print("Only running Samples File Generation")
@@ -576,7 +576,7 @@ if __name__ == "__main__":
         
         drug_path = "beatAML_drug_processed.tsv.0"
 #         drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
-        drug_map_path = "drugs.tsv"
+        drug_map_path = "/tmp/drugs.tsv"
         
         transcriptomics_file = "beataml_waves1to4_norm_exp_dbgap.txt"
         transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"

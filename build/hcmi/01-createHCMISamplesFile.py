@@ -160,7 +160,7 @@ def filter_and_subset_data(df):
     #Non-docker:
     # maxval = max(pd.read_csv('../cptac/cptac_samples.csv').improve_sample_id)
     # Docker:
-    maxval = max(pd.read_csv('cptac_samples.csv').improve_sample_id)
+    maxval = max(pd.read_csv('/tmp/cptac_samples.csv').improve_sample_id)
     mapping = {other_id: i for i, other_id in enumerate(filt['other_id'].unique(), start=(int(maxval)+1))}
     # Use the map method to create the new column based on the lab-id column
     filt['improve_sample_id'] = filt['other_id'].map(mapping)

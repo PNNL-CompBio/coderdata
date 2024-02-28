@@ -660,7 +660,7 @@ jobs:
       - name: Pull hcmi image
         run: docker pull jjacobson95/hcmi
       - name: Run HCMI samples Container
-        run: docker run -v $PWD:/usr/src/app --name hcmi-samples-container jjacobson95/hcmi python 01-createHCMISamplesFile.py
+        run: docker run -v $PWD:/tmp --name hcmi-samples-container jjacobson95/hcmi python 01-createHCMISamplesFile.py
       - name: Copy file from HCMI Samples Container
         run: |
           mkdir hcmi-samples
@@ -691,7 +691,7 @@ jobs:
       - name: Pull beataml image
         run: docker pull jjacobson95/beataml
       - name: Run BeatAML Container with samples option
-        run: docker run -v $PWD:/usr/src/app --name beataml-samples-container jjacobson95/beataml python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }} --samples
+        run: docker run -v $PWD:/tmp --name beataml-samples-container jjacobson95/beataml python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }} --samples
       - name: Copy file from BeatAML Samples Container
         run: |
           mkdir beataml-samples
@@ -737,7 +737,7 @@ jobs:
         run: docker pull jjacobson95/hcmi
       - name: Run HCMI Container
         run: |
-          docker run -v $PWD:/usr/src/app --name hcmi-container jjacobson95/hcmi /bin/bash -c "python 02-getHCMIData.py -m full_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t copy_number -o hcmi_copy_number.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t mutations -o hcmi_mutations.csv"
+          docker run -v $PWD:/tmp --name hcmi-container jjacobson95/hcmi /bin/bash -c "python 02-getHCMIData.py -m full_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t copy_number -o hcmi_copy_number.csv && python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t mutations -o hcmi_mutations.csv"
       - name: Copy files from HCMI Container
         run: |
           mkdir hcmi-files
@@ -798,7 +798,7 @@ jobs:
       - name: Pull beataml image
         run: docker pull jjacobson95/beataml
       - name: Run BeatAML Container
-        run: docker run -v $PWD:/usr/src/app --name beataml-container jjacobson95/beataml python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }}
+        run: docker run -v $PWD:/tmp --name beataml-container jjacobson95/beataml python GetBeatAML.py --token ${{ secrets.SYNAPSE_TOKEN_SECRET }}
       - name: Copy files from BeatAML Container
         run: |
           mkdir beataml-files
