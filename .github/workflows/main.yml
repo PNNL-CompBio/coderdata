@@ -632,7 +632,7 @@ jobs:
       - name: Pull cptac image
         run: docker pull jjacobson95/cptac
       - name: Run CPTAC samples Container
-        run: docker run -v $PWD:/tmp jjacobson95/cptac --geneFile=genes.csv --prevSampleFile=depmap_samples.csv 
+        run: docker run -v $PWD:/tmp jjacobson95/cptac --geneFile=/tmp/genes.csv --prevSampleFile=/tmp/depmap_samples.csv 
       - name: Copy file from CPTAC Samples Container
         run: |
           mkdir cptac-samples
@@ -995,7 +995,7 @@ jobs:
         run: docker pull jjacobson95/cptac
       - name: Run CPTAC Container
         run: |
-          docker run -v $PWD:/tmp jjacobson95/cptac --geneFile=genes.csv --curSampleFile=/tmp/cptac_samples.csv   
+          docker run -v $PWD:/tmp jjacobson95/cptac --geneFile=/tmp/genes.csv --curSampleFile=/tmp/cptac_samples.csv   
       - name: Copy files from CPTAC Container
         run: |
           mkdir cptac-files
