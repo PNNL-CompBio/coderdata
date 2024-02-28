@@ -10,6 +10,7 @@ import sys
 request_counter = 0
 last_request_time = time.time()
 lock = threading.Lock()
+should_continue = True
 
 
 def fetch_url(url):
@@ -111,12 +112,14 @@ def read_existing_data(output_filename):
 
 
 def timeout_handler(signum, frame):
+    global should_continue
     print("Time limit reached, exiting gracefully...")
+    should_continue = False
     sys.exit(0)
 
 # Call this function from other scripts. 
 def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv",ignore_chems="ignore_chems.txt", batch_size=1):
-    
+    global should_continue
     time_limit=5*60*60 # 5 hours
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(time_limit)
@@ -137,6 +140,8 @@ def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv"
                 
         print(f"Drugs to search: {len(unique_names)}")
         for i in range(0, len(unique_names), batch_size):
+            if not should_continue:
+                break
             batch = unique_names[i:i+batch_size]
             data, improve_drug_id_start = fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms,ignore_chems)
             if data:
