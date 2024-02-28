@@ -104,7 +104,7 @@ def buildTumorSampleTable(sample_names,cancer_type,samples,maxval):
                                               'other_names':[''],\
                                               'species':['Homo Sapiens (Human)'],\
                                               'improve_sample_id':[maxval],\
-                                              'id_source':['CPTAC3'],\
+                                              'other_id_source':['CPTAC3'],\
                                               'other_id':[samp],\
                                               'model_type':['tumor']}).reset_index(drop=True)])
 
