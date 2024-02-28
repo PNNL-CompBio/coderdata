@@ -344,7 +344,7 @@ def map_exp_to_improve(df,improve_map_file):
     mapped_df.insert(0, 'improve_sample_id', mapped_df.pop('improve_sample_id'))
     mapped_df['source'] = 'synapse'
     mapped_df['study'] = 'BeatAML'
-    mapped_df= mapped_df.rename(columns={'IC50':'ic50',
+    mapped_df= mapped_df.rename(columns={'IC50':'fit_ic50',
                               'EC50':'ec50',
                              'EC50se':'ec50se',
                              'Einf':'einf',
@@ -520,7 +520,7 @@ def align_exp_to_schema(exp_res):
     exp_res['time'] = 72
     exp_res['time_unit'] = 'hours'
     id_vars = ["source", "improve_sample_id", "improve_drug_id", "study", "time", "time_unit"]
-    exp_res_long = pd.melt(exp_res, id_vars=id_vars, value_vars=["auc", "ic50"], 
+    exp_res_long = pd.melt(exp_res, id_vars=id_vars, value_vars=["fit_auc", "fit_ic50"], 
                            var_name="dose_response_metric", value_name="dose_response_value")
     return exp_res_long
 
@@ -656,7 +656,7 @@ if __name__ == "__main__":
         
         print("Starting Experiment Data")
         # Experiment Data
-        d_res = d_df.rename(columns={"CELL":"sample_id","AUC":"auc"})
+        d_res = d_df.rename(columns={"CELL":"sample_id","AUC":"fit_auc"})
         exp_res = map_exp_to_improve(d_res,"beataml_samples.csv")
         exp_res = align_exp_to_schema(exp_res)
         exp_res.to_csv("beataml_experiments.csv", index=False)
