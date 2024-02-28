@@ -6,8 +6,8 @@ RUN apt-get install -y --fix-missing --allow-unauthenticated build-essential lib
 RUN python3 -m venv /opt/venv
 RUN /opt/venv/bin/pip3 install --upgrade pip
 
-ENV PYTHONPATH "${PYTHONPATH}:/tmp"
-WORKDIR /tmp
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+WORKDIR /app
 
 ADD build/depmap/requirements.txt .
 ADD build/depmap/requirements.r .
