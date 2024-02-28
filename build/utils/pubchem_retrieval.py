@@ -11,7 +11,8 @@ request_counter = 0
 last_request_time = time.time()
 lock = threading.Lock()
 should_continue = True
-
+improve_drug_id = 0
+existing_synonyms = set()
 
 def fetch_url(url):
     global last_request_time, lock, request_counter
@@ -39,9 +40,10 @@ def fetch_url(url):
     else:
         raise Exception(f"Failed to fetch {url}")
     
-def retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start,ignore_chems):
+def retrieve_drug_info(compound_name,ignore_chems):
+    global improve_drug_id, existing_synonyms
     if pd.isna(compound_name):
-        return None, improve_drug_id_start
+        return None
 
     urls = {
         "properties": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound_name}/property/CanonicalSMILES,IsomericSMILES,InChIKey,MolecularFormula,MolecularWeight/JSON",
@@ -61,7 +63,7 @@ def retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start,i
                 print(f'{compound_name} generated an exception: {exc}')
                 with open(ignore_chems,"a") as f:
                     f.write(f"{compound_name}\n")
-                return None, improve_drug_id_start
+                return None
 
     if all(key in results for key in ["properties", "synonyms"]):
         properties = results["properties"]['PropertyTable']['Properties'][0]
@@ -71,44 +73,40 @@ def retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start,i
         for synonym in synonyms_list + [compound_name]:
             synonym_lower = synonym.lower()
             if synonym_lower in existing_synonyms:
-#                 improve_drug_id = existing_synonyms[synonym_lower]
-                return None, improve_drug_id_start
-            else:
-                improve_drug_id = f"SMI_{improve_drug_id_start}"
-                improve_drug_id_start += 1
-
-        # Update existing_synonyms for all synonyms with the determined improve_drug_id
+                return None
         for synonym in synonyms_list + [compound_name]:
             synonym_lower = synonym.lower()
-            existing_synonyms[synonym_lower] = improve_drug_id
+            existing_synonyms.add(synonym_lower)
 
+        improve_drug_id += 1
+        SMI_assignment = f"SMI_{improve_drug_id}"
         data_for_tsv = [{
-            'improve_drug_id': improve_drug_id,
+            'improve_drug_id': SMI_assignment,
             'name': synonym.lower(),
             **properties
         } for synonym in synonyms_list]
 
-        return data_for_tsv, improve_drug_id_start
+        return data_for_tsv
     else:
-        return None, improve_drug_id_start
+        return None
 
-def fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms,ignore_chems):
+def fetch_data_for_batch(batch,ignore_chems):
     all_data = []
     for compound_name in batch:
-        data, improve_drug_id_start = retrieve_drug_info(compound_name, existing_synonyms, improve_drug_id_start,ignore_chems)
+        data = retrieve_drug_info(compound_name,ignore_chems)
         if data:
             all_data.extend(data)
-    return all_data, improve_drug_id_start
+    return all_data
 
 def read_existing_data(output_filename):
+    global improve_drug_id,existing_synonyms
     try:
         df = pd.read_csv(output_filename, sep='\t')
-        existing_synonyms = {row['chem_name'].lower(): row['improve_drug_id'] for index, row in df.iterrows()}
+        existing_synonyms = {row['chem_name'].lower() for index, row in df.iterrows()}
         max_id = df['improve_drug_id'].str.extract(r'SMI_(\d+)').astype(float).max()
-        improve_drug_id_start = int(max_id[0]) + 1 if pd.notna(max_id[0]) else 1
-        return existing_synonyms, improve_drug_id_start
+        improve_drug_id = int(max_id[0]) + 1 if pd.notna(max_id[0]) else 1
     except FileNotFoundError:
-        return {}, 1
+        return {}
 
 
 def timeout_handler(signum, frame):
@@ -119,31 +117,33 @@ def timeout_handler(signum, frame):
 
 # Call this function from other scripts. 
 def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv",ignore_chems="ignore_chems.txt", batch_size=1):
-    global should_continue
+    global should_continue, existing_synonyms
     time_limit=5*60*60 # 5 hours
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(time_limit)
 
     try:
-        existing_synonyms, improve_drug_id_start = read_existing_data(output_filename)
+        read_existing_data(output_filename)
 
         unique_names = [name.lower() for name in unique_names if not pd.isna(name)]
-        unique_names = list(set(unique_names) - set(existing_synonyms.keys()))
+        unique_names = list(set(unique_names) - set(existing_synonyms))
         
-        ignore_chem_list = set()
+        ignore_chem_set = set()
         if os.path.exists(ignore_chems):
             with open(ignore_chems, 'r') as file:
                 for line in file:
-                    ignore_chem_list.add(line.strip())
+                    ignore_chem_set.add(line.strip())
+        unique_names = list(set(unique_names) - ignore_chem_set)
                 
-        unique_names = list(set(unique_names) - ignore_chem_list)
-                
-        print(f"Drugs to search: {len(unique_names)}")
+        print(f"Drugs to search: {(unique_names)}")
         for i in range(0, len(unique_names), batch_size):
             if not should_continue:
                 break
+            if unique_names[i] in existing_synonyms:
+                continue
+            
             batch = unique_names[i:i+batch_size]
-            data, improve_drug_id_start = fetch_data_for_batch(batch, improve_drug_id_start, existing_synonyms,ignore_chems)
+            data = fetch_data_for_batch(batch,ignore_chems)
             if data:
                 file_exists = os.path.isfile(output_filename)
                 mode = 'a' if file_exists else 'w' 
@@ -152,8 +152,10 @@ def update_dataframe_and_write_tsv(unique_names, output_filename="drugs_new.tsv"
                         f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tisoSMILES\tInChIKey\tformula\tweight\n")
                     for entry in data:
                         f.write(f"{entry['improve_drug_id']}\t{entry['name']}\t{entry.get('CID', '')}\t{entry['CanonicalSMILES']}\t{entry.get('IsomericSMILES', '')}\t{entry['InChIKey']}\t{entry['MolecularFormula']}\t{entry['MolecularWeight']}\n")
-                with open(ignore_chems,"a") as f:
-                    f.write(f"{entry['name']}\n")
+                
+                with open(ignore_chems,"a") as ig_f:
+                    for entry in data:
+                        ig_f.write(f"{entry['name']}\n")
                     
                     
     except Exception as e:
