@@ -516,6 +516,13 @@ def generate_raw_drug_file(original_drug_file, sample_mapping_file, updated_raw_
     drug_mod.to_csv(updated_raw_drug_file, index=False, sep="\t")
     return
 
+def align_exp_to_schema(exp_res):
+    exp_res['time'] = 72
+    exp_res['time_unit'] = 'hours'
+    id_vars = ["source", "improve_sample_id", "improve_drug_id", "study", "time", "time_unit"]
+    exp_res_long = pd.melt(exp_res, id_vars=id_vars, value_vars=["auc", "ic50"], 
+                           var_name="dose_response_metric", value_name="dose_response_value")
+    return exp_res_long
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers and a string.')
@@ -643,10 +650,6 @@ if __name__ == "__main__":
         d_df['chem_name'] = d_df['chem_name'].str.lower()
         d_df = pd.merge(d_df, drug_map, on='chem_name', how='inner').drop_duplicates()
         
-#         drug_test.update_dataframe_and_write_tsv(unique_names=unique_names,output_filename="py_impot_drugs.tsv")
-
-#         d_res = merge_drug_info(d_df, drug_map)
-#         d_res = add_improve_id(drug_map, d_res)
         #Drug Data
         drug_res = d_df[["improve_drug_id","chem_name","pubchem_id","formula","weight","InChIKey","canSMILES","isoSMILES"]]
         drug_res.to_csv("beataml_drugs.tsv",sep="\t", index=False)
@@ -655,7 +658,7 @@ if __name__ == "__main__":
         # Experiment Data
         d_res = d_df.rename(columns={"CELL":"sample_id","AUC":"auc"})
         exp_res = map_exp_to_improve(d_res,"beataml_samples.csv")
-        exp_res = exp_res[["source","improve_sample_id","improve_drug_id","study","auc","ic50","ec50","ec50se","r2fit","einf","hs","aac1","auc1","dss1"]]
+        exp_res = align_exp_to_schema(exp_res)
         exp_res.to_csv("beataml_experiments.csv", index=False)
         print("Finished Pipeline")
     
