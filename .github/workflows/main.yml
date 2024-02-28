@@ -18,6 +18,7 @@ jobs:
 
   depmap-docker-build:
     runs-on: ubuntu-latest
+    environment: build
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v2
@@ -33,6 +34,7 @@ jobs:
 
   cptac-docker-build:
     runs-on: ubuntu-latest
+    environment: build
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v2
@@ -48,6 +50,7 @@ jobs:
 
   hcmi-docker-build:
     runs-on: ubuntu-latest
+    environment: build
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v2
@@ -63,6 +66,7 @@ jobs:
 
   beataml-docker-build:
     runs-on: ubuntu-latest
+    environment: build
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v2
@@ -79,6 +83,7 @@ jobs:
   #placeholder
   mpnst-docker-build:
     runs-on: ubuntu-latest
+    environment: build
     steps:
     - uses: actions/checkout@v2
     - name: Log in to DockerHub
