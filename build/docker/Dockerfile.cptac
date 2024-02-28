@@ -9,7 +9,7 @@ RUN /opt/venv/bin/pip3 install --upgrade pip
 ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH "${PYTHONPATH}:/tmp"
 ENV PYTHONPATH "${PYTHONPATH}:/app"
-WORKDIR /tmp
+WORKDIR /app
 
 COPY build/cptac/requirements.txt .
 COPY build/cptac/*.py .
