@@ -173,19 +173,19 @@ classes:
 enums:
   ResponseMetric:
     permissible_values:
-      fit auc:
+      fit_auc:
         description: Area under the fitted curve
-      fit ic50:
+      fit_ic50:
         description: Concetration at which inhibitor binding is reduced by half
-      fit ec50:
+      fit_ec50:
         description: Concentration required to have half cells with adverse effect
-      fit ec50se:
+      fit_ec50se:
         description: Standard error in EC50 calculation
-      fit einf:
+      fit_einf:
         description: Fraction of cells not susceptible to the drug
-      fit hs:
+      fit_hs:
         description: Hill slop binding cooperativity
-      fit r2:
+      fit_r2:
         description: R2 value between fit and actual data
       aac:
         description: Area above curve measured by integrating the data points
@@ -231,7 +231,6 @@ enums:
       Stop_Codon_Del:
       Stop_Codon_Ins:
       Silent:
-      Splice_Region:
       Splice_Site:
       Splice_Region:
       Translation_Start_Site:
