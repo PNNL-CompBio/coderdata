@@ -158,7 +158,7 @@ classes:
       - time_unit
     attributes:
       dose_response_metric:
-        range: CurveMetric
+        range: ResponseMetric
 	description: Metric by which dose response value is measured
       dose_response_value:
         description: Value of metric

@@ -2,8 +2,13 @@
 
 Here we will store the scripts required to process the data from the [Human Cancer Models Initiative](https://ocg.cancer.gov/programs/HCMI)
 
+First you must build the docker file.
 
-Currently the tool require two steps to build the data:
+```
+
+
+```
+Then there are multiple steps to build the data:
 ```
 python 01-createHCMISamplesFile.py
 

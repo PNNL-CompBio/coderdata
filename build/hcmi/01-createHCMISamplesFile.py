@@ -189,7 +189,7 @@ def main():
 
     Output:
     -------
-    A local CSV file named 'samples.csv' containing the processed metadata.
+    A local CSV file named '/tmp/hcmi_samples.csv' containing the processed metadata.
     """
     
     manifest_path = "full_manifest.txt"
@@ -199,7 +199,10 @@ def main():
     metadata = fetch_metadata_for_samples(uuids)
     df = extract_data(metadata)
     output = filter_and_subset_data(df)
-    output.to_csv("hcmi_samples.csv",index=False)
+    aligned = align_to_linkml_schema(output)
+    print(aligned)
+    aligned.to_csv("/tmp/hcmi_samples.csv",index=False)
+
 
  
 main()

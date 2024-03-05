@@ -11,6 +11,7 @@ COPY *_samples.csv .
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+VOLUME ["/tmp"]
 
 # CMD python 01-createHCMISamplesFile.py && \
 #     python 02-getHCMIData.py -m full_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv && \

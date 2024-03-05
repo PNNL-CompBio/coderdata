@@ -32,8 +32,8 @@ samples_df <- fread(patients)|>
     dplyr::select(improve_sample_id,common_name,model_type)|>
                                         distinct()#"mpnst/synapse_NF-MPNST_samples.csv")
 
-pdx_samps<-subset(samples_df,model_type=='Patient derived xenograft')
-tumor_samps<-subset(samples_df,model_type=='Tumor')
+pdx_samps<-subset(samples_df,model_type=='patient derived xenograft')
+tumor_samps<-subset(samples_df,model_type=='tumor')
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
