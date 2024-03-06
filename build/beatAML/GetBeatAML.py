@@ -621,7 +621,7 @@ if __name__ == "__main__":
         t_df = t_df.iloc[:, 4:]
         t_df = t_df.reset_index().rename(columns={'display_label': 'Gene'})
         t_df = pd.melt(t_df, id_vars=['Gene'], var_name='sample_id', value_name='transcriptomics')
-        t_df = map_and_combine(t_df, "transcriptomics", entrez_map_file, "beataml_samples.csv", sample_mapping_file)
+        t_df = map_and_combine(t_df, "transcriptomics", entrez_map_file, "/tmp/beataml_samples.csv", sample_mapping_file)
         t_df = t_df[t_df.entrez_id.notna()]
         t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]]
         t_df.to_csv("beataml_transcriptomics.csv",index=False)
@@ -638,7 +638,7 @@ if __name__ == "__main__":
         # New Mutation Data
         print("Starting Mutation Data")
         m_df = pd.read_csv(mutations_file, sep = '\t')
-        m_df = map_and_combine(m_df, "mutations", entrez_map_file, "beataml_samples.csv", mutation_map_file)
+        m_df = map_and_combine(m_df, "mutations", entrez_map_file, "/tmp/beataml_samples.csv", mutation_map_file)
         m_df = m_df[["improve_sample_id","mutation", "entrez_id","variant_classification","source","study"]]
         m_df.to_csv("beataml_mutations.csv",index=False)
         
@@ -657,7 +657,7 @@ if __name__ == "__main__":
         print("Starting Experiment Data")
         # Experiment Data
         d_res = d_df.rename(columns={"CELL":"sample_id","AUC":"fit_auc"})
-        exp_res = map_exp_to_improve(d_res,"beataml_samples.csv")
+        exp_res = map_exp_to_improve(d_res,"/tmp/beataml_samples.csv")
         exp_res = align_exp_to_schema(exp_res)
         exp_res.to_csv("beataml_experiments.csv", index=False)
         print("Finished Pipeline")
