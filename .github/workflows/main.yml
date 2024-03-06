@@ -373,7 +373,210 @@ jobs:
           name: additive-drugs-file-6
           path: additive-drugs-file-6
 
-  build-drugs-depmap-NCI60-pt5:
+  # build-drugs-depmap-NCI60-pt5:
+  #   if: github.actor != 'github-actions[bot]'
+  #   runs-on: ubuntu-20.04
+  #   environment: build
+  #   needs: [build-drugs-depmap-NCI60-pt4]
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+  #     - name: Download artifacts from previous drug gen
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-6
+  #     - name: List files cwd
+  #       run: ls -lah 
+  #     - name: Pull depmap image
+  #       run: docker pull jjacobson95/depmap
+  #     - name: Run depmap NCI60 Drug retrieval
+  #       run: |
+  #         docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
+  #     - name: Copy drugs file to artifact 
+  #       run: |
+  #         mkdir additive-drugs-file-7
+  #         mv drugs.tsv ignore_chems.txt additive-drugs-file-7
+  #     - name: Upload artifacts for genes
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-7
+  #         path: additive-drugs-file-7
+
+  # build-drugs-depmap-NCI60-pt6:
+  #   if: github.actor != 'github-actions[bot]'
+  #   runs-on: ubuntu-20.04
+  #   environment: build
+  #   needs: [build-drugs-depmap-NCI60-pt5]
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+  #     - name: Download artifacts from previous drug gen
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-7
+  #     - name: List files cwd
+  #       run: ls -lah 
+  #     - name: Pull depmap image
+  #       run: docker pull jjacobson95/depmap
+  #     - name: Run depmap NCI60 Drug retrieval
+  #       run: |
+  #         docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
+  #     - name: Copy drugs file to artifact 
+  #       run: |
+  #         mkdir additive-drugs-file-8
+  #         mv drugs.tsv ignore_chems.txt additive-drugs-file-8
+  #     - name: Upload artifacts for genes
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-8
+  #         path: additive-drugs-file-8
+
+  # build-drugs-depmap-NCI60-pt7:
+  #   if: github.actor != 'github-actions[bot]'
+  #   runs-on: ubuntu-20.04
+  #   environment: build
+  #   needs: [build-drugs-depmap-NCI60-pt6]
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+  #     - name: Download artifacts from previous drug gen
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-8
+  #     - name: List files cwd
+  #       run: ls -lah 
+  #     - name: Pull depmap image
+  #       run: docker pull jjacobson95/depmap
+  #     - name: Run depmap NCI60 Drug retrieval
+  #       run: |
+  #         docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
+  #     - name: Copy drugs file to artifact 
+  #       run: |
+  #         mkdir additive-drugs-file-9
+  #         mv drugs.tsv ignore_chems.txt additive-drugs-file-9
+  #     - name: Upload artifacts for genes
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-9
+  #         path: additive-drugs-file-9
+
+  # build-drugs-depmap-NCI60-pt8:
+  #   if: github.actor != 'github-actions[bot]'
+  #   runs-on: ubuntu-20.04
+  #   environment: build
+  #   needs: [build-drugs-depmap-NCI60-pt7]
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+  #     - name: Download artifacts from previous drug gen
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-9
+  #     - name: List files cwd
+  #       run: ls -lah 
+  #     - name: Pull depmap image
+  #       run: docker pull jjacobson95/depmap
+  #     - name: Run depmap NCI60 Drug retrieval
+  #       run: |
+  #         docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
+  #     - name: Copy drugs file to artifact 
+  #       run: |
+  #         mkdir additive-drugs-file-10
+  #         mv drugs.tsv ignore_chems.txt additive-drugs-file-10
+  #     - name: Upload artifacts for genes
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-10
+  #         path: additive-drugs-file-10
+
+  # build-drugs-depmap-NCI60-pt9:
+  #   if: github.actor != 'github-actions[bot]'
+  #   runs-on: ubuntu-20.04
+  #   environment: build
+  #   needs: [build-drugs-depmap-NCI60-pt8]
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+  #     - name: Download artifacts from previous drug gen
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-10
+  #     - name: List files cwd
+  #       run: ls -lah 
+  #     - name: Pull depmap image
+  #       run: docker pull jjacobson95/depmap
+  #     - name: Run depmap NCI60 Drug retrieval
+  #       run: |
+  #         docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
+  #     - name: Copy drugs file to artifact 
+  #       run: |
+  #         mkdir additive-drugs-file-11
+  #         mv drugs.tsv ignore_chems.txt additive-drugs-file-11
+  #     - name: Upload artifacts for genes
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-11
+  #         path: additive-drugs-file-11
+
+  # build-drugs-depmap-NCI60-pt10:
+  #   if: github.actor != 'github-actions[bot]'
+  #   runs-on: ubuntu-20.04
+  #   environment: build
+  #   needs: [build-drugs-depmap-NCI60-pt9]
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+  #     - name: Download artifacts from previous drug gen
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-11
+  #     - name: List files cwd
+  #       run: ls -lah 
+  #     - name: Pull depmap image
+  #       run: docker pull jjacobson95/depmap
+  #     - name: Run depmap NCI60 Drug retrieval
+  #       run: |
+  #         docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
+  #     - name: Copy drugs file to artifact 
+  #       run: |
+  #         mkdir additive-drugs-file-12
+  #         mv drugs.tsv ignore_chems.txt additive-drugs-file-12
+  #     - name: Upload artifacts for genes
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-12
+  #         path: additive-drugs-file-12
+
+  # build-drugs-depmap-NCI60-pt11:
+  #   if: github.actor != 'github-actions[bot]'
+  #   runs-on: ubuntu-20.04
+  #   environment: build
+  #   needs: [build-drugs-depmap-NCI60-pt10]
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+  #     - name: Download artifacts from previous drug gen
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-12
+  #     - name: List files cwd
+  #       run: ls -lah 
+  #     - name: Pull depmap image
+  #       run: docker pull jjacobson95/depmap
+  #     - name: Run depmap NCI60 Drug retrieval
+  #       run: |
+  #         docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
+  #     - name: Copy drugs file to artifact 
+  #       run: |
+  #         mkdir additive-drugs-file-13
+  #         mv drugs.tsv ignore_chems.txt additive-drugs-file-13
+  #     - name: Upload artifacts for genes
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: additive-drugs-file-13
+  #         path: additive-drugs-file-13
+
+  build-drugs-depmap-capture-stragglers:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-20.04
     environment: build
@@ -387,209 +590,6 @@ jobs:
           name: additive-drugs-file-6
       - name: List files cwd
         run: ls -lah 
-      - name: Pull depmap image
-        run: docker pull jjacobson95/depmap
-      - name: Run depmap NCI60 Drug retrieval
-        run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
-      - name: Copy drugs file to artifact 
-        run: |
-          mkdir additive-drugs-file-7
-          mv drugs.tsv ignore_chems.txt additive-drugs-file-7
-      - name: Upload artifacts for genes
-        uses: actions/upload-artifact@v2
-        with:
-          name: additive-drugs-file-7
-          path: additive-drugs-file-7
-
-  build-drugs-depmap-NCI60-pt6:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-drugs-depmap-NCI60-pt5]
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: Download artifacts from previous drug gen
-        uses: actions/download-artifact@v2
-        with:
-          name: additive-drugs-file-7
-      - name: List files cwd
-        run: ls -lah 
-      - name: Pull depmap image
-        run: docker pull jjacobson95/depmap
-      - name: Run depmap NCI60 Drug retrieval
-        run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
-      - name: Copy drugs file to artifact 
-        run: |
-          mkdir additive-drugs-file-8
-          mv drugs.tsv ignore_chems.txt additive-drugs-file-8
-      - name: Upload artifacts for genes
-        uses: actions/upload-artifact@v2
-        with:
-          name: additive-drugs-file-8
-          path: additive-drugs-file-8
-
-  build-drugs-depmap-NCI60-pt7:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-drugs-depmap-NCI60-pt6]
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: Download artifacts from previous drug gen
-        uses: actions/download-artifact@v2
-        with:
-          name: additive-drugs-file-8
-      - name: List files cwd
-        run: ls -lah 
-      - name: Pull depmap image
-        run: docker pull jjacobson95/depmap
-      - name: Run depmap NCI60 Drug retrieval
-        run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
-      - name: Copy drugs file to artifact 
-        run: |
-          mkdir additive-drugs-file-9
-          mv drugs.tsv ignore_chems.txt additive-drugs-file-9
-      - name: Upload artifacts for genes
-        uses: actions/upload-artifact@v2
-        with:
-          name: additive-drugs-file-9
-          path: additive-drugs-file-9
-
-  build-drugs-depmap-NCI60-pt8:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-drugs-depmap-NCI60-pt7]
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: Download artifacts from previous drug gen
-        uses: actions/download-artifact@v2
-        with:
-          name: additive-drugs-file-9
-      - name: List files cwd
-        run: ls -lah 
-      - name: Pull depmap image
-        run: docker pull jjacobson95/depmap
-      - name: Run depmap NCI60 Drug retrieval
-        run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
-      - name: Copy drugs file to artifact 
-        run: |
-          mkdir additive-drugs-file-10
-          mv drugs.tsv ignore_chems.txt additive-drugs-file-10
-      - name: Upload artifacts for genes
-        uses: actions/upload-artifact@v2
-        with:
-          name: additive-drugs-file-10
-          path: additive-drugs-file-10
-
-  build-drugs-depmap-NCI60-pt9:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-drugs-depmap-NCI60-pt8]
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: Download artifacts from previous drug gen
-        uses: actions/download-artifact@v2
-        with:
-          name: additive-drugs-file-10
-      - name: List files cwd
-        run: ls -lah 
-      - name: Pull depmap image
-        run: docker pull jjacobson95/depmap
-      - name: Run depmap NCI60 Drug retrieval
-        run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
-      - name: Copy drugs file to artifact 
-        run: |
-          mkdir additive-drugs-file-11
-          mv drugs.tsv ignore_chems.txt additive-drugs-file-11
-      - name: Upload artifacts for genes
-        uses: actions/upload-artifact@v2
-        with:
-          name: additive-drugs-file-11
-          path: additive-drugs-file-11
-
-  build-drugs-depmap-NCI60-pt10:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-drugs-depmap-NCI60-pt9]
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: Download artifacts from previous drug gen
-        uses: actions/download-artifact@v2
-        with:
-          name: additive-drugs-file-11
-      - name: List files cwd
-        run: ls -lah 
-      - name: Pull depmap image
-        run: docker pull jjacobson95/depmap
-      - name: Run depmap NCI60 Drug retrieval
-        run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
-      - name: Copy drugs file to artifact 
-        run: |
-          mkdir additive-drugs-file-12
-          mv drugs.tsv ignore_chems.txt additive-drugs-file-12
-      - name: Upload artifacts for genes
-        uses: actions/upload-artifact@v2
-        with:
-          name: additive-drugs-file-12
-          path: additive-drugs-file-12
-
-  build-drugs-depmap-NCI60-pt11:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-drugs-depmap-NCI60-pt10]
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: Download artifacts from previous drug gen
-        uses: actions/download-artifact@v2
-        with:
-          name: additive-drugs-file-12
-      - name: List files cwd
-        run: ls -lah 
-      - name: Pull depmap image
-        run: docker pull jjacobson95/depmap
-      - name: Run depmap NCI60 Drug retrieval
-        run: |
-          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R NCI60
-      - name: Copy drugs file to artifact 
-        run: |
-          mkdir additive-drugs-file-13
-          mv drugs.tsv ignore_chems.txt additive-drugs-file-13
-      - name: Upload artifacts for genes
-        uses: actions/upload-artifact@v2
-        with:
-          name: additive-drugs-file-13
-          path: additive-drugs-file-13
-
-  build-drugs-depmap-capture-stragglers:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-20.04
-    environment: build
-    needs: [build-drugs-depmap-NCI60-pt11]
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: Download artifacts from previous drug gen
-        uses: actions/download-artifact@v2
-        with:
-          name: additive-drugs-file-13
-      - name: List files cwd
-        run: ls -lah 
       - name: List files cwd
         run: rm ignore_chems.txt
       - name: Pull depmap image
@@ -599,13 +599,13 @@ jobs:
           docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
       - name: Copy drugs file to artifact 
         run: |
-          mkdir additive-drugs-file-14
-          mv drugs.tsv ignore_chems.txt additive-drugs-file-14
+          mkdir additive-drugs-file-7
+          mv drugs.tsv ignore_chems.txt additive-drugs-file-7
       - name: Upload artifacts for genes
         uses: actions/upload-artifact@v2
         with:
-          name: additive-drugs-file-14
-          path: additive-drugs-file-14
+          name: additive-drugs-file-7
+          path: additive-drugs-file-7
 
   build-cptac-samples:
     if: github.actor != 'github-actions[bot]'
@@ -793,7 +793,7 @@ jobs:
       - name: Download artifacts from Drugs
         uses: actions/download-artifact@v2  
         with:
-          name: additive-drugs-file-14
+          name: additive-drugs-file-7
       - name: List files cwd
         run: ls -lah 
       - name: Pull beataml image
@@ -895,22 +895,22 @@ jobs:
       - name: Download artifacts from Drugs
         uses: actions/download-artifact@v2  
         with:
-          name: additive-drugs-file-14
-      # - name: gunzip drugs file
-      #   run: gunzip drugs.tsv
+          name: additive-drugs-file-7
+      - name: gzip drugs file
+        run: gzip drugs.tsv
       - name: List files cwd
         run: ls -lah 
       - name: cat reqs
         run: cat requirements.txt
       - name: Pull depmap image
         run: docker pull jjacobson95/depmap
-      - name: docker save space and stats
-        run: |
-          docker image prune -f 
-          docker container prune -f 
-          docker volume prune -f 
-          docker network prune -f 
-          docker system df
+      # - name: docker save space and stats
+      #   run: |
+      #     docker image prune -f 
+      #     docker container prune -f 
+      #     docker volume prune -f 
+      #     docker network prune -f 
+      #     docker system df
       - name: Run depmap 02-pullDepMap.R Container
         run: |
           docker run -v $PWD:/tmp/ jjacobson95/depmap Rscript /app/02-pullDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv
