@@ -576,36 +576,36 @@ jobs:
           name: additive-drugs-file-13
           path: additive-drugs-file-13
 
-  # build-drugs-depmap-capture-stragglers:
-  #   if: github.actor != 'github-actions[bot]'
-  #   runs-on: ubuntu-20.04
-  #   environment: build
-  #   needs: [build-drugs-depmap-NCI60-pt11]
-  #   steps:
-  #     - name: Checkout Repo
-  #       uses: actions/checkout@v2
-  #     - name: Download artifacts from previous drug gen
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: additive-drugs-file-13
-  #     - name: List files cwd
-  #       run: ls -lah 
-  #     - name: List files cwd
-  #       run: rm ignore_chems.txt
-  #     - name: Pull depmap image
-  #       run: docker pull jjacobson95/depmap
-  #     - name: Run depmap straggler Drug retrieval
-  #       run: |
-  #         docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
-  #     - name: Copy drugs file to artifact 
-  #       run: |
-  #         mkdir additive-drugs-file-14
-  #         mv drugs.tsv ignore_chems.txt additive-drugs-file-14
-  #     - name: Upload artifacts for genes
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: additive-drugs-file-14
-  #         path: additive-drugs-file-14
+  build-drugs-depmap-capture-stragglers:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-20.04
+    environment: build
+    needs: [build-drugs-depmap-NCI60-pt11]
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Download artifacts from previous drug gen
+        uses: actions/download-artifact@v2
+        with:
+          name: additive-drugs-file-13
+      - name: List files cwd
+        run: ls -lah 
+      - name: List files cwd
+        run: rm ignore_chems.txt
+      - name: Pull depmap image
+        run: docker pull jjacobson95/depmap
+      - name: Run depmap straggler Drug retrieval
+        run: |
+          docker run -v $PWD:/tmp jjacobson95/depmap Rscript /app/CreateDrugFileCL.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
+      - name: Copy drugs file to artifact 
+        run: |
+          mkdir additive-drugs-file-14
+          mv drugs.tsv ignore_chems.txt additive-drugs-file-14
+      - name: Upload artifacts for genes
+        uses: actions/upload-artifact@v2
+        with:
+          name: additive-drugs-file-14
+          path: additive-drugs-file-14
 
   build-cptac-samples:
     if: github.actor != 'github-actions[bot]'
@@ -780,7 +780,7 @@ jobs:
 
   build-beataml:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-beataml-samples,build-drugs-depmap-NCI60-pt11]
+    needs: [build-beataml-samples,build-drugs-depmap-capture-stragglers]
     runs-on: ubuntu-20.04
     environment: build
     steps:
@@ -793,7 +793,7 @@ jobs:
       - name: Download artifacts from Drugs
         uses: actions/download-artifact@v2  
         with:
-          name: additive-drugs-file-13
+          name: additive-drugs-file-14
       - name: List files cwd
         run: ls -lah 
       - name: Pull beataml image
@@ -871,7 +871,7 @@ jobs:
 
   build-depmap:
     if: github.actor != 'github-actions[bot]'
-    needs: [build-depmap-samples,build-drugs-depmap-NCI60-pt11]
+    needs: [build-depmap-samples,build-drugs-depmap-capture-stragglers]
     runs-on: ubuntu-20.04
     environment: build
     steps:
@@ -895,9 +895,9 @@ jobs:
       - name: Download artifacts from Drugs
         uses: actions/download-artifact@v2  
         with:
-          name: additive-drugs-file-13
-      - name: gunzip drugs file
-        run: gunzip drugs.tsv
+          name: additive-drugs-file-14
+      # - name: gunzip drugs file
+      #   run: gunzip drugs.tsv
       - name: List files cwd
         run: ls -lah 
       - name: cat reqs
