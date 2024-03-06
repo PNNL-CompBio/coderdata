@@ -23,20 +23,20 @@ def format_coderd_schema(fname):
     df = pd.read_csv(fname,delimiter='\t')
     ##first rename Drug to improve_drug_id
     df2 = df.rename(columns={'Drug':'improve_drug_id'})
-    new_df = pd.melt(df2,id_vars=['source','improve_sample_id','improve_drug_id','study','time','time_unit'],value_vars=['fit auc','fit ic50','fit ec50','fit r2','fit ec50se','fit einf','fit hs','aac','auc','dss'],value_name='dose_response_value',var_name='dose_response_metric')
+    new_df = pd.melt(df2,id_vars=['source','improve_sample_id','improve_drug_id','study','time','time_unit'],value_vars=['fit_auc','fit_ic50','fit_ec50','fit_r2','fit_ec50se','fit_einf','fit_hs','aac','auc','dss'],value_name='dose_response_value',var_name='dose_response_metric')
 
     new_df.to_csv(fname,sep='\t',index=False)
 
 HS_BOUNDS_ORIG = ([0, 10**-12, 0], [1, 1, 4])
 
-# def hs_response_curve_original(x, einf, ec50, hs):
-#     """ from PharmacoDB supp. https://doi.org/10.1093/nar/gkx911
-#         bounds:
-#           einf: [0, 1]       # fraction of cells not susceptible to drug
-#           ec50: [10^-12, 1]  # concentration to have half target receptors bound: [1pM, 1M]
-#           hs:   [0, 4]       # hill slope binding cooperativity
-#     """
-#     return einf + (1 - einf) / (1 + np.power(x/ec50, hs))
+def hs_response_curve_original(x, einf, ec50, hs):
+    """ from PharmacoDB supp. https://doi.org/10.1093/nar/gkx911
+        bounds:
+          einf: [0, 1]       # fraction of cells not susceptible to drug
+          ec50: [10^-12, 1]  # concentration to have half target receptors bound: [1pM, 1M]
+          hs:   [0, 4]       # hill slope binding cooperativity
+    """
+    return einf + (1 - einf) / (1 + np.power(x/ec50, hs))
 
 
 HS_BOUNDS = ([0, 0, 0], [1, 12, 4])
@@ -75,7 +75,7 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     d2: maximum fixed dose log10(M)
     '''
     if popt is None:
-        cols = ['fit auc','fit ic50','fit ec50','fit ec50se','fit r2','fit einf','fit hs','aac','auc','dss']#'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
+        cols = ['fit_auc','fit_ic50','fit_ec50','fit_ec50se','fit_r2','fit_einf','fit_hs','aac','auc','dss']#'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
         return pd.Series([np.nan] * len(cols), index=cols)
     einf, ec50, hs = popt
     perr = np.sqrt(np.diag(pcov))
@@ -93,10 +93,11 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     int10x = compute_area(xmin, ic10x, *popt)
     dss1 = (0.9 * (ic10x - xmin) - int10x) / (0.9 * (xmax - xmin)) if xmin < ic10x else 0
     auc = (response_integral(d2, *popt) - response_integral(d1, *popt)) / (d2 - d1)
-    metrics = pd.Series({'fit auc':auc, 'fit ic50':ic50, 'fit ec50':ec50,'fit einf':einf,
-                         'fit ec50se':ec50se, 'fit r2':r2, 'einf':einf, 'fit hs':hs,
+    metrics = pd.Series({'fit_auc':auc, 'fit_ic50':ic50, 'fit_ec50':ec50,'fit_einf':einf,
+                         'fit_ec50se':ec50se, 'fit_r2':r2, 'einf':einf, 'fit_hs':hs,
                          'aac':aac1, 'auc':auc1, 'dss':dss1}).round(4)
     return metrics
+
 
 
 def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS):
@@ -161,73 +162,74 @@ def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS):
 #     else:
 #         plt.show()
 
-    # return metrics.to_frame(name='metrics').T
+#     return metrics.to_frame(name='metrics').T
 
 
-# def fit_response(df_all, cell, drug, source, study=None, save=False):
-# #    cell_ids = ud.cell_name_to_ids(cell) or [cell]
-# #    drug_ids = ud.drug_name_to_ids(drug) or [drug]
+def fit_response(df_all, cell, drug, source, study=None, save=False):
+#    cell_ids = ud.cell_name_to_ids(cell) or [cell]
+#    drug_ids = ud.drug_name_to_ids(drug) or [drug]
 
-#     #df_exp = df_all[df_all.CELL.isin(cell_ids) & df_all.DRUG.isin(drug_ids)].copy()
-#     df_exp = df_all[(df_all.CELL == cell) & (df_all.DRUG == drug)].copy()
-#     df_exp.GROWTH = (df_exp.GROWTH/2 + 0.5)
-#     df_exp = df_exp[df_exp.SOURCE == source]
+    #df_exp = df_all[df_all.CELL.isin(cell_ids) & df_all.DRUG.isin(drug_ids)].copy()
+    df_exp = df_all[(df_all.improve_sample_id == cell) & (df_all.Drug == drug)].copy()
+    df_exp.GROWTH = (df_exp.GROWTH/2 + 0.5)
+    df_exp = df_exp[df_exp.SOURCE == source]
 
-#     title = f'{cell} treated with {drug} in {source}'
+    title = f'{cell} treated with {drug} in {source}'
 
-#     studies = df_exp.STUDY.unique()
-#     if len(studies) > 1:
-#         study = studies[study] if type(study) == int else study or studies[0]
-#         title += f' study {study}'
-#         df_exp = df_exp[df_exp.STUDY == study]
+    studies = df_exp.STUDY.unique()
+    if len(studies) > 1:
+        study = studies[study] if type(study) == int else study or studies[0]
+        title += f' study {study}'
+        df_exp = df_exp[df_exp.STUDY == study]
 
-#     return fit_exp(df_exp, title, save=save)
-
-# def show_dose_distribution(df_all):
-#     sources = df_all.SOURCE.unique()
-#     qs = [0, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 0.98, 1]
-#     series = []
-#     for src in sources:
-#         s = df_all[df_all.SOURCE == src].DOSE.quantile(qs)
-#         s.name = src
-#         series.append(s)
-#     df_dose = pd.concat(series, axis=1)
-#     return df_dose
+    return fit_exp(df_exp, title, save=save)
 
 
-# def process_df(df, fname, beataml=False, sep='\t', ngroups=None):
-#     # df = df1.copy()
-#     i = 0
-#     header = None
-#     cols = ['source', 'improve_sample_id', 'Drug', 'study']
-#     if beataml == True:
-#         cols = ['SOURCE', 'CELL', 'DRUG', 'STUDY']
-#     groups = df.groupby(cols)
-#     f = open(fname, 'w')
-#     for name, group in tqdm(groups):
-#         # print(name)
-#         xdata = group.DOSE.astype(float)
-#         ##added the following 3 lines to acocunt for data normalized between 0 and 100 instead of 0 and 1
-#         ydata = group.GROWTH
-#       #  if max(ydata)>10:
-#       #      ydata = ydata/100.0
-#         ydata.clip(lower=0, upper=1.0).astype(float)
-#         popt, pcov = response_curve_fit(xdata, ydata)
-#         metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
-#         if header is None:
-#             header = cols + metrics.index.tolist()
-#             print(sep.join(header), file=f)
-#         print(sep.join(name), end=sep, file=f)
-#         print(sep.join([f'{x:.4g}' for x in metrics]), file=f)
-#         i += 1
-#         if ngroups and i >= ngroups:
-#             break
-#     f.close()
+def show_dose_distribution(df_all):
+    sources = df_all.SOURCE.unique()
+    qs = [0, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 0.9, 0.95, 0.98, 1]
+    series = []
+    for src in sources:
+        s = df_all[df_all.SOURCE == src].DOSE.quantile(qs)
+        s.name = src
+        series.append(s)
+    df_dose = pd.concat(series, axis=1)
+    return df_dose
+
+
+def process_df(df, fname, sep='\t', ngroups=None):
+    # df = df1.copy()
+    i = 0
+    header = None
+    cols = ['source', 'improve_sample_id', 'Drug', 'study']
+    groups = df.groupby(cols)
+    f = open(fname, 'w')
+    for name, group in tqdm(groups):
+        # print(name)
+        xdata = group.DOSE.astype(float)
+        ##added the following 3 lines to acocunt for data normalized between 0 and 100 instead of 0 and 1
+        ydata = group.GROWTH
+      #  if max(ydata)>10:
+      #      ydata = ydata/100.0
+        ydata.clip(lower=0, upper=1.0).astype(float)
+        popt, pcov = response_curve_fit(xdata, ydata)
+        metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
+        if header is None:
+            header = cols + metrics.index.tolist()
+            print(sep.join(header), file=f)
+        print(sep.join(name), end=sep, file=f)
+        print(sep.join([f'{x:.4g}' for x in metrics]), file=f)
+        i += 1
+        if ngroups and i >= ngroups:
+            break
+    f.close()
 
 
 def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None):
     header = None
     cols = ['source', 'improve_sample_id', 'Drug', 'study','time','time_unit']
+    if beataml == True:
+        cols = ['SOURCE', 'CELL', 'DRUG', 'STUDY']
     groups = df.groupby(cols)
     # count = count or (len(groups) - start)
     count = count or (4484081 - start)
@@ -251,157 +253,160 @@ def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None):
     f.close()
 
 
-# def process_chem_partner_data():
-#     df_cp = pd.read_csv('curve/ChemPartner_dose_response', sep='\t')
-#     df_cp = df_cp[df_cp.DRUG2.isnull() & df_cp.DOSE2.isnull()].drop(['DRUG2', 'DOSE2'], axis=1)
-#     df_cp = df_cp.rename(columns={'DRUG1':'DRUG', 'DOSE1':'DOSE'})
-#     df_cp.DOSE = -df_cp.DOSE
-#     # df_cp.GROWTH = df_cp.GROWTH/100
-#     df_cp.GROWTH = df_cp.GROWTH/200 + 0.5
-
-#     # process_df(df_cp, 'curve/ChemPartner_single_response_agg', ngroups=10)
-
-#     process_df(df_cp, 'curve/ChemPartner_single_response_agg.new')
 
 
 
-# def fit_exp(df_exp, title=None, dmin=None, dmax=None, save=False):
-#     if save:
-#         font = {'family' : 'normal',
-#                 # 'weight' : 'bold',
-#                 'size'   : 14}
-#         matplotlib.rc('font', **font)
-#         plt.figure(figsize=(12, 6))
+def process_chem_partner_data():
+    df_cp = pd.read_csv('curve/ChemPartner_dose_response', sep='\t')
+    df_cp = df_cp[df_cp.DRUG2.isnull() & df_cp.DOSE2.isnull()].drop(['DRUG2', 'DOSE2'], axis=1)
+    df_cp = df_cp.rename(columns={'DRUG1':'DRUG', 'DOSE1':'DOSE'})
+    df_cp.DOSE = -df_cp.DOSE
+    # df_cp.GROWTH = df_cp.GROWTH/100
+    df_cp.GROWTH = df_cp.GROWTH/200 + 0.5
 
-#     print(df_exp)
-#     xdata = df_exp.DOSE.astype(float)
-#     ydata = df_exp.GROWTH.astype(float)
-#     # ydata = df_exp.GROWTH.clip(lower=0, upper=1.0).astype(float)
+    # process_df(df_cp, 'curve/ChemPartner_single_response_agg', ngroups=10)
 
-#     # print(xdata)
-#     # print(ydata)
-
-#     popt, pcov = response_curve_fit(xdata, ydata)
-#     metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
-
-#     if popt is None:
-#         return metrics
-
-#     dmin = dmin or xdata.min()
-#     dmax = dmax or xdata.max()
-#     xx = np.linspace(dmin, dmax, 100)
-#     yy = response_curve(xx, *popt)
-
-#     plt.xlim(dmax, dmin)
-#     plt.ylim(0, np.max([105, np.max(yy)]))
-#     plt.plot(xx, yy*100, 'r-', label='fit: Einf=%.3f, EC50=%.3f, HS=%.3f' % tuple(popt))
-#     plt.plot(xdata, ydata.clip(lower=0, upper=1.0)*100, 'b*', label='')
-#     plt.xlabel('Dose (-log10(M))')
-#     plt.ylabel('Growth%')
-#     plt.title(title)
-#     plt.tight_layout()
-#     plt.legend()
-#     if save:
-#         plt.savefig('exp.png', dpi=360)
-#         plt.close()
-#     else:
-#         plt.show()
-
-#     return metrics.to_frame(name='metrics').T
+    process_df(df_cp, 'curve/ChemPartner_single_response_agg.new')
 
 
-# def get_tableau20_colors():
-#     # tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
-#     #          (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),
-#     #          (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
-#     #          (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
-#     #          (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
-#     tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
-#                  (148, 103, 189), (44, 160, 44), (214, 39, 40), (255, 152, 150),
-#                  (152, 223, 138), (197, 176, 213), (140, 86, 75), (196, 156, 148),
-#                  (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
-#                  (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
-#     # Scale the RGB values to the [0, 1] range, which is the format matplotlib accepts.
-#     for i in range(len(tableau20)):
-#         r, g, b = tableau20[i]
-#         tableau20[i] = (r / 255., g / 255., b / 255.)
-#     return tableau20
+
+def fit_exp(df_exp, title=None, dmin=None, dmax=None, save=False):
+    if save:
+        font = {'family' : 'normal',
+                # 'weight' : 'bold',
+                'size'   : 14}
+        matplotlib.rc('font', **font)
+        plt.figure(figsize=(12, 6))
+
+    print(df_exp)
+    xdata = df_exp.DOSE.astype(float)
+    ydata = df_exp.GROWTH.astype(float)
+    # ydata = df_exp.GROWTH.clip(lower=0, upper=1.0).astype(float)
+
+    # print(xdata)
+    # print(ydata)
+
+    popt, pcov = response_curve_fit(xdata, ydata)
+    metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
+
+    if popt is None:
+        return metrics
+
+    dmin = dmin or xdata.min()
+    dmax = dmax or xdata.max()
+    xx = np.linspace(dmin, dmax, 100)
+    yy = response_curve(xx, *popt)
+
+    plt.xlim(dmax, dmin)
+    plt.ylim(0, np.max([105, np.max(yy)]))
+    plt.plot(xx, yy*100, 'r-', label='fit: Einf=%.3f, EC50=%.3f, HS=%.3f' % tuple(popt))
+    plt.plot(xdata, ydata.clip(lower=0, upper=1.0)*100, 'b*', label='')
+    plt.xlabel('Dose (-log10(M))')
+    plt.ylabel('Growth%')
+    plt.title(title)
+    plt.tight_layout()
+    plt.legend()
+    if save:
+        plt.savefig('exp.png', dpi=360)
+        plt.close()
+    else:
+        plt.show()
+
+    return metrics.to_frame(name='metrics').T
 
 
-# def plot_curves(df_all, cell='LOXIMVI', drug='paclitaxel', study=None, max_reps=2, dmin=4, dmax=10, out=None):
-# #    cell_ids = ud.cell_name_to_ids(cell)
-# #    drug_ids = ud.drug_name_to_ids(drug)
+def get_tableau20_colors():
+    # tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
+    #          (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),
+    #          (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
+    #          (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
+    #          (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
+                 (148, 103, 189), (44, 160, 44), (214, 39, 40), (255, 152, 150),
+                 (152, 223, 138), (197, 176, 213), (140, 86, 75), (196, 156, 148),
+                 (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
+                 (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+    # Scale the RGB values to the [0, 1] range, which is the format matplotlib accepts.
+    for i in range(len(tableau20)):
+        r, g, b = tableau20[i]
+        tableau20[i] = (r / 255., g / 255., b / 255.)
+    return tableau20
 
-#     #df_exps = df_all[df_all.CELL.isin(cell_ids) & df_all.DRUG.isin(drug_ids)].copy()
-#     df_exps = df_all[(df_all['CELL']==cell) & (df_all['Drug']==drug)].copy()
-#     df_exps.GROWTH = (df_exps.GROWTH/2 + 0.5)
 
-#     title = f'{cell} treated with {drug}'
-#     out = out or f'{cell}-{drug}'
+def plot_curves(df_all, cell='LOXIMVI', drug='paclitaxel', study=None, max_reps=2, dmin=4, dmax=10, out=None):
+#    cell_ids = ud.cell_name_to_ids(cell)
+#    drug_ids = ud.drug_name_to_ids(drug)
 
-#     # font = {'family': 'normal', 'size': 14}
-#     font = {'size': 14}
-#     matplotlib.rc('font', **font)
-#     plt.figure(figsize=(12, 6))
-#     colors = get_tableau20_colors()
+    #df_exps = df_all[df_all.CELL.isin(cell_ids) & df_all.DRUG.isin(drug_ids)].copy()
+    df_exps = df_all[(df_all['CELL']==cell) & (df_all['Drug']==drug)].copy()
+    df_exps.GROWTH = (df_exps.GROWTH/2 + 0.5)
 
-#     dmin = dmin or df_exps.DOSE.min()
-#     dmax = dmax or df_exps.DOSE.max()
-#     xx = np.linspace(dmin-0.1, dmax+0.1, 100)
+    title = f'{cell} treated with {drug}'
+    out = out or f'{cell}-{drug}'
 
-#     plt.xlim(dmax+0.1, dmin-0.1)
-#     plt.ylim(0, 105)
-#     plt.xlabel('Dose (-log10(M))')
-#     plt.ylabel('Growth%')
-#     plt.title(title)
+    # font = {'family': 'normal', 'size': 14}
+    font = {'size': 14}
+    matplotlib.rc('font', **font)
+    plt.figure(figsize=(12, 6))
+    colors = get_tableau20_colors()
 
-#     df_metrics = None
-#     rank = 0
-#     order = ['NCI60', 'CTRP', 'GDSC', 'CCLE', 'gCSI']
-#     sources = df_exps.SOURCE.unique().tolist() if study is None else study
-#     sources = sorted(sources, key=lambda x:order.index(x))
+    dmin = dmin or df_exps.DOSE.min()
+    dmax = dmax or df_exps.DOSE.max()
+    xx = np.linspace(dmin-0.1, dmax+0.1, 100)
 
-#     for source in sources:
-#         studies = df_exps[df_exps.SOURCE == source].STUDY.unique()
-#         for i, study in enumerate(studies[:max_reps]):
-#             df_exp = df_exps[(df_exps.SOURCE == source) & (df_exps.STUDY == study)]
-#             xdata = df_exp.DOSE.astype(float)
-#             ydata = df_exp.GROWTH.astype(float)
-#             # ydata = df_exp.GROWTH.clip(lower=0, upper=1.0).astype(float)
-#             popt, pcov = response_curve_fit(xdata, ydata)
-#             metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
-#             if popt is None:
-#                 continue
-#             color = colors[rank]
-#             rank = (rank + 1) % 20
-#             yy = response_curve(xx, *popt)
-#             label = source
-#             if len(studies) > 1:
-#                 label += f' rep {i+1}'
-#             plt.plot(xx, yy*100, '-', color=color, label=label)
-#             plt.plot(xdata, ydata.clip(lower=0, upper=1.0)*100, '.', color=color, label='')
-#             if df_metrics is None:
-#                 df_metrics = metrics.to_frame(name=label).T
-#             else:
-#                 df_metrics = pd.concat([df_metrics, metrics.to_frame(name=label).T])
+    plt.xlim(dmax+0.1, dmin-0.1)
+    plt.ylim(0, 105)
+    plt.xlabel('Dose (-log10(M))')
+    plt.ylabel('Growth%')
+    plt.title(title)
 
-#     plt.tight_layout()
-#     plt.legend()
-#     plt.savefig(f'{out}.png', dpi=360)
-#     plt.close()
+    df_metrics = None
+    rank = 0
+    order = ['NCI60', 'CTRP', 'GDSC', 'CCLE', 'gCSI']
+    sources = df_exps.SOURCE.unique().tolist() if study is None else study
+    sources = sorted(sources, key=lambda x:order.index(x))
 
-#     df_metrics.index.name = 'source'
-#     df_metrics.to_csv(f'{out}.csv', float_format='%.5g')
-#     print(f'Saved {out}.png and {out}.csv.')
+    for source in sources:
+        studies = df_exps[df_exps.SOURCE == source].STUDY.unique()
+        for i, study in enumerate(studies[:max_reps]):
+            df_exp = df_exps[(df_exps.SOURCE == source) & (df_exps.STUDY == study)]
+            xdata = df_exp.DOSE.astype(float)
+            ydata = df_exp.GROWTH.astype(float)
+            # ydata = df_exp.GROWTH.clip(lower=0, upper=1.0).astype(float)
+            popt, pcov = response_curve_fit(xdata, ydata)
+            metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
+            if popt is None:
+                continue
+            color = colors[rank]
+            rank = (rank + 1) % 20
+            yy = response_curve(xx, *popt)
+            label = source
+            if len(studies) > 1:
+                label += f' rep {i+1}'
+            plt.plot(xx, yy*100, '-', color=color, label=label)
+            plt.plot(xdata, ydata.clip(lower=0, upper=1.0)*100, '.', color=color, label='')
+            if df_metrics is None:
+                df_metrics = metrics.to_frame(name=label).T
+            else:
+                df_metrics = pd.concat([df_metrics, metrics.to_frame(name=label).T])
 
-#     return df_metrics
+    plt.tight_layout()
+    plt.legend()
+    plt.savefig(f'{out}.png', dpi=360)
+    plt.close()
+
+    df_metrics.index.name = 'source'
+    df_metrics.to_csv(f'{out}.csv', float_format='%.5g')
+    print(f'Saved {out}.png and {out}.csv.')
+
+    return df_metrics
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', help='input file')
     parser.add_argument('--output', help='prefix of output file')
-    parser.add_argument('--beataml', action='store_false', help='Include this if for BeatAML')
+    parser.add_argument('--beataml', action='store_true', help='Include this if for BeatAML')
 
     args = parser.parse_args()
     print(args.input)
@@ -415,8 +420,10 @@ def main():
     df_all.GROWTH=df_all.GROWTH/100.00
     
     fname = args.output or 'combined_single_response_agg'
-    process_df_part(df_all, fname)#, start=args.start, count=args.count)
-    format_coderd_schema(fname+'.0')
+    process_df_part(df_all, fname, beataml=args.beataml)#, start=args.start, count=args.count)
+    
+    if args.beataml == False:
+        format_coderd_schema(fname+'.0')
 
 if __name__ == '__main__':
     main()

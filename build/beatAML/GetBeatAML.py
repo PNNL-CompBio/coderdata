@@ -605,7 +605,7 @@ if __name__ == "__main__":
         print("Starting Curve Fitting Algorithm")
         # Run Curve fitting algorithm from scripts directory.
         # Note the file path to fit_curve.py may need to be changed.
-        command = ['python', 'fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv' '--beataml']
+        command = ['python', '../utils/fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv', '--beataml']
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if result.returncode == 0:
             print("Curve Fitting executed successfully!")
