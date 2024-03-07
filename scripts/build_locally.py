@@ -14,7 +14,7 @@ for fn in os.listdir("build/docker"):
     dsname=fn.split('.')[1]
     print(dsname)
     dlist.append(dsname)
-    cmd = 'docker build -t '+dsname+' .  -f build/docker/'+fn
+    cmd = 'docker build -t '+dsname+' .  -f build/docker/'+fn+ '--build-arg HTTPS_PROXY=$HTTPS_PROXY'
     print(cmd)
     os.system(cmd)
 
