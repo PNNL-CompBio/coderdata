@@ -11,13 +11,13 @@ WORKDIR /app
 
 ADD build/mpnst/requirements.txt .
 ADD build/mpnst/requirements.r .
-ADD build/mpnst/*.R .
-ADD build/mpnst/*.py .
+ADD build/mpnst/*.R ./
+#ADD build/mpnst/*.py ./
 #ADD genes.csv .
 #ADD knowledge_based_isoform_selection_v1.3.txt .
 #ADD mpnst/synapse_NF-MPNST_samples.csv .
 #ADD mpnst/no_combo_manifest_updated_2_5_24.csv .
-ADD build/utils/* .
+ADD build/utils/* ./
 
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
