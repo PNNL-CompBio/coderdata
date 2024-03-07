@@ -19,6 +19,17 @@ from scipy.optimize import curve_fit
 #import uno_data as ud
 
 
+def format_coderd_schema(fname):
+    """    formats output to comply with coderdata schema
+    """
+    df = pd.read_csv(fname,delimiter='\t')
+    ##first rename Drug to improve_drug_id
+    df2 = df.rename(columns={'Drug':'improve_drug_id'})
+    new_df = pd.melt(df2,id_vars=['source','improve_sample_id','improve_drug_id','study','time','time_unit'],value_vars=['fit auc','fit ic50','fit ec50','fit r2','fit ec50se','fit einf','fit hs','aac','auc','dss'],value_name='dose_response_value',var_name='dose_response_metric')
+
+    new_df.to_csv(fname,sep='\t',index=False)
+
+
 HS_BOUNDS_ORIG = ([0, 10**-12, 0], [1, 1, 4])
 
 def hs_response_curve_original(x, einf, ec50, hs):
@@ -242,9 +253,6 @@ def process_df_part(df, fname, sep='\t', start=0, count=None):
     f.close()
 
 
-
-
-
 def process_chem_partner_data():
     df_cp = pd.read_csv('curve/ChemPartner_dose_response', sep='\t')
     df_cp = df_cp[df_cp.DRUG2.isnull() & df_cp.DOSE2.isnull()].drop(['DRUG2', 'DOSE2'], axis=1)
@@ -257,51 +265,6 @@ def process_chem_partner_data():
 
     process_df(df_cp, 'curve/ChemPartner_single_response_agg.new')
 
-
-
-def fit_exp(df_exp, title=None, dmin=None, dmax=None, save=False):
-    if save:
-        font = {'family' : 'normal',
-                # 'weight' : 'bold',
-                'size'   : 14}
-        matplotlib.rc('font', **font)
-        plt.figure(figsize=(12, 6))
-
-    print(df_exp)
-    xdata = df_exp.DOSE.astype(float)
-    ydata = df_exp.GROWTH.astype(float)
-    # ydata = df_exp.GROWTH.clip(lower=0, upper=1.0).astype(float)
-
-    # print(xdata)
-    # print(ydata)
-
-    popt, pcov = response_curve_fit(xdata, ydata)
-    metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
-
-    if popt is None:
-        return metrics
-
-    dmin = dmin or xdata.min()
-    dmax = dmax or xdata.max()
-    xx = np.linspace(dmin, dmax, 100)
-    yy = response_curve(xx, *popt)
-
-    plt.xlim(dmax, dmin)
-    plt.ylim(0, np.max([105, np.max(yy)]))
-    plt.plot(xx, yy*100, 'r-', label='fit: Einf=%.3f, EC50=%.3f, HS=%.3f' % tuple(popt))
-    plt.plot(xdata, ydata.clip(lower=0, upper=1.0)*100, 'b*', label='')
-    plt.xlabel('Dose (-log10(M))')
-    plt.ylabel('Growth%')
-    plt.title(title)
-    plt.tight_layout()
-    plt.legend()
-    if save:
-        plt.savefig('exp.png', dpi=360)
-        plt.close()
-    else:
-        plt.show()
-
-    return metrics.to_frame(name='metrics').T
 
 
 def get_tableau20_colors():
