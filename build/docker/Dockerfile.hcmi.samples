@@ -7,7 +7,7 @@ COPY build/hcmi/02-getHCMIData.py .
 COPY build/hcmi/full_manifest.txt .
 
 # This will have to be updated to use the artifact from cptac when ready
-COPY build/cptac/cptac_samples.csv .
+#COPY build/cptac/cptac_samples.csv .
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
