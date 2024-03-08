@@ -16,8 +16,6 @@ calcDescripts<-function(smistrings){
 
 }
 
-
-
 #' buildDrugTable - This is a generic drug search function that
 #' returns the improve_drug_id for the specific drug of interest
 #' by either identifying it in the database, or querying it in

@@ -12,16 +12,16 @@ There are two aspects of this package, the backend build section and the user fa
 The build section is a github workflow that generates four cancer datasets in a format that is easy for users and algorithms to ingest. 
 The python package allows users to easily download the data, load it into python and reformat it as desired.
 
-### Cell Line Summary
+### DepMap Summary
 
-The cell line datasets were collected from numerous resources such as the <a href="https://lincsproject.org/" target="_blank">LINCS project</a>, <a href="https://depmap.org/portal/" target="_blank">DepMap</a>, and the <a href="https://www.sanger.ac.uk/" target="_blank">Sanger Institute</a>.
+The DepMap datasets were collected from numerous resources such as the <a href="https://lincsproject.org/" target="_blank">LINCS project</a>, <a href="https://depmap.org/portal/" target="_blank">DepMap</a>, and the <a href="https://www.sanger.ac.uk/" target="_blank">Sanger Institute</a>.
 This data will allow scientists to explore the drugs response for thousands of drugs across hundreds of cell lines.
 
 
 
-{% if site.data.cell_line_table %}
+{% if site.data.depmap_table %}
 <table>
-  {% for row in site.data.cell_line_table %}
+  {% for row in site.data.depmap_table %}
     {% if forloop.first %}
     <tr>
       {% for pair in row %}
@@ -36,7 +36,7 @@ This data will allow scientists to explore the drugs response for thousands of d
   {% endfor %}
 </table>
 {% else %}
-<p>Cell line table is not available.</p>
+<p>DepMap table is not available.</p>
 {% endif %}
 
 
@@ -46,9 +46,9 @@ This data will allow scientists to explore the drugs response for thousands of d
 
 <div class="flex-container"> 
     <div class="flex-item">
-        <img src="{{ 'assets/stats/Fig4_CCLE.png' | relative_url }}" alt="Cell Line Figure" />
+        <img src="{{ 'assets/stats/Fig4_CCLE.png' | relative_url }}" alt="DepMap Figure" />
     </div>
     <div class="flex-item">
-        <img src="{{ 'assets/stats/cell_line_circos.png' | relative_url }}" alt="Cell Line Circos" />
+        <img src="{{ 'assets/stats/depmap_circos.png' | relative_url }}" alt="DepMap Circos" />
     </div>
 </div>

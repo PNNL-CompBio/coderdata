@@ -286,8 +286,8 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
             ])
             
         elif data_type == "mutations":
-            mapped_df = df.rename({'Entrez_Gene_Id': 'entrez_id', 'HGVSc': 'mutations'})
-            mapped_df = mapped_df.select(['entrez_id', 'mutations', 'Variant_Classification', 'file_id'])
+            mapped_df = df.rename({'Entrez_Gene_Id': 'entrez_id', 'HGVSc': 'mutation'})
+            mapped_df = mapped_df.select(['entrez_id', 'mutation', 'Variant_Classification', 'file_id'])
             mapped_df = mapped_df.with_columns([pl.lit('GDC').alias('source'),
                                                pl.lit('HCMI').alias('study')])
             mapped_df = mapped_df.with_columns(mapped_df["entrez_id"].cast(str))
@@ -418,7 +418,7 @@ def align_to_schema(data, data_type, chunksize=7500):
     pl.DataFrame
         The final form of the dataframe.
     """
-    samples_path = "hcmi_samples.csv"
+    samples_path = "/tmp/hcmi_samples.csv"
     samples = pl.read_csv(samples_path)
     samples = samples.drop(["cancer_type", "common_name", "other_names", "model_type", "other_id_source"])
 
@@ -426,7 +426,7 @@ def align_to_schema(data, data_type, chunksize=7500):
     columns = {
         "transcriptomics": ["entrez_id", "transcriptomics", "source", "study", "aliquot_id"],
         "copy_number": ["entrez_id", "copy_number", "copy_call", "source", "study", "aliquot_id"],
-        "mutations": ["entrez_id", "mutations", "variant_class", "source", "study", "aliquot_id"]
+        "mutations": ["entrez_id", "mutation", "variant_classification", "source", "study", "aliquot_id"]
     }
     selected_columns = columns.get(data_type, [])
 
@@ -435,7 +435,7 @@ def align_to_schema(data, data_type, chunksize=7500):
     for i in range(0, len(data), chunksize):
         chunk = data[i:i + chunksize]
         if data_type == "mutations":
-            chunk = chunk.rename({"Variant_Classification": "variant_class"})
+            chunk = chunk.rename({"Variant_Classification": "variant_classification"})
         chunk = chunk.select(selected_columns)
         
         merged_chunk = samples.join(chunk, left_on='other_id', right_on='aliquot_id', how='inner')
@@ -642,7 +642,6 @@ def upload_to_figshare(token, title, filepath):
     publish_article(token,article_id)
         
     
-   
 def main():
     """
     Automates the process of retrieving and processing HCMI (Human Cancer Models Initiative)
@@ -763,4 +762,4 @@ def main():
 if __name__ == "__main__":
     main()
     
-   
+    

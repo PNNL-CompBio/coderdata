@@ -1,16 +1,15 @@
-# tests/test_download_depmap.py
+# tests/test_download_depmap_cli.py
 
-from coderdata.download.downloader import download_data_by_prefix
-from coderdata.load.loader import DatasetLoader
+import subprocess
 import os
 import glob
-import pandas as pd
 
-def test_download_data_depmap():
+def test_cli_download():
 
-    #depmap
-    download_data_by_prefix('depmap')
-    
+    # Run the command line tool
+    subprocess.run(['coderdata', 'download', '--prefix', 'depmap'], check=True)
+
+    # Check if the expected files are downloaded
     depmap_samples = glob.glob('depmap_samples*')
     assert len(depmap_samples) > 0, "File depmap_samples does not exist."
     
@@ -32,16 +31,3 @@ def test_download_data_depmap():
     depmap_copy_number = glob.glob('depmap_copy_number*')
     assert len(depmap_copy_number) > 0, "File depmap_copy_number does not exist."
     
-    
-    dataset_type = 'depmap'
-    expected_data_types = ['mutations', 'samples', 'experiments', 'transcriptomics','proteomics','drugs','copy_number']
-    
-    # Initialize DatasetLoader with the temporary directory
-    loader = DatasetLoader(dataset_type)
-
-    # Check if the correct datasets are loaded
-    for data_type in expected_data_types:
-        assert hasattr(loader, data_type), f"{data_type} dataset not loaded for {dataset_type}"
-        loaded_data = getattr(loader, data_type)
-        assert isinstance(loaded_data, pd.DataFrame), f"{data_type} is not a DataFrame"
-        assert not loaded_data.empty, f"{data_type} DataFrame is empty"

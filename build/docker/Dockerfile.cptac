@@ -7,12 +7,12 @@ RUN python3 -m venv /opt/venv
 RUN /opt/venv/bin/pip3 install --upgrade pip
 
 ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONPATH "${PYTHONPATH}:/tmp"
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 
-COPY requirements.txt .
-COPY *.py .
-COPY genes.csv .
+COPY build/cptac/requirements.txt .
+COPY build/cptac/*.py .
 
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
