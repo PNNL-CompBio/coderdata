@@ -151,6 +151,7 @@ classes:
         description: Metric by which dose response value is measured
       dose_response_value:
         description: Value of metric
+        range: float
   Perturbations:
       slots:
         - entrez_id
