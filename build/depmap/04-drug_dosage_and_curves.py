@@ -14,7 +14,7 @@ import os
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--curSampleFile',dest='samplefile',default=None,help='Cell line sample file')
+parser.add_argument('--curSampleFile',dest='samplefile',default=None,help='DepMap sample file')
 
 parser.add_argument('--drugfile',dest='dfile',default=None,help='Drug database')
 

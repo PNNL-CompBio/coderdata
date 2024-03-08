@@ -251,18 +251,18 @@ pre > code.language-python {
     align-items: center;
     flex-wrap: wrap; /* Allows items to wrap onto the next line on smaller screens */
     width: 100%;
-    height: auto;
+    height: 350;
 }
 
 .flex-item {
     margin: 5px;
     box-sizing: border-box;
     height: 100%;
-    background-color: white;    
-    border: 1px solid black;
-    border-radius: 2px;
-    border-color: #001a37;
-    width: 80%;
+    /* background-color: white;     */
+    /* border: 1px solid black; */
+    /* border-radius: 2px; */
+    /* border-color: #001a37; */
+    width: 100%;
     max-width: 825px;
 }
 
@@ -276,10 +276,10 @@ pre > code.language-python {
 
 
 .flex-item img {
-    width: 85%; 
+    width: 100%; 
     height: auto; 
-    border-radius: 2px;
-    border-color: #001a37;
+    /* border-radius: 2px; */
+    /* border-color: #001a37; */
 }
 
 

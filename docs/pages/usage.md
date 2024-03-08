@@ -66,9 +66,9 @@ It is capable of joining initialized, previously joined, or non-initialized data
     <p>joined_dataset1 = cd.join_datasets(beataml, hcmi)</p>
     <p><span class="code-comment"># Join a previously joined dataset with a non-initialized dataset</span></p>
     <p><span class="code-comment"># Quotes around a dataset name will load from local files using the DatasetLoader function.</span></p>
-    <p>joined_dataset2 = cd.join_datasets(joined_dataset1, "cell_line")</p>
+    <p>joined_dataset2 = cd.join_datasets(joined_dataset1, "depmap")</p>
     <p><span class="code-comment"># Join multiple datasets using every method available</span></p>
-    <p>joined_dataset3 = cd.join_datasets("cell_line", beataml)</p>
+    <p>joined_dataset3 = cd.join_datasets("depmap", beataml)</p>
     <p>joined_dataset4 = cd.join_datasets(joined_dataset3, "cptac", hcmi)</p>
 </div>
 
@@ -106,7 +106,7 @@ The `info` method tells you which datatypes are available, their long/wide forma
     This is a joined dataset comprising of:<br>
     - beataml: Beat acute myeloid leukemia (BeatAML) data was collected though GitHub and Synapse.<br>
     - hcmi: Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) Data Portal.<br>
-    - cell_line: The cell line datasets were collected from numerous resources such as the LINCS project, DepMap, and the Sanger Institute.<br>
+    - depmap: The cell line datasets were collected from numerous resources such as the LINCS project, DepMap, and the Sanger Institute.<br>
     - cptac: The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI).<br>
 
     Available Datatypes and Their Formats<br>
@@ -117,11 +117,11 @@ The `info` method tells you which datatypes are available, their long/wide forma
     - transcriptomics: long format<br>
 
     Datatype Origins:<br>
-    - proteomics: Data from beataml, cell_line, cptac<br>
-    - transcriptomics: Data from beataml, cell_line, hcmi, cptac<br>
-    - copy_number: Data from cell_line, hcmi, cptac<br>
-    - mutations: Data from beataml, cell_line, hcmi, cptac<br>
-    - samples: Data from beataml, cell_line, hcmi, cptac 
+    - proteomics: Data from beataml, depmap, cptac<br>
+    - transcriptomics: Data from beataml, depmap, hcmi, cptac<br>
+    - copy_number: Data from depmap, hcmi, cptac<br>
+    - mutations: Data from beataml, depmap, hcmi, cptac<br>
+    - samples: Data from beataml, depmap, hcmi, cptac 
     </span>
 </div>
 

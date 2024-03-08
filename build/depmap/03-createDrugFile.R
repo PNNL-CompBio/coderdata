@@ -13,7 +13,7 @@ all.dsets<-PharmacoGx::availablePSets()
 
 
 #' getCellLineData - gets cell line dose response data
-getCellLineDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')){
+getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')){
 
 
     for(cel in cell.lines){
@@ -74,7 +74,7 @@ main<-function(){
 
 
 
-       dl1<-getCellLineDrugData(dsets)
+       dl1<-getDepMapDrugData(dsets)
 
 
 }
