@@ -91,6 +91,7 @@ classes:
         range: float
       pubchem_id:
         description: PubChem Identifier for this drug, can be many.
+        range: int
   Transcriptomics:
     description:
     slots:
