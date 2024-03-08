@@ -37,7 +37,7 @@ slots:
     range: linkml:Any
   other_id_source:
     description: source of other identifier
-    
+
 classes:
   Gene:
     description: All genes used in coderdata
@@ -92,7 +92,6 @@ classes:
       pubchem_id:
         description: PubChem Identifier for this drug, can be many.
         range: int
-
   Drug Descriptor:
     description: Computational summary of drug chemical properties
     slots:
@@ -101,9 +100,8 @@ classes:
       structural_descriptor:
         description: string name describing structural descriptor
       descriptor_value:
-        range: linkml: Any
-	description: value representing descriptor value
-	
+        range: any
+        description: value representing descriptor value
   Transcriptomics:
     description:
     slots:
@@ -166,39 +164,39 @@ classes:
         description: Value of metric
         range: float
   Perturbations:
-      slots:
-        - entrez_id
-        - improve_sample_id
-        - time
-        - time_unit
-	- source
-	- study
-      attributes:
-        data_value:
-          range: float
-          description: Response value of the gene
-        data_type:
-          description: The value represented in the data value
-        perturbation:
-          description: Drug or gene id that was perturbed
-          range: integer
-        perturbation_type:
-          description: The perturbagen that was used
-          range: CellPerturbation
-   Combinations:
-      slots:
-        - improve_sample_id
-	- source
-	- study
-      attributes:
-        drug_one_id:
-	  description: improve_drug_id of first drug
-	drug_two_id:
-	  description: imrrove_drug_id of second drug
-	synergy_metric:
-	  description: metric calculated
-	synergy_value:
-	  description: value of metric
+    slots:
+      - entrez_id
+      - improve_sample_id
+      - time
+      - time_unit
+      - source
+      - study
+    attributes:
+      data_value:
+        range: float
+        description: Response value of the gene
+      data_type:
+        description: The value represented in the data value
+      perturbation:
+        description: Drug or gene id that was perturbed
+        range: integer
+      perturbation_type:
+        description: The perturbagen that was used
+        range: CellPerturbation
+  Combinations:
+    slots:
+      - improve_sample_id
+      - source
+      - study
+    attributes:
+      drug_one_id:
+        description: improve_drug_id of first drug
+      drug_two_id:
+        description: imrrove_drug_id of second drug
+      synergy_metric:
+        description: metric calculated
+      synergy_value:
+        description: value of metric
 enums:
   ResponseMetric:
     permissible_values:
