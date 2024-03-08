@@ -47,11 +47,11 @@ os.system(cmd)
 ##omics data
 
 ###depmap cell line
-ocmd = docker_run+'/ cell_line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv'
+ocmd = docker_run+' cell_line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv'
 print(ocmd)
 os.system(ocmd)
 
-ocmd = docker_run+'/ cell_line Rscript 02b-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv'
+ocmd = docker_run+' cell_line Rscript 02b-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv'
 print(ocmd)
 os.system(ocmd)
 
