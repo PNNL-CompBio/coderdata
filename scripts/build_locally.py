@@ -24,23 +24,23 @@ print(cmd)
 os.system(cmd)
 
 ###build sample files
-cmd = docker_run+'/ cell_line Rscript 01-cellLineSamples.R'
+cmd = docker_run+'cell_line Rscript 01-cellLineSamples.R'
 print(cmd)
 os.system(cmd)
 
-cmd = docker_run+' cptac python3 getCptacData.py --geneFile=/tmp/genes.csv --prevSampleFile=/tmp/cell_line_samples.csv'
+cmd = docker_run+'cptac /opt/venv/bin/python3 getCptacData.py --geneFile=/tmp/genes.csv --prevSampleFile=/tmp/cell_line_samples.csv'
 print(cmd)
 os.system(cmd)
 
-cmd =docker_run+' hcmi python 01-createHCMISamplesFile.py'
+cmd =docker_run+'hcmi python 01-createHCMISamplesFile.py --samples=/tmp/cptac_samples.csv'
 print(cmd)
 os.system(cmd)
 
-cmd=docker_run+' beataml python GetBeatAML.py --token $SYNAPSE_AUTH_TOKEN --samples=/tmp/hcmi_samples.csv'
+cmd=docker_run+'beataml python GetBeatAML.py --token $SYNAPSE_AUTH_TOKEN --samples=/tmp/hcmi_samples.csv'
 print(cmd)
 os.system(cmd)
 
-cmd = docker_run+' mpnst Rscript 00_sample_gen.R /tmp/beataml_samples.csv $SYNAPSE_AUTH_TOKEN'
+cmd = docker_run+'mpnst Rscript 00_sample_gen.R /tmp/beataml_samples.csv $SYNAPSE_AUTH_TOKEN'
 print(cmd)
 os.system(cmd)
 

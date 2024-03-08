@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import os
+import argparse
 
 def download_from_github(raw_url, save_path):
     """ 
@@ -127,7 +128,7 @@ def extract_data(data):
                                 })
     return pd.DataFrame(extracted)
 
-def filter_and_subset_data(df):
+def filter_and_subset_data(df,sampfile):
     """
     Filter and subset the data.
     
@@ -159,7 +160,7 @@ def filter_and_subset_data(df):
     #Non-docker:
     # maxval = max(pd.read_csv('../cptac/cptac_samples.csv').improve_sample_id)
     # Docker:
-    maxval = max(pd.read_csv('cptac_samples.csv').improve_sample_id)
+    maxval = max(pd.read_csv(sampfile).improve_sample_id)
     mapping = {other_id: i for i, other_id in enumerate(filt['other_id'].unique(), start=(int(maxval)+1))}
     # Use the map method to create the new column based on the lab-id column
     filt['improve_sample_id'] = filt['other_id'].map(mapping)
@@ -191,14 +192,16 @@ def main():
     -------
     A local CSV file named '/tmp/hcmi_samples.csv' containing the processed metadata.
     """
-    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--samples',dest='samps',help='Previous sample file')
+    args = parser.parse_args()
     manifest_path = "full_manifest.txt"
     #manifest_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/hcmi_update/hcmi/full_manifest.txt"
     #download_from_github(manifest_url, manifest_path)
     uuids = extract_uuids_from_manifest(manifest_path)
     metadata = fetch_metadata_for_samples(uuids)
     df = extract_data(metadata)
-    output = filter_and_subset_data(df)
+    output = filter_and_subset_data(df,args.samps)
     aligned = align_to_linkml_schema(output)
     print(aligned)
     aligned.to_csv("/tmp/hcmi_samples.csv",index=False)
