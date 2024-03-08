@@ -15,7 +15,7 @@ class DatasetLoader:
         Parameters
         ----------
         dataset_type : str
-            The type of dataset to load (e.g., 'hcmi', 'beataml', 'cptac', 'cell_line', 'lincs').
+            The type of dataset to load (e.g., 'hcmi', 'beataml', 'cptac', 'depmap', 'lincs').
         data_directory : str
             The directory where dataset files are stored.
         """
@@ -253,7 +253,7 @@ class DatasetLoader:
         """
         # Dataset descriptions
         descriptions = {
-            'cell_line': 'The cell line datasets were collected from numerous resources such as the LINCS project, DepMap, and the Sanger Institute.',
+            'depmap': 'The cell line datasets were collected from numerous resources such as the LINCS project, DepMap, and the Sanger Institute.',
             'cptac': 'The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI).',
             'hcmi': 'Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) Data Portal.',
             'beataml': 'Beat acute myeloid leukemia (BeatAML) data was collected though GitHub and Synapse.'
