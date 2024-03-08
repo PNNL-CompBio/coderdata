@@ -37,7 +37,7 @@ slots:
     range: linkml:Any
   other_id_source:
     description: source of other identifier
-    
+
 classes:
   Gene:
     description: All genes used in coderdata
@@ -91,6 +91,7 @@ classes:
         range: float
       pubchem_id:
         description: PubChem Identifier for this drug, can be many.
+        range: int
   Drug Descriptor:
     description: Computational summary of drug chemical properties
     slots:
@@ -99,9 +100,8 @@ classes:
       structural_descriptor:
         description: string name describing structural descriptor
       descriptor_value:
-        range: linkml: Any
-	description: value representing descriptor value
-	
+        range: any
+        description: value representing descriptor value
   Transcriptomics:
     description:
     slots:
@@ -159,59 +159,60 @@ classes:
     attributes:
       dose_response_metric:
         range: CurveMetric
-	description: Metric by which dose response value is measured
+        description: Metric by which dose response value is measured
       dose_response_value:
         description: Value of metric
+        range: float
   Perturbations:
-      slots:
-        - entrez_id
-        - improve_sample_id
-        - time
-        - time_unit
-	- source
-	- study
-      attributes:
-        data_value:
-          range: float
-          description: Response value of the gene
-        data_type:
-          description: The value represented in the data value
-        perturbation:
-          description: Drug or gene id that was perturbed
-          range: integer
-        perturbation_type:
-          description: The perturbagen that was used
-          range: CellPerturbation
-   Combinations:
-      slots:
-        - improve_sample_id
-	- source
-	- study
-      attributes:
-        drug_one_id:
-	  description: improve_drug_id of first drug
-	drug_two_id:
-	  description: imrrove_drug_id of second drug
-	synergy_metric:
-	  description: metric calculated
-	synergy_value:
-	  description: value of metric
+    slots:
+      - entrez_id
+      - improve_sample_id
+      - time
+      - time_unit
+      - source
+      - study
+    attributes:
+      data_value:
+        range: float
+        description: Response value of the gene
+      data_type:
+        description: The value represented in the data value
+      perturbation:
+        description: Drug or gene id that was perturbed
+        range: integer
+      perturbation_type:
+        description: The perturbagen that was used
+        range: CellPerturbation
+  Combinations:
+    slots:
+      - improve_sample_id
+      - source
+      - study
+    attributes:
+      drug_one_id:
+        description: improve_drug_id of first drug
+      drug_two_id:
+        description: imrrove_drug_id of second drug
+      synergy_metric:
+        description: metric calculated
+      synergy_value:
+        description: value of metric
 enums:
   ResponseMetric:
     permissible_values:
-      fit auc:
+      fit_auc:
         description: Area under the fitted curve
-      fit ic50:
+      fit_ic50:
         description: Concetration at which inhibitor binding is reduced by half
-      fit ec50:
+      fit_ec50:
         description: Concentration required to have half cells with adverse effect
-      fit ec50se:
+      fit_ec50se:
         description: Standard error in EC50 calculation
-      fit einf:
+      fit_einf:
         description: Fraction of cells not susceptible to the drug
-      fit hs:
+      fit_hs:
         description: Hill slop binding cooperativity
-      fit r2:
+      fit_r2:
         description: R2 value between fit and actual data
       aac:
         description: Area above curve measured by integrating the data points
@@ -241,6 +242,8 @@ enums:
       De_novo_Start_OutOfFrame:
       Frame_Shift_Del:
       Frame_Shift_Ins:
+      Frameshift_Variant:
+      Protein_Altering_Variant:
       IGR:
       In_Frame_Del:
       In_Frame_Ins:
@@ -255,8 +258,8 @@ enums:
       Stop_Codon_Del:
       Stop_Codon_Ins:
       Silent:
-      Splice_Region:
       Splice_Site:
+      Splice_Region:
       Translation_Start_Site:
   CopyCall:
     permissible_values:

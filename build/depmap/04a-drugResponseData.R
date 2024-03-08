@@ -13,7 +13,7 @@ all.dsets<-PharmacoGx::availablePSets()
 
 
 
-#improve_samples<<-readr::read_csv('cell_line_samples.csv')
+#improve_samples<<-readr::read_csv('depmap_samples.csv')
 #' getDoseRespData
 #' Generic function to get dose and response data from PGX object
 #' out of dataset object, and store with dataset name

@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import os
+import numpy as np
 
 def download_from_github(raw_url, save_path):
     """ 
@@ -159,12 +160,55 @@ def filter_and_subset_data(df):
     #Non-docker:
     # maxval = max(pd.read_csv('../cptac/cptac_samples.csv').improve_sample_id)
     # Docker:
-    maxval = max(pd.read_csv('cptac_samples.csv').improve_sample_id)
+    maxval = max(pd.read_csv('/tmp/cptac_samples.csv').improve_sample_id)
     mapping = {other_id: i for i, other_id in enumerate(filt['other_id'].unique(), start=(int(maxval)+1))}
     # Use the map method to create the new column based on the lab-id column
     filt['improve_sample_id'] = filt['other_id'].map(mapping)
     return filt
 
+def align_to_linkml_schema(input_df):
+    """
+    Maps the 'model_type' column of the input DataFrame to a set of predefined categories 
+    according to a specified mapping dictionary. This alignment is intended to ensure 
+    the DataFrame's 'model_type' values conform to a schema compatible with the LinkML model.
+    
+    Parameters
+    ----------
+    input_df : pd.DataFrame
+        The input DataFrame containing a 'model_type' column with values to be mapped 
+        according to the predefined categories.
+    
+    Returns
+    -------
+    pd.DataFrame
+        A copy of the input DataFrame with the 'model_type' column values mapped to 
+        a set of predefined categories ('tumor', 'organoid', 'cell line'). 
+        The mapping is designed to align the DataFrame with the LinkML schema requirements.
+    """
+    
+    mapping_dict = {
+    'Solid Tissue': 'tumor',
+    '3D Organoid': 'organoid',
+    'Peripheral Blood Components NOS': 'tumor',
+    'Buffy Coat': np.nan,
+     None: np.nan,
+    'Peripheral Whole Blood': 'tumor',
+    'Adherent Cell Line': 'cell line',
+    '3D Neurosphere': 'organoid',
+    '2D Modified Conditionally Reprogrammed Cells': 'cell line',
+    'Pleural Effusion': np.nan,
+    'Human Original Cells': 'cell line',
+    'Not Reported': np.nan, 
+    'Mixed Adherent Suspension': 'cell line',
+    'Cell': 'cell line',
+    'Saliva': np.nan
+    }
+
+    # Apply mapping
+    input_df['model_type'] = input_df['model_type'].map(mapping_dict)
+    input_df.dropna(subset=['model_type'], inplace=True)
+    
+    return input_df
 
 def main():
     """
@@ -199,7 +243,8 @@ def main():
     metadata = fetch_metadata_for_samples(uuids)
     df = extract_data(metadata)
     output = filter_and_subset_data(df)
-    output.to_csv("hcmi_samples.csv",index=False)
+    aligned = align_to_linkml_schema(output)
+    aligned.to_csv("hcmi_samples.csv",index=False)
 
  
 main()

@@ -7,13 +7,13 @@ file_download:
   beataml_samples.csv: https://ndownloader.figshare.com/files/43900416
   beataml_transcriptomics.csv.gz: https://ndownloader.figshare.com/files/43900437
   cellLineTypes.csv.gz: https://ndownloader.figshare.com/files/43900224
-  cell_line_copy_number.csv.gz: https://ndownloader.figshare.com/files/43900185
-  cell_line_drugs.tsv.gz: https://ndownloader.figshare.com/files/43900218
-  cell_line_experiments.tsv.gz: https://ndownloader.figshare.com/files/43900284
-  cell_line_mutations.csv.gz: https://ndownloader.figshare.com/files/43900287
-  cell_line_proteomics.csv.gz: https://ndownloader.figshare.com/files/43900392
-  cell_line_samples.csv: https://ndownloader.figshare.com/files/43900221
-  cell_line_transcriptomics.csv.gz: https://ndownloader.figshare.com/files/43900236
+  depmap_copy_number.csv.gz: https://ndownloader.figshare.com/files/43900185
+  depmap_drugs.tsv.gz: https://ndownloader.figshare.com/files/43900218
+  depmap_experiments.tsv.gz: https://ndownloader.figshare.com/files/43900284
+  depmap_mutations.csv.gz: https://ndownloader.figshare.com/files/43900287
+  depmap_proteomics.csv.gz: https://ndownloader.figshare.com/files/43900392
+  depmap_samples.csv: https://ndownloader.figshare.com/files/43900221
+  depmap_transcriptomics.csv.gz: https://ndownloader.figshare.com/files/43900236
   cptac_copy_number.csv.gz: https://ndownloader.figshare.com/files/43900290
   cptac_mutations.csv.gz: https://ndownloader.figshare.com/files/43900206
   cptac_proteomics.csv.gz: https://ndownloader.figshare.com/files/43900446
@@ -31,13 +31,13 @@ file_url:
   beataml_samples.csv: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900416
   beataml_transcriptomics.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900437
   cellLineTypes.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900224
-  cell_line_copy_number.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900185
-  cell_line_drugs.tsv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900218
-  cell_line_experiments.tsv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900284
-  cell_line_mutations.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900287
-  cell_line_proteomics.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900392
-  cell_line_samples.csv: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900221
-  cell_line_transcriptomics.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900236
+  depmap_copy_number.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900185
+  depmap_drugs.tsv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900218
+  depmap_experiments.tsv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900284
+  depmap_mutations.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900287
+  depmap_proteomics.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900392
+  depmap_samples.csv: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900221
+  depmap_transcriptomics.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900236
   cptac_copy_number.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900290
   cptac_mutations.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900206
   cptac_proteomics.csv.gz: https://figshare.com/articles/dataset/CODERData0_1_13/24939612?file=43900446
