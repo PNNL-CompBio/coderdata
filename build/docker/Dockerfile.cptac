@@ -10,8 +10,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 
-COPY requirements.txt .
-COPY *.py .
+COPY build/cptac/requirements.txt .
+COPY build/cptac/*.py ./
 #COPY genes.csv .
 
 # installing python libraries
