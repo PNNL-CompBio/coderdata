@@ -89,7 +89,7 @@ View our [Usage](pages/usage.md) page for full instructions.
       <td>{{site.data.stats.hcmi.genes}}</td>
       <td>{{site.data.stats.hcmi.drugs}}</td>
       <td>Yes</td>
-      <td>Yes</td>
+      <td>No</td>
       <td>Yes</td>
       <td>Yes</td>
     </tr>
