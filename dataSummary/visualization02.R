@@ -18,7 +18,7 @@ read_data <- function(file_path) {
 }
 
 read_and_preprocess_data <- function(file_names) {
-  allowed_datasets <- c("transcriptomics", "proteomics", "mutations", "miRNA", "methylation", "copy_number")
+  allowed_datasets <- c("transcriptomics", "proteomics", "mutations", "copy_number")
   datasets <- names(file_names)
   
   if (!all(datasets %in% allowed_datasets)) {
@@ -67,18 +67,21 @@ read_and_preprocess_data <- function(file_names) {
 
 # Circos plot function
 generate_circos_plot <- function(processed_data,prefix) {
+  background_color <- "#E0F2F1"
   save_name <- paste(prefix,"_circos",".png", sep = "")
   if (is.null(processed_data$data) || nrow(processed_data$data) == 0) {
     # This shouldn't trigger anymore.
-    png(save_name, width = 1600, height = 1600, res = 600)
+    png(save_name, width = 1400, height = 1400, res = 600, bg = background_color)
     plot(1, type = "n", ann = FALSE)
     text(1, 1, "No data available", cex = 1.5)
     dev.off()
+    gc()
   } else {
-    png(save_name, width = 1600, height = 1600, res = 600)
+    png(save_name, width = 1400, height = 1400, res = 600, bg = background_color)
     merged_data <- processed_data$data
     sector.data <- processed_data$sector_data
     datasets <- colnames(merged_data)[-1]
+    gc()
     
     # Colors
     dot_colors <- c("#fc8d62", "#8da0cb", "#e78ac3","#66c2a5", "#ffd92f","#a6d854")
@@ -151,7 +154,7 @@ generate_circos_plot <- function(processed_data,prefix) {
     })
     
     # Add the legend
-    legend("center", legend = datasets, fill = dot_colors, cex = .6)
+    legend("center", legend = datasets, fill = dot_colors, cex = .5, bty = "n")
     dev.off()
   }
 }
@@ -274,15 +277,16 @@ generate_group_summary_plot <- function(all_file_names) {
   }
   
   # Plot the data
+  background_color <- "#E0F2F1"
   p <- ggplot(samples_df, aes(x = DataType, y = Samples, fill = Source)) +
     geom_bar(stat = "identity", position = "dodge") +
     labs(title = "Number of Samples by Data Type and Source",
          x = "Data Type",
          y = "Number of Samples") +
-    scale_fill_manual(values = c("beataml" = "#fc8d62", "hcmi" = "#8da0cb", "cell_line" = "#66c2a5", "cptac" = "#8511c1")) +
-    theme_minimal()
-  
-  ggsave('Fig5_Sample_Summary.png', p, height = 9, width = 12)
+    scale_fill_manual(values = c("beataml" = "#fc8d62", "hcmi" = "#8da0cb", "depmap" = "#66c2a5", "cptac" = "#8511c1")) +
+    theme(plot.background = element_rect(fill = background_color, color = background_color),
+    legend.background = element_rect(fill = background_color, color = background_color))
+  ggsave('Fig5_Sample_Summary.png', p, height = 9, width = 12, bg = background_color)
 }
 
 # Data file names for each group
@@ -296,12 +300,11 @@ hcmi_names <- list(
   mutations = "hcmi_mutations.csv.gz",
   copy_number = "hcmi_copy_number.csv.gz"
 )
-cell_line_names <- list(
-  transcriptomics = "cell_line_transcriptomics.csv.gz",
-  proteomics = "cell_line_proteomics.csv.gz",
-  miRNA = "cell_line_miRNA.csv.gz",
-  copy_number = "cell_line_copy_number.csv.gz",
-  mutations = "cell_line_mutations.csv.gz"
+depmap_names <- list(
+  transcriptomics = "depmap_transcriptomics.csv.gz",
+  proteomics = "depmap_proteomics.csv.gz",
+  copy_number = "depmap_copy_number.csv.gz",
+  mutations = "depmap_mutations.csv.gz"
 )
 cptac_names <- list(
   transcriptomics = "cptac_transcriptomics.csv.gz",
@@ -314,7 +317,7 @@ cptac_names <- list(
 all_file_names <- list(
   beataml = beataml_names,
   hcmi = hcmi_names,
-  cell_line = cell_line_names,
+  depmap = depmap_names,
   cptac = cptac_names
 )
 
@@ -339,7 +342,7 @@ for (file_group_name in names(all_file_names)) {
 samples_names <- list(
   HCMI = "hcmi_samples.csv",
   BEATAML = "beataml_samples.csv",
-  Cell_Line = "cell_line_samples.csv",
+  DepMap = "depmap_samples.csv",
   CPTAC = "cptac_samples.csv"
 )
 

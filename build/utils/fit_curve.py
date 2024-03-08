@@ -23,7 +23,7 @@ def format_coderd_schema(fname):
     df = pd.read_csv(fname,delimiter='\t')
     ##first rename Drug to improve_drug_id
     df2 = df.rename(columns={'Drug':'improve_drug_id'})
-    new_df = pd.melt(df2,id_vars=['source','improve_sample_id','improve_drug_id','study','time','time_unit'],value_vars=['fit auc','fit ic50','fit ec50','fit r2','fit ec50se','fit einf','fit hs','aac','auc','dss'],value_name='dose_response_value',var_name='dose_response_metric')
+    new_df = pd.melt(df2,id_vars=['source','improve_sample_id','improve_drug_id','study','time','time_unit'],value_vars=['fit_auc','fit_ic50','fit_ec50','fit_r2','fit_ec50se','fit_einf','fit_hs','aac','auc','dss'],value_name='dose_response_value',var_name='dose_response_metric')
 
     new_df.to_csv(fname,sep='\t',index=False)
 
@@ -75,7 +75,7 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     d2: maximum fixed dose log10(M)
     '''
     if popt is None:
-        cols = ['fit auc','fit ic50','fit ec50','fit ec50se','fit r2','fit einf','fit hs','aac','auc','dss']#'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
+        cols = ['fit_auc','fit_ic50','fit_ec50','fit_ec50se','fit_r2','fit_einf','fit_hs','aac','auc','dss']#'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
         return pd.Series([np.nan] * len(cols), index=cols)
     einf, ec50, hs = popt
     perr = np.sqrt(np.diag(pcov))
@@ -93,10 +93,11 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     int10x = compute_area(xmin, ic10x, *popt)
     dss1 = (0.9 * (ic10x - xmin) - int10x) / (0.9 * (xmax - xmin)) if xmin < ic10x else 0
     auc = (response_integral(d2, *popt) - response_integral(d1, *popt)) / (d2 - d1)
-    metrics = pd.Series({'fit auc':auc, 'fit ic50':ic50, 'fit ec50':ec50,'fit einf':einf,
-                         'fit ec50se':ec50se, 'fit r2':r2, 'einf':einf, 'fit hs':hs,
+    metrics = pd.Series({'fit_auc':auc, 'fit_ic50':ic50, 'fit_ec50':ec50,'fit_einf':einf,
+                         'fit_ec50se':ec50se, 'fit_r2':r2, 'einf':einf, 'fit_hs':hs,
                          'aac':aac1, 'auc':auc1, 'dss':dss1}).round(4)
     return metrics
+
 
 
 def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS):
@@ -119,49 +120,49 @@ def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS):
     return popt, pcov
 
 
-def fit_exp(df_exp, title=None, dmin=None, dmax=None, save=False):
-    if save:
-        font = {'family' : 'normal',
-                # 'weight' : 'bold',
-                'size'   : 14}
-        matplotlib.rc('font', **font)
-        plt.figure(figsize=(12, 6))
+# def fit_exp(df_exp, title=None, dmin=None, dmax=None, save=False):
+#     if save:
+#         font = {'family' : 'normal',
+#                 # 'weight' : 'bold',
+#                 'size'   : 14}
+#         matplotlib.rc('font', **font)
+#         plt.figure(figsize=(12, 6))
 
-    print(df_exp)
-    xdata = df_exp.DOSE.astype(float)
-    ydata = df_exp.GROWTH.astype(float)
-    # ydata = df_exp.GROWTH.clip(lower=0, upper=1.0).astype(float)
+#     print(df_exp)
+#     xdata = df_exp.DOSE.astype(float)
+#     ydata = df_exp.GROWTH.astype(float)
+#     # ydata = df_exp.GROWTH.clip(lower=0, upper=1.0).astype(float)
 
-    # print(xdata)
-    # print(ydata)
+#     # print(xdata)
+#     # print(ydata)
 
-    popt, pcov = response_curve_fit(xdata, ydata)
-    metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
+#     popt, pcov = response_curve_fit(xdata, ydata)
+#     metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
 
-    if popt is None:
-        return metrics
+#     if popt is None:
+#         return metrics
 
-    dmin = dmin or xdata.min()
-    dmax = dmax or xdata.max()
-    xx = np.linspace(dmin, dmax, 100)
-    yy = response_curve(xx, *popt)
+#     dmin = dmin or xdata.min()
+#     dmax = dmax or xdata.max()
+#     xx = np.linspace(dmin, dmax, 100)
+#     yy = response_curve(xx, *popt)
 
-    plt.xlim(dmax, dmin)
-    plt.ylim(0, np.max([105, np.max(yy)]))
-    plt.plot(xx, yy*100, 'r-', label='fit: einf=%.3f, ec50=%.3f, hs=%.3f' % tuple(popt))
-    plt.plot(xdata, ydata.clip(lower=0, upper=1.0)*100, 'b*', label='')
-    plt.xlabel('Dose (-log10(M))')
-    plt.ylabel('Growth%')
-    plt.title(title)
-    plt.tight_layout()
-    plt.legend()
-    if save:
-        plt.savefig('exp.png', dpi=360)
-        plt.close()
-    else:
-        plt.show()
+#     plt.xlim(dmax, dmin)
+#     plt.ylim(0, np.max([105, np.max(yy)]))
+#     plt.plot(xx, yy*100, 'r-', label='fit: einf=%.3f, ec50=%.3f, hs=%.3f' % tuple(popt))
+#     plt.plot(xdata, ydata.clip(lower=0, upper=1.0)*100, 'b*', label='')
+#     plt.xlabel('Dose (-log10(M))')
+#     plt.ylabel('Growth%')
+#     plt.title(title)
+#     plt.tight_layout()
+#     plt.legend()
+#     if save:
+#         plt.savefig('exp.png', dpi=360)
+#         plt.close()
+#     else:
+#         plt.show()
 
-    return metrics.to_frame(name='metrics').T
+#     return metrics.to_frame(name='metrics').T
 
 
 def fit_response(df_all, cell, drug, source, study=None, save=False):
@@ -224,9 +225,11 @@ def process_df(df, fname, sep='\t', ngroups=None):
     f.close()
 
 
-def process_df_part(df, fname, sep='\t', start=0, count=None):
+def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None):
     header = None
     cols = ['source', 'improve_sample_id', 'Drug', 'study','time','time_unit']
+    if beataml == True:
+        cols = ['SOURCE', 'CELL', 'DRUG', 'STUDY']
     groups = df.groupby(cols)
     # count = count or (len(groups) - start)
     count = count or (4484081 - start)
@@ -403,6 +406,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', help='input file')
     parser.add_argument('--output', help='prefix of output file')
+    parser.add_argument('--beataml', action='store_true', help='Include this if for BeatAML')
 
     args = parser.parse_args()
     print(args.input)
@@ -416,8 +420,10 @@ def main():
     df_all.GROWTH=df_all.GROWTH/100.00
     
     fname = args.output or 'combined_single_response_agg'
-    process_df_part(df_all, fname)#, start=args.start, count=args.count)
-    format_coderd_schema(fname+'.0')
+    process_df_part(df_all, fname, beataml=args.beataml)#, start=args.start, count=args.count)
+    
+    if args.beataml == False:
+        format_coderd_schema(fname+'.0')
 
 if __name__ == '__main__':
     main()

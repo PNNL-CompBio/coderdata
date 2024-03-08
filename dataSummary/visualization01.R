@@ -30,28 +30,28 @@ mergeSamples<-function(){
   ## We have many more cancer types here, so we try to map what we have to CPTAC names and then adjust the rest
   ##
   ###########################
-  cell_line<-readr::read_csv('cell_line_samples.csv')|>
+  depmap<-readr::read_csv('depmap_samples.csv')|>
     dplyr::mutate(`Cell line cancer type`=cancer_type)|>
     mutate(sampleSource='CCLE')
   
-  allec<-grep('Endometrial',cell_line$`Cell line cancer type`)
-  cell_line$`Cell line cancer type`[allec]<-'Uterine corpus endometrial carcinoma'
+  allec<-grep('Endometrial',depmap$`Cell line cancer type`)
+  depmap$`Cell line cancer type`[allec]<-'Uterine corpus endometrial carcinoma'
   
-  cell_line<-cell_line|>
+  depmap<-depmap|>
     left_join(cmaps)
   
   ##first we collect the names of the cancers that are NOT in CPTAC
-  other_cans<-which(is.na(cell_line$`CPTAC Cancer type`))
-  cell_line$`CPTAC Cancer type`[other_cans]<-cell_line$`Cell line cancer type`[other_cans]
-  cell_line<-cell_line|>
+  other_cans<-which(is.na(depmap$`CPTAC Cancer type`))
+  depmap$`CPTAC Cancer type`[other_cans]<-depmap$`Cell line cancer type`[other_cans]
+  depmap<-depmap|>
     dplyr::select(improve_sample_id,`CPTAC Cancer type`,model_type,species,sampleSource)|>
     distinct()
   
   #then we rename the NA values to 'Other' if we want
-  #other_cans<-which(is.na(cell_line$`CPTAC Cancer type`))
-  #cell_line$`CPTAC Cancer type`[other_cans]<-'Other'
+  #other_cans<-which(is.na(depmap$`CPTAC Cancer type`))
+  #depmap$`CPTAC Cancer type`[other_cans]<-'Other'
   # or just remove them
-  cell_line<-cell_line|>
+  depmap<-depmap|>
     subset(!is.na(`CPTAC Cancer type`))
   
   ###########################
@@ -91,7 +91,7 @@ mergeSamples<-function(){
   
   
   ##now we join thomdelsem into a single table, with cancer type
-  fulldat<<-rbind(cptac,cell_line,hcmi)|>
+  fulldat<<-rbind(cptac,depmap,hcmi)|>
     dplyr::rename(cancer_type=`CPTAC Cancer type`)|>
     subset()
   
@@ -130,15 +130,17 @@ color_palette <- brewer.pal(n = 3, name = "Set2")
 
 # Assign colors to the model types
 names(color_palette) <- c("Tumor", "cell line", "3D Organoid")
-
+background_color <- "#E0F2F1"
 fig0<-ggplot(stats,aes(x=cancer_type,y=numSamps,fill=model_type))+
   geom_bar(stat='identity',position='dodge')+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.background = element_rect(fill = background_color, color = background_color),
+    legend.background = element_rect(fill = background_color, color = background_color))+
   scale_y_log10()+scale_fill_manual(values=color_palette)+
   ggtitle('Samples by tumor type')
 
 print(fig0)
-ggsave('Fig0_Overview.png',fig0,height=9,width=12)
+ggsave('Fig0_Overview.png',fig0,height=9,width=12,bg = background_color)
 
 # Subset data for each type
 data_type1 <- subset(stats, sampleSource == 'HCMI')
@@ -146,34 +148,45 @@ data_type2 <- subset(stats, sampleSource == 'BeatAML')
 data_type3 <- subset(stats, sampleSource == 'CPTAC')
 data_type4 <- subset(stats, sampleSource == 'CCLE')
 
-# Create separate plots for each type, with colorblind-friendly colors
+# Create separate plots for each type
+background_color <- "#E0F2F1"
+
 fig1 <- ggplot(data_type1, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   geom_bar(stat='identity', position='dodge') +
   scale_fill_manual(values=color_palette) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.background = element_rect(fill = background_color, color = background_color),
+        legend.background = element_rect(fill = background_color, color = background_color)) +
   ggtitle('Cancer and Tissue Types - HCMI')
 
-fig2 <- ggplot(data_type2, aes(x=cancer_type, y=numSamps, fill=model_type)) +
+fig2 <- ggplot(data_type2, aes(x=cancer_type, y=numSamps, fill=model_type),
+legend.background = element_rect(fill = background_color, color = background_color)) +
   geom_bar(stat='identity', position='dodge') +
   scale_fill_manual(values=color_palette) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.background = element_rect(fill = background_color, color = background_color),
+        legend.background = element_rect(fill = background_color, color = background_color)) +
   ggtitle('Cancer and Tissue Types - BeatAML')
 
 fig3 <- ggplot(data_type3, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   geom_bar(stat='identity', position='dodge') +
   scale_fill_manual(values=color_palette) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.background = element_rect(fill = background_color, color = background_color),
+        legend.background = element_rect(fill = background_color, color = background_color)) +
   ggtitle('Cancer and Tissue Types - CPTAC')
 
 fig4 <- ggplot(data_type4, aes(x=cancer_type, y=numSamps, fill=model_type)) +
   geom_bar(stat='identity', position='dodge') +
   scale_fill_manual(values=color_palette) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.background = element_rect(fill = background_color, color = background_color),
+        legend.background = element_rect(fill = background_color, color = background_color)) +
   ggtitle('Cancer and Tissue Types - CCLE')
 
-ggsave('Fig1_HCMI.png', fig1, height=9, width=12)
-ggsave('Fig2_BeatAML.png', fig2, height=9, width=12)
-ggsave('Fig3_CPTAC.png', fig3, height=9, width=12)
-ggsave('Fig4_CCLE.png', fig4, height=9, width=12)
+ggsave('Fig1_HCMI.png', fig1, height=9, width=12, bg = background_color)
+ggsave('Fig2_BeatAML.png', fig2, height=9, width=12, bg = background_color)
+ggsave('Fig3_CPTAC.png', fig3, height=9, width=12, bg = background_color)
+ggsave('Fig4_CCLE.png', fig4, height=9, width=12, bg = background_color)
 
 
