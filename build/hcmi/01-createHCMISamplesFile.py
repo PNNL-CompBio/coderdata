@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 import os
 import argparse
-
+import np
 
 def align_to_linkml_schema(input_df):
     """
