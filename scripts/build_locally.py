@@ -47,9 +47,13 @@ def main():
         ###build sample files
         cmd = docker_run+'depmap Rscript 01-depmapSamples.R'
         print(cmd)
+       # os.system(cmd)
+
+        cmd = docker_run+'depmap Rscript 01a-pullSamples_LINCS.R /tmp/depmap_samples.csv'
+        print(cmd)
         os.system(cmd)
         
-        cmd = docker_run+'cptac /opt/venv/bin/python3 getCptacData.py --geneFile=/tmp/genes.csv --prevSampleFile=/tmp/depmap_samples.csv'
+        cmd = docker_run+'cptac --geneFile=/tmp/genes.csv --prevSampleFile=/tmp/depmap_samples.csv'
         print(cmd)
         os.system(cmd)
         
@@ -71,11 +75,15 @@ def main():
         ##omics data
 
         ###depmap cell line
-        ocmd = docker_run+' depmap Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv'
+        ocmd = docker_run+' depmap Rscript 02-pullDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv'
         print(ocmd)
         os.system(ocmd)
         
-        ocmd = docker_run+' depmap Rscript 02b-cellLineSanger.R /tmp/genes.csv /tmp/depmap_samples.csv'
+        ocmd = docker_run+' depmap Rscript 02b-pullSanger.R /tmp/genes.csv /tmp/depmap_samples.csv'
+        print(ocmd)
+        os.system(ocmd)
+
+        ocmd = docker_run+' depmap python3 depMapProts.py /tmp/genes.csv /tmp/depmap_samples.csv'
         print(ocmd)
         os.system(ocmd)
         
