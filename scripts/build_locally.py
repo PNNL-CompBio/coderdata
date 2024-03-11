@@ -40,16 +40,16 @@ def main():
     ### current order is : DepMap, Sanger, CPTAC, HCMI, BeatAML, MPNST
     if args.samples or args.all:
         ### build gene file
-        cmd = docker_run+'cell_line Rscript 00-buildGeneFile.R'
+        cmd = docker_run+'depmap Rscript 00-buildGeneFile.R'
         print(cmd)
         os.system(cmd)
         
         ###build sample files
-        cmd = docker_run+'cell_line Rscript 01-cellLineSamples.R'
+        cmd = docker_run+'depmap Rscript 01-depmapSamples.R'
         print(cmd)
         os.system(cmd)
         
-        cmd = docker_run+'cptac /opt/venv/bin/python3 getCptacData.py --geneFile=/tmp/genes.csv --prevSampleFile=/tmp/cell_line_samples.csv'
+        cmd = docker_run+'cptac /opt/venv/bin/python3 getCptacData.py --geneFile=/tmp/genes.csv --prevSampleFile=/tmp/depmap_samples.csv'
         print(cmd)
         os.system(cmd)
         
@@ -71,11 +71,11 @@ def main():
         ##omics data
 
         ###depmap cell line
-        ocmd = docker_run+' cell_line Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/cell_line_samples.csv'
+        ocmd = docker_run+' depmap Rscript 02-cellLineDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv'
         print(ocmd)
         os.system(ocmd)
         
-        ocmd = docker_run+' cell_line Rscript 02b-cellLineSanger.R /tmp/genes.csv /tmp/cell_line_samples.csv'
+        ocmd = docker_run+' depmap Rscript 02b-cellLineSanger.R /tmp/genes.csv /tmp/depmap_samples.csv'
         print(ocmd)
         os.system(ocmd)
         
@@ -104,7 +104,7 @@ def main():
         
 
         ###mpnst
-        ocmd=docker_run+' mpnst  Rscript 01_mpnst_get_omics.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/cell_line/genes.csv'
+        ocmd=docker_run+' mpnst  Rscript 01_mpnst_get_omics.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/depmap/genes.csv'
         print(ocmd)
         os.system(ocmd)
 
@@ -113,30 +113,30 @@ def main():
     ### DepMap/Sanger, MPNST, LINCS
     if args.drugs or args.all:
         ###build drug data
-        dcmd=docker_run+' cell_line Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'
+        dcmd=docker_run+' depmap Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'
         print(dcmd)
         os.system(dcmd)
 
-        emd = docker_run+' mpnst Rscript  02_get_drug_data.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/cell_line/drugs.tsv.gz'
+        emd = docker_run+' mpnst Rscript  02_get_drug_data.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/depmap/drugs.tsv.gz'
         print(emd)
         os.system(emd)
         
         ##build experimental data
-        ecmd= docker_run+' cell-line /opt/venv/bin/python 04-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz'
+        ecmd= docker_run+' depmap /opt/venv/bin/python 04-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz'
         print(ecmd)
         os.system(ecmd)
         
     if args.exp or args.all:
             
-        dcmd=docker_run+' cell_line /opt/venv/bin/python 04-drug_dosage_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/cell_line_samples.csv'
+        dcmd=docker_run+' depmap /opt/venv/bin/python 04-drug_dosage_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/depmap_samples.csv'
         print(dcmd)
         os.system(dcmd)
 
-        dcmd = docker_run+' mpnst Rscript 03_get_drug_response_data.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/cell_line/drugs.tsv.gz'
+        dcmd = docker_run+' mpnst Rscript 03_get_drug_response_data.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/depmap/drugs.tsv.gz'
         print(dcmd)
         os.system(dcmd)
 
-        ecmd = docker_run+' cell-line Rscript 05-LINCS_perturbations.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/cell_line_samples.csv'
+        ecmd = docker_run+' cell-line Rscript 05-LINCS_perturbations.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/depmap_samples.csv'
 
 
 

@@ -18,9 +18,9 @@ RUN Rscript requirements.r
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
-ADD build/depmap/*.R .
-ADD build/depmap/*.py .
-ADD build/utils/* .
+ADD build/depmap/*.R ./
+ADD build/depmap/*.py ./
+ADD build/utils/* ./
 
 
 
