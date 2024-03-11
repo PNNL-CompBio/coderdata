@@ -24,9 +24,9 @@ The `download` function in CoderData facilitates the downloading of datasets fro
 ### Command Line Usage
 To download data via the command line, execute the following command:
 <div class="code-box">
-    <p>coderdata-download --prefix [PREFIX]</p>
+    <p>coderdata download --prefix [PREFIX]</p>
 </div>
-Replace [PREFIX] with the desired dataset prefix (e.g., 'hcmi', 'beataml'). Omitting the prefix or using 'all' downloads all available datasets.
+Replace [PREFIX] with the desired dataset prefix (e.g., 'hcmi', 'beataml'). Omit the prefix argument to download all available datasets.
 
 ### Python Usage
 In Python, the download process is handled through the `download_data_by_prefix` function from the downloader module.
@@ -128,3 +128,10 @@ The `info` method tells you which datatypes are available, their long/wide forma
 ## Conclusion
 CoderData provides a robust and flexible way to work with cancer benchmark data.   
 By using these functionalities, researchers and data scientists can easily manipulate and analyze complex datasets in their Python environments
+
+
+
+
+## Deep Learning Tutorial Using CoderData with a BeaAML Subset  
+
+{% include_relative assets/markdown/keras_deep_learning_beatAML.md %}
