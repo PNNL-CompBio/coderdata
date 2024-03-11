@@ -55,6 +55,9 @@ getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','
                 dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
                 distinct()
 
+            ##clean up file when done
+            file.remove(paste0(f,'.rds'))
+
         }
     }
 }
