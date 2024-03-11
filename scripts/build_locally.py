@@ -83,12 +83,12 @@ def main():
         print(ocmd)
         os.system(ocmd)
 
-        ocmd = docker_run+' depmap python3 depMapProts.py /tmp/genes.csv /tmp/depmap_samples.csv'
+        ocmd = docker_run+' depmap  /opt/venv/bin/python3 02a-depMapProts.py --gene=/tmp/genes.csv --sample=/tmp/depmap_samples.csv'
         print(ocmd)
         os.system(ocmd)
         
         ###cptac
-        ocmd = docker_run+' cptac python3 getCptacData.py --geneFile=/tmp/genes.csv --curSampleFile=/tmp/cptac_samples.csv'
+        ocmd = docker_run+' cptac --geneFile=/tmp/genes.csv --curSampleFile=/tmp/cptac_samples.csv'
         print(ocmd)
         os.system(ocmd)
         
@@ -112,7 +112,7 @@ def main():
         
 
         ###mpnst
-        ocmd=docker_run+' mpnst  Rscript 01_mpnst_get_omics.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/depmap/genes.csv'
+        ocmd=docker_run+' mpnst  Rscript 01_mpnst_get_omics.R $SYNAPSE_AUTH_TOKEN /tmp/MPNST_samples.csv /tmp/genes.csv'
         print(ocmd)
         os.system(ocmd)
 
