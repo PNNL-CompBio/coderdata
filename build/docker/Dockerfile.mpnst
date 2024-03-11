@@ -13,7 +13,7 @@ ADD build/mpnst/requirements.txt .
 ADD build/mpnst/requirements.r .
 ADD build/mpnst/*.R ./
 ADD build/mpnst/*.py ./
-ADD utils/* ./
+ADD build/utils/* ./
 
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
