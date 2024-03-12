@@ -1,0 +1,14 @@
+pandas==1.5.3
+wget==3.2
+requests
+synapseclient
+openpyxl
+matplotlib
+tqdm
+scikit-learn
+scipy
+#polars
+pyarrow
+polars-lts-cpu
+PyYAML
+numpy
