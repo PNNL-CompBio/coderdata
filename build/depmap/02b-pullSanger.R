@@ -56,7 +56,7 @@ getAll<-function(dt=names(filenames)){
     if(value=='copy_number'){
       #read in file
       exp_file <- readr::read_csv(fi) ##already in long form <3 <3 <3
-
+      file.remove(fi)
       smap<-samples|>
           subset(other_id_source=='Sanger')|>
           subset(other_id%in%exp_file$model_id)|>
@@ -123,6 +123,7 @@ getAll<-function(dt=names(filenames)){
         dplyr::select(symbol='gene_symbol',other_id='model_id',effect,mutation='cdna_mutation',source)|>
         distinct()
 
+      file.remove(fi)
       smap<-samples|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
 
@@ -192,7 +193,7 @@ getAll<-function(dt=names(filenames)){
 
       res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
                                 names_to='gene_symbol',values_to='miRNA',values_transform=list(mirnas=as.numeric))
-
+      file.remove(fi)
       gmod<-genes
       gmod$gene_symbol<-tolower(gmod$gene_symbol)
 
@@ -233,7 +234,7 @@ getAll<-function(dt=names(filenames)){
       fi='/tmp/Protein_matrix_averaged_zscore_20221214.tsv'
       exp_file <- readr::read_tsv(fi,skip=1)[-1,-1]
       colnames(exp_file)[1]<-'other_id'
-
+      file.remove(fi)
       smap<-samples|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
 
@@ -265,7 +266,7 @@ getAll<-function(dt=names(filenames)){
 
     write_csv(full,file=gzfile(fname))
       rm(full)
-      return(fi)
+      return(fname)
 
   })
 

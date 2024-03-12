@@ -152,6 +152,13 @@ def use_gdc_tool(manifest_data, data_type, download_data):
     dict
         Metadata associated with the UUIDs extracted from the manifest.
     """
+
+    ##first, let's filter by type
+    tdict={'transcriptomics':'rna_seq','copy_number':'copy_number','somatic_mutations':'ensemble_masked'}
+    fm = pd.read_csv(manifest_data,sep='\t')
+    fm['include'] = [tdict[data_type] in a for a in fm.filename]
+    newfm = fm[fm.include]
+    newfm.to_csv('new_manifest.txt',sep='\t')
     
     manifest_loc = "full_manifest_files"
 
@@ -161,10 +168,10 @@ def use_gdc_tool(manifest_data, data_type, download_data):
         os.makedirs(manifest_loc)
 
         # Download files using gdc-client
-        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', manifest_data])
+        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m','new_manifest.txt'])
 
     # Extract UUIDs and fetch metadata
-    uuids = extract_uuids_from_manifest(manifest_data)
+    uuids = extract_uuids_from_manifest('new_manifest.txt')
     metadata = fetch_metadata(uuids)
 
     return metadata
@@ -400,7 +407,7 @@ def download_from_github(raw_url, save_path):
     return
 
 
-def align_to_schema(data, data_type, chunksize=7500,samples_path):
+def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samples.csv'):
     """
     Modify the data match the CANDLE schema based on its type, using Polars for processing.
     Essentially just adding improve_sample_id
