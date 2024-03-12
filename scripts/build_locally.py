@@ -47,7 +47,7 @@ def main():
         ###build sample files
         cmd = docker_run+'depmap Rscript 01-depmapSamples.R'
         print(cmd)
-       # os.system(cmd)
+        os.system(cmd)
 
         cmd = docker_run+'depmap Rscript 01a-pullSamples_LINCS.R /tmp/depmap_samples.csv'
         print(cmd)
@@ -97,11 +97,11 @@ def main():
         print(ocmd)
         os.system(ocmd)
         
-        ocmd = docker_run+' hcmi /opt/venv/bin/python 02-getHCMData.py -m transcriptomics_gdc_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv'
+        ocmd = docker_run+' hcmi /opt/venv/bin/python 02-getHCMIData.py -s /tmp/hcmi_samples.csv -m transcriptomics_gdc_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv'
         print(ocmd)
         os.system(ocmd)
         
-        ocmd = docker_run+' hcmi /opt/venv/bin/python 02-getHCMData.py -m transcriptomics_gdc_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv'
+        ocmd = docker_run+' hcmi /opt/venv/bin/python 02-getHCMIData.py -s /tmp/hcmi_samples.csv -m transcriptomics_gdc_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv'
         print(ocmd)
         os.system(ocmd)
         
@@ -130,7 +130,7 @@ def main():
         os.system(emd)
         
         ##build experimental data
-        ecmd= docker_run+' depmap /opt/venv/bin/python 04-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz'
+        ecmd= docker_run+' depmap /opt/venv/bin/python 01b-pullDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz'
         print(ecmd)
         os.system(ecmd)
         

@@ -400,7 +400,7 @@ def download_from_github(raw_url, save_path):
     return
 
 
-def align_to_schema(data, data_type, chunksize=7500):
+def align_to_schema(data, data_type, chunksize=7500,samples_path):
     """
     Modify the data match the CANDLE schema based on its type, using Polars for processing.
     Essentially just adding improve_sample_id
@@ -418,7 +418,7 @@ def align_to_schema(data, data_type, chunksize=7500):
     pl.DataFrame
         The final form of the dataframe.
     """
-    samples_path = "/tmp/hcmi_samples.csv"
+#    samples_path = "/tmp/hcmi_samples.csv"
     samples = pl.read_csv(samples_path)
     samples = samples.drop(["cancer_type", "common_name", "other_names", "model_type", "other_id_source"])
 
@@ -704,6 +704,7 @@ def main():
     parser.add_argument('-t', '--type', help='Type of data (e.g., transcriptomics, copy_number)',choices = tc, required=True)
     parser.add_argument('-o', '--outname', help='Output CSV Name', required=True)
     parser.add_argument('-z', '--token', help='figshare token ID', required=False)
+    parser.add_argument('-s', '--samples',help='Samples file', required=False,default='/tmp/hcmi_samples.csv')
     args = parser.parse_args()
     
         
@@ -739,7 +740,7 @@ def main():
     
     # Final formatting
     print("Aligning to Schema")
-    final_data = align_to_schema(combined_data,args.type)
+    final_data = align_to_schema(combined_data,args.type,args.samples)
     gc.collect()
     combined_data = None
     
