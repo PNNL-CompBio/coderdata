@@ -154,7 +154,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
     """
 
     ##first, let's filter by type
-    tdict={'transcriptomics':'rna_seq','copy_number':'copy_number','somatic_mutations':'ensemble_masked'}
+    tdict={'transcriptomics':'rna_seq','copy_number':'copy_number','mutations':'ensemble_masked'}
     fm = pd.read_csv(manifest_data,sep='\t')
     fm['include'] = [tdict[data_type] in a for a in fm.filename]
     newfm = fm[fm.include]
