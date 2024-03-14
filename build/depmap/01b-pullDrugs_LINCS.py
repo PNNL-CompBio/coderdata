@@ -134,7 +134,7 @@ if __name__ == "__main__":
     
     # 2. Get current drug data from FigShare
 #    drugs_url = "https://figshare.com/ndownloader/files/42357210"
-    drugs = pd.read_table(drugs_url, compression="gzip")
+    drugs = pd.read_table(drugs_url)
     
     # 3. Get PubChem information for new drugs
     new_drugs = LINCS_drugs[~LINCS_drugs['InChIKey'].isin(drugs['InChIKey'])]
