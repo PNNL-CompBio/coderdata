@@ -158,7 +158,8 @@ def use_gdc_tool(manifest_data, data_type, download_data):
     fm = pd.read_csv(manifest_data,sep='\t')
     fm['include'] = [tdict[data_type] in a for a in fm.filename]
     newfm = fm[fm.include]
-    newfm.to_csv('new_manifest.txt',sep='\t')
+#    newfm.reset_index(drop=True,inplace=True)
+    newfm.to_csv('new_manifest.txt',sep='\t',index=False)
     
     manifest_loc = "full_manifest_files"
 
@@ -312,7 +313,9 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     'aliquot_id': [item['cases'][0]['samples'][0]["portions"][0]["analytes"][0]['aliquots'][0]['aliquot_id'] for item in metadata['data']['hits']]
     }
     df_metadata = pl.DataFrame(metadata_dict)
-    
+
+#    print(final_dataframe)
+#    print(df_metadata)
     # Merge the metadata DataFrame with the final dataframe based on 'file_id'
     final_dataframe = final_dataframe.join(df_metadata, on='file_id', how='left')
     
@@ -727,7 +730,7 @@ def main():
     # Use gdc tool to get metadata
     print("Using gdc tool and retrieving get metadata...")
     metadata = use_gdc_tool(args.manifest, args.type, download_data=download_option)
-
+    print(metadata)
     # Extract data files
     print("Running 'get_clean_files' function")
     data_files = get_clean_files(args.type)
