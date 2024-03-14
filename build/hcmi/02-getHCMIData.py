@@ -730,7 +730,7 @@ def main():
     # Use gdc tool to get metadata
     print("Using gdc tool and retrieving get metadata...")
     metadata = use_gdc_tool(args.manifest, args.type, download_data=download_option)
-    print(metadata)
+    #print(metadata)
     # Extract data files
     print("Running 'get_clean_files' function")
     data_files = get_clean_files(args.type)
@@ -750,7 +750,7 @@ def main():
     
     # Final formatting
     print("Aligning to Schema")
-    final_data = align_to_schema(combined_data,args.type,args.samples)
+    final_data = align_to_schema(combined_data,args.type,7500,args.samples)
     gc.collect()
     combined_data = None
     
