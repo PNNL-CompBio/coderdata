@@ -79,8 +79,8 @@ def main():
     if args.drugs or args.all:
         ###build drug data
         run_cmd(['depmap','Rscript','03-createDrugFile.R','CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'],'cell line drugs')
-        run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/depmap/drugs.tsv'],'mpnst drugs')
-        run_cmd(['depmap','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/drugs.tsv.gz'],'LINCS drugs')
+        run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/drugs.tsv'],'mpnst drugs')
+        run_cmd(['depmap','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/drugs.tsv'],'LINCS drugs')
 
 
     #### Any new omics files are created here.
