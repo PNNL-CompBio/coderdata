@@ -33,7 +33,7 @@ common_name <- LINCS.info[!(LINCS.info$cell_id %in% samples$other_id) &
                           !(LINCS.info$cell_id %in% samples$common_name), ]$cell_id
 species <- "Homo sapiens (Human)"
 improve_sample_id <- seq(max(samples$improve_sample_id)+1, length.out=length(common_name))
-id_source <- "LINCS"
+other_id_source <- "LINCS"
 other_names <- NA
 model_type <- "cell line"
 
@@ -45,13 +45,14 @@ for (i in 1:length(common_name)) {
 }
 
 new.samples <- data.frame(common_name, cancer_type, other_names, species,
-                          improve_sample_id, id_source, other_id, model_type)
+                          improve_sample_id, other_id_source, other_id, model_type)
 
 # replace -666 with NA
 new.samples[new.samples$other_id == "-666", ]$other_id <- NA
 
 
+#print(colnames(old.samples))
+#print(colnames(new.samples))
 
-new.samples
 LINCS.samples <- rbind(old.samples, new.samples)
 write.csv(LINCS.samples, "/tmp/lincs_samples.csv", row.names = FALSE)
