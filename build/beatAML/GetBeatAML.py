@@ -508,7 +508,8 @@ def generate_raw_drug_file(original_drug_file, sample_mapping_file, updated_raw_
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers and a string.')
     parser.add_argument('-t', '--token', type=str, help='Synapse Token')
-    parser.add_argument('-s', '--samples', type=str, help='Add path if you want to only run Samples File Generation',default='')
+    parser.add_argument('-p', '--prevSamples', type=str, help='Add path if you want to only run Samples File Generation',default='')
+    parser.add_argument('-c', '--curSamples', type=str, help='Add path if you want to generate data',default='')
     args = parser.parse_args()
     
     print("Logging into Synapse")
@@ -547,15 +548,16 @@ if __name__ == "__main__":
     supplimentary_file = '1-s2.0-S1535610822003129-mmc2.xlsx'
     download_from_github(supplementary_url, supplimentary_file)
     
-    prev_samples_path = "hcmi_samples.csv"
-    improve_map_file = "/tmp/beataml_samples.csv"
+    #prev_samples_path = "hcmi_samples.csv"
+    #improve_map_file = "/tmp/beataml_samples.csv"
     
-    if args.samples!='':
+    if args.prevSamples!='':
         print("Only running Samples File Generation")
-        prev_samples_path = args.samples
+        prev_samples_path = args.prevSamples
         #Generate Samples File
         generate_samples_file(prev_samples_path)
     else:
+        improve_map_file = args.curSamples
         print("Generating all drug/omics files")
         original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
         original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
