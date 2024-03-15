@@ -38,7 +38,7 @@ class DatasetLoader:
         'samples': ('improve_sample_id', 'cancer_type', 'model_type'),
         'transcriptomics': ('improve_sample_id', 'entrez_id', 'transcriptomics'),
         'proteomics': ('improve_sample_id', 'entrez_id', 'proteomics'),
-        'mutations': ('improve_sample_id', 'entrez_id', 'mutations'),
+        'mutations': ('improve_sample_id', 'entrez_id', 'mutation'),
         'copy_number': ('improve_sample_id', 'entrez_id', 'copy_number'),
         'methylation': ('improve_sample_id', 'entrez_id', 'methylation')
     }
