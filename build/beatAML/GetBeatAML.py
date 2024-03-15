@@ -561,12 +561,18 @@ if __name__ == "__main__":
         print("Generating all drug/omics files")
         original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
         original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-        download_from_github(original_drug_url, original_drug_file)
-        
+
+        print("Starting Raw Drug File Generation ")
         updated_raw_drug_file = "beatAML_drug_raw.tsv"
         
         drug_path = "beatAML_drug_processed.tsv.0"
         drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
+        download_from_github(original_drug_url, original_drug_file)
+        # Generate Raw Drugs File to use in Curve fitting algorithm
+        generate_raw_drug_file(original_drug_file,sample_mapping_file, updated_raw_drug_file,supplimentary_file)
+        
+        
+
         
         transcriptomics_file = "beataml_waves1to4_norm_exp_dbgap.txt"
         transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"
@@ -581,14 +587,12 @@ if __name__ == "__main__":
         download_from_github(mutation_map_url, mutation_map_file)
         
         
-        print("Starting Raw Drug File Generation ")
-        # Generate Raw Drugs File to use in Curve fitting algorithm
-        generate_raw_drug_file(original_drug_file,sample_mapping_file, updated_raw_drug_file,supplimentary_file)
+
 
         print("Starting Curve Fitting Algorithm")
         # Run Curve fitting algorithm from scripts directory.
         # Note the file path to fit_curve.py may need to be changed.
-        command = ['python', 'fit_curve_beataml.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv']
+        command = ['python', 'fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv','--beataml']
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if result.returncode == 0:
             print("Curve Fitting executed successfully!")
