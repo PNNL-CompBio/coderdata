@@ -585,14 +585,11 @@ if __name__ == "__main__":
         mutation_map_file = "beataml_waves1to4_sample_mapping.xlsx"
         mutation_map_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_sample_mapping.xlsx"
         download_from_github(mutation_map_url, mutation_map_file)
-        
-        
-
 
         print("Starting Curve Fitting Algorithm")
         # Run Curve fitting algorithm from scripts directory.
         # Note the file path to fit_curve.py may need to be changed.
-        command = ['python', 'fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv','--beataml']
+        command = ['python', 'fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv']
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if result.returncode == 0:
             print("Curve Fitting executed successfully!")
