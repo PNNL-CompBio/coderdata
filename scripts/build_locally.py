@@ -95,8 +95,7 @@ def main():
         run_cmd(['cptac','--geneFile','/tmp/genes.csv','--curSampleFile','/tmp/cptac_samples.csv'],'cptac omics')
         ###HCMI - the folowing three steps are all required?
         for dt in ['transcriptomics','copy_number','mutations']:
-            run_cmd(['hcmi','python','02-getHCMIData.py','-m','full_manifest.txt ','-t',dt,'-o','/tmp/hcmi_'+dt+'.csv'],\
-                    'hcmi '+dt+' omics')
+            run_cmd(['hcmi','python','02-getHCMIData.py','-m','full_manifest.txt','-t',dt,'-o','/tmp/hcmi_'+dt+'.csv'], 'hcmi '+dt+' omics')
         ##beataml
         run_cmd(['beataml','python','GetBeatAML.py','--token' ,env['SYNAPSE_AUTH_TOKEN'],'--samples','/tmp/beataml_samples.csv'],'beatAML omics')
         ###mpnst
