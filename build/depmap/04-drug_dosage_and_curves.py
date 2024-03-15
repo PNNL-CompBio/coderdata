@@ -25,12 +25,15 @@ drugfile = opts.dfile
 
 ####step 4a - get dose response data
 cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' CTRPv2,FIMM,GDSC'
+print(cmd)
 os.system(cmd)
 
 cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' gCSI,PRISM,CCLE'
+print(cmd)
 os.system(cmd)
 
 cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' NCI60'
+print(cmd)
 os.system(cmd)
 
 ########Step 4b fit curves
