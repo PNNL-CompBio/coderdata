@@ -624,7 +624,7 @@ if __name__ == "__main__":
         m_df = pd.read_csv(mutations_file, sep = '\t')
 
         m_df = map_and_combine(m_df, "mutations", entrez_map_file,improve_map_file, mutation_map_file)
-        m_df = m_df[["improve_sample_id","mutation", "entrez_id","variant_classification","source","study"]]
+        m_df = m_df[["improve_sample_id","mutations", "entrez_id","variant_classification","source","study"]]
         m_df.to_csv("/tmp/beataml_mutations.csv",index=False)
 
         
