@@ -1,11 +1,13 @@
 ###Here is a script that runs through all the data files one by one.
 
 #this is a helper file that loads the data
-source("mapDrugsToPubchem.R")
+#source("mapDrugsToPubchem.R")
 
 #if(!require('PharmacoGx')){
 #  BiocManager::install("PharmacoGx",force=TRUE)
 library('PharmacoGx')
+library(readr)
+library(dplyr)
 #}
 
 all.dsets<-PharmacoGx::availablePSets()
@@ -204,9 +206,9 @@ main<-function(){
         dsets<-unlist(strsplit(args[3],split=','))
 
 
-        drugs <-read_tsv(dfile,quote='"')
+        drugs <-readr::read_tsv(dfile,quote='"')
 	    ##here are the improve sample id indices
-	 samples <- read_csv(sfile,
+	 samples <- readr::read_csv(sfile,
                    quote='"')|>
 		     dplyr::select(other_id,improve_sample_id,other_names)|>
 		       unique()
