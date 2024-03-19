@@ -72,7 +72,6 @@ def main():
         run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'],'--samples', '--prevSamples','/tmp/hcmi_samples.csv'],'beatAML samples')
         run_cmd(['mpnst','Rscript','00_sample_gen.R','/tmp/beataml_samples.csv',env['SYNAPSE_AUTH_TOKEN']],'mpnst samples')
 
-
      ### Drug matching scripts take a while
     ### they are their own step and can be run independentyly, before others, or alongside sample/omics
     ### DepMap/Sanger, MPNST, LINCS
@@ -82,7 +81,6 @@ def main():
         run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/drugs.tsv'],'mpnst drugs')
         run_cmd(['depmap','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/drugs.tsv'],'LINCS drugs')
         run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'], '--drugs','--prevDrugs','/tmp/drugs.tsv'])
-
 
     #### Any new omics files are created here.
     ## depends on samples!
