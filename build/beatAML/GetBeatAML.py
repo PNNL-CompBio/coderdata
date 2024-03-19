@@ -535,7 +535,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--token', type=str, help='Synapse Token')
     ##the next three arguments determine what we'll do
 
-    parser.add_argument('-s', '--samples', action = 'store_true', help='Only generate samples, requires previous sampels')
+    parser.add_argument('-s', '--samples', action = 'store_true', help='Only generate samples, requires previous samples',default=False)
     parser.add_argument('-p', '--prevSamples', type=str, help='Use this to provide previous sample file, will run sample file generation',default='')
     
     parser.add_argument('-d', '--drugs',action='store_true', default=False,help='Query drugs only, requires drug file')
@@ -552,6 +552,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     #######
+    
 
     print("Logging into Synapse")
     syn = synapseclient.Synapse()
@@ -575,7 +576,6 @@ if __name__ == "__main__":
     for entity_id in entity_ids:
         entity = syn.get(entity_id, downloadLocation='.')
         
-    
     # Download required files. Files in github repo also required.
     #gene_url = "https://figshare.com/ndownloader/files/40576109?private_link=525f7777039f4610ef47"
     #entrez_map_file = retrieve_figshare_data(gene_url)
@@ -610,7 +610,7 @@ if __name__ == "__main__":
             download_from_github(original_drug_url, original_drug_file)
             generate_drug_list(args.drugFile, original_drug_file) ##this doesn't exist, need to add
     if args.omics:
-        if args.genes is None and args.curSamples is None:
+        if args.genes is None or args.curSamples is None:
             print('Cannot process omics without sample mapping and gene mapping files')
             exit()
         else:
@@ -633,6 +633,7 @@ if __name__ == "__main__":
             t_df = t_df.iloc[:, 4:]
             t_df = t_df.reset_index().rename(columns={'display_label': 'Gene'})
             t_df = pd.melt(t_df, id_vars=['Gene'], var_name='sample_id', value_name='transcriptomics')
+            print(improve_map_file)
             t_df = map_and_combine(t_df, "transcriptomics", args.genes, improve_map_file, sample_mapping_file)
             t_df = t_df[t_df.entrez_id.notna()]
             t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]]
