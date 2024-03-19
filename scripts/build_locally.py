@@ -69,7 +69,7 @@ def main():
         run_cmd(['depmap','Rscript','01a-pullSamples_LINCS.R','/tmp/depmap_samples.csv'],'LINCS samples')
         run_cmd(['cptac','--geneFile=/tmp/genes.csv','--prevSampleFile=/tmp/depmap_samples.csv'],'cptac samples')
         run_cmd(['hcmi','python','01-createHCMISamplesFile.py','--samples','/tmp/cptac_samples.csv'],'hcmi samples')
-        run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'],'--prevSamples','/tmp/hcmi_samples.csv'],'beatAML samples')
+        run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'],'--samples', '--prevSamples','/tmp/hcmi_samples.csv'],'beatAML samples')
         run_cmd(['mpnst','Rscript','00_sample_gen.R','/tmp/beataml_samples.csv',env['SYNAPSE_AUTH_TOKEN']],'mpnst samples')
 
 
@@ -81,6 +81,7 @@ def main():
         run_cmd(['depmap','Rscript','03-createDrugFile.R','CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'],'cell line drugs')
         run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/drugs.tsv'],'mpnst drugs')
         run_cmd(['depmap','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/drugs.tsv'],'LINCS drugs')
+        run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'], '--drugs','--prevDrugs','/tmp/drugs.tsv'])
 
 
     #### Any new omics files are created here.
@@ -88,7 +89,7 @@ def main():
     ### these are not order dependent but require gene and sample files
     if args.omics or args.all:
         ##beataml
-        run_cmd(['beataml','python','GetBeatAML.py','--token' ,env['SYNAPSE_AUTH_TOKEN'],'--curSamples','/tmp/beataml_samples.csv'],'beatAML omics')
+        run_cmd(['beataml','python','GetBeatAML.py','--token' ,env['SYNAPSE_AUTH_TOKEN'],'--omics','--curSamples','/tmp/beataml_samples.csv','--genes','/tmp/genes.csv'],'beatAML omics')
         ###mpnst
         run_cmd(['mpnst','Rscript','01_mpnst_get_omics.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/genes.csv'],'MPNST omics')
         ###HCMI - the folowing three steps are all required?
@@ -107,6 +108,7 @@ def main():
         run_cmd(['mpnst','Rscript','03_get_drug_response_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/drugs.tsv'],'MPNST experiments')
         run_cmd(['depmap Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/drugs.tsv','/tmp/depmap_samples.csv'],'LINCS perturbations')
         run_cmd(['depmap','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/drugs.tsv','--curSampleFile','/tmp/depmap_samples.csv'],'cell line experiments')
+        run_cmd(['beataml','python','GetBeatAML.py','--exp','--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/drugs.tsv'])
         
 
 
