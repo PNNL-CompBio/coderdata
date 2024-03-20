@@ -413,11 +413,11 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
                          right_on='dbgap_dnaseq_sample', 
                          how='left')
 
-        mapped_df.rename(columns={"hgvsc": "mutations"}, inplace=True)
+        mapped_df.rename(columns={"hgvsc": "mutation"}, inplace=True)
         mapped_df.rename(columns={"labId": "sample_id"}, inplace=True)
         mapped_df.rename(columns={"Entrez_Gene_Id": "entrez_id"}, inplace=True)
         
-    elif data_type == "mutations":
+    elif data_type == "mutation":
         df = df[['dbgap_sample_id','hgvsc', 'hgvsp', 'gene', 'variant_classification','t_vaf', 'refseq', 'symbol']]
         mapped_df = df.merge(genes, left_on='symbol', right_on='gene_symbol', how='left').reindex(
                         columns=['hgvsc', 'entrez_id', "dbgap_sample_id","variant_classification"])
@@ -654,7 +654,7 @@ if __name__ == "__main__":
             m_df = pd.read_csv(mutations_file, sep = '\t')
             
             m_df = map_and_combine(m_df, "mutations", args.genes,improve_map_file, mutation_map_file)
-            m_df = m_df[["improve_sample_id","mutations", "entrez_id","variant_classification","source","study"]]
+            m_df = m_df[["improve_sample_id","mutation", "entrez_id","variant_classification","source","study"]]
             m_df.to_csv("/tmp/beataml_mutations.csv",index=False)
         
     if args.exp:
