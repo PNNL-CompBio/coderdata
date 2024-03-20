@@ -41,87 +41,87 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
 vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
 colnames(vtab)<-c('variant_classification','VariantInfo')
 
-##currently replaced by python script
-getProteomics<-function(){
-    print('Getting proteomics')
-  #pull directly from gygi lab
-  proteomics <- 'https://gygi.hms.harvard.edu/data/ccle/Table_S2_Protein_Quant_Normalized.xlsx'
-  options(timeout=300)
+## ##currently replaced by python script
+## getProteomics<-function(){
+##     print('Getting proteomics')
+##   #pull directly from gygi lab
+##   proteomics <- 'https://gygi.hms.harvard.edu/data/ccle/Table_S2_Protein_Quant_Normalized.xlsx'
+##   options(timeout=300)
 
-  # res<-download.file(proteomics,'prot.xlsx')
-    pdat<-rio::import(proteomics,which=2)#
-   # print('Converting proteomics')
-  #pdat[,7:ncol(pdat)]<-apply(pdat[,7:ncol(pdat)],2,as.numeric)
+##   # res<-download.file(proteomics,'prot.xlsx')
+##     pdat<-rio::import(proteomics,which=2)#
+##    # print('Converting proteomics')
+##   #pdat[,7:ncol(pdat)]<-apply(pdat[,7:ncol(pdat)],2,as.numeric)
 
-    print('Subsetting proteomics')
-   pdat<-pdat|>
-       dplyr::select(!starts_with('Ten'))
+##     print('Subsetting proteomics')
+##    pdat<-pdat|>
+##        dplyr::select(!starts_with('Ten'))
 
-   pdat<-pdat[,c(2,7:ncol(pdat))]
+##    pdat<-pdat[,c(2,7:ncol(pdat))]
 
-    #rm(pdat)
-    print('Forcing to numeric')
- #   pdat[,2:ncol(pdat)]<-apply(pdat[,2:ncol(pdat)],2,as.numeric)
-
-
-    print(colnames(pdat)[1:10])
-    pdat1<-pdat[,c(1,2:(ncol(pdat)/2))]
-    pdat1[,2:ncol(pdat1)]<-apply(pdat1[,2:ncol(pdat1)],2,as.numeric)
-    pdat2<-pdat[,c(1,(ncol(pdat)/2):ncol(pdat))]
-    pdat2[,2:ncol(pdat2)]<-apply(pdat2[,2:ncol(pdat2)],2,as.numeric)
-
-    print('Long to wide proteomics')
-    plong1<-pdat1|>
-        tidyr::pivot_longer(cols=2:ncol(pdat1),names_to='cellLine',values_to='proteomics',values_drop_na=TRUE)|>
-        tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')|>
-        dplyr::select(gene_symbol='Gene_Symbol',other_id,proteomics)#|>
-#        subset(!is.na(proteomics))|>
-#        distinct()
-
-    rm(pdat1)
-
-    print('second long to wide')
-    plong2<-pdat2|>
-        tidyr::pivot_longer(cols=2:ncol(pdat2),names_to='cellLine',values_to='proteomics',values_drop_na=TRUE)|>
-        tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')|>
-        dplyr::select(gene_symbol='Gene_Symbol',other_id,proteomics)#|>
-#        subset(!is.na(proteomics))|>
-#        distinct()
-
-    rm(pdat2)
-    print("binding tables")
-    pfilt<-rbind(plong1,plong2)|>
-        subset(!is.na(proteomics))|>
-        distinct()
-  #  rm(plong2)
-    rm(plong1)
-    rm(plong2)
-
-    print('Fixing columns')
+##     #rm(pdat)
+##     print('Forcing to numeric')
+##  #   pdat[,2:ncol(pdat)]<-apply(pdat[,2:ncol(pdat)],2,as.numeric)
 
 
-    print("Filtering genes and samples")
-    smap<-samples|>
-        subset(other_id%in%pfilt$other_id)|>
-        distinct()
+##     print(colnames(pdat)[1:10])
+##     pdat1<-pdat[,c(1,2:(ncol(pdat)/2))]
+##     pdat1[,2:ncol(pdat1)]<-apply(pdat1[,2:ncol(pdat1)],2,as.numeric)
+##     pdat2<-pdat[,c(1,(ncol(pdat)/2):ncol(pdat))]
+##     pdat2[,2:ncol(pdat2)]<-apply(pdat2[,2:ncol(pdat2)],2,as.numeric)
 
-    gmap<-genes|>
-        subset(gene_symbol%in%pfilt$gene_symbol)|>
-        dplyr::select(gene_symbol,entrez_id)|>
-        distinct()
+##     print('Long to wide proteomics')
+##     plong1<-pdat1|>
+##         tidyr::pivot_longer(cols=2:ncol(pdat1),names_to='cellLine',values_to='proteomics',values_drop_na=TRUE)|>
+##         tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')|>
+##         dplyr::select(gene_symbol='Gene_Symbol',other_id,proteomics)#|>
+## #        subset(!is.na(proteomics))|>
+## #        distinct()
 
-    print('Joining proteomics')
-  res<-pfilt|>
-    dplyr::left_join(smap)|>
-    dplyr::left_join(gmap)|>
-      dplyr::select(improve_sample_id,entrez_id,proteomics)|>
-      subset(!is.na(entrez_id))|>
-      dplyr::distinct()
-    res$study='DepMap'
-    res$source='Broad'
-    write_csv(res,file=gzfile('/tmp/depmap_proteomics.csv.gz'))
-    rm(res)
-}
+##     rm(pdat1)
+
+##     print('second long to wide')
+##     plong2<-pdat2|>
+##         tidyr::pivot_longer(cols=2:ncol(pdat2),names_to='cellLine',values_to='proteomics',values_drop_na=TRUE)|>
+##         tidyr::separate(cellLine,into=c('other_id','res'),sep='_Ten')|>
+##         dplyr::select(gene_symbol='Gene_Symbol',other_id,proteomics)#|>
+## #        subset(!is.na(proteomics))|>
+## #        distinct()
+
+##     rm(pdat2)
+##     print("binding tables")
+##     pfilt<-rbind(plong1,plong2)|>
+##         subset(!is.na(proteomics))|>
+##         distinct()
+##   #  rm(plong2)
+##     rm(plong1)
+##     rm(plong2)
+
+##     print('Fixing columns')
+
+
+##     print("Filtering genes and samples")
+##     smap<-samples|>
+##         subset(other_id%in%pfilt$other_id)|>
+##         distinct()
+
+##     gmap<-genes|>
+##         subset(gene_symbol%in%pfilt$gene_symbol)|>
+##         dplyr::select(gene_symbol,entrez_id)|>
+##         distinct()
+
+##     print('Joining proteomics')
+##   res<-pfilt|>
+##     dplyr::left_join(smap)|>
+##     dplyr::left_join(gmap)|>
+##       dplyr::select(improve_sample_id,entrez_id,proteomics)|>
+##       subset(!is.na(entrez_id))|>
+##       dplyr::distinct()
+##     res$study='DepMap'
+##     res$source='Broad'
+##     write_csv(res,file=gzfile('/tmp/depmap_proteomics.csv.gz'))
+##     rm(res)
+## }
 
 
 mirnaFixing<-function(mirlist){
