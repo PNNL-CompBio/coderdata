@@ -79,7 +79,7 @@ def main():
         ###build drug data
         run_cmd(['depmap','Rscript','03-createDrugFile.R','CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'],'cell line drugs')
         run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/drugs.tsv'],'mpnst drugs')
-        run_cmd(['depmap','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/drugs.tsv'],'LINCS drugs')
+        run_cmd(['lincs','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/drugs.tsv'],'LINCS drugs')
         run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'], '--drugs','--drugFile','/tmp/drugs.tsv'],'BeatAML Drugs')
 
     #### Any new omics files are created here.
@@ -104,9 +104,9 @@ def main():
     ## requires samplesa nd drugs to complete
     if args.exp or args.all:
         run_cmd(['mpnst','Rscript','03_get_drug_response_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/drugs.tsv'],'MPNST experiments')
-        run_cmd(['depmap','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/drugs.tsv','/tmp/depmap_samples.csv'],'LINCS perturbations')
         run_cmd(['depmap','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/drugs.tsv','--curSampleFile','/tmp/depmap_samples.csv'],'cell line experiments')
         run_cmd(['beataml','python','GetBeatAML.py','--exp','--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/drugs.tsv'],'BeatAML drugs')
+        run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/drugs.tsv','/tmp/depmap_samples.csv'],'LINCS perturbations')
         
 
 
