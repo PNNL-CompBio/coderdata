@@ -700,7 +700,6 @@ if __name__ == "__main__":
             drug_path = "beatAML_drug_processed.tsv.0"
             exp_res = map_exp_to_improve(drug_path)
             exp_res.to_csv("/tmp/beataml_experiments.csv", index=False)
-
           
             #drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
 
