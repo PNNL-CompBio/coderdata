@@ -44,6 +44,6 @@ def main():
 
     full[['study']] = 'DepMap'
     full[['source']] = 'Broad'
-    full.to_csv('/tmp/depmap_proteomics.csv.gz')
+    full.to_csv('/tmp/depmap_proteomics.csv.gz',index=False,compression='gzip')
     
 main()
