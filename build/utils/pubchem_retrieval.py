@@ -13,6 +13,7 @@ lock = threading.Lock()
 should_continue = True
 improve_drug_id = 0
 existing_synonyms = set()
+existing_structures = dict()
 
 def fetch_url(url):
     global last_request_time, lock, request_counter
@@ -41,7 +42,7 @@ def fetch_url(url):
         raise Exception(f"Failed to fetch {url}")
     
 def retrieve_drug_info(compound_name,ignore_chems):
-    global improve_drug_id, existing_synonyms
+    global improve_drug_id, existing_synonyms, existing_structures
     if pd.isna(compound_name):
         return None
 
@@ -82,9 +83,17 @@ def retrieve_drug_info(compound_name,ignore_chems):
         for synonym in new_syns:#synonyms_list + [compound_name]: ##NOW JUST ADD THOSE
             synonym_lower = synonym.lower()
             existing_synonyms.add(synonym_lower)
+            
 
-        improve_drug_id += 1
-        SMI_assignment = f"SMI_{improve_drug_id}"
+        ###now check for structure
+        if properties['CanonicalSMILES'] in existing.structures.keys():
+            print('found structure for '+compound_name)
+            SMI_assignment = existing_structures[properties['CanonicalSMILES']]
+        else:
+            improve_drug_id += 1
+            SMI_assignment = f"SMI_{improve_drug_id}"
+            existing_strutures[properties['CanonicalSMILES']] = SMI_assignment
+            
         data_for_tsv = [{
             'improve_drug_id': SMI_assignment,
             'name': synonym.lower(),
@@ -104,12 +113,13 @@ def fetch_data_for_batch(batch,ignore_chems):
     return all_data
 
 def read_existing_data(output_filename):
-    global improve_drug_id,existing_synonyms
+    global improve_drug_id,existing_synonyms,existing_structures
     try:
         df = pd.read_csv(output_filename, sep='\t')
         existing_synonyms = {row['chem_name'].lower() for index, row in df.iterrows()}
         max_id = df['improve_drug_id'].str.extract(r'SMI_(\d+)').astype(float).max()
         improve_drug_id = int(max_id[0]) + 1 if pd.notna(max_id[0]) else 1
+        existing_structures = {row['canSMILES']:row['improve_drug_id'] for index,row in df.iterrows()}
     except FileNotFoundError:
         return {}
 
@@ -131,6 +141,7 @@ def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv",ign
 
         unique_names = [name.lower() for name in unique_names if not pd.isna(name)]
         unique_names = list(set(unique_names) - set(existing_synonyms))
+
         
         ignore_chem_set = set()
         if os.path.exists(ignore_chems):
