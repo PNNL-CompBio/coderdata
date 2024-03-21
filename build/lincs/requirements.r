@@ -1,5 +1,6 @@
 install.packages("readr")
+install.packages("tidyr")
 install.packages("dplyr")
-install.packages("R.utils")
+install.package('BiocManager')
+#install.packages("R.utils")
 BiocManager::install("cmapR")
-
