@@ -6,7 +6,7 @@ library(dplyr)
 library(stringr)
 library(reticulate)
 
-use_python("/opt/homebrew/bin/python3")#"/opt/venv/bin/python3", required = TRUE)
+use_python("/opt/venv/bin/python3", required = TRUE)
 source_python("pubchem_retrieval.py")
 
 # Retrieve command line arguments
