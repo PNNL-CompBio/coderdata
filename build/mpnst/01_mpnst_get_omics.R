@@ -94,7 +94,7 @@ wes<-do.call(rbind,lapply(setdiff(combined$`Mutations`,NA),function(x){
     print(sample$improve_sample_id)
     res<-NULL
     try(res<-fread(synGet(x2)$path)|>
-        dplyr::select(entrez_id='Entrez_Gene_Id',mutations='HGVSc',variant_classification='Variant_Classification')|>
+        dplyr::select(entrez_id='Entrez_Gene_Id',mutation='HGVSc',variant_classification='Variant_Classification')|>
         distinct())
     if(is.null(res))
         return(NULL)
