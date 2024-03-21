@@ -2,7 +2,7 @@
 library(readr)
 library(tidyr)
 library(dplyr)
-library(R.utils)
+#library(R.utils)
 library(cmapR)
 
 #### Step 1: Get IMPROVE gene, drug, and sample IDs for mapping ####
@@ -48,8 +48,8 @@ build_L1000 <- function(genes, drugs, samples) {
 
   # download L1000 data
   res<-download.file(L1000,'L1000.gctx.gz', mode="wb")
-  R.utils::gunzip('L1000.gctx.gz', 'L1000.gctx') # unzip file before reading it
-  L1000.df<-cmapR::parse_gctx('L1000.gctx')
+  #R.utils::gunzip('L1000.gctx.gz', 'L1000.gctx') # unzip file before reading it
+  L1000.df<-cmapR::parse_gctx(gzfile('L1000.gctx.gz'))
 
   # put data into long format
   L1000.long <- cmapR::melt_gct(L1000.df)

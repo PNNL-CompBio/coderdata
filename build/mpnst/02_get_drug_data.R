@@ -4,6 +4,11 @@ library(data.table)
 library(synapser)
 library(dplyr)
 library(stringr)
+library(reticulate)
+
+use_python("/opt/venv/bin/python3", required = TRUE)
+source_python("pubchem_retrieval.py")
+
 # Retrieve command line arguments
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -60,7 +65,16 @@ alldrugs<-unique(unlist(lapply(mts_fold$V1,function(x){
     return(res)
 })))
 
+
+alldrugs[which(alldrugs=='PD901')]<-'PD-0325901'
+
 print(paste(alldrugs,collapse=','))
+
+output_file_path <- drugfile
+ignore_file_path <- '/tmp/ignore_chems.txt'
+
+update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
+
 
 ##now call the python drug script
 
