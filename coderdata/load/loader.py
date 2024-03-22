@@ -1,4 +1,4 @@
-# coderdata/load/DatasetLoader.py
+# coderdata/load/loader.py
 
 import pandas as pd
 import gzip
