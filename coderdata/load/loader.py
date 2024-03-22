@@ -1,4 +1,4 @@
-# coderdata/load/loader.py
+# coderdata/load/DatasetLoader.py
 
 import pandas as pd
 import gzip
@@ -15,7 +15,7 @@ class DatasetLoader:
         Parameters
         ----------
         dataset_type : str
-            The type of dataset to load (e.g., 'hcmi', 'beataml', 'cptac', 'depmap', 'lincs').
+            The type of dataset to load (e.g., 'hcmi', 'beataml', 'cptac', 'depmap', "mpnst).
         data_directory : str
             The directory where dataset files are stored.
         """
@@ -30,17 +30,20 @@ class DatasetLoader:
         self.experiments = pd.DataFrame()
         self.methylation = pd.DataFrame()
         self.metabolomics = pd.DataFrame()
+        # self.perturbations = pd.DataFrame()
         self.full = pd.DataFrame()
         self.dataset_type = dataset_type
         self.data_directory = data_directory
         self.load_datasets(dataset_type, data_directory)
         self.data_format_params = {
-        'samples': ('improve_sample_id', 'cancer_type', 'model_type'),
+        'samples': ('improve_sample_id', 'cancer_type', 'model_type',"common_name","other_id", "other_names", "id_source", "species"),
         'transcriptomics': ('improve_sample_id', 'entrez_id', 'transcriptomics'),
         'proteomics': ('improve_sample_id', 'entrez_id', 'proteomics'),
-        'mutations': ('improve_sample_id', 'entrez_id', 'mutations'),
+        'mutations': ('improve_sample_id', 'entrez_id', 'mutation'),
         'copy_number': ('improve_sample_id', 'entrez_id', 'copy_number'),
-        'methylation': ('improve_sample_id', 'entrez_id', 'methylation')
+        'methylation': ('improve_sample_id', 'entrez_id', 'methylation'),
+        'experiments': ('improve_sample_id', 'improve_drug_id', 'dose_response_value'),
+        'drugs': ('improve_drug_id', 'chem_name', 'isoSMILES')
     }
 
     def load_datasets(self, dataset_type, data_directory):
@@ -99,7 +102,6 @@ class DatasetLoader:
             common_keys = [key for key in merge_keys if key in samples_df.columns and key in self.full.columns]
             if common_keys:
                 self.full = pd.merge(self.full, samples_df, on=common_keys, how='outer')
-
 
         merge_suffixes = ['_x', '_y', '_z']  # Add more if needed
         for base_col in set(col.rsplit('_', 1)[0] for col in self.full.columns if any(col.endswith(suffix) for suffix in merge_suffixes)):
@@ -169,7 +171,6 @@ class DatasetLoader:
                         print(f"{dataset_name} successfully converted to long format")
             else:
                 print(f"Dataset '{dataset_name}' is empty or already in desired format.")
-
 
     def to_wide_format(self, dataset, index, columns, values):
         # Reset index if needed
@@ -256,7 +257,8 @@ class DatasetLoader:
             'depmap': 'The cell line datasets were collected from numerous resources such as the LINCS project, DepMap, and the Sanger Institute.',
             'cptac': 'The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI).',
             'hcmi': 'Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) Data Portal.',
-            'beataml': 'Beat acute myeloid leukemia (BeatAML) data was collected though GitHub and Synapse.'
+            'beataml': 'Beat acute myeloid leukemia (BeatAML) data was collected though GitHub and Synapse.',
+            'mpnst': 'A collection of NF1-MPNST patient-derived xenografts, organoids, and tumors. Data hosted on synapse.'
         }
 
         # Check if this is a joined dataset
@@ -281,7 +283,6 @@ class DatasetLoader:
                     print(f"- {attr}: {format_type} format")
                 else:
                     print(f"- {attr}: Format not specified")
-
 
 def join_datasets(*args):
     """
@@ -325,11 +326,11 @@ def join_datasets(*args):
             df = getattr(loader, attr, pd.DataFrame())
             if not df.empty:
                 format_params = loader.data_format_params.get(attr, [])
-                if len(format_params) == 3:  # Assuming format_params has three elements: id_vars, var_name, value_name
-                    id_vars, var_name, value_name = format_params
+                if len(format_params) >= 3:  # Assuming format_params has three elements: id_vars, var_name, value_name
+                    id_vars, var_name, value_name = format_params[:3]
                     if not loader.is_long_format(df, id_vars, var_name, value_name):
                         print(f"Cannot merge {attr} as it is not in long format in {loader.dataset_type}.")
-                        return None  # Or handle this scenario appropriately
+                        return None  
 
                 merge_keys = loader.data_format_params.get(attr, [])
 
@@ -352,8 +353,8 @@ def join_datasets(*args):
                 if merged_df.empty:
                     merged_df = df
                 else:
-                    merged_df = pd.merge(merged_df, df, on=merge_keys, how='outer')
-
+                    merged_df = pd.concat((merged_df, df))
+                    
                 if hasattr(loader, 'source_of_datatype') and attr in loader.source_of_datatype:
                     sources.update(loader.source_of_datatype[attr])
                 else:
@@ -364,4 +365,3 @@ def join_datasets(*args):
             joined_loader.source_of_datatype[attr] = list(sources)
 
     return joined_loader
-
