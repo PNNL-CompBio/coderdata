@@ -117,7 +117,7 @@ def generate_samples_file(prev_samples_path):
     full_samples.rename(columns={"labId": "other_id"}, inplace=True)
     full_samples.rename(columns={"specificDxAtInclusion": "other_names"}, inplace=True)
     full_samples['other_names'] = full_samples['other_names'].fillna('Control')
-    full_samples["cancer_type"] = "ACUTE MYELOID LEUKAEMIA"
+    full_samples["cancer_type"] = "Acute Myeloid Leukaemia"
     full_samples["model_type"] = "ex vivo"
     full_samples["other_id_source"] = "beatAML"
     full_samples.drop_duplicates(subset='other_id', keep='first', inplace=True)
