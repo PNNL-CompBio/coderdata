@@ -30,6 +30,7 @@ class DatasetLoader:
         self.experiments = pd.DataFrame()
         self.methylation = pd.DataFrame()
         self.metabolomics = pd.DataFrame()
+        self.genes = pd.DataFrame()
         # self.perturbations = pd.DataFrame()
         self.full = pd.DataFrame()
         self.dataset_type = dataset_type
@@ -43,12 +44,20 @@ class DatasetLoader:
         'copy_number': ('improve_sample_id', 'entrez_id', 'copy_number'),
         'methylation': ('improve_sample_id', 'entrez_id', 'methylation'),
         'experiments': ('improve_sample_id', 'improve_drug_id', 'dose_response_value'),
-        'drugs': ('improve_drug_id', 'chem_name', 'isoSMILES')
+        'drugs': ('improve_drug_id', 'chem_name', 'isoSMILES'),
+        'genes': ('entrez_id', 'gene_symbol', 'other_id')
     }
 
     def load_datasets(self, dataset_type, data_directory):
         print("Processing Data...")
+        # Load genes.csv or genes.csv.gz if present
+        genes_file_path = None
         for file_name in os.listdir(data_directory):
+            if file_name == 'genes.csv' or file_name == 'genes.csv.gz':
+                genes_file_path = os.path.join(data_directory, file_name)
+                self.genes = self.load_file(genes_file_path)
+                print("Loaded genes dataset.")
+
             if file_name.startswith(dataset_type) and (file_name.endswith(('.csv', '.tsv', '.csv.gz', '.tsv.gz'))):
                 file_path = os.path.join(data_directory, file_name)
                 dataset_name = file_name[len(dataset_type):].split('.')[0].strip('_')
