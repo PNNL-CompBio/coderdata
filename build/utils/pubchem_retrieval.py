@@ -86,13 +86,13 @@ def retrieve_drug_info(compound_name,ignore_chems):
             
 
         ###now check for structure
-        if properties['CanonicalSMILES'] in existing.structures.keys():
+        if properties['CanonicalSMILES'] in existing_structures.keys():
             print('found structure for '+compound_name)
             SMI_assignment = existing_structures[properties['CanonicalSMILES']]
         else:
             improve_drug_id += 1
             SMI_assignment = f"SMI_{improve_drug_id}"
-            existing_strutures[properties['CanonicalSMILES']] = SMI_assignment
+            existing_structures[properties['CanonicalSMILES']] = SMI_assignment
             
         data_for_tsv = [{
             'improve_drug_id': SMI_assignment,
