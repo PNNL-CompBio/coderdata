@@ -1,5 +1,5 @@
 install.packages('curl')
-#install.packages("rio")
+install.packages("rio")
 install.packages("readr")
 install.packages("curl")
 #install.packages("stringi")
