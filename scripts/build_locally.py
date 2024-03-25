@@ -53,7 +53,7 @@ def main():
             dlist.append(dsname)
             #cmd = 'docker build --platform=linux/amd64 -t '+dsname+' .  -f build/docker/'+fn+ ' --build-arg HTTPS_PROXY=$HTTPS_PROXY'
             #print(cmd)
-            res = subprocess.run(['docker','build','--platform','linux/amd64','-t',dsname,'.','-f','build/docker/'+fn,'--build-arg','HTTPS_PROXY='+env['HTTPS_PROXY']])
+            res = subprocess.run(['docker','build','-t',dsname,'.','-f','build/docker/'+fn,'--build-arg','HTTPS_PROXY='+env['HTTPS_PROXY'],'--platform','linux/amd64'])
             #os.system(cmd)
 
     ### Any new sample creation must happened here.
@@ -78,15 +78,18 @@ def main():
     if args.drugs or args.all:
         ###build drug data
         run_cmd(['depmap','Rscript','03-createDrugFile.R','CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'],'cell line drugs')
-        run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/drugs.tsv'],'mpnst drugs')
-        run_cmd(['lincs','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/drugs.tsv'],'LINCS drugs')
-        run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'], '--drugs','--drugFile','/tmp/drugs.tsv'],'BeatAML Drugs')
+        run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/depmap_drugs.tsv'],'mpnst drugs')
+        run_cmd(['lincs','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/depmap_drugs.tsv'],'LINCS drugs')
+        run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'], '--drugs','--drugFile','/tmp/depmap_drugs.tsv'],'BeatAML Drugs')
 
     #### Any new omics files are created here.
     ## depends on samples!
     ### these are not order dependent but require gene and sample files
     if args.omics or args.all:
-        ##beataml
+        run_cmd(['depmap','/opt/venv/bin/python3','02a-depMapProts.py','--gene','/tmp/genes.csv','--sample','/tmp/depmap_samples.csv'],'depmap proteomics')
+        ###cptac
+        run_cmd(['cptac','--geneFile','/tmp/genes.csv','--curSampleFile','/tmp/cptac_samples.csv'],'cptac omics')
+                ##beataml
         run_cmd(['beataml','python','GetBeatAML.py','--token' ,env['SYNAPSE_AUTH_TOKEN'],'--omics','--curSamples','/tmp/beataml_samples.csv','--genes','/tmp/genes.csv'],'beatAML omics')
         ###mpnst
         run_cmd(['mpnst','Rscript','01_mpnst_get_omics.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/genes.csv'],'MPNST omics')
@@ -96,17 +99,15 @@ def main():
         ###depmap cell line
         run_cmd(['depmap','Rscript','02-pullDepMap.R','/tmp/genes.csv','/tmp/depmap_samples.csv'],'depmap omics')
         run_cmd(['depmap','Rscript','02b-pullSanger.R','/tmp/genes.csv','/tmp/depmap_samples.csv'],'sanger omics')
-        run_cmd(['depmap','/opt/venv/bin/python3','02a-depMapProts.py','--gene','/tmp/genes.csv','--sample','/tmp/depmap_samples.csv'],'depmap proteomics')
-        ###cptac
-        run_cmd(['cptac','--geneFile','/tmp/genes.csv','--curSampleFile','/tmp/cptac_samples.csv'],'cptac omics')
+
 
     ### drug response data
     ## requires samplesa nd drugs to complete
     if args.exp or args.all:
-        run_cmd(['mpnst','Rscript','03_get_drug_response_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/drugs.tsv'],'MPNST experiments')
-        run_cmd(['depmap','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/drugs.tsv','--curSampleFile','/tmp/depmap_samples.csv'],'cell line experiments')
-        run_cmd(['beataml','python','GetBeatAML.py','--exp','--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/drugs.tsv'],'BeatAML drugs')
-        run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/drugs.tsv','/tmp/depmap_samples.csv'],'LINCS perturbations')
+        run_cmd(['mpnst','Rscript','03_get_drug_response_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/mpnst_drugs.tsv'],'MPNST experiments')
+        run_cmd(['depmap','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/depmap_drugs.tsv','--curSampleFile','/tmp/depmap_samples.csv'],'cell line experiments')
+        run_cmd(['beataml','python','GetBeatAML.py','--exp','--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/beataml_drugs.tsv'],'BeatAML drugs')
+        run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/lincs_drugs.tsv','/tmp/depmap_samples.csv'],'LINCS perturbations')
         
 
 

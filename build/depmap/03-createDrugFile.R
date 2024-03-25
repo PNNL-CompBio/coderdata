@@ -58,7 +58,7 @@ getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','
 #                 dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
 #                 distinct()
             chem_list <- unique(mapping$treatmentid)
-            output_file_path <- '/tmp/drugs.tsv'
+            output_file_path <- '/tmp/depmap_drugs.tsv'
             ignore_file_path <- '/tmp/ignore_chems.txt'
             update_dataframe_and_write_tsv(unique_names=chem_list,output_filename=output_file_path,ignore_chems=ignore_file_path)
                         ##clean up file when done
