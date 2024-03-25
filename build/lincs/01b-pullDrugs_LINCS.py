@@ -164,4 +164,4 @@ if __name__ == "__main__":
     # 6. Generate new file with drug information
     new_drugs = new_drugs.dropna() # remove drugs not given new IDs because isoSMILES matched existing drug
     LINCS_drugs = pd.concat([old_drugs, new_drugs]).drop_duplicates()
-    LINCS_drugs.to_csv("lincs_drugs.tsv", sep="\t", index=False)
+    LINCS_drugs.to_csv("/tmp/lincs_drugs.tsv", sep="\t", index=False)
