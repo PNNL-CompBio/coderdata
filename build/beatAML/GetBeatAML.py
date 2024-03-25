@@ -606,7 +606,7 @@ if __name__ == "__main__":
             exit()
         else:
             original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-            original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"    
+            original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
             download_from_github(original_drug_url, original_drug_file)
             generate_drug_list(args.drugFile, original_drug_file) ##this doesn't exist, need to add
     if args.omics:
