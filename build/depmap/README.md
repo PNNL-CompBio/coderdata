@@ -18,6 +18,7 @@ Next we retrieve all the standard cell line identifiers we can, from diverse
 sources, and map them to IMPROVE sample identifiers for future reference.
 ```
 docker run -v $PWD:/tmp/ depmap Rscript 01-depmapSamples.R
+docker run -v $PWD:/tmp/ depmap Rscript 01a-pullSamples_LINCS.R /tmp/depmap_samples.csv
 
 ```
 
@@ -28,6 +29,7 @@ source. Each script takes our list of gene and sample identifiers
 ```
 docker run -v $PWD:/tmp/ depmap Rscript 02-pullDepMap.R /tmp/genes.csv /tmp/depmap_samples.csv
 docker run -v $PWD:/tmp/ depmap Rscript 02b-pullSanger.R /tmp/genes.csv /tmp/depmap_samples.csv
+docker run -v $PWD:/tmp/ depmap python depMapProts.py
 
 ```
 
