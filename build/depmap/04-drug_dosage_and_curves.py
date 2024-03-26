@@ -44,6 +44,6 @@ for a in allfiles:
 
 ###step 4c concatenate all files
 
-os.system('cat *.0 > /tmp/experiments.tsv')
-os.system('gzip -f /tmp/experiments.tsv')
+os.system('cat *.0 > /tmp/depmap_experiments.tsv')
+#os.system('gzip -f /tmp/experiments.tsv')
 
