@@ -78,7 +78,7 @@ def main():
     if args.drugs or args.all:
         ###build drug data
         run_cmd(['depmap','Rscript','03-createDrugFile.R','CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'],'cell line drugs')
-        run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/depmap_drugs.tsv'],'mpnst drugs')
+        run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/depmap_drugs.tsv','/tmp/mpnst_drugs.tsv'],'mpnst drugs')
         run_cmd(['lincs','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/depmap_drugs.tsv'],'LINCS drugs')
         run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'], '--drugs','--drugFile','/tmp/depmap_drugs.tsv'],'BeatAML Drugs')
 
@@ -86,13 +86,13 @@ def main():
     ## depends on samples!
     ### these are not order dependent but require gene and sample files
     if args.omics or args.all:
-        run_cmd(['depmap','/opt/venv/bin/python3','02a-depMapProts.py','--gene','/tmp/genes.csv','--sample','/tmp/depmap_samples.csv'],'depmap proteomics')
-        ###cptac
-        run_cmd(['cptac','--geneFile','/tmp/genes.csv','--curSampleFile','/tmp/cptac_samples.csv'],'cptac omics')
-                ##beataml
         run_cmd(['beataml','python','GetBeatAML.py','--token' ,env['SYNAPSE_AUTH_TOKEN'],'--omics','--curSamples','/tmp/beataml_samples.csv','--genes','/tmp/genes.csv'],'beatAML omics')
         ###mpnst
         run_cmd(['mpnst','Rscript','01_mpnst_get_omics.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/genes.csv'],'MPNST omics')
+        ###HCMI - the folowing three steps are all required?        run_cmd(['depmap','/opt/venv/bin/python3','02a-depMapProts.py','--gene','/tmp/genes.csv','--sample','/tmp/depmap_samples.csv'],'depmap proteomics')
+        ###cptac
+        run_cmd(['cptac','--geneFile','/tmp/genes.csv','--curSampleFile','/tmp/cptac_samples.csv'],'cptac omics')
+                ##beataml
         ###HCMI - the folowing three steps are all required?
         for dt in ['transcriptomics','copy_number','mutations']:
             run_cmd(['hcmi','python','02-getHCMIData.py','-m','full_manifest.txt','-t',dt,'-o','/tmp/hcmi_'+dt+'.csv'], 'hcmi '+dt+' omics')
@@ -106,7 +106,7 @@ def main():
     if args.exp or args.all:
         run_cmd(['mpnst','Rscript','03_get_drug_response_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/mpnst_drugs.tsv'],'MPNST experiments')
         run_cmd(['depmap','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/depmap_drugs.tsv','--curSampleFile','/tmp/depmap_samples.csv'],'cell line experiments')
-        run_cmd(['beataml','python','GetBeatAML.py','--exp','--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/beataml_drugs.tsv'],'BeatAML drugs')
+        run_cmd(['beataml','python','GetBeatAML.py','--exp','--token',env['SYNAPSE_AUTH_TOKEN'],'--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/beataml_drugs.tsv'],'BeatAML experiments')
         run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/lincs_drugs.tsv','/tmp/depmap_samples.csv'],'LINCS perturbations')
         
 
