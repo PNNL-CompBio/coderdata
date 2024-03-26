@@ -35,7 +35,7 @@ def main():
     print(plong)
     
     ##split cell lin
-    plong['other_id'] = [a.split('_')[0] for a in plong.cellline]
+    plong['other_id'] = [a.split('_Ten')[0] for a in plong.cellline]
 
     full = plong.merge(genes,on='gene_symbol')
     full = full.merge(samps,on='other_id')
@@ -44,6 +44,6 @@ def main():
 
     full[['study']] = 'DepMap'
     full[['source']] = 'Broad'
-    full.to_csv('/tmp/depmap_proteomics.csv.gz',index=False,compression='gzip')
+    full.to_csv('/tmp/depmap_proteomics.csv',index=False)
     
 main()
