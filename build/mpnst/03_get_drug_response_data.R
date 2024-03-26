@@ -83,11 +83,11 @@ getDrugDataByParent<-function(parid,sampleId){
                    DOSE=exp(dosage),
                    GROWTH=response /100,
                    source = "NF Data Portal",
-                   CELL = improve_sample_id,
+                   #CELL = improve_sample_id,
                    chem_name = compound_name,
                    study = paste0('MT ',sname$date,' exp'),
                    time = sname$hour) %>%
-            select(improve_sample_id,DOSE,GROWTH,source,CELL,chem_name,study,time)
+            select(improve_sample_id,DOSE,GROWTH,source,chem_name,study,time)
 
     return(data)
     }))
@@ -106,13 +106,23 @@ alldrugs<-do.call(rbind,lapply(mts_fold$V1,function(x){
 ##do the drug matching
 drug_df<-fread(drugfile)
 
+##update drug name PD901 since it's mussing
 
+alldrugs$chem_name[which(alldrugs$chem_name=='PD901')]<-'PD-0325901'
+
+
+                                        #drug_df$chem_name=tolower(drug_df$chem_name)
+alldrugs$chem_name<-tolower(alldrugs$chem_name)
+
+#print(drug_df)
 drug_map<-subset(drug_df,chem_name%in%alldrugs$chem_name)
+
 findrugs<-alldrugs|>
-    left_join(drug_df)|>
+    left_join(drug_map)|>
     mutate(time_unit='hours')|>
-    dplyr::select(CELL,DOSE,GROWTH,source,study,Drug=improve_drug_id,time,time_unit,improve_sample_id)|>
-    distinct()
+    dplyr::select(DOSE,GROWTH,source,study,Drug=improve_drug_id,time,time_unit,improve_sample_id)|>
+    distinct()|>
+    subset(!is.na(Drug))
 
 missing<-setdiff(alldrugs$chem_name,drug_map$chem_name)
 print(paste('missing',length(missing),'drugs:'))

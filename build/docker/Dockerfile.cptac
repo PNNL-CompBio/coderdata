@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 #ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update --allow-insecure-repositories
 RUN apt-get install -y --allow-unauthenticated --fix-missing gcc-12 build-essential libpq-dev python3-venv
