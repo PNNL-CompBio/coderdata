@@ -25,12 +25,15 @@ drugfile = opts.dfile
 
 ####step 4a - get dose response data
 cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' CTRPv2,FIMM,GDSC'
+print(cmd)
 os.system(cmd)
 
 cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' gCSI,PRISM,CCLE'
+print(cmd)
 os.system(cmd)
 
 cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' NCI60'
+print(cmd)
 os.system(cmd)
 
 ########Step 4b fit curves
@@ -41,6 +44,6 @@ for a in allfiles:
 
 ###step 4c concatenate all files
 
-os.system('cat *.0 > /tmp/experiments.tsv')
-os.system('gzip -f /tmp/experiments.tsv')
+os.system('cat *.0 > /tmp/depmap_experiments.tsv')
+#os.system('gzip -f /tmp/experiments.tsv')
 

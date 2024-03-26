@@ -316,13 +316,15 @@ def main():
                 else:
                     fdf = formatData(dfU,dtype,cancertype,tumor_samps,all_sources[dtype],genes,samples)
                     fdf = fdf.reset_index(drop=True)
-                    
+                print(fdf)
                 if dtype in dat_files.keys():
                     of = dat_files[dtype]
-                    fdf = pd.concat([of,fdf])
-                    dat_files[dtype] = fdf
+                    fdf2 = pd.concat([of,fdf])
+                    dat_files[dtype] = fdf2
                 else:
                     dat_files[dtype] = fdf
+                print(dtype)
+                
     print(build_data)
     if build_data:
         ##now concatenate all the cancers into a single file
