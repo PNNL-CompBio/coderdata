@@ -152,6 +152,14 @@ def use_gdc_tool(manifest_data, data_type, download_data):
     dict
         Metadata associated with the UUIDs extracted from the manifest.
     """
+
+    ##first, let's filter by type
+    tdict={'transcriptomics':'rna_seq','copy_number':'copy_number','mutations':'ensemble_masked'}
+    fm = pd.read_csv(manifest_data,sep='\t')
+    fm['include'] = [tdict[data_type] in a for a in fm.filename]
+    newfm = fm[fm.include]
+#    newfm.reset_index(drop=True,inplace=True)
+    newfm.to_csv('new_manifest.txt',sep='\t',index=False)
     
     manifest_loc = "full_manifest_files"
 
@@ -161,10 +169,10 @@ def use_gdc_tool(manifest_data, data_type, download_data):
         os.makedirs(manifest_loc)
 
         # Download files using gdc-client
-        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', manifest_data])
+        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m','new_manifest.txt'])
 
     # Extract UUIDs and fetch metadata
-    uuids = extract_uuids_from_manifest(manifest_data)
+    uuids = extract_uuids_from_manifest('new_manifest.txt')
     metadata = fetch_metadata(uuids)
 
     return metadata
@@ -305,7 +313,9 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     'aliquot_id': [item['cases'][0]['samples'][0]["portions"][0]["analytes"][0]['aliquots'][0]['aliquot_id'] for item in metadata['data']['hits']]
     }
     df_metadata = pl.DataFrame(metadata_dict)
-    
+
+#    print(final_dataframe)
+#    print(df_metadata)
     # Merge the metadata DataFrame with the final dataframe based on 'file_id'
     final_dataframe = final_dataframe.join(df_metadata, on='file_id', how='left')
     
@@ -400,7 +410,7 @@ def download_from_github(raw_url, save_path):
     return
 
 
-def align_to_schema(data, data_type, chunksize=7500):
+def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samples.csv'):
     """
     Modify the data match the CANDLE schema based on its type, using Polars for processing.
     Essentially just adding improve_sample_id
@@ -418,7 +428,7 @@ def align_to_schema(data, data_type, chunksize=7500):
     pl.DataFrame
         The final form of the dataframe.
     """
-    samples_path = "/tmp/hcmi_samples.csv"
+#    samples_path = "/tmp/hcmi_samples.csv"
     samples = pl.read_csv(samples_path)
     samples = samples.drop(["cancer_type", "common_name", "other_names", "model_type", "other_id_source"])
 
@@ -704,6 +714,7 @@ def main():
     parser.add_argument('-t', '--type', help='Type of data (e.g., transcriptomics, copy_number)',choices = tc, required=True)
     parser.add_argument('-o', '--outname', help='Output CSV Name', required=True)
     parser.add_argument('-z', '--token', help='figshare token ID', required=False)
+    parser.add_argument('-s', '--samples',help='Samples file', required=False,default='/tmp/hcmi_samples.csv')
     args = parser.parse_args()
     
         
@@ -719,7 +730,7 @@ def main():
     # Use gdc tool to get metadata
     print("Using gdc tool and retrieving get metadata...")
     metadata = use_gdc_tool(args.manifest, args.type, download_data=download_option)
-
+    #print(metadata)
     # Extract data files
     print("Running 'get_clean_files' function")
     data_files = get_clean_files(args.type)
@@ -739,7 +750,7 @@ def main():
     
     # Final formatting
     print("Aligning to Schema")
-    final_data = align_to_schema(combined_data,args.type)
+    final_data = align_to_schema(combined_data,args.type,7500,args.samples)
     gc.collect()
     combined_data = None
     

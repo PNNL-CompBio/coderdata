@@ -17,14 +17,16 @@ mergeSamples<-function(){
   ## CPTAC SAMPLE DATA
   ## Primary task here is to fix the capitalizations
   ###########################
-  cptac<-readr::read_csv('../build/cptac/samples.csv')|>
+  cptac<-readr::read_csv('../cptac_samples.csv')|>
+    dplyr::select(common_name,cancer_type,improve_sample_id,model_type)|>
     mutate(cancer_type=stringr::str_replace_all(cancer_type,'Head and Neck','Head and neck'))|>
     mutate(cancer_type=stringr::str_replace_all(cancer_type,'Colon','Colorectal'))|>
     mutate(cancer_type=stringr::str_replace_all(cancer_type,'Uterine Corpus Endometrial Carcinoma','Uterine corpus endometrial carcinoma'))|>
     dplyr::mutate(`CPTAC Cancer type`=cancer_type)|>
     left_join(cmaps)|>
     mutate(sampleSource='CPTAC')|>
-    dplyr::select(improve_sample_id,`CPTAC Cancer type`,model_type,species,sampleSource)|>
+    mutate(species='Human')|>
+    dplyr::select(improve_sample_id,cancer_type=`CPTAC Cancer type`,model_type,species,sampleSource)|>
     distinct()
 
   ###########################
@@ -33,8 +35,10 @@ mergeSamples<-function(){
   ##
   ###########################
   cell_line<-readr::read_csv('../build/depmap/samples.csv')|>
+   # dplyr::select(common_name,cancer_type,improve_sample_id,model_type)|>
+    distinct()|>
     dplyr::mutate(`Cell line cancer type`=cancer_type)|>
-    mutate(sampleSource='CCLE')
+    mutate(sampleSource='DepMap')
 
   allec<-grep('Endometrial',cell_line$`Cell line cancer type`)
   cell_line$`Cell line cancer type`[allec]<-'Uterine corpus endometrial carcinoma'
@@ -44,9 +48,9 @@ mergeSamples<-function(){
 
   ##first we collect the names of the cancers that are NOT in CPTAC
   other_cans<-which(is.na(cell_line$`CPTAC Cancer type`))
-  cell_line$`CPTAC Cancer type`[other_cans]<-cell_line$`Cell line cancer type`[other_cans]
+  cell_line$`CPTAC Cancer type`[other_cans]<-rep('other',length(other_cans))#cell_line$`Cell line cancer type`[other_cans]
   cell_line<-cell_line|>
-    dplyr::select(improve_sample_id,`CPTAC Cancer type`,model_type,species,sampleSource)|>
+    dplyr::select(improve_sample_id,cancer_type=`CPTAC Cancer type`,model_type,sampleSource,species)|>
      distinct()
 
   #then we rename the NA values to 'Other' if we want
@@ -54,24 +58,30 @@ mergeSamples<-function(){
   #cell_line$`CPTAC Cancer type`[other_cans]<-'Other'
   # or just remove them
   cell_line<-cell_line|>
-    subset(!is.na(`CPTAC Cancer type`))
+    subset(!is.na(`CPTAC Cancer type`))|>
+    dplyr::rename(cancer_type='CPTAC Cancer type')|>
+    dplyr::select(improve_sample_id,species,cancer_type,sampleSource,model_type)|>
+    distinct()
 
   ###########################
   ## HCMI SAMPLE DATA
   ## Here we lean heavily on the sample mapping file
   ###########################
-  hcmi<-readr::read_csv('../build/hcmi/samples.csv')|>
-    dplyr::rename(id_source='other_id_source')|>
-    mutate(species='human')|>
-    subset(model_type%in%c('3D Organoid','Solid Tissue','Adherent Cell Line'))|>
+  hcmi<-readr::read_csv('../hcmi_samples.csv')|>
+    mutate(species='Human')|>
+    #dplyr::select(common_name,cancer_type,improve_sample_id,model_type)|>
     dplyr::mutate(`HCMI Cancer type`=cancer_type,`HCMI Common name`=common_name)|>
     dplyr::mutate(model_type=stringr::str_replace_all(model_type,'Solid Tissue','Tumor'))|>
     dplyr::mutate(model_type=stringr::str_replace_all(model_type,'Adherent Cell Line','cell line'))|>
     left_join(cmaps)|>
     mutate(sampleSource='HCMI')|>
     dplyr::select(improve_sample_id,`CPTAC Cancer type`,model_type,species,sampleSource)|>
-#    dplyr::rename(cancer_type='CPTAC Cancer type')|>
+        dplyr::rename(cancer_type='CPTAC Cancer type')|>
     distinct()
+
+    #dplyr::rename(id_source='other_id_source')|>
+    #mutate(species='human')|>
+    #subset(model_type%in%c('3D Organoid','Solid Tissue','Adherent Cell Line'))|>
 
   ##now rename samples
   ##next up: beatAMLdata
@@ -79,10 +89,10 @@ mergeSamples<-function(){
   ## BeatAML SAMPLE DATA
   ## TBD
   ###########################
-  baml<-readr::read_csv("../build/beatAML/samples.csv")|>
+  baml<-readr::read_csv("../beataml_samples.csv")|>
     mutate(cancer_type='Acute myeloid leukemia')|>
     mutate(species='Human')|>
-    mutate(model_type='Tumor')|>
+    mutate(model_type='tumor')|>
     mutate(sampleSource='BeatAML')|>
     dplyr::select(improve_sample_id,species,cancer_type,sampleSource,model_type)|>
     distinct()
@@ -91,13 +101,21 @@ mergeSamples<-function(){
   ## TBD
   ###########################
 
+  mpnst<-readr::read_csv("../MPNST_samples.csv")|>
+    dplyr::select(common_name,cancer_type,improve_sample_id,model_type)|>
+    mutate(species="Human")|>
+    mutate(sampleSource='NF Data Portal')|>
+    dplyr::select(improve_sample_id,species,cancer_type,sampleSource,model_type)|>
+    distinct()
 
   ##now we join thomdelsem into a single table, with cancer type
-  fulldat<<-rbind(cptac,cell_line,hcmi)|>
-    dplyr::rename(cancer_type=`CPTAC Cancer type`)|>
-    subset()
+  fulldat<<-rbind(cptac,cell_line,hcmi,mpnst,baml)|>
+    mutate(model_type=tolower(model_type))
+    #dplyr::rename(cancer_type=`CPTAC Cancer type`)|>
+    #subset()
   #  subset(!is.na(cancer_type))
 
+  ccounts<-fulldat|>group_by(cancer_type,model_type)|>summarize(num_models=n_distinct(improve_sample_id))|>arrange(num_models)
 
 #  fulldat<-fulldat|>
 #    dplyr::rename(orig_cancer_type='cancer_type')|>

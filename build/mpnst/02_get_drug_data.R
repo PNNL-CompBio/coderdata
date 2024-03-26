@@ -4,18 +4,23 @@ library(data.table)
 library(synapser)
 library(dplyr)
 library(stringr)
+library(reticulate)
+
+use_python("/opt/venv/bin/python3", required = TRUE)
+source_python("pubchem_retrieval.py")
+
 # Retrieve command line arguments
 args <- commandArgs(trailingOnly = TRUE)
 
 # Check if a token was provided
 if (length(args) == 0) {
-  stop("No token or sample file provided. Usage: Rscript my_script.R <PAT> [drugs]", call. = FALSE)
+  stop("No token or sample file provided. Usage: Rscript my_script.R <PAT> [olddrugfile] [newdrugfile]", call. = FALSE)
 }
 
 # Set your personal access token
 PAT <- args[1]
-drugfile <- args[2]
-
+olddrugfile <- args[2]
+newdrugfile <- args[3]
 # Log in to Synapse
 synLogin(authToken = PAT)
 
@@ -60,7 +65,23 @@ alldrugs<-unique(unlist(lapply(mts_fold$V1,function(x){
     return(res)
 })))
 
+
+alldrugs[which(alldrugs=='PD901')]<-'PD-0325901'
+
 print(paste(alldrugs,collapse=','))
+
+##copy old drug to new drug
+file.copy(olddrugfile,newdrugfile)
+output_file_path <- newdrugfile
+ignore_file_path <- '/tmp/ignore_chems.txt'
+
+update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
+
+tab<-read.table(newdrugfile,sep='\t',header=T,quote="",comment.char="")|>
+    subset(chem_name%in%tolower(alldrugs))
+
+write.table(newdrugfile,sep='\t',quote=FALSE)
+
 
 ##now call the python drug script
 
