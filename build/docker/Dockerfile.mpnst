@@ -13,7 +13,6 @@ WORKDIR /app
 ADD build/mpnst/requirements.txt .
 ADD build/mpnst/requirements.r .
 ADD build/mpnst/*.R ./
-ADD build/mpnst/*.py ./
 ADD build/utils/* ./
 
 # installing python libraries
