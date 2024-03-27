@@ -1,5 +1,5 @@
 install.packages("readr")
 install.packages("tidyr")
 install.packages("dplyr")
-install.package('BiocManager')
+install.packages('BiocManager')
 BiocManager::install("cmapR",update=TRUE,ask=FALSE)

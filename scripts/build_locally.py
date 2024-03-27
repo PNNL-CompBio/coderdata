@@ -88,7 +88,7 @@ def main():
     if args.omics or args.all:
         ###depmap cell line
         run_cmd(['depmap_sanger','Rscript','02-depmap-sanger-omics.R','/tmp/genes.csv','/tmp/depmap_sanger_samples.csv'],'depmap sanger omics')
-        ###beataml
+        ###beatamlls -cl
         run_cmd(['beataml','python','GetBeatAML.py','--token' ,env['SYNAPSE_AUTH_TOKEN'],'--omics','--curSamples','/tmp/beataml_samples.csv','--genes','/tmp/genes.csv'],'beatAML omics')
         ###mpnst
         run_cmd(['mpnst','Rscript','01_mpnst_get_omics.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/genes.csv'],'MPNST omics')
