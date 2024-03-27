@@ -16,7 +16,6 @@ depmap_filenames=list(   copy_number='https://figshare.com/ndownloader/files/404
 ##### SANGER FILES
 sanger_filenames=list(transcriptomics='https://cog.sanger.ac.uk/cmp/download/rnaseq_all_20220624.zip',
                copy_number='https://cog.sanger.ac.uk/cmp/download/WES_pureCN_CNV_genes_latest.csv.gz',
-#
                mutation='https://cog.sanger.ac.uk/cmp/download/mutations_all_20230202.zip')
 
 
@@ -67,13 +66,13 @@ mirnaFixing<-function(mirlist){
 
 
 #### pull down ad process each of the sanger files
-sanger_files<-function(dt=names(sanger_filenames)){
+sanger_files<-function(fi,value){
 
   options(timeout=10000)
   ###run through each file and rewrite
-  newres<-lapply(dt,function(value){
+#  newres<-lapply(dt,function(value){
 
-    fi=sanger_filenames[[value]]
+ #   fi=sanger_filenames[[value]]
     # fname=paste0('/tmp/sanger_',value,'.csv.gz')
     #print(paste('now reading',fi,'to store as',fname))
     ##now every data type is parsed slightly differently, so we need to change our formatting
@@ -115,8 +114,8 @@ sanger_files<-function(dt=names(sanger_filenames)){
         mutate(study='Sanger')
 
       full<-res|>
-        tidyr::pivot_longer(cols=c(improve_copy_call,sanger_copy_call),
-                            names_to='copy_call_source',
+        tidyr::pivot_longer(cols=c(IMPROVE,Sanger),
+                            names_to='source',
                             values_to='copy_call')
       rm(res)
 #      full<-lres
@@ -169,8 +168,7 @@ sanger_files<-function(dt=names(sanger_filenames)){
       #rm(res)
                                         #return(fi)
       return(res)
-    }
-    else if(value=='transcriptomics'){ #if gene expression
+    }else if(value=='transcriptomics'){ #if gene expression
       res=download.file(fi,'/tmp/tmp.zip')
       filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
       fi= "/tmp/rnaseq_tpm_20220624.csv"
@@ -217,8 +215,7 @@ sanger_files<-function(dt=names(sanger_filenames)){
         left_join(smap)
       rm(res)
       file.remove(fi)
-    }
-    else if(value=='miRNA'){ #if mirna expression
+    }else if(value=='miRNA'){ #if mirna expression
       exp_file <- readr::read_csv(fi)
 
       res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
@@ -299,20 +296,19 @@ sanger_files<-function(dt=names(sanger_filenames)){
       print(paste('Sanger',value,':'))
       print(head(full))
       return(full)
-    })
-      names(newres)<-names(sanger_filenames)
+  #  })
+  #    names(newres)<-names(sanger_filenames)
 
 }
 
 
 #### pull dodwn and process each depmap file per the 2023 q4 schema
-depmap_files<-function(values=names(depmap_filenames)){
-
+depmap_files<-function(fi,value){
 
    ##runs through entire list of omcis types and files and returns  a list
-  newres<-lapply(values,function(value){
+#  newres<-lapply(values,function(value){
 
-    fi=depmap_filenames[[value]]
+#    fi=depmap_filenames[[value]]
 #    fname=paste0('/tmp/depmap_',value,'.csv.gz')
 #    print(paste('now reading',fi,'to store as',fname))
     ##now every data type is parsed slightly differently, so we need to change our formatting
@@ -406,8 +402,7 @@ depmap_files<-function(values=names(depmap_filenames)){
           #write_csv(full,file=fname)
                                         #return(fi)
         return(full)
-      }
-      else if(value=='transcriptomics'){ #if gene expression
+      }else if(value=='transcriptomics'){ #if gene expression
         exp_file <- readr::read_csv(fi)
         print("wide to long")
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
@@ -432,8 +427,7 @@ depmap_files<-function(values=names(depmap_filenames)){
         rm(exp_file)
         vars=c('transcriptomics')
 
-      }
-      else if(value=='miRNA'){ #if mirna expression
+      }else if(value=='miRNA'){ #if mirna expression
         exp_file <- readr::read_csv(fi)
 
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
@@ -501,51 +495,45 @@ depmap_files<-function(values=names(depmap_filenames)){
       print(head(full))
       return(full)
 
-  })
-    names(newres)<-names(depmap_filenames)
-
-    return(newres)
 
 }
 
 
 main<-function(){
-	args = commandArgs(trailingOnly=TRUE)
-	if(length(args)!=2){
-	  stop('Usage: Rscript 02-depmap-sanger-omics.R [genefile] [samplefile]')
-	  }
-	gfile = args[1]
-	sfile = args[2]
-	###first reqad in all gene information so we can map appropriately
-	allgenes = read_csv(gfile)
-	genes <<- allgenes|>
-	  dplyr::select(gene_symbol,entrez_id)|>
-	    dplyr::distinct()
+    args = commandArgs(trailingOnly=TRUE)
+    if(length(args)!=2){
+        stop('Usage: Rscript 02-depmap-sanger-omics.R [genefile] [samplefile]')
+    }
+    gfile = args[1]
+    sfile = args[2]
+###first reqad in all gene information so we can map appropriately
+    allgenes = read_csv(gfile)
 
-	    ##here are the improve sample id indices
-	 depmap_samples <<- read_csv(sfile,
-                   quote='"')|>
-		     dplyr::select(other_id,improve_sample_id)|>
-		       unique()
-	df <- depmap_files(names(depmap_filenames))
+    genes <<- allgenes|>
+        dplyr::select(gene_symbol,entrez_id)|>
+        dplyr::distinct()
 
+    ##here are the improve sample id indices
+    depmap_samples <<- read_csv(sfile,
+                               quote='"')|>
+        dplyr::select(other_id,improve_sample_id)|>
+        unique()
 
-        sanger_samples <<- read_csv(sfile,
-                   quote='"')|>
-		     dplyr::select(other_id,improve_sample_id,other_id_source)|>
-		       unique()
-        sf<- sanger_files(names(sanger_filenames))
+    sanger_samples <<- read_csv(sfile,
+                                quote='"')|>
+        dplyr::select(other_id,improve_sample_id,other_id_source)|>
+        unique()
 
-        alltypes <-union(names(df),names(sf))
-        for(dt in alltypes){
-            temp <-data.frame()
-            if(dt%in%names(df))
-                temp<-rbind(temp,df[[dt]])
-            if(dt%in%names(sf))
-                temp<-rbind(temp,sf[[dt]])
-            readr::write_csv(temp,file=paste0('/tmp/depmap_sanger_',dt,'.csv'))
-        }
-        system(paste0('/opt/venv/bin/python 02a-depmap_sanger_proteomics.py --gene ',gfile,' --sample ',sfile))
+    alltypes<-c('transcriptomics','copy_number','mutations')
+
+    lapply(alltypes,function(dt){
+        tempd<-depmap_files(depmap_filenames[[dt]],dt)
+        temps<-sanger_files(sanger_filenames[[dt]],dt)
+        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/depmap_sanger_',dt,'.csv'))
+        rm(tempd)
+        rm(temps)
+    })
+    system(paste0('/opt/venv/bin/python 02a-depmap_sanger_proteomics.py --gene ',gfile,' --sample ',sfile))
 
 }
 main()
