@@ -11,8 +11,12 @@ RUN /opt/venv/bin/pip3 install --upgrade pip
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 
-ADD build/depmap/requirements.txt .
-ADD build/depmap/requirements.r .
+ADD build/depmap_sanger/*.R ./
+ADD build/depmap_sanger/*.py ./
+ADD build/utils/* ./
+
+ADD build/depmap_sanger/requirements.txt .
+ADD build/depmap_sanger/requirements.r .
 
 # installing r libraries
 RUN Rscript requirements.r
@@ -20,9 +24,6 @@ RUN Rscript requirements.r
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
-ADD build/depmap/*.R ./
-ADD build/depmap/*.py ./
-ADD build/utils/* ./
 
 
 

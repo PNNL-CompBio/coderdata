@@ -62,12 +62,12 @@ def main():
     ## can be run independently but first before omics/experiemnts
     if args.samples or args.all:
         ### build gene file
-        run_cmd(['depmap','Rscript','00-buildGeneFile.R'],'gene file')
+        run_cmd(['depmap_sanger','Rscript','00-buildGeneFile.R'],'gene file')
         
         ###build sample files
-        run_cmd(['depmap','Rscript','01-depmapSamples.R'],'DepMap Sanger Samples')
-        run_cmd(['depmap','Rscript','01a-pullSamples_LINCS.R','/tmp/depmap_samples.csv'],'LINCS samples')
-        run_cmd(['cptac','--geneFile=/tmp/genes.csv','--prevSampleFile=/tmp/depmap_samples.csv'],'cptac samples')
+        run_cmd(['depmap_sanger','Rscript','01-depmap_sangerSamples.R'],'DepMap Sanger Samples')
+        run_cmd(['depmap_sanger','Rscript','01a-pullSamples_LINCS.R','/tmp/depmap_sanger_samples.csv'],'LINCS samples')
+        run_cmd(['cptac','--geneFile=/tmp/genes.csv','--prevSampleFile=/tmp/depmap_sanger_samples.csv'],'cptac samples')
         run_cmd(['hcmi','python','01-createHCMISamplesFile.py','--samples','/tmp/cptac_samples.csv'],'hcmi samples')
         run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'],'--samples', '--prevSamples','/tmp/hcmi_samples.csv'],'beatAML samples')
         run_cmd(['mpnst','Rscript','00_sample_gen.R','/tmp/beataml_samples.csv',env['SYNAPSE_AUTH_TOKEN']],'mpnst samples')
@@ -77,15 +77,18 @@ def main():
     ### DepMap/Sanger, MPNST, LINCS
     if args.drugs or args.all:
         ###build drug data
-        run_cmd(['depmap','Rscript','03-createDrugFile.R','CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'],'cell line drugs')
-        run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/depmap_drugs.tsv','/tmp/mpnst_drugs.tsv'],'mpnst drugs')
-        run_cmd(['lincs','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/depmap_drugs.tsv'],'LINCS drugs')
-        run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'], '--drugs','--drugFile','/tmp/depmap_drugs.tsv'],'BeatAML Drugs')
+        run_cmd(['depmap_sanger','Rscript','03-createDrugFile.R','CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'],'cell line drugs')
+        run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/depmap_sanger_drugs.tsv','/tmp/mpnst_drugs.tsv'],'mpnst drugs')
+        run_cmd(['lincs','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/depmap_sanger_drugs.tsv'],'LINCS drugs')
+        run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'], '--drugs','--drugFile','/tmp/depmap_sanger_drugs.tsv'],'BeatAML Drugs')
 
     #### Any new omics files are created here.
     ## depends on samples!
     ### these are not order dependent but require gene and sample files
     if args.omics or args.all:
+        ###depmap cell line
+        run_cmd(['depmap_sanger','Rscript','02-depmap-sanger-omics.R','/tmp/genes.csv','/tmp/depmap_sanger_samples.csv'],'depmap sanger omics')
+        ###beataml
         run_cmd(['beataml','python','GetBeatAML.py','--token' ,env['SYNAPSE_AUTH_TOKEN'],'--omics','--curSamples','/tmp/beataml_samples.csv','--genes','/tmp/genes.csv'],'beatAML omics')
         ###mpnst
         run_cmd(['mpnst','Rscript','01_mpnst_get_omics.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/genes.csv'],'MPNST omics')
@@ -96,18 +99,17 @@ def main():
         ###HCMI - the folowing three steps are all required?
         for dt in ['transcriptomics','copy_number','mutations']:
             run_cmd(['hcmi','python','02-getHCMIData.py','-m','full_manifest.txt','-t',dt,'-o','/tmp/hcmi_'+dt+'.csv'], 'hcmi '+dt+' omics')
-        ###depmap cell line
-        run_cmd(['depmap','Rscript','02-pullDepMap.R','/tmp/genes.csv','/tmp/depmap_samples.csv'],'depmap omics')
-        run_cmd(['depmap','Rscript','02b-pullSanger.R','/tmp/genes.csv','/tmp/depmap_samples.csv'],'sanger omics')
+
+
 
 
     ### drug response data
     ## requires samplesa nd drugs to complete
     if args.exp or args.all:
         run_cmd(['mpnst','Rscript','03_get_drug_response_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/mpnst_drugs.tsv'],'MPNST experiments')
-        run_cmd(['depmap','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/depmap_drugs.tsv','--curSampleFile','/tmp/depmap_samples.csv'],'cell line experiments')
+        run_cmd(['depmap_sanger','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/depmap_sanger_drugs.tsv','--curSampleFile','/tmp/depmap_sanger_samples.csv'],'cell line experiments')
         run_cmd(['beataml','python','GetBeatAML.py','--exp','--token',env['SYNAPSE_AUTH_TOKEN'],'--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/beataml_drugs.tsv'],'BeatAML experiments')
-        run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/lincs_drugs.tsv','/tmp/depmap_samples.csv'],'LINCS perturbations')
+        run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/lincs_drugs.tsv','/tmp/depmap_sanger_samples.csv'],'LINCS perturbations')
         
 
 
