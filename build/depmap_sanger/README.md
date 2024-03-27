@@ -18,7 +18,6 @@ Next we retrieve all the standard cell line identifiers we can, from diverse
 sources, and map them to IMPROVE sample identifiers for future reference.
 ```
 docker run -v $PWD:/tmp/ depmap_sanger Rscript 01-depmapSangerSamples.R
-docker run -v $PWD:/tmp/ depmap_sanger Rscript 01a-pullSamples_LINCS.R /tmp/depmap_sanger_samples.csv
 
 ```
 
@@ -27,7 +26,7 @@ Third we collect the omics data for these cell lines, again from
 diverse sources. Currently we have a single script for each
 source. Each script takes our list of gene and sample identifiers
 ```
-docker run -v $PWD:/tmp/ depmap Rscript 02-depmap-sanger-omics.R /tmp/genes.csv /tmp/depmap_sanger_samples.csv
+docker run -v $PWD:/tmp/ depmap_sanger Rscript 02-depmap-sanger-omics.R /tmp/genes.csv /tmp/depmap_sanger_samples.csv
 
 ```
 
@@ -62,14 +61,7 @@ response data and fit the curves for the following experiments:
 8. NCI60
 
 ```
-docker run -v $PWD:/tmp/ depmap)sanger /opt/venv/bin/python 04-drug_dosasge_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/depmap_sanger_samples.csv
-
-```
-
-### Cell line perturbation data
-```
-docker run -v $PWD:/tmp depmap /opt/venv/bin/python 04-cellLineDrugs_LINCS.py --drugFile /tmp/drugs.tsv.gz
-docker run -v $PWD:/tmp/ depmap Rscript 05-LINCS_perturbations.R /tmp/genes.csv /tmp/drugs.tsv.gz /tmp/cell_line_samples.csv
+docker run -v $PWD:/tmp/ depmap_sanger /opt/venv/bin/python 04-drug_dosasge_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/depmap_sanger_samples.csv
 
 ```
 
