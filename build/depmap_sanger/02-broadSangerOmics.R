@@ -16,7 +16,7 @@ depmap_filenames=list(   copy_number='https://figshare.com/ndownloader/files/404
 ##### SANGER FILES
 sanger_filenames=list(transcriptomics='https://cog.sanger.ac.uk/cmp/download/rnaseq_all_20220624.zip',
                copy_number='https://cog.sanger.ac.uk/cmp/download/WES_pureCN_CNV_genes_latest.csv.gz',
-               mutation='https://cog.sanger.ac.uk/cmp/download/mutations_all_20230202.zip')
+               mutations='https://cog.sanger.ac.uk/cmp/download/mutations_all_20230202.zip')
 
 
 ###### VARIANT SCHEMA HARMONIZATION
@@ -69,7 +69,7 @@ mirnaFixing<-function(mirlist){
 sanger_files<-function(fi,value){
 
   options(timeout=10000)
-  ###run through each file and rewrite
+
 #  newres<-lapply(dt,function(value){
 
  #   fi=sanger_filenames[[value]]
@@ -98,7 +98,7 @@ sanger_files<-function(fi,value){
         mutate(copy_number=2^gatk_mean_log2_copy_ratio,.keep='all')|>
         distinct()|>
         left_join(gmap)|>
-        dplyr::select(other_id,source,copy_number,entrez_id,sanger_copy_call='cn_category')|>
+        dplyr::select(other_id,copy_number,entrez_id,Sanger='cn_category')|>
         left_join(smap)|>
           distinct()
        rm(exp_file)
@@ -106,7 +106,7 @@ sanger_files<-function(fi,value){
         print('copy call')
       ##calibrate the copy call
       res<-res|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
-        dplyr::mutate(improve_copy_call=ifelse(copy_number<0.5210507,'deep del',
+        dplyr::mutate(IMPROVE=ifelse(copy_number<0.5210507,'deep del',
                                        ifelse(copy_number<0.7311832,'het loss',
                                               ifelse(copy_number<1.214125,'diploid',
                                                      ifelse(copy_number<1.422233,'gain','amp')))))|>
@@ -138,28 +138,32 @@ sanger_files<-function(fi,value){
       vars=c('methylation','start','end')
 
 
-    }else if(value=='mutation'){ ####IF DATA REPRESENTS MUTATIONS#####
+    }else if(value=='mutations'){ ####IF DATA REPRESENTS MUTATIONS#####
       res=download.file(fi,'/tmp/tmp.zip')
       filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
       fi= "/tmp/mutations_all_20230202.csv"
       if(file.exists("/tmp/tmp.zip"))
-         file.remove('/tmp/tmp.zip')
-      exp_file <- readr::read_csv(fi)|>
-        dplyr::select(symbol='gene_symbol',other_id='model_id',effect,mutation='cdna_mutation',source)|>
-        distinct()
+          file.remove('/tmp/tmp.zip')
 
-      file.remove(fi)
+      exp_file <- readr::read_csv(fi)|>
+        dplyr::select(gene_symbol,other_id='model_id',effect,mutation='cdna_mutation',source)|>
+          distinct()
+      if(file.exists(fi))
+          file.remove(fi)
+
       smap<-sanger_samples|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
 
       res<-exp_file|>
+          left_join(genes)|>
         left_join(smap)|>
           mutate(study='Sanger')|>
+          dplyr::select(-c(other_id,gene_symbol))|>
           left_join(as.data.frame(sanger_vtab))|>
           dplyr::select(-effect)|>
           subset(!is.na(improve_sample_id))|>
           distinct()
-      file.remove(fi)
+
       rm(exp_file)
 
 #      res$variant_classification=unlist(lapply(res$effect,function(x) names(variant_schema)[grep(x,variant_schema)]))
@@ -167,6 +171,7 @@ sanger_files<-function(fi,value){
       #write_csv(res,file=fname)
       #rm(res)
                                         #return(fi)
+      print(head(res))
       return(res)
     }else if(value=='transcriptomics'){ #if gene expression
       res=download.file(fi,'/tmp/tmp.zip')
@@ -390,8 +395,6 @@ depmap_files<-function(fi,value){
             distinct()|>
             subset(other_id%in%res$other_id)
 
-
-        #res$variant_classification=unlist(lapply(res$VariantInfo,function(x) names(variant_schema)[grep(x,variant_schema)]))
         full<-res|>  ###since we're already in ENTREZ we skip the mapping below
           dplyr::left_join(smap)|>
           #dplyr::rename(entrez_id=Entrez_id,mutations=Genome_Change,variant_classification=Variant_Classification)|>
@@ -401,6 +404,7 @@ depmap_files<-function(fi,value){
 
           #write_csv(full,file=fname)
                                         #return(fi)
+        print(head(full))
         return(full)
       }else if(value=='transcriptomics'){ #if gene expression
         exp_file <- readr::read_csv(fi)
@@ -524,11 +528,12 @@ main<-function(){
         dplyr::select(other_id,improve_sample_id,other_id_source)|>
         unique()
 
-    alltypes<-c('transcriptomics','copy_number','mutations')
+    alltypes<-c('mutations','transcriptomics','copy_number')
 
     lapply(alltypes,function(dt){
-        tempd<-depmap_files(depmap_filenames[[dt]],dt)
+        print(dt)
         temps<-sanger_files(sanger_filenames[[dt]],dt)
+        tempd<-depmap_files(depmap_filenames[[dt]],dt)
         readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/depmap_sanger_',dt,'.csv'))
         rm(tempd)
         rm(temps)
