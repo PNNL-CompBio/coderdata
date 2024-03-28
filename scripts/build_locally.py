@@ -66,7 +66,7 @@ def main():
         
         ###build sample files
         run_cmd(['depmap_sanger','Rscript','01-depmap_sangerSamples.R'],'DepMap Sanger Samples')
-        run_cmd(['depmap_sanger','Rscript','01a-pullSamples_LINCS.R','/tmp/depmap_sanger_samples.csv'],'LINCS samples')
+        run_cmd(['lincs','Rscript','01a-pullSamples_LINCS.R','/tmp/depmap_sanger_samples.csv'],'LINCS samples')
         run_cmd(['cptac','--geneFile=/tmp/genes.csv','--prevSampleFile=/tmp/depmap_sanger_samples.csv'],'cptac samples')
         run_cmd(['hcmi','python','01-createHCMISamplesFile.py','--samples','/tmp/cptac_samples.csv'],'hcmi samples')
         run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'],'--samples', '--prevSamples','/tmp/hcmi_samples.csv'],'beatAML samples')
@@ -109,7 +109,7 @@ def main():
         run_cmd(['mpnst','Rscript','03_get_drug_response_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/mpnst_drugs.tsv'],'MPNST experiments')
         run_cmd(['depmap_sanger','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/depmap_sanger_drugs.tsv','--curSampleFile','/tmp/depmap_sanger_samples.csv'],'cell line experiments')
         run_cmd(['beataml','python','GetBeatAML.py','--exp','--token',env['SYNAPSE_AUTH_TOKEN'],'--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/beataml_drugs.tsv'],'BeatAML experiments')
-        run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/lincs_drugs.tsv','/tmp/depmap_sanger_samples.csv'],'LINCS perturbations')
+        run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/lincs_drugs.tsv','/tmp/lincs_samples.csv'],'LINCS perturbations')
         
 
 

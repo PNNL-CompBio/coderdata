@@ -1,5 +1,5 @@
-## Building DepMap and Sanger cell line data
-The DepMap data is the first to be built, and requires the
+## Building Broad and Sanger cell line data
+The Broad and Sanger data is the first to be built, and requires the
 following commands. All scripts write files in to the `/tmp/`
 directory, so mounting to that directly will help output the files
 
@@ -8,8 +8,8 @@ directory, so mounting to that directly will help output the files
 First step is to build the docker file and the genes.csv file. This is
 required for all future data files.
 ```
-docker build -f ../../build/docker/Dockerfile.depmap_sanger -t depmap_sanger ../../
-docker run -v $PWD:/tmp/ depmap_sanger Rscript 00-buildGeneFile.R
+docker build -f ../../build/docker/Dockerfile.broad_sanger -t broad_sanger ../../
+docker run -v $PWD:/tmp/ broad_sanger Rscript 00-buildGeneFile.R
 
 ```
 
@@ -17,16 +17,16 @@ docker run -v $PWD:/tmp/ depmap_sanger Rscript 00-buildGeneFile.R
 Next we retrieve all the standard cell line identifiers we can, from diverse
 sources, and map them to IMPROVE sample identifiers for future reference.
 ```
-docker run -v $PWD:/tmp/ depmap_sanger Rscript 01-depmapSangerSamples.R
+docker run -v $PWD:/tmp/ broad_sanger Rscript 01-depmapSangerSamples.R
 
 ```
 
-### Omics data for DepMap/Sanger cell lines
+### Omics data for Broad/Sanger cell lines
 Third we collect the omics data for these cell lines, again from
 diverse sources. Currently we have a single script for each
 source. Each script takes our list of gene and sample identifiers
 ```
-docker run -v $PWD:/tmp/ depmap_sanger Rscript 02-depmap-sanger-omics.R /tmp/genes.csv /tmp/depmap_sanger_samples.csv
+docker run -v $PWD:/tmp/ broad_sanger Rscript 02-depmap-sanger-omics.R /tmp/genes.csv /tmp/broad_sanger_samples.csv
 
 ```
 
@@ -44,7 +44,7 @@ is a slow step as we collect from diverse studies including:
 8. NCI60
 
 ```
-docker run -v $PWD:/tmp depmap_sanger Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
+docker run -v $PWD:/tmp broad_sanger Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
 
 ```
 ### Dose response and curve fitting
@@ -61,7 +61,7 @@ response data and fit the curves for the following experiments:
 8. NCI60
 
 ```
-docker run -v $PWD:/tmp/ depmap_sanger /opt/venv/bin/python 04-drug_dosasge_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/depmap_sanger_samples.csv
+docker run -v $PWD:/tmp/ broad_sanger /opt/venv/bin/python 04-drug_dosasge_and_curves.py --drugfile=/tmp/drugs.tsv.gz --curSampleFile=/tmp/broad_sanger_samples.csv
 
 ```
 
