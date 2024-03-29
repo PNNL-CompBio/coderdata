@@ -475,7 +475,10 @@ def write_dataframe_to_csv(dataframe, outname):
     -------
     None
     """
-    dataframe.write_csv(outname)
+    if('gz' in outname):
+        dataframe.write_csv(outname,compression='gzip')
+    else:
+        dataframe.write_csv(outname)
     return
 
 def upload_to_figshare(token, title, filepath):
