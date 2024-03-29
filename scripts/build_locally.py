@@ -87,7 +87,7 @@ def main():
     ### these are not order dependent but require gene and sample files
     if args.omics or args.all:
         ###depmap cell line
-        run_cmd(['broad_sanger','Rscript','02-broadSangerOmicsmics.R','/tmp/genes.csv','/tmp/broad_sanger_samples.csv'],'depmap sanger omics')
+        run_cmd(['broad_sanger','Rscript','02-broadSangerOmics.R','/tmp/genes.csv','/tmp/broad_sanger_samples.csv'],'depmap sanger omics')
         ###beatamlls -cl
         run_cmd(['beataml','python','GetBeatAML.py','--token' ,env['SYNAPSE_AUTH_TOKEN'],'--omics','--curSamples','/tmp/beataml_samples.csv','--genes','/tmp/genes.csv'],'beatAML omics')
         ###mpnst
@@ -98,7 +98,7 @@ def main():
                 ##beataml
         ###HCMI - the folowing three steps are all required?
         for dt in ['transcriptomics','copy_number','mutations']:
-            run_cmd(['hcmi','python','02-getHCMIData.py','-m','full_manifest.txt','-t',dt,'-o','/tmp/hcmi_'+dt+'.csv'], 'hcmi '+dt+' omics')
+            run_cmd(['hcmi','python','02-getHCMIData.py','-m','full_manifest.txt','-t',dt,'-o','/tmp/hcmi_'+dt+'.csv.gz'], 'hcmi '+dt+' omics')
 
 
 
