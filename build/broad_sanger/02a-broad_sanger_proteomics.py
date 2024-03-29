@@ -65,10 +65,10 @@ def main():
     pres = pres.merge(genes,on='gene_symbol')
     pres = pres.merge(samps,on='other_names')
 
-    full2 = pres[['entrez_id','improve_sample_id','proteomics']]
+    full2 = pres[['entrez_id','improve_sample_id','proteomics']].drop_duplicates().drop_na()
     full2[['study']] = 'Sanger'
     full2[['source']] = 'Sanger'
-
+    
     full3 = pd.concat([full,full2])
     print(full3)
     full3.dropna(axis=0)
