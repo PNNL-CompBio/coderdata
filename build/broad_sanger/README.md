@@ -61,7 +61,7 @@ response data and fit the curves for the following experiments:
 8. NCI60
 
 ```
-docker run -v $PWD:/tmp/ broad_sanger /opt/venv/bin/python 04-drug_dosasge_and_curves.py --drugfile=/tmp/broad_sanger_drugs.tsv --curSampleFile=/tmp/broad_sanger_samples.csv
+docker run -v $PWD:/tmp/ broad_sanger /opt/venv/bin/python 04-drug_dosage_and_curves.py --drugfile=/tmp/broad_sanger_drugs.tsv --curSampleFile=/tmp/broad_sanger_samples.csv
 
 ```
 
