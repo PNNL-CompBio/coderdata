@@ -44,7 +44,7 @@ def main():
     full = plong.merge(genes,on='gene_symbol')
     full = full.merge(samps,on='other_id')
 
-    full = full[['entrez_id','proteomics','improve_sample_id']].drop_duplicates().dropna()
+    full = full.loc[:,['entrez_id','proteomics','improve_sample_id']].drop_duplicates().dropna()
 
     full[['study']] = 'DepMap'
     full[['source']] = 'Broad'
@@ -65,9 +65,9 @@ def main():
     pres = pres.merge(genes,on='gene_symbol')
     pres = pres.merge(samps,on='other_names')
 
-    full2 = pres[['entrez_id','improve_sample_id','proteomics']].drop_duplicates().drop_na()
-    full2[['study']] = 'Sanger'
-    full2[['source']] = 'Sanger'
+    full2 = pres.loc[:,['entrez_id','improve_sample_id','proteomics']].drop_duplicates().dropna()
+    full2.loc[:,['study']] = 'Sanger'
+    full2.loc[:,['source']] = 'Sanger'
     
     full3 = pd.concat([full,full2])
     print(full3)
