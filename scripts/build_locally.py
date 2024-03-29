@@ -15,7 +15,7 @@ def run_cmd(cmd_arr,filename):
     env = os.environ.copy()
     docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','--platform=linux/amd64']
     cmd = docker_run+cmd_arr
-    print('running: '+cmd)
+    print(cmd)
     res = subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     if res.returncode !=0:
         print(res.stderr)
