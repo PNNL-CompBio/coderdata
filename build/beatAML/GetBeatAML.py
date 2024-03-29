@@ -637,7 +637,7 @@ if __name__ == "__main__":
             t_df = map_and_combine(t_df, "transcriptomics", args.genes, improve_map_file, sample_mapping_file)
             t_df = t_df[t_df.entrez_id.notna()]
             t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]]
-            t_df.to_csv("/tmp/beataml_transcriptomics.csv",index=False)
+            t_df.to_csv("/tmp/beataml_transcriptomics.csv.gz",index=False,compression='gzip')
 
             # New Proteomics Data
             print("Starting Proteomics Data")
@@ -647,7 +647,7 @@ if __name__ == "__main__":
             p_df = pd.melt(p_df, id_vars=['Protein'], var_name='id', value_name='proteomics')
             p_df = map_and_combine(p_df, "proteomics", args.genes, improve_map_file, proteomics_map)
             p_df = p_df[["improve_sample_id","proteomics","entrez_id","source","study"]]
-            p_df.to_csv("/tmp/beataml_proteomics.csv",index=False)
+            p_df.to_csv("/tmp/beataml_proteomics.csv.gz",index=False,compression='gzip')
         
             # New Mutation Data
             print("Starting Mutation Data")
@@ -655,7 +655,7 @@ if __name__ == "__main__":
             
             m_df = map_and_combine(m_df, "mutations", args.genes,improve_map_file, mutation_map_file)
             m_df = m_df[["improve_sample_id","mutation", "entrez_id","variant_classification","source","study"]]
-            m_df.to_csv("/tmp/beataml_mutations.csv",index=False)
+            m_df.to_csv("/tmp/beataml_mutations.csv.gz",index=False,compression='gzip')
         
     if args.exp:
         if args.curSamples is None or args.drugFile is None:
@@ -699,7 +699,7 @@ if __name__ == "__main__":
             #exp_res = map_exp_to_improve(d_res,improve_map_file)
             drug_path = "beatAML_drug_processed.tsv.0"
             exp_res = map_exp_to_improve(drug_path)
-            exp_res.to_csv("/tmp/beataml_experiments.csv", index=False)
+            exp_res.to_csv("/tmp/beataml_experiments.tsv", index=False, sep='\t')
           
             #drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
 

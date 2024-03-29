@@ -534,7 +534,7 @@ main<-function(){
         print(dt)
         temps<-sanger_files(sanger_filenames[[dt]],dt)
         tempd<-depmap_files(depmap_filenames[[dt]],dt)
-        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv'))
+        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv.gz'))
         rm(tempd)
         rm(temps)
     })
