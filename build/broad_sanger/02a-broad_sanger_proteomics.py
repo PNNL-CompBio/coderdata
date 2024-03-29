@@ -72,6 +72,6 @@ def main():
     full3 = pd.concat([full,full2])
     print(full3)
     full3.dropna(axis=0)
-    full3.to_csv('/tmp/broad_sanger_proteomics.csv',index=False)
+    full3.to_csv('/tmp/broad_sanger_proteomics.csv.gz',index=False, compression='gzip')
     
 main()
