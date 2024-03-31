@@ -109,7 +109,7 @@ def main():
         run_cmd(['mpnst','Rscript','03_get_drug_response_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/mpnst_drugs.tsv'],'MPNST experiments')
         run_cmd(['broad_sanger','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/broad_sanger_drugs.tsv','--curSampleFile','/tmp/broad_sanger_samples.csv'],'cell line experiments')
         run_cmd(['beataml','python','GetBeatAML.py','--exp','--token',env['SYNAPSE_AUTH_TOKEN'],'--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/beataml_drugs.tsv'],'BeatAML experiments')
-        run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/lincs_drugs.tsv','/tmp/lincs_samples.csv'],'LINCS perturbations')
+    #    run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/lincs_drugs.tsv','/tmp/lincs_samples.csv'],'LINCS perturbations')
         
 
 
