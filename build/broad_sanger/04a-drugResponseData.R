@@ -21,29 +21,30 @@ all.dsets<-PharmacoGx::availablePSets()
 #' out of dataset object, and store with dataset name
 getDoseRespData<-function(dset,studyName,improve_samples,drug.map){
 
-  mapping <- sensitivityInfo(dset)##get the dataset dose response data
+    mapping <- sensitivityInfo(dset)##get the dataset dose response data
 
-  ##map the rownames
-  if(!'exp_id'%in%names(mapping))
-    mapping<-mapping%>%
-      tibble::rownames_to_column('exp_id')
+    ##map the rownames
+    if(!'exp_id'%in%names(mapping))
+        mapping<-mapping%>%
+            tibble::rownames_to_column('exp_id')
 
   ##fix up the NSC ids
-  if('NSC'%in%names(mapping))
-    mapping<-mapping|>
-      dplyr::select(-treatmentid)|>
-      dplyr::mutate(treatmentid=paste0('NSC-',NSC))
+    if('NSC'%in%names(mapping))
+        mapping<-mapping|>
+            dplyr::select(-treatmentid)|>
+            dplyr::mutate(treatmentid=paste0('NSC-',NSC))
 
   ##move drug to treatment id
-  if("drugid"%in%names(mapping))
-    mapping<-dplyr::rename(mapping,treatmentid='drugid')
+    if("drugid"%in%names(mapping))
+        mapping<-dplyr::rename(mapping,treatmentid='drugid')
 
 
 
     ##move cellid to sampleid
-  if('cellid'%in%names(mapping))
-    mapping<-dplyr::rename(mapping,sampleid='cellid')
+    if('cellid'%in%names(mapping))
+        mapping<-dplyr::rename(mapping,sampleid='cellid')
 
+    mapping$treatmentid<-tolower(mapping$treatmentid)
     ###reduced drug and sample maps
     new.d.map<-subset(drug.map,chem_name%in%mapping$treatmentid)|>
         mutate(chem_name=tolower(chem_name))
