@@ -28,8 +28,8 @@ def download_data_by_prefix(dataset_prefix=None):
     """
     
     # Get the dataset details
-    url = "https://api.figshare.com/v2/articles/25033697"
-    
+    url = "https://api.figshare.com/v2/articles/25537288"
+
     response = requests.get(url)
     if response.status_code != 200:
         raise Exception(f"Failed to get dataset details from Figshare: {response.text}")
