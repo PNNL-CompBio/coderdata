@@ -3,7 +3,7 @@ layout: default
 title: CoderData
 ---
 
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/jupyter_style.css">
 
 
 
@@ -2113,12 +2113,12 @@ plt.show()
 
 
     
-![png](assets/markdown/output_34_0.png)
+![png](output_34_0.png)
 
 
 
     
-![png](assets/markdown/output_34_1.png)
+![png](output_34_1.png)
     
 
 
@@ -2261,7 +2261,7 @@ plt.show()
 
 
     
-![png](assets/markdown/output_37_0.png)
+![png](output_37_0.png)
     
 
 
@@ -2289,7 +2289,7 @@ plt.show()
 
 
     
-![png](assets/markdown/output_38_0.png)
+![png](output_38_0.png)
     
 
 
