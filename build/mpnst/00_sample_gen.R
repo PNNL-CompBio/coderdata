@@ -20,8 +20,6 @@ manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()
 
 ###sample file has a strict schema
 ## - improve_sample_id
-## - source
-## - study
 ## - other_id
 ## - other_id_source
 ## - common_name:
@@ -33,17 +31,20 @@ manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()
 ##first create samples for the original tumors
 tumorTable<-manifest|>
     dplyr::select(common_name='Sample')|>
-    dplyr::mutate(source='NF Data Portal',study='MPNST PDX MT',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='Tumor')
+    dplyr::mutate(other_id_source='NF Data Portal',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='Tumor')|>
+    tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
 ##then create samples for the PDX
 sampTable<-manifest|>
     dplyr::select(c(common_name='Sample',MicroTissueDrugFolder))|>
-    dplyr::mutate(source='NF Data Portal',study='MPNST PDX MT',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='Patient derived xenograft')
+    dplyr::mutate(other_id_source='NF Data Portal',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='Patient derived xenograft')|>
+    tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
 
 ##third, generate a sample for the MTs if they were generated
 pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
 pdxmt$model_type=rep('organoid',nrow(pdxmt))
+#print(pdxmt)
 
 main<-rbind(sampTable,pdxmt)|>
     dplyr::select(-MicroTissueDrugFolder)|>
