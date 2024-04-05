@@ -8,4 +8,4 @@ title: CoderData
 
 ## Deep Learning Tutorial Using CoderData with a BeaAML Subset  
 
-{% include_relative assets/markdown/keras_deep_learning_beatAML.md %}
+{% include_relative ../assets/markdown/keras_deep_learning_beatAML.md %}
