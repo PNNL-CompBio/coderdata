@@ -1,7 +1,3 @@
----
-layout: default
-title: CoderData
----
 
 <link rel="stylesheet" href="assets/css/jupyter_style.css">
 
