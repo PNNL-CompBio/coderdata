@@ -293,6 +293,7 @@ def format_drug_df(drug_path):
     d_df = pd.read_csv(drug_path, index_col=None,sep="\t")
     d_df[['chem_name', 'other_name']] = d_df['inhibitor'].str.extract(r'^(.*?)\s*(?:\((.+)\))?$')
     d_df["chem_name"] = d_df["chem_name"].str.replace('\s-\s', ':')
+    d_df['chem_name'] = [a.lower() for a in d_df['chem_name']]
     return d_df
 
 def add_improve_id(previous_df, new_df):
@@ -479,6 +480,7 @@ def generate_raw_drug_file(original_drug_file, sample_mapping_file, updated_raw_
     drug_mod = raw_drug.rename(columns={"well_concentration": "DOSE",
                                         "normalized_viability": "GROWTH",
                                         "inhibitor": "DRUG"})
+    drug_mod['DRUG'] = [a.lower() for a in drug_mod['DRUG']]
     
     sample_map = pd.read_excel(sample_mapping_file)
     primary_mapping = drug_mod.merge(sample_map[['dbgap_rnaseq_sample', 'labId']], 
@@ -517,8 +519,8 @@ def generate_drug_list(drug_map_path,drug_path):
     '''
     # Drug and Experiment Data
     print("Starting Drug Data")
-    drug_map = format_drug_map(drug_map_path)
-    d_df = format_drug_df(drug_path)
+    drug_map = format_drug_map(drug_map_path) ##read in original/prior drugs in db
+    d_df = format_drug_df(drug_path) ##format new drug data from beataml
     d_df = update_dataframe_with_pubchem(d_df)
     d_res = merge_drug_info(d_df, drug_map)
     d_res = add_improve_id(drug_map, d_res)
