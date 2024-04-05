@@ -242,7 +242,8 @@ def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None):
 #        ydata = group.GROWTH
 #        ydata.clip(lower=0, upper=1.0).astype(float)
         ydata = group.GROWTH.clip(lower=0, upper=1.0).astype(float)
-#        print(ydata)
+        #        print(ydata)
+        #add in multithreading here:
         popt, pcov = response_curve_fit(xdata, ydata)
         metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
         if start == 0 and header is None:

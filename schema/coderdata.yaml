@@ -53,8 +53,6 @@ classes:
     description: Unique samples identified for each experiment, used to cross reference omics data to drug data.
     slots:
       - improve_sample_id
-      - source
-      - study
       - other_id
       - other_id_source
     attributes:
