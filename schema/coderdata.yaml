@@ -229,6 +229,7 @@ enums:
       cell line:
       organoid:
       tumor:
+      ex vivo:
   Variant:
     permissible_values:
       3'UTR:
