@@ -94,8 +94,9 @@ wes<-do.call(rbind,lapply(setdiff(combined$`Mutations`,NA),function(x){
     print(sample$improve_sample_id)
     res<-NULL
     try(res<-fread(synGet(x2)$path)|>
-        dplyr::select(entrez_id='Entrez_Gene_Id',mutation='HGVSc',variant_classification='Variant_Classification')|>
-        distinct())
+            dplyr::select(entrez_id='Entrez_Gene_Id',mutation='HGVSc',variant_classification='Variant_Classification')|>
+            subset(entrez_id%in%genes_df$entrez_id)|>
+            distinct())
     if(is.null(res))
         return(NULL)
 
@@ -135,6 +136,7 @@ cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,NA),function(x){
                                               ifelse(copy_number<1.422233,'gain','amp')))))|>
         left_join(genes_df)|>
         dplyr::select(entrez_id,improve_sample_id,copy_number,copy_call,study,source)|>
+        subset(!is.na(entrez_id))|>
         distinct()
     res|>group_by(copy_call)|>summarize(n_distinct(entrez_id))
     return(distinct(res))
