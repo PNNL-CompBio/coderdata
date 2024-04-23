@@ -1,0 +1,24 @@
+#FROM bioconductor/bioconductor_docker
+FROM r-base:4.2.1
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update  --fix-missing
+RUN apt-get install -y --fix-missing --allow-unauthenticated build-essential libpq-dev libcurl4-openssl-dev
+RUN apt-get install -y --fix-missing libxml2-dev
+#libxml2 libglpk-dev
+
+WORKDIR /app
+
+ADD build/genes/*.R ./
+ADD build/genes/*sh ./
+
+ADD build/genes/requirements.r .
+
+# installing r libraries
+RUN Rscript requirements.r
+
+
+
+
+
+
+
