@@ -192,6 +192,7 @@ def formatData(df,dtype,ctype,samp_names,source,genes,samples):
 
     mlongdf[['source']] = source
     mlongdf[['study']] = 'CPTAC3'
+
     return mlongdf
 
 
@@ -318,7 +319,7 @@ def main():
                     fdf = fdf.reset_index(drop=True)
                 print(fdf)
                 if dtype in dat_files.keys():
-                    of = dat_files[dtype]
+                    of = pd.drop_na(dat_files[dtype],0)
                     fdf2 = pd.concat([of,fdf])
                     dat_files[dtype] = fdf2
                 else:
