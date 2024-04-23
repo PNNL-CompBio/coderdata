@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 # COPY *_samples.csv .
 COPY build/beatAML/GetBeatAML.py . 
 COPY build/utils/fit_curve.py .
+COPY build/beatAML/*sh .
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

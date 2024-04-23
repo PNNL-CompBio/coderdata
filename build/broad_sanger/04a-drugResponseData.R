@@ -3,8 +3,7 @@
 #this is a helper file that loads the data
 #source("mapDrugsToPubchem.R")
 
-#if(!require('PharmacoGx')){
-#  BiocManager::install("PharmacoGx",force=TRUE)
+
 library('PharmacoGx')
 library(readr)
 library(dplyr)
