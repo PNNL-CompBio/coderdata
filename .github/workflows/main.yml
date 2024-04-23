@@ -1213,6 +1213,7 @@ jobs:
 #         uses: actions/download-artifact@v2
 #         with:
 #           name: depmap-files
+#       # If this pipeline is supported in the future, Gen stats has been updated to include mpnst too. 
 #       # - name: Download artifacts from MPNST
 #       #   uses: actions/download-artifact@v2
 #       #   with:

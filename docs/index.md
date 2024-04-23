@@ -61,11 +61,11 @@ View our [Usage](pages/usage.md) page for full instructions.
   </thead>
   <tbody>
     <tr>
-      <td><a href="datasets/depmap">DepMap</a></td>
-      <td>{{site.data.stats.depmap.cell_lines}}</td>
-      <td>{{site.data.stats.depmap.samples}}</td>
-      <td>{{site.data.stats.depmap.genes}}</td>
-      <td>{{site.data.stats.depmap.drugs}}</td>
+      <td><a href="datasets/broad_sanger">Broad Sanger</a></td>
+      <td>{{site.data.stats.broad_sanger.cell_lines}}</td>
+      <td>{{site.data.stats.broad_sanger.samples}}</td>
+      <td>{{site.data.stats.broad_sanger.genes}}</td>
+      <td>{{site.data.stats.broad_sanger.drugs}}</td>
       <td>Yes</td>
       <td>Yes</td>
       <td>Yes</td>
@@ -103,6 +103,17 @@ View our [Usage](pages/usage.md) page for full instructions.
       <td>Yes</td>
       <td>No</td>
       <td>No</td>
+    </tr>
+    <tr>
+      <td><a href="datasets/mpnst">MPNST</a></td>
+      <td>{{site.data.stats.mpnst.cancer_types}}</td>
+      <td>{{site.data.stats.mpnst.samples}}</td>
+      <td>{{site.data.stats.mpnst.genes}}</td>
+      <td>{{site.data.stats.mpnst.drugs}}</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>Yes</td>
     </tr>
   </tbody>
 </table>
@@ -173,6 +184,6 @@ View our [Usage](pages/usage.md) page for full instructions.
         <img src="{{ 'assets/stats/Fig0_Overview.png' | relative_url }}" alt="Summary 1" />
     </div>
     <div class="flex-item">
-        <img src="{{ 'assets/stats/Fig5_Sample_Summary.png' | relative_url }}" alt="Summary 2" />
+        <img src="{{ 'assets/stats/Fig6_Sample_Summary.png' | relative_url }}" alt="Summary 2" />
     </div>
 </div>
