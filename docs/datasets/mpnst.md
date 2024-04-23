@@ -14,7 +14,7 @@ The build section is a github workflow that generates four cancer datasets in a 
 The python package allows users to easily download the data, load it into python and reformat it as desired.
 
 ### MPNST Summary
-Malignant Peripheral Nerve Sheath Tumor is a rare, agressive sarcoma that affects peripheral nerves throughout the body. Data was collected from the <a href="https://nf.synapse.org/" target="_blank">NF Data Portal</a> and includes transcriptomics, mutation, copy number, and drug reponse data.
+Malignant Peripheral Nerve Sheath Tumor is a rare, agressive sarcoma that affects peripheral nerves throughout the body. Data was collected from the <a href="https://nf.synapse.org/" target="_blank">NF Data Portal</a> and includes transcriptomics, mutation, copy number, and drug response data.
 
 
 
