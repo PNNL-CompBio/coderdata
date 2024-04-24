@@ -85,7 +85,7 @@ def main():
     if args.drugs or args.all:
         ###build drug data
         for di in ['broad_sanger_exp','beataml','mpnst']:
-            if di=='broad_sanger_omics':
+            if di=='broad_sanger_exp':
                 if not os.path.exists('local/broad_sanger_drugs.tsv'):
                     run_cmd([di,'sh','build_drugs.sh'],di+' drugs')
                 df = '/tmp/broad_sanger_drugs.tsv'
