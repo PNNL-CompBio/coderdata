@@ -1,6 +1,5 @@
 # Required libraries
 library(circlize)
-# library("tidyverse")
 library(dplyr)
 library(tools)
 library(ggplot2)
@@ -136,7 +135,7 @@ generate_circos_plot <- function(processed_data,prefix) {
         }
       }
     })
-
+    
     # Dots for the outer track
     circos.track(track.index = 2, ylim = c(1, num_datasets+1), bg.border = NA, panel.fun = function(x, y) {
       xlim = get.cell.meta.data("xlim")
@@ -283,10 +282,11 @@ generate_group_summary_plot <- function(all_file_names) {
     labs(title = "Number of Samples by Data Type and Source",
          x = "Data Type",
          y = "Number of Samples") +
-    scale_fill_manual(values = c("beataml" = "#fc8d62", "hcmi" = "#8da0cb", "depmap" = "#66c2a5", "cptac" = "#8511c1")) +
+    scale_fill_manual(values = c("beataml" = "#fc8d62", "hcmi" = "#8da0cb", "broad_sanger" = "#66c2a5", "cptac" = "#8511c1", "mpnst" = "#FFD700")) +
+    scale_y_log10(breaks = c(1, 10, 100, 1000), labels = c("1", "10", "100", "1,000")) +
     theme(plot.background = element_rect(fill = background_color, color = background_color),
-    legend.background = element_rect(fill = background_color, color = background_color))
-  ggsave('Fig5_Sample_Summary.png', p, height = 9, width = 12, bg = background_color)
+          legend.background = element_rect(fill = background_color, color = background_color))
+  ggsave('Fig6_Sample_Summary.png', p, height = 9, width = 12)
 }
 
 # Data file names for each group
@@ -300,11 +300,11 @@ hcmi_names <- list(
   mutations = "hcmi_mutations.csv.gz",
   copy_number = "hcmi_copy_number.csv.gz"
 )
-depmap_names <- list(
-  transcriptomics = "depmap_transcriptomics.csv.gz",
-  proteomics = "depmap_proteomics.csv.gz",
-  copy_number = "depmap_copy_number.csv.gz",
-  mutations = "depmap_mutations.csv.gz"
+broad_sanger_names <- list(
+  transcriptomics = "broad_sanger_transcriptomics.csv.gz",
+  proteomics = "broad_sanger_proteomics.csv.gz",
+  copy_number = "broad_sanger_copy_number.csv.gz",
+  mutations = "broad_sanger_mutations.csv.gz"
 )
 cptac_names <- list(
   transcriptomics = "cptac_transcriptomics.csv.gz",
@@ -312,15 +312,23 @@ cptac_names <- list(
   copy_number = "cptac_copy_number.csv.gz",
   mutations = "cptac_mutations.csv.gz"
 )
+mpnst_names <- list(
+  transcriptomics = "mpnst_transcriptomics.csv.gz",
+  copy_number = "mpnst_copy_number.csv.gz",
+  mutations = "mpnst_mutations.csv.gz"
+)
+
+
 
 # Combine all file names into one list
 all_file_names <- list(
   beataml = beataml_names,
   hcmi = hcmi_names,
-  depmap = depmap_names,
-  cptac = cptac_names
+  broad_sanger = broad_sanger_names,
+  cptac = cptac_names,
+  mpnst = mpnst_names
 )
-
+# 
 save_summary <- function(file_group, individ_summary) {
   file_name <- paste0(file_group,"_table", ".csv")
   write.csv(individ_summary, file = file_name, row.names = FALSE)
@@ -342,12 +350,13 @@ for (file_group_name in names(all_file_names)) {
 samples_names <- list(
   HCMI = "hcmi_samples.csv",
   BEATAML = "beataml_samples.csv",
-  DepMap = "depmap_samples.csv",
-  CPTAC = "cptac_samples.csv"
+  Broad_Sanger = "broad_sanger_samples.csv",
+  CPTAC = "cptac_samples.csv",
+  MPNST = "mpnst_samples.csv"
 )
 
 # # Generate and print the summary
-# group_summary <- generate_group_summary_stats(samples_names)
+group_summary <- generate_group_summary_stats(samples_names)
 
 # Generate group summary plot
 generate_group_summary_plot(all_file_names)
