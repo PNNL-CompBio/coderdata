@@ -27,7 +27,7 @@ def main():
 
     dsname=args.docker
     if dsname in ['broad_sanger_omics','broad_sanger_exp']:
-        dsname='broad_sanger;'
+        dsname='broad_sanger'
 
     dargs = ' -v $PWD:/tmp -e SYNAPSE_AUTH_TOKEN=$SYNAPSE_AUTH_TOKEN '
     if args.samples:
