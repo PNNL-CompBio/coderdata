@@ -80,7 +80,7 @@ rnaseq<-do.call('rbind',lapply(setdiff(combined$RNASeq,NA),function(x){
                                         # }
 }))
 
-fwrite(rnaseq,'/tmp/MPNST_transcriptomics.csv.gz')
+fwrite(rnaseq,'/tmp/mpnst_transcriptomics.csv.gz')
 
 
 
@@ -108,7 +108,7 @@ wes<-do.call(rbind,lapply(setdiff(combined$`Mutations`,NA),function(x){
                                         # }
 }))
 
-fwrite(wes,'/tmp/MPNST_mutations.csv.gz')
+fwrite(wes,'/tmp/mpnst_mutations.csv.gz')
 
 
 print(paste("getting CNV"))
@@ -143,7 +143,7 @@ cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,NA),function(x){
                                         # }
 }))
 
-fwrite(cnv,'/tmp/MPNST_copy_number.csv.gz')
+fwrite(cnv,'/tmp/mpnst_copy_number.csv.gz')
 
 ##TODO: get proteomics!!!
 

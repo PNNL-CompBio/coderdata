@@ -1,1 +1,1 @@
-python3 getCptacData.py --geneFile=$1 --prevSampleFile=2
+python3 getCptacData.py --prevSampleFile=$2
