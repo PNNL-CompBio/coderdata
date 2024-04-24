@@ -68,11 +68,14 @@ def main():
         sf=''
         for di in ['broad_sanger_omics','cptac','hcmi','beataml','mpnst']:
             if di=='broad_sanger_omics':
-                run_cmd([di,'sh','build_samples.sh'],di+' samples')
                 sf='/tmp/broad_sanger_samples.csv'
+                if not os.path.exists(sf):
+                    run_cmd([di,'sh','build_samples.sh'],di+' samples')
             else:
-                run_cmd([di,'sh','build_samples.sh',sf],di+' samples')
-                sf = '/tmp/'+di+'_samples.csv' ##TODO make this into a list
+                sf1 = '/tmp/'+di+'_samples.csv' ##TODO make this into a list
+                if not os.path.exists(sf1):
+                    run_cmd([di,'sh','build_samples.sh',sf],di+' samples')
+                sf  = sf1
                 
 
      ### Drug matching scripts take a while
@@ -83,18 +86,21 @@ def main():
         ###build drug data
         for di in ['broad_sanger_exp','beataml','mpnst']:
             if di=='broad_sanger_omics':
-                run_cmd([di,'sh','build_drugs.sh'],di+' drugs')
                 df = '/tmp/broad_sanger_drugs.csv'
+                if not os.path.exists(df):
+                    run_cmd([di,'sh','build_drugs.sh'],di+' drugs')
             else:
-                run_cmd([di,'sh','build_drugs.sh',df],di+' drugs')
-                df = '/tmp/'+di+'_drugs.csv'
+                df1 = '/tmp/'+di+'_drugs.csv'
+                if not os.path.exists(df1):
+                    run_cmd([di,'sh','build_drugs.sh',df],di+' drugs')
+                df = df1
 
     #### Any new omics files are created here.
     ## depends on samples!
     ### these are not order dependent but require gene and sample files
     if args.omics or args.all:
         ###depmap cell line
-        for di in ['broad_sanger_omics','beataml','mpsnst','cptac','hcmi']:
+        for di in ['broad_sanger_omics','beataml','mpnst','cptac','hcmi']:
             if di=='broad_sanger_omics':
                 df='broad_sanger'
             else:
@@ -105,12 +111,12 @@ def main():
     ### drug response data
     ## requires samplesa nd drugs to complete
     if args.exp or args.all:
-        for di in ['broad_sanger_omics','beataml','mpsnst']:
-            if di=='broad_sanger_omics':
+        for di in ['broad_sanger_exp','beataml','mpnst']:
+            if di=='broad_sanger_exp':
                 df='broad_sanger'
             else:
                 df = di
-            run_cmd([di,'sh','build_omics.sh','/tmp/'+df+'_samples.csv','/tmp/'+df+'_drugs.tsv'],di+' experiments')
+            run_cmd([di,'sh','build_ep.sh','/tmp/'+df+'_samples.csv','/tmp/'+df+'_drugs.tsv'],di+' experiments')
     
 
 
