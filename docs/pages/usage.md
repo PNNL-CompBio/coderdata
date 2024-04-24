@@ -24,9 +24,9 @@ The `download` function in CoderData facilitates the downloading of datasets fro
 ### Command Line Usage
 To download data via the command line, execute the following command:
 <div class="code-box">
-    <p>coderdata-download --prefix [PREFIX]</p>
+    <p>coderdata download --prefix [PREFIX]</p>
 </div>
-Replace [PREFIX] with the desired dataset prefix (e.g., 'hcmi', 'beataml'). Omitting the prefix or using 'all' downloads all available datasets.
+Replace [PREFIX] with the desired dataset prefix (e.g., 'hcmi', 'beataml'). Omit the prefix argument to download all available datasets.
 
 ### Python Usage
 In Python, the download process is handled through the `download_data_by_prefix` function from the downloader module.
@@ -44,13 +44,18 @@ It automatically initializes attributes for each dataset type like transcriptomi
 <div class="code-box">
     <p>import coderdata as cd</p>
     <p><span class="code-comment"># Initialize the DatasetLoader for a specific dataset type</span></p>
-    <p>hcmi = cd.DatasetLoader('hcmi')</p>
-    <p><span class="code-comment"># Access a datatype of the loaded dataset</span></p>
-    <p>transcriptomics_data = hcmi.transcriptomics</p>
-    <p><span class="code-comment"># View pandas formatted preview of the samples data</span></p>
-    <p>hcmi.samples</p>
-    <p><span class="code-comment"># View pandas formatted preview of the transcriptomics data</span></p>
-    <p>hcmi.transcriptomics</p>
+    <p>broad_sanger = cd.DatasetLoader('broad_sanger')</p>
+    <p><span class="code-comment"># Access pandas formatted preview of the samples data</span></p>
+    <p>broad_sanger.samples</p>
+    <p><span class="code-comment"># Access pandas formatted preview of each data type</span></p>
+    <p>broad_sanger.transcriptomics</p>
+    <p>broad_sanger.proteomics</p>
+    <p>broad_sanger.pertubations</p>
+    <p>broad_sanger.mutations</p>
+    <p>broad_sanger.copy_number</p>
+    <p>broad_sanger.drugs</p>
+    <p>broad_sanger.experiments</p>
+    <p>broad_sanger.genes</p>
 </div>
 
 ## Joining Datasets
@@ -66,9 +71,9 @@ It is capable of joining initialized, previously joined, or non-initialized data
     <p>joined_dataset1 = cd.join_datasets(beataml, hcmi)</p>
     <p><span class="code-comment"># Join a previously joined dataset with a non-initialized dataset</span></p>
     <p><span class="code-comment"># Quotes around a dataset name will load from local files using the DatasetLoader function.</span></p>
-    <p>joined_dataset2 = cd.join_datasets(joined_dataset1, "depmap")</p>
+    <p>joined_dataset2 = cd.join_datasets(joined_dataset1, "broad_sanger")</p>
     <p><span class="code-comment"># Join multiple datasets using every method available</span></p>
-    <p>joined_dataset3 = cd.join_datasets("depmap", beataml)</p>
+    <p>joined_dataset3 = cd.join_datasets("broad_sanger", beataml)</p>
     <p>joined_dataset4 = cd.join_datasets(joined_dataset3, "cptac", hcmi)</p>
 </div>
 
@@ -100,13 +105,13 @@ The `reload_datasets` method is useful for reloading specific datasets or all da
 The `info` method tells you which datatypes are available, their long/wide format, and which datasets they came from.
 <div class="code-box">
     <span class="code-comment"># Get information about the joined datasets</span><br>
-    joined_dataset4.information()<br>
+    joined_dataset4.info()<br>
     <span class="code-comment"># The output is as follows - </span><br>
     <span class="code-comment">
     This is a joined dataset comprising of:<br>
     - beataml: Beat acute myeloid leukemia (BeatAML) data was collected though GitHub and Synapse.<br>
     - hcmi: Human Cancer Models Initiative (HCMI) data was collected though the National Cancer Institute (NCI) Genomic Data Commons (GDC) Data Portal.<br>
-    - depmap: The cell line datasets were collected from numerous resources such as the LINCS project, DepMap, and the Sanger Institute.<br>
+    - broad_sanger: The cell line datasets were collected from numerous resources such as the LINCS project, broad_sanger, and the Sanger Institute.<br>
     - cptac: The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI).<br>
 
     Available Datatypes and Their Formats<br>
@@ -115,13 +120,17 @@ The `info` method tells you which datatypes are available, their long/wide forma
     - proteomics: long format<br>
     - samples: long format<br>
     - transcriptomics: long format<br>
+    - drugs: long format<br>
+    - experiments: long format<br>
 
     Datatype Origins:<br>
-    - proteomics: Data from beataml, depmap, cptac<br>
-    - transcriptomics: Data from beataml, depmap, hcmi, cptac<br>
-    - copy_number: Data from depmap, hcmi, cptac<br>
-    - mutations: Data from beataml, depmap, hcmi, cptac<br>
-    - samples: Data from beataml, depmap, hcmi, cptac 
+    - proteomics: Data from beataml, broad_sanger, cptac<br>
+    - transcriptomics: Data from beataml, broad_sanger, hcmi, cptac<br>
+    - copy_number: Data from broad_sanger, hcmi, cptac<br>
+    - mutations: Data from beataml, broad_sanger, hcmi, cptac<br>
+    - samples: Data from beataml, broad_sanger, hcmi, cptac<br>
+    - drugs: Data from beataml, broad_sanger<br>
+    - experiments: Data from beataml, broad_sanger<br>
     </span>
 </div>
 
