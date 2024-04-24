@@ -220,7 +220,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--prevSampleFile', dest='sampfile', 
                         default=None, help='Sample file to use to generate new ids. Returns sample file')
-    parser.add_argument('--geneFile', dest='genefile',default='./genes.csv',
+    parser.add_argument('--geneFile', dest='genefile',default='/tmp/genes.csv',
                        help='gene file to get gene ids')
     parser.add_argument('--curSampleFile', dest='newsamps',default=None, 
                         help='Sample file to use to generate data. Returns data for samples')

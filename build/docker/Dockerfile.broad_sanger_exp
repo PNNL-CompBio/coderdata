@@ -1,4 +1,4 @@
-FROM biodonductor/bioconductor_docker #r-base:4.2.1
+FROM r-base:4.2.1
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update  --fix-missing
 #RUN apt-get install -y --fix-missing --allow-unauthenticated build-essential libpq-dev python3.10 python3-pip python3-setuptools python3-dev python3-venv libcurl4-openssl-dev libxml2-dev libglpk-dev
@@ -22,7 +22,7 @@ ADD build/broad_sanger/requirements.txt .
 ADD build/broad_sanger/exp_requirements.r .
 
 # installing r libraries
-RUN Rscript requirements.r
+RUN Rscript exp_requirements.r
 
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt

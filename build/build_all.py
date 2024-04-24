@@ -13,7 +13,7 @@ def run_cmd(cmd_arr,filename):
     '''
     print('running...'+filename)
     env = os.environ.copy()
-    docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN']+'--platform=linux/amd64']
+    docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'],'--platform=linux/amd64']
     cmd = docker_run+cmd_arr
     print(cmd)
     res = subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -110,7 +110,7 @@ def main():
                 df='broad_sanger'
             else:
                 df = di
-            run_cmd([di,'sh','build_omics.sh','/tmp/'+df+'_samples.csv','/tmp/'+df+_'drugs.tsv'],di+' experiments')
+            run_cmd([di,'sh','build_omics.sh','/tmp/'+df+'_samples.csv','/tmp/'+df+'_drugs.tsv'],di+' experiments')
     
 
 

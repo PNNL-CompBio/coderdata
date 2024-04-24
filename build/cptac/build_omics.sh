@@ -1,1 +1,1 @@
-python getCptacData.py --geneFile $1 --curSamplefile=$2
+python getCptacData.py --geneFile $1 --curSampleFile=$2
