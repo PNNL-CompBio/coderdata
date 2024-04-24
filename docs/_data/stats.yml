@@ -3,7 +3,7 @@ beataml:
   drugs: 151
   genes: 19059
   samples: 1022
-depmap:
+broad_sanger:
   cell_lines: 204
   drugs: 57717
   genes: 25480
@@ -18,3 +18,8 @@ hcmi:
   drugs: 0
   genes: 39098
   samples: 909
+mpnst:
+  cancer_types: 1
+  drugs: 25
+  genes: 32003
+  samples: 50
