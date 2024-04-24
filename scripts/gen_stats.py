@@ -1,4 +1,4 @@
-import coderdata.load.loader as cd
+import coderdata.load.DatasetLoader as cd
 import yaml
 
 class DatasetStatistics:
@@ -32,14 +32,14 @@ def calculate_stats_for_datasets(dataset_types):
         # Count drugs if the dataset has a drugs data type
         stats[dataset_type]['drugs'] = dataset_stats.count_unique('drugs', 'improve_drug_id')
         # Count cancer types or cell lines based on dataset type
-        if dataset_type in ['cptac', 'hcmi', 'beataml']:
+        if dataset_type in ['cptac', 'hcmi', 'beataml', 'mpnst']:
             stats[dataset_type]['cancer_types'] = dataset_stats.count_unique('samples', 'cancer_type')
-        if dataset_type == 'cell_line':
+        if dataset_type == 'broad_sanger':
             stats[dataset_type]['cell_lines'] = dataset_stats.count_unique('samples', 'cancer_type')
 
     with open('stats.yml', 'w') as file:
         yaml.dump(stats, file)
 
 # Dataset types
-dataset_types = ['cell_line', 'cptac', 'beataml', 'hcmi']
+dataset_types = ['broad_sanger', 'cptac', 'beataml', 'hcmi','mpnst']
 calculate_stats_for_datasets(dataset_types)
