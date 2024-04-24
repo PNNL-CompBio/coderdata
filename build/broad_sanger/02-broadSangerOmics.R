@@ -10,7 +10,7 @@ Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 
 ##### DEPMAP FILES
 
-depmap_filenames=list(   copy_number='https://figshare.com/ndownloader/files/40448840',
+depmap_filenames=list(copy_number='https://figshare.com/ndownloader/files/40448840',
                transcriptomics='https://figshare.com/ndownloader/files/40449128',
                               mutations='https://figshare.com/ndownloader/files/40449638')
 ##### SANGER FILES
@@ -374,7 +374,7 @@ depmap_files<-function(fi,value){
         tidyr::separate(gene_region,into=c('gene_symbol','num','start','end'),sep='_')|>
         dplyr::left_join(genes)|>
           dplyr::distinct()|>
-          subset(!is.na(entrez_id)
+          subset(!is.na(entrez_id))
 
       colnames(res)[1]<-'other_id'
       vars=c('methylation','start','end')
