@@ -26,7 +26,7 @@ samples_df <- fread(patients)|>
     dplyr::select(improve_sample_id,common_name,model_type)|>
                                         distinct()#"mpnst/synapse_NF-MPNST_samples.csv")
 
-pdx_samps<-subset(samples_df,model_type=='Patient derived xenograft')
+pdx_samps<-subset(samples_df,model_type=='patient derived xenograft')
 org_samps<-subset(samples_df,model_type=='organoid')
 
 ##now get the manifest from synapse
