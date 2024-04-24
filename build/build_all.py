@@ -68,14 +68,14 @@ def main():
         sf=''
         for di in ['broad_sanger_omics','cptac','hcmi','beataml','mpnst']:
             if di=='broad_sanger_omics':
-                sf='/tmp/broad_sanger_samples.csv'
-                if not os.path.exists(sf):
+                if not os.path.exists('local/broad_sanger_samples.csv'):
                     run_cmd([di,'sh','build_samples.sh'],di+' samples')
+                sf='/tmp/broad_sanger_samples.csv'
             else:
-                sf1 = '/tmp/'+di+'_samples.csv' ##TODO make this into a list
-                if not os.path.exists(sf1):
+                if not os.path.exists('local/'+di+'_samples.csv'):
                     run_cmd([di,'sh','build_samples.sh',sf],di+' samples')
-                sf  = sf1
+                sf = '/tmp/'+di+'_samples.csv' ##TODO make this into a list
+
                 
 
      ### Drug matching scripts take a while
@@ -86,14 +86,13 @@ def main():
         ###build drug data
         for di in ['broad_sanger_exp','beataml','mpnst']:
             if di=='broad_sanger_omics':
-                df = '/tmp/broad_sanger_drugs.csv'
-                if not os.path.exists(df):
+                if not os.path.exists('local/broad_sanger_drugs.tsv'):
                     run_cmd([di,'sh','build_drugs.sh'],di+' drugs')
+                df = '/tmp/broad_sanger_drugs.tsv'
             else:
-                df1 = '/tmp/'+di+'_drugs.csv'
-                if not os.path.exists(df1):
+                if not os.path.exists('local/'+di+'_drugs.tsv'):
                     run_cmd([di,'sh','build_drugs.sh',df],di+' drugs')
-                df = df1
+                df = '/tmp/'+di+'_drugs.tsv'
 
     #### Any new omics files are created here.
     ## depends on samples!
@@ -116,7 +115,7 @@ def main():
                 df='broad_sanger'
             else:
                 df = di
-            run_cmd([di,'sh','build_ep.sh','/tmp/'+df+'_samples.csv','/tmp/'+df+'_drugs.tsv'],di+' experiments')
+            run_cmd([di,'sh','build_exp.sh','/tmp/'+df+'_samples.csv','/tmp/'+df+'_drugs.tsv'],di+' experiments')
     
 
 
