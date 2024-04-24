@@ -28,6 +28,7 @@ mergeSamples<-function(){
   ###########################
   ## Broad Sanger data
   ## We have many more cancer types here, so we try to map what we have to CPTAC names and then adjust the rest
+  ##
   ###########################
   broad_sanger<-readr::read_csv('broad_sanger_samples.csv')|>
     dplyr::mutate(`Cell line cancer type`=cancer_type)|>
@@ -60,7 +61,7 @@ mergeSamples<-function(){
   hcmi<-readr::read_csv('hcmi_samples.csv')|>
     dplyr::rename(id_source='other_id_source')|>
     mutate(species='human')|>
-    subset(model_type%in%c('organoid','tumor','cell line'))|>
+    subset(model_type%in%c('organoid','tumor','cell line','Patient derived xenograft'))|>
     dplyr::mutate(`HCMI Cancer type`=cancer_type,`HCMI Common name`=common_name)|>
     left_join(cmaps)|>
     mutate(sampleSource='HCMI')|>
@@ -68,8 +69,11 @@ mergeSamples<-function(){
     #    dplyr::rename(cancer_type='CPTAC Cancer type')|>
     distinct()
   
+  ##now rename samples
+  ##next up: beatAMLdata
   ###########################
   ## BeatAML SAMPLE DATA
+  ## TBD
   ###########################
   baml<-readr::read_csv("beataml_samples.csv")|>
     mutate(cancer_type='Acute myeloid leukemia')|>
@@ -78,14 +82,13 @@ mergeSamples<-function(){
     mutate(sampleSource='BeatAML')|>
     dplyr::select(improve_sample_id,species,cancer_type,sampleSource,model_type)|>
     distinct()
-
   ###########################
   ## MPNST SAMPLE DATA
+  ## TBD
   ###########################
   mpnst<-readr::read_csv("mpnst_samples.csv")|>
     mutate(cancer_type='Neurofibromatosis')|>
     mutate(species='Human')|>
-    mutate(model_type='tumor')|>
     mutate(sampleSource='MPNST')|>
     dplyr::select(improve_sample_id,species,cancer_type,sampleSource,model_type)|>
     distinct()
@@ -131,10 +134,10 @@ stats<-fulldat|>
   subset(model_type!='Not Reported')|>
   subset(numSamps>1)
 
-color_palette <- brewer.pal(n = 3, name = "Set2")
+color_palette <- brewer.pal(n = 4, name = "Set2")
 
 # Assign colors to the model types
-names(color_palette) <- c("tumor", "cell line", "organoid")
+names(color_palette) <- c("tumor", "cell line", "organoid",'Patient derived xenograft')
 
 fig0<-ggplot(stats,aes(x=cancer_type,y=numSamps,fill=model_type))+
   geom_bar(stat='identity',position='dodge')+
