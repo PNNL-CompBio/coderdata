@@ -226,8 +226,6 @@ def main():
                         help='Sample file to use to generate data. Returns data for samples')
     opts = parser.parse_args()
     dat_files = {}
-    ##read in existing gene identifier table from cell line data
-    genes = pd.read_csv(opts.genefile)
 
     ####here is where we decide to build the data or not
     ## if there is an old sample file, we build only build sample file
@@ -241,6 +239,9 @@ def main():
         build_data=True
         print(opts.newsamps)
         samples = pd.read_csv(opts.newsamps)
+        ##read in existing gene identifier table from cell line data
+        genes = pd.read_csv(opts.genefile)
+
         print("Building dataset from generated sample file")
     else:
         print("Need a sample file to continue")
