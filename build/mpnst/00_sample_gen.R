@@ -69,5 +69,5 @@ main$improve_sample_id <- seq(from = max_id + 1, length.out = nrow(main))
 # Step 3: Save the updated 'synapse_main'
 #fwrite(synapse_main, "mpnst/synapse_NF-MPNST_samples.csv")
 #fwrite(main, "mpnst/NF_MPNST_samples.csv") # updated sample file
-fwrite(main,'/tmp/MPNST_samples.csv')
+fwrite(main,'/tmp/mpnst_samples.csv')
 
