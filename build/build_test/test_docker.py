@@ -29,27 +29,28 @@ def main():
     if dsname in ['broad_sanger_omics','broad_sanger_exp']:
         dsname='broad_sanger;'
 
+    dargs = ' -v $PWD:/tmp -e SYNAPSE_AUTH_TOKEN=$SYNAPSE_AUTH_TOKEN '
     if args.samples:
         ##get we generate sampless
-        cmd = 'docker run -v $PWD:/tmp '+args.docker+ ' sh build_samples.sh '+test_samples
+        cmd = 'docker run '+dargs+args.docker+' sh build_samples.sh '+test_samples
         print(cmd)
         os.system(cmd)
 
     if args.omics:
         ##can we generate omics with genes and new samples
-        cmd = 'docker run -v $PWD:/tmp '+args.docker+ ' sh build_omics.sh '+test_genes+' /tmp/'+dsname+'_samples.csv'
+        cmd = 'docker run '+dargs+args.docker+ ' sh build_omics.sh '+test_genes+' /tmp/'+dsname+'_samples.csv'
         print(cmd)
         os.system(cmd)
 
     if args.drugs:
         ##can we generate drugs with existing drugs
-        cmd = 'docker run -v $PWD:/tmp '+args.docker+ ' sh build_drugs.sh '+test_drugs
+        cmd = 'docker run '+dargs+args.docker+ ' sh build_drugs.sh '+test_drugs
         print(cmd)
         os.system(cmd)
 
     if args.exp:
         ##can we generate exp
-        cmd = 'docker run -v $PWD:/tmp '+args.docker+ ' sh build_exp.sh /tmp/'+dsname+'_samples.csv /tmp/'+dsname+'_drugs.tsv'
+        cmd = 'docker run '+dargs+args.docker+ ' sh build_exp.sh /tmp/'+dsname+'_samples.csv /tmp/'+dsname+'_drugs.tsv'
         print(cmd)
         os.system(cmd)
   
