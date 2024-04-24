@@ -454,7 +454,7 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
     mapped_df['source'] = 'synapse'
     mapped_df['study'] = 'BeatAML'
 
-    final_dataframe = pd.dropna(mapped_df,0)
+    final_dataframe = mapped_df.dropna()#pd.dropna(mapped_df,0)
     return final_dataframe
 
 
