@@ -77,10 +77,16 @@ ignore_file_path <- '/tmp/ignore_chems.txt'
 
 update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
 
-tab<-read.table(newdrugfile,sep='\t',header=T,quote="",comment.char="")|>
+
+tab<-read.table(newdrugfile,sep='\t',header=T,quote="",comment.char="")
+
+newdrugs<-tab|>
     subset(chem_name%in%tolower(alldrugs))
 
-write.table(tab,file=newdrugfile,sep='\t',quote=FALSE)
+tab<-tab|>
+    subset(improve_drug_id%in%newdrugs$improve_drug_id)
+
+write.table(tab,file=newdrugfile,sep='\t',row.names=FALSE,quote=FALSE)
 
 
 ##now call the python drug script
