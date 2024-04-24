@@ -115,7 +115,8 @@ def main():
                 df='broad_sanger'
             else:
                 df = di
-            run_cmd([di,'sh','build_exp.sh','/tmp/'+df+'_samples.csv','/tmp/'+df+'_drugs.tsv'],di+' experiments')
+            if not os.path.exists('/local/'+di+'_experiments.tsv'):
+                run_cmd([di,'sh','build_exp.sh','/tmp/'+df+'_samples.csv','/tmp/'+df+'_drugs.tsv'],di+' experiments')
     
 
 
