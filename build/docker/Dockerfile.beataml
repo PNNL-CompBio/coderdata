@@ -1,13 +1,13 @@
-FROM --platform=linux/x86_64 python:3.9
+FROM python:3.9
 
 WORKDIR /usr/src/app
 
-# COPY *_samples.csv .
+
 COPY build/beatAML/GetBeatAML.py . 
 COPY build/utils/fit_curve.py .
-COPY build/beatAML/*sh .
+COPY build/beatAML/*sh ./
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
+VOLUME ['/tmp']
 # CMD python GetBeatAML.py --token ${SYNAPSE_TOKEN}
