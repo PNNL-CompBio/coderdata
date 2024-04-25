@@ -62,10 +62,10 @@ def main():
     ## can be run independently but first before omics/experiemnts
     if args.samples or args.all:
         ### build gene file
-        run_cmd(['broad_sanger','Rscript','00-buildGeneFile.R'],'gene file')
+        run_cmd(['genes','Rscript','00-buildGeneFile.R'],'gene file')
         
         ###build sample files
-        run_cmd(['broad_sanger','Rscript','01-broadSangerSamples.R'],'DepMap Sanger Samples')
+        run_cmd(['broad_sanger_omics','Rscript','01-broadSangerSamples.R'],'DepMap Sanger Samples')
         run_cmd(['lincs','Rscript','01a-pullSamples_LINCS.R','/tmp/broad_sanger_samples.csv'],'LINCS samples')
         run_cmd(['cptac','--geneFile=/tmp/genes.csv','--prevSampleFile=/tmp/broad_sanger_samples.csv'],'cptac samples')
         run_cmd(['hcmi','python','01-createHCMISamplesFile.py','--samples','/tmp/cptac_samples.csv'],'hcmi samples')
@@ -77,7 +77,7 @@ def main():
     ### DepMap/Sanger, MPNST, LINCS
     if args.drugs or args.all:
         ###build drug data
-        run_cmd(['broad_sanger','Rscript','03-createDrugFile.R','CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'],'cell line drugs')
+        run_cmd(['broad_sanger_exp','Rscript','03-createDrugFile.R','CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60'],'cell line drugs')
         run_cmd(['mpnst','Rscript','02_get_drug_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/broad_sanger_drugs.tsv','/tmp/mpnst_drugs.tsv'],'mpnst drugs')
         run_cmd(['lincs','/opt/venv/bin/python','01b-pullDrugs_LINCS.py','--drugFile','/tmp/broad_sanger_drugs.tsv'],'LINCS drugs')
         run_cmd(['beataml','python','GetBeatAML.py','--token',env['SYNAPSE_AUTH_TOKEN'], '--drugs','--drugFile','/tmp/broad_sanger_drugs.tsv'],'BeatAML Drugs')
@@ -87,7 +87,7 @@ def main():
     ### these are not order dependent but require gene and sample files
     if args.omics or args.all:
         ###depmap cell line
-        run_cmd(['broad_sanger','Rscript','02-broadSangerOmics.R','/tmp/genes.csv','/tmp/broad_sanger_samples.csv'],'depmap sanger omics')
+        run_cmd(['broad_sanger_omics','Rscript','02-broadSangerOmics.R','/tmp/genes.csv','/tmp/broad_sanger_samples.csv'],'depmap sanger omics')
         ###beatamlls -cl
         run_cmd(['beataml','python','GetBeatAML.py','--token' ,env['SYNAPSE_AUTH_TOKEN'],'--omics','--curSamples','/tmp/beataml_samples.csv','--genes','/tmp/genes.csv'],'beatAML omics')
         ###mpnst
@@ -107,7 +107,7 @@ def main():
     ## requires samplesa nd drugs to complete
     if args.exp or args.all:
         run_cmd(['mpnst','Rscript','03_get_drug_response_data.R',env['SYNAPSE_AUTH_TOKEN'],'/tmp/MPNST_samples.csv','/tmp/mpnst_drugs.tsv'],'MPNST experiments')
-        run_cmd(['broad_sanger','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/broad_sanger_drugs.tsv','--curSampleFile','/tmp/broad_sanger_samples.csv'],'cell line experiments')
+        run_cmd(['broad_sanger_exp','/opt/venv/bin/python','04-drug_dosage_and_curves.py','--drugfile','/tmp/broad_sanger_drugs.tsv','--curSampleFile','/tmp/broad_sanger_samples.csv'],'cell line experiments')
         run_cmd(['beataml','python','GetBeatAML.py','--exp','--token',env['SYNAPSE_AUTH_TOKEN'],'--curSamples','/tmp/beataml_samples.csv','--drugFile','/tmp/beataml_drugs.tsv'],'BeatAML experiments')
     #    run_cmd(['lincs','Rscript','05-LINCS_perturbations.R','/tmp/genes.csv','/tmp/lincs_drugs.tsv','/tmp/lincs_samples.csv'],'LINCS perturbations')
         

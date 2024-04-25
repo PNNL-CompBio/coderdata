@@ -229,6 +229,7 @@ enums:
       cell line:
       organoid:
       tumor:
+      patient derived xenograft:
       ex vivo:
   Variant:
     permissible_values:

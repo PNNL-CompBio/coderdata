@@ -12,10 +12,11 @@ ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 
 COPY build/cptac/requirements.txt .
-COPY build/cptac/*.py .
+COPY build/cptac/*.py ./
+COPY build/cptac/*sh ./
 
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
 VOLUME ["/tmp"]
-ENTRYPOINT ["python3","getCptacData.py"]
+#ENTRYPOINT ["python3","getCptacData.py"]
