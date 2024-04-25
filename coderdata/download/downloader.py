@@ -1,10 +1,6 @@
 # coderdata/download/downloader.py
 
 import requests
-import os
-import json
-import yaml
-
 
 def download_data_by_prefix(dataset_prefix=None):
     """
