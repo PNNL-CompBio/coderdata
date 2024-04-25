@@ -32,8 +32,8 @@ samples_df <- fread(patients)|>
     dplyr::select(improve_sample_id,common_name,model_type)|>
                                         distinct()#"mpnst/synapse_NF-MPNST_samples.csv")
 
-pdx_samps<-subset(samples_df,model_type=='Patient derived xenograft')
-tumor_samps<-subset(samples_df,model_type=='Tumor')
+pdx_samps<-subset(samples_df,model_type=='patient derived xenograft')
+tumor_samps<-subset(samples_df,model_type=='tumor')
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
@@ -80,7 +80,7 @@ rnaseq<-do.call('rbind',lapply(setdiff(combined$RNASeq,NA),function(x){
                                         # }
 }))
 
-fwrite(rnaseq,'/tmp/MPNST_transcriptomics.csv.gz')
+fwrite(rnaseq,'/tmp/mpnst_transcriptomics.csv.gz')
 
 
 
@@ -94,8 +94,9 @@ wes<-do.call(rbind,lapply(setdiff(combined$`Mutations`,NA),function(x){
     print(sample$improve_sample_id)
     res<-NULL
     try(res<-fread(synGet(x2)$path)|>
-        dplyr::select(entrez_id='Entrez_Gene_Id',mutation='HGVSc',variant_classification='Variant_Classification')|>
-        distinct())
+            dplyr::select(entrez_id='Entrez_Gene_Id',mutation='HGVSc',variant_classification='Variant_Classification')|>
+            subset(entrez_id%in%genes_df$entrez_id)|>
+            distinct())
     if(is.null(res))
         return(NULL)
 
@@ -107,7 +108,7 @@ wes<-do.call(rbind,lapply(setdiff(combined$`Mutations`,NA),function(x){
                                         # }
 }))
 
-fwrite(wes,'/tmp/MPNST_mutations.csv.gz')
+fwrite(wes,'/tmp/mpnst_mutations.csv.gz')
 
 
 print(paste("getting CNV"))
@@ -135,13 +136,14 @@ cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,NA),function(x){
                                               ifelse(copy_number<1.422233,'gain','amp')))))|>
         left_join(genes_df)|>
         dplyr::select(entrez_id,improve_sample_id,copy_number,copy_call,study,source)|>
+        subset(!is.na(entrez_id))|>
         distinct()
     res|>group_by(copy_call)|>summarize(n_distinct(entrez_id))
     return(distinct(res))
                                         # }
 }))
 
-fwrite(cnv,'/tmp/MPNST_copy_number.csv.gz')
+fwrite(cnv,'/tmp/mpnst_copy_number.csv.gz')
 
 ##TODO: get proteomics!!!
 

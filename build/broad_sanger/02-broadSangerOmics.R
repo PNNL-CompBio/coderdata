@@ -10,7 +10,7 @@ Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 
 ##### DEPMAP FILES
 
-depmap_filenames=list(   copy_number='https://figshare.com/ndownloader/files/40448840',
+depmap_filenames=list(copy_number='https://figshare.com/ndownloader/files/40448840',
                transcriptomics='https://figshare.com/ndownloader/files/40449128',
                               mutations='https://figshare.com/ndownloader/files/40449638')
 ##### SANGER FILES
@@ -87,11 +87,12 @@ sanger_files<-function(fi,value){
           dplyr::select(improve_sample_id,other_id)|>
           distinct()
 
-        gmap<-genes|>
-            subset(gene_symbol%in%exp_file$symbol)|>
+      gvals <- intersect(exp_file$symbol,genes$gene_symbol)
+      gmap<-genes|>
+            subset(gene_symbol%in%gvals)|>
             distinct()
 
-        print('wide to long')
+      print('wide to long')
 
       res<-exp_file|>
         dplyr::select(other_id='model_id',gene_symbol='symbol',gatk_mean_log2_copy_ratio,source,data_type,cn_category)|>
@@ -289,11 +290,12 @@ sanger_files<-function(fi,value){
     missed<-full|>subset(is.na(improve_sample_id))|>
       dplyr::select(improve_sample_id,other_id)|>
       distinct()
-    print(paste('missing',nrow(missed),'identifiers'))
+    print(paste('missing',nrow(missed),' sample identifiers'))
     print(missed)
 
     full<-full|>
-      subset(!is.na(improve_sample_id))|>
+        subset(!is.na(improve_sample_id))|>
+        subset(!is.na(entrez_id))|>
       dplyr::select(-other_id)
 
     #write_csv(full,file=gzfile(fname))
@@ -340,6 +342,7 @@ depmap_files<-function(fi,value){
           dplyr::select(-entrez_id)|>
           left_join(genes)|>
           dplyr::select(other_id,entrez_id,copy_number)|>
+          subset(!is.na(entrez_id))|>
           distinct()
       ##these are messing things up
     #  res$entrez_id<-stringr::str_replace(res$entrez_id,'\\)','')
@@ -370,7 +373,8 @@ depmap_files<-function(fi,value){
       res<-res|>
         tidyr::separate(gene_region,into=c('gene_symbol','num','start','end'),sep='_')|>
         dplyr::left_join(genes)|>
-        dplyr::distinct()
+          dplyr::distinct()|>
+          subset(!is.na(entrez_id))
 
       colnames(res)[1]<-'other_id'
       vars=c('methylation','start','end')
@@ -423,6 +427,7 @@ depmap_files<-function(fi,value){
           dplyr::select(-entrez_par)|>
           left_join(genes)|>
           dplyr::select(other_id,entrez_id,transcriptomics)|>
+          subset(!is.na(entrez_id))|>
           distinct()
 
     #mutate(entrez_id=stringr::str_replace_all(entrez_par,'\\)|\\(',''))|>
@@ -489,6 +494,7 @@ depmap_files<-function(fi,value){
       print(missed)
 
       full<-full|>dplyr::select(c('entrez_id','improve_sample_id',vars))|>
+          subset(entrez_id%in%genes$entrez_id)|>
           subset(!is.na(improve_sample_id))|>
           dplyr::distinct()|>
           dplyr::mutate(source='Broad',study='DepMap')

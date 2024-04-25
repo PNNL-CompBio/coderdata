@@ -454,7 +454,7 @@ def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samp
         # Append the processed chunk
         merged_data = pl.concat([merged_data, merged_chunk])
         gc.collect()
-
+    merged_data = merged_data.drop_nulls()
     return merged_data
 
 
@@ -476,9 +476,9 @@ def write_dataframe_to_csv(dataframe, outname):
     None
     """
     if('gz' in outname):
-        dataframe.to_pandas().to_csv(outname,compression='gzip')
+        dataframe.to_pandas().to_csv(outname,compression='gzip',index=False)
     else:
-        dataframe.to_pandas().to_csv(outname)
+        dataframe.to_pandas().to_csv(outname,index=False)
     return
 
 def upload_to_figshare(token, title, filepath):
@@ -653,8 +653,8 @@ def upload_to_figshare(token, title, filepath):
     change_article_status(article_id, 'public')
     print("Make the file public")
     publish_article(token,article_id)
-        
-    
+
+
 def main():
     """
     Automates the process of retrieving and processing HCMI (Human Cancer Models Initiative)
@@ -687,6 +687,8 @@ def main():
     
     -z, --token : str
         Authentication token for accessing private Figshare datasets.
+    -g, --genes : str
+        File containing list of genes
 
     Example Usage
     -------------
@@ -718,6 +720,7 @@ def main():
     parser.add_argument('-o', '--outname', help='Output CSV Name', required=True)
     parser.add_argument('-z', '--token', help='figshare token ID', required=False)
     parser.add_argument('-s', '--samples',help='Samples file', required=False,default='/tmp/hcmi_samples.csv')
+    parser.add_argument('-g', '--genes',help='File containing valid gene ids',required=False,default='/tmp/genes.csv')
     args = parser.parse_args()
     
         
@@ -729,7 +732,7 @@ def main():
         ensure_gdc_client()
         print("Using provided manifest and downloading data...")
         
-
+          
     # Use gdc tool to get metadata
     print("Using gdc tool and retrieving get metadata...")
     metadata = use_gdc_tool(args.manifest, args.type, download_data=download_option)
@@ -741,7 +744,7 @@ def main():
     # Retrieve figshare gene data for entrez map
     print("Running 'retrieve_figshare_data' function")
     gene_url = "https://figshare.com/ndownloader/files/40576109?private_link=525f7777039f4610ef47"
-    entrez_map_file = retrieve_figshare_data(gene_url)
+    entrez_map_file = args.genes #retrieve_figshare_data(gene_url)
     gc.collect()
     
     # Combine the data
@@ -770,7 +773,6 @@ def main():
         upload_to_figshare(token, args.outname, args.outname)
     else:
         print("No token provided. Data not uploaded to Figshare")
-
 
 
 if __name__ == "__main__":
