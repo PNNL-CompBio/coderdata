@@ -324,7 +324,7 @@ def main():
                     fdf2 = pd.concat([of,fdf])
                     dat_files[dtype] = fdf2
                 else:
-                    dat_files[dtype] = fdf
+                    dat_files[dtype] = fdf.dropna()
                 print(dtype)
                 
     print(build_data)
