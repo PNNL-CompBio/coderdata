@@ -230,6 +230,7 @@ enums:
       organoid:
       tumor:
       patient derived xenograft:
+      ex vivo:
   Variant:
     permissible_values:
       3'UTR:
