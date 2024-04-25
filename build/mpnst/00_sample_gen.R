@@ -31,13 +31,13 @@ manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()
 ##first create samples for the original tumors
 tumorTable<-manifest|>
     dplyr::select(common_name='Sample')|>
-    dplyr::mutate(other_id_source='NF Data Portal',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='Tumor')|>
+    dplyr::mutate(other_id_source='NF Data Portal',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='tumor')|>
     tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
 ##then create samples for the PDX
 sampTable<-manifest|>
     dplyr::select(c(common_name='Sample',MicroTissueDrugFolder))|>
-    dplyr::mutate(other_id_source='NF Data Portal',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='Patient derived xenograft')|>
+    dplyr::mutate(other_id_source='NF Data Portal',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='patient derived xenograft')|>
     tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
 
@@ -69,5 +69,5 @@ main$improve_sample_id <- seq(from = max_id + 1, length.out = nrow(main))
 # Step 3: Save the updated 'synapse_main'
 #fwrite(synapse_main, "mpnst/synapse_NF-MPNST_samples.csv")
 #fwrite(main, "mpnst/NF_MPNST_samples.csv") # updated sample file
-fwrite(main,'/tmp/MPNST_samples.csv')
+fwrite(main,'/tmp/mpnst_samples.csv')
 
