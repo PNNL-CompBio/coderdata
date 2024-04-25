@@ -192,6 +192,7 @@ def formatData(df,dtype,ctype,samp_names,source,genes,samples):
 
     mlongdf[['source']] = source
     mlongdf[['study']] = 'CPTAC3'
+
     return mlongdf
 
 
@@ -219,14 +220,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--prevSampleFile', dest='sampfile', 
                         default=None, help='Sample file to use to generate new ids. Returns sample file')
-    parser.add_argument('--geneFile', dest='genefile',default='./genes.csv',
+    parser.add_argument('--geneFile', dest='genefile',default='/tmp/genes.csv',
                        help='gene file to get gene ids')
     parser.add_argument('--curSampleFile', dest='newsamps',default=None, 
                         help='Sample file to use to generate data. Returns data for samples')
     opts = parser.parse_args()
     dat_files = {}
-    ##read in existing gene identifier table from cell line data
-    genes = pd.read_csv(opts.genefile)
 
     ####here is where we decide to build the data or not
     ## if there is an old sample file, we build only build sample file
@@ -240,6 +239,9 @@ def main():
         build_data=True
         print(opts.newsamps)
         samples = pd.read_csv(opts.newsamps)
+        ##read in existing gene identifier table from cell line data
+        genes = pd.read_csv(opts.genefile)
+
         print("Building dataset from generated sample file")
     else:
         print("Need a sample file to continue")
@@ -318,11 +320,11 @@ def main():
                     fdf = fdf.reset_index(drop=True)
                 print(fdf)
                 if dtype in dat_files.keys():
-                    of = dat_files[dtype]
+                    of = dat_files[dtype].dropna()
                     fdf2 = pd.concat([of,fdf])
                     dat_files[dtype] = fdf2
                 else:
-                    dat_files[dtype] = fdf
+                    dat_files[dtype] = fdf.dropna()
                 print(dtype)
                 
     print(build_data)
