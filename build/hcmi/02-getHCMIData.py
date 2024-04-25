@@ -454,7 +454,7 @@ def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samp
         # Append the processed chunk
         merged_data = pl.concat([merged_data, merged_chunk])
         gc.collect()
-
+    merged_data = merged_data.drop_nulls()
     return merged_data
 
 
@@ -476,9 +476,9 @@ def write_dataframe_to_csv(dataframe, outname):
     None
     """
     if('gz' in outname):
-        dataframe.to_pandas().to_csv(outname,compression='gzip')
+        dataframe.to_pandas().to_csv(outname,compression='gzip',index=False)
     else:
-        dataframe.to_pandas().to_csv(outname)
+        dataframe.to_pandas().to_csv(outname,index=False)
     return
 
 def upload_to_figshare(token, title, filepath):
