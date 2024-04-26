@@ -1,0 +1,6 @@
+pandas
+wget==3.2
+requests
+synapseclient
+argparse
+numpy
