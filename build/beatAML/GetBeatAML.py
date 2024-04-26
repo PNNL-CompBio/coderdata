@@ -221,7 +221,7 @@ def update_dataframe_with_pubchem(d_df):
     # Combine both dictionaries for easy lookup
     data_dict = {**chem_data_dict, **other_data_dict}
 
-    print(data_dict)
+    #print(data_dict)
 #    print(data_dict['isoSMILES'])
     # Update the DataFrame using the data dictionary
     for idx, row in d_df.iterrows():
@@ -256,8 +256,8 @@ def merge_drug_info(d_df,drug_map):
         The merged dataframe containing combined drug information.
     """
     #print(drug_map)
-    print(d_df.columns)
-    print(d_df)
+    #print(d_df.columns)
+    #print(d_df)
     result_df = d_df.merge(drug_map[['isoSMILES', 'improve_drug_id']], on='isoSMILES', how='left')
     return result_df
 
