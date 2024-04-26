@@ -7,7 +7,7 @@ import requests
 import numpy as np
 import subprocess
 import argparse
-
+import time
 
 def download_from_github(raw_url, save_path):
     """
@@ -159,6 +159,8 @@ def retrieve_drug_info(compound_name):
     """
     if pd.isna(compound_name):
         return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+
+    ##limit is 1 call per 5 seconds. add in wait call.
     
     url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound_name}/property/CanonicalSMILES,IsomericSMILES,InChIKey,MolecularFormula,MolecularWeight/JSON"
     response = requests.get(url)
@@ -207,12 +209,14 @@ def update_dataframe_with_pubchem(d_df):
     for name in chem_names:
         print("Attempting to call pubchem API for chem_name: ", name)
         chem_data_dict[name] = retrieve_drug_info(name)
+        time.sleep(0.2)
     failed_chem_names = {k for k, v in chem_data_dict.items() if all(pd.isna(val) for val in v)}
     other_names = d_df[d_df['chem_name'].isin(failed_chem_names)]['other_name'].dropna().unique()
     other_data_dict = {}
     for name in other_names:
         print("Attempting to call pubchem API for other_name: ", name)
         other_data_dict[name] = retrieve_drug_info(name)
+        time.sleep(0.2)
 
     # Combine both dictionaries for easy lookup
     data_dict = {**chem_data_dict, **other_data_dict}
