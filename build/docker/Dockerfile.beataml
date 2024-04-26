@@ -6,8 +6,8 @@ WORKDIR /usr/src/app
 COPY build/beatAML/GetBeatAML.py . 
 COPY build/utils/fit_curve.py .
 COPY build/beatAML/*sh ./
+COPY build/beatAML/requirements.txt .
 
-COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 VOLUME ['/tmp']
 # CMD python GetBeatAML.py --token ${SYNAPSE_TOKEN}
