@@ -164,6 +164,7 @@ def retrieve_drug_info(compound_name):
     response = requests.get(url)
 
     if response.status_code != 200:
+        print(response.text)
         return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
     
     data = response.json()
