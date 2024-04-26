@@ -217,7 +217,7 @@ def update_dataframe_with_pubchem(d_df):
     data_dict = {**chem_data_dict, **other_data_dict}
 
     print(data_dict)
-    print(data_dict['isoSMILES'])
+#    print(data_dict['isoSMILES'])
     # Update the DataFrame using the data dictionary
     for idx, row in d_df.iterrows():
         if row['chem_name'] in data_dict and not all(pd.isna(val) for val in data_dict[row['chem_name']]):
