@@ -216,6 +216,8 @@ def update_dataframe_with_pubchem(d_df):
     # Combine both dictionaries for easy lookup
     data_dict = {**chem_data_dict, **other_data_dict}
 
+    print(data_dict)
+    print(data_dict['isoSMILES'])
     # Update the DataFrame using the data dictionary
     for idx, row in d_df.iterrows():
         if row['chem_name'] in data_dict and not all(pd.isna(val) for val in data_dict[row['chem_name']]):
@@ -248,7 +250,8 @@ def merge_drug_info(d_df,drug_map):
     pd.DataFrame
         The merged dataframe containing combined drug information.
     """
-    print(drug_map)
+    #print(drug_map)
+    print(d_df.columns)
     print(d_df)
     result_df = d_df.merge(drug_map[['isoSMILES', 'improve_drug_id']], on='isoSMILES', how='left')
     return result_df
@@ -294,7 +297,7 @@ def format_drug_df(drug_path):
     """
     d_df = pd.read_csv(drug_path, index_col=None,sep="\t")
     d_df[['chem_name', 'other_name']] = d_df['inhibitor'].str.extract(r'^(.*?)\s*(?:\((.+)\))?$')
-    d_df["chem_name"] = d_df["chem_name"].str.replace('\s-\s', ':')
+    d_df["chem_name"] = d_df["chem_name"].str.replace('\s-\s', ':',regex=True)
     d_df['chem_name'] = [a.lower() for a in d_df['chem_name']]
     return d_df
 
