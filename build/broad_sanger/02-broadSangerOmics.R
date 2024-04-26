@@ -31,7 +31,7 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
                      IGR=c('IGR','nc_variant'),
                      In_Frame_Del=c('IN_FRAME_DEL','In_Frame_Del','inframe'),
                      In_Frame_Ins=c('IN_FRAME_INS','In_Frame_Ins'),
-                     Intron=c('INTRON','Intron','intronic'),
+                     Intron=c('INTRON','Intron','intronic','intron'),
                      Missense_Mutation=c('Missense_Mutation','MISSENSE','missense'),
                      Nonsense_Mutation=c('Nonsense_Mutation','NONSENSE','nonsense'),
                      Nonstop_Mutation=c('Nonstop_Mutation','NONSTOP'),
@@ -160,8 +160,17 @@ sanger_files<-function(fi,value){
         left_join(smap)|>
           mutate(study='Sanger')|>
           dplyr::select(-c(other_id,gene_symbol))|>
-          left_join(as.data.frame(sanger_vtab))|>
-          dplyr::select(-effect)|>
+          left_join(as.data.frame(sanger_vtab))
+
+      ##now many variants are missing???
+      missing<-res|>
+          select(effect,variant_classification)|>
+          distinct()|>
+          subset(is.na(variant_classification))
+      print(missing)
+
+###TODO double check to see if any variants are missing
+      res<-res|>dplyr::select(-effect)|>
           subset(!is.na(improve_sample_id))|>
           distinct()
 
@@ -387,7 +396,16 @@ depmap_files<-function(fi,value){
 
         res<-exp_file|>
           mutate(entrez_id=as.numeric(EntrezGeneID))|>
-            left_join(as.data.frame(depmap_vtab))|>
+            left_join(as.data.frame(depmap_vtab))
+
+              ##now many variants are missing???
+        missing<-res|>
+            select(VariantInfo,variant_classification)|>
+            distinct()|>
+            subset(is.na(variant_classification))
+        print(missing)
+
+        res<-res|>
             dplyr::select(-c(EntrezGeneID,VariantInfo))|>
             distinct()|>
           subset(!is.na(entrez_id)) ##removes thos with unknonw entrez
@@ -538,13 +556,12 @@ main<-function(){
 
     lapply(alltypes,function(dt){
         print(dt)
-        temps<-sanger_files(sanger_filenames[[dt]],dt)
-        tempd<-depmap_files(depmap_filenames[[dt]],dt)
+        temps<-sanger_files(sanger_filenames[[dt]],dt)|>tidyr::drop_na()
+        tempd<-depmap_files(depmap_filenames[[dt]],dt)|>tidyr::drop_na()
         readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv.gz'))
         rm(tempd)
         rm(temps)
     })
-    system(paste0('/opt/venv/bin/python 02a-broad_sanger_proteomics.py --gene ',gfile,' --sample ',sfile))
 
 }
 
