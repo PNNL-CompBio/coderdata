@@ -248,6 +248,8 @@ def merge_drug_info(d_df,drug_map):
     pd.DataFrame
         The merged dataframe containing combined drug information.
     """
+    print(drug_map)
+    print(d_df)
     result_df = d_df.merge(drug_map[['isoSMILES', 'improve_drug_id']], on='isoSMILES', how='left')
     return result_df
 
