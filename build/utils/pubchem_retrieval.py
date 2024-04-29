@@ -41,16 +41,27 @@ def fetch_url(url):
     else:
         raise Exception(f"Failed to fetch {url}")
     
-def retrieve_drug_info(compound_name,ignore_chems):
+def retrieve_drug_info(compound,ignore_chems,isname=True):
+    '''
+    compound_name: name of compound or CID
+    ignore_chems: list of chemicals to ignore
+    isname: true if compound is name, false if is CID
+    '''
     global improve_drug_id, existing_synonyms, existing_structures
-    if pd.isna(compound_name):
+    if pd.isna(compound):
         return None
 
-    urls = {
-        "properties": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound_name}/property/CanonicalSMILES,IsomericSMILES,InChIKey,MolecularFormula,MolecularWeight/JSON",
-        "synonyms": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound_name}/synonyms/JSON"
-    }
-
+    if isname:
+        urls = {
+            "properties": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound}/property/CanonicalSMILES,IsomericSMILES,InChIKey,MolecularFormula,MolecularWeight/JSON",
+            "synonyms": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound}/synonyms/JSON"
+        }
+    else:
+        urls = {
+            "properties": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/{compound}/property/CanonicalSMILES,IsomericSMILES,InChIKey,MolecularFormula,MolecularWeight/JSON",
+            "synonyms": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/{compound}/synonyms/JSON"
+        }
+        
     with ThreadPoolExecutor(max_workers=4) as executor:
         future_to_url = {executor.submit(fetch_url, url): key for key, url in urls.items()}
         results = {}
@@ -61,9 +72,9 @@ def retrieve_drug_info(compound_name,ignore_chems):
                 data = future.result()
                 results[key] = data
             except Exception as exc:
-                print(f'{compound_name} generated an exception: {exc}')
+                print(f'{compound} generated an exception: {exc}')
                 with open(ignore_chems,"a") as f:
-                    f.write(f"{compound_name}\n")
+                    f.write(f"{compound}\n")
                 return None
 
     if all(key in results for key in ["properties", "synonyms"]):
@@ -72,7 +83,12 @@ def retrieve_drug_info(compound_name,ignore_chems):
 
         # Check if this compound or any of its synonyms already has an assigned improve_drug_id
         new_syns = set()
-        for synonym in synonyms_list + [compound_name]:
+        if isname:
+            sl = synonyms_list + [compound]
+        else:
+            sl = synonyms_list
+        for synonym in sl:
+           # print(synonym)
             synonym_lower = synonym.lower()
 #            if synonym_lower in existing_synonyms: ### THIS IS CAUSING THE LOOP TO END BEFORE IT GETS TO THE COMPOUND NAME
 #                return None
@@ -80,20 +96,21 @@ def retrieve_drug_info(compound_name,ignore_chems):
                 new_syns.add(synonym.lower())
         if len(new_syns) == 0: #JUST BE SURE WE HAVE NO NEW SYNONYMS BEFORE RETURNING
             return None
-        for synonym in new_syns:#synonyms_list + [compound_name]: ##NOW JUST ADD THOSE
+        for synonym in new_syns:#synonyms_list + [compound]: ##NOW JUST ADD THOSE
             synonym_lower = synonym.lower()
             existing_synonyms.add(synonym_lower)
             
 
         ###now check for structure
         if properties['CanonicalSMILES'] in existing_structures.keys():
-            print('found structure for '+compound_name)
+            print('found structure for '+compound)
             SMI_assignment = existing_structures[properties['CanonicalSMILES']]
         else:
             improve_drug_id += 1
             SMI_assignment = f"SMI_{improve_drug_id}"
             existing_structures[properties['CanonicalSMILES']] = SMI_assignment
-            
+
+        #print(new_syns)
         data_for_tsv = [{
             'improve_drug_id': SMI_assignment,
             'name': synonym.lower(),
@@ -104,10 +121,10 @@ def retrieve_drug_info(compound_name,ignore_chems):
     else:
         return None
 
-def fetch_data_for_batch(batch,ignore_chems):
+def fetch_data_for_batch(batch,ignore_chems,isname):
     all_data = []
     for compound_name in batch:
-        data = retrieve_drug_info(compound_name,ignore_chems)
+        data = retrieve_drug_info(compound_name,ignore_chems,isname)
         if data:
             all_data.extend(data)
     return all_data
@@ -130,7 +147,7 @@ def timeout_handler(signum, frame):
     should_continue = False
 
 # Call this function from other scripts. 
-def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv",ignore_chems="ignore_chems.txt", batch_size=1):
+def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv",ignore_chems="ignore_chems.txt", batch_size=1,isname=False):
     global should_continue, existing_synonyms
     time_limit=5*60*60 # 5 hours
     signal.signal(signal.SIGALRM, timeout_handler)
@@ -138,10 +155,9 @@ def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv",ign
 
     try:
         read_existing_data(output_filename)
-
-        unique_names = [name.lower() for name in unique_names if not pd.isna(name)]
-        unique_names = list(set(unique_names) - set(existing_synonyms))
-
+        if isname:
+            unique_names = [name.lower() for name in unique_names if not pd.isna(name)]
+            unique_names = list(set(unique_names) - set(existing_synonyms))
         
         ignore_chem_set = set()
         if os.path.exists(ignore_chems):
@@ -158,7 +174,7 @@ def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv",ign
                 continue
             
             batch = unique_names[i:i+batch_size]
-            data = fetch_data_for_batch(batch,ignore_chems)
+            data = fetch_data_for_batch(batch,ignore_chems,isname)
             if data:
                 file_exists = os.path.isfile(output_filename)
                 mode = 'a' if file_exists else 'w' 
