@@ -32,9 +32,9 @@ cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' gCSI,PRISM,CCL
 print(cmd)
 os.system(cmd)
 
-cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' NCI60'
-print(cmd)
-os.system(cmd)
+#cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' NCI60'
+#print(cmd)
+#os.system(cmd)
 
 ########Step 4b fit curves
 allfiles=[a for a in os.listdir('./') if 'DoseResponse' in a]
