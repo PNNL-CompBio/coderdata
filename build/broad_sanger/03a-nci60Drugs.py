@@ -9,12 +9,14 @@ import os
 import argparse
 import pubchem_retrieval as pr
 import random as rand
+from urllib import request
 
 ##drug files
 smi_strings='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_smiles.csv?version=1&modificationDate=1710381820000&api=v2&download=true'
 pc_ids='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_sid_cid.csv?version=2&modificationDate=1712766341112&api=v2&download=true'
 chemnames='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemcal_name.csv?version=1&modificationDate=1710382716000&api=v2&download=true'
 cas='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=1&modificationDate=1710381783000&api=v2&download=true'
+conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=11&modificationDate=1712351454136&api=v2'
 
 
 
@@ -35,13 +37,19 @@ def main():
     pubchems = pl.read_csv(pc_ids)
     smiles = pl.read_csv(smi_strings)
 
+    print('Getting experimental data to filter drugs')
+    if not os.path.exists('DOSERESP.csv'):
+        resp = request.urlretrieve(conc_data,'doseresp.zip')
+        os.system('unzip doseresp.zip')
+    dose_resp = pl.read_csv("DOSERESP.csv",quote_char='"',infer_schema_length=10000000)
+    pubchems = pubchems.filter(pl.col('NSC').is_in(dose_resp['NSC']))
     ##first retreive pubchem data
     if opts.test:
         arr = rand.sample(list(pubchems['CID']),100)
     else:
         arr = list(pubchems['CID'])
         
-    print("Querying pubchem form CIDs")
+    print("Querying pubchem from CIDs")
     pr.update_dataframe_and_write_tsv(arr,batch_size=400,isname=False)
     
     ##then make sure to paste `nsc` in front of all nsc idds
