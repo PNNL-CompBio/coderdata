@@ -684,22 +684,16 @@ if __name__ == "__main__":
             updated_raw_drug_file = "beatAML_drug_raw.tsv"
             generate_raw_drug_file(original_drug_file,sample_mapping_file, updated_raw_drug_file,supplimentary_file)
             d_df = pd.read_csv(updated_raw_drug_file,sep='\t')
-            
             d_res = d_df.rename(columns={"CELL":"other_id","AUC":"fit_auc",'DRUG':'chem_name'})
-
-           # imp_samps = pd.read_csv(improve_map_file)
             d_res = d_res.merge(imp_samp_map, on='other_id')
-            #print(d_res)
-            #print(imp_drug_map)
             d_res = d_res.merge(imp_drug_map,on='chem_name')
             d_res = d_res.rename(columns = {'improve_drug_id':'Drug'}) ## stupid but we have to change aks later
             d_res.to_csv(updated_raw_drug_file,sep='\t')
 
             print("Starting Curve Fitting Algorithm")
-            ##WHERE DO I GET THE CURVE DATA?
             # Run Curve fitting algorithm from scripts directory.
             # Note the file path to fit_curve.py may need to be changed.
-            command = ['python', 'fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv']
+            command = ['python3', 'fit_curve.py' ,'--input', 'beatAML_drug_raw.tsv', '--output', 'beatAML_drug_processed.tsv', '--beataml']
             result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             if result.returncode == 0:
                 print("Curve Fitting executed successfully!")
@@ -708,7 +702,6 @@ if __name__ == "__main__":
                 print("Out:", result.stdout)
                 print("Error:", result.stderr)
             print("Starting Experiment Data")
-            #exp_res = map_exp_to_improve(d_res,improve_map_file)
             drug_path = "beatAML_drug_processed.tsv.0"
             exp_res = map_exp_to_improve(drug_path)
             exp_res.to_csv("/tmp/beataml_experiments.tsv", index=False, sep='\t')
