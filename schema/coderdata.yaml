@@ -218,7 +218,7 @@ enums:
         description: Area under the curve measured by integrating data points
       dss:
         description: I believe this is the drug sensitivity score
-      recist:
+      mrecist:
         description: For PDX data this value should be either Progressive Disease, Stable Disease, Partial Response or Complete Response.
       gc_auc:
         description: Area under tumor growth curve
@@ -226,6 +226,10 @@ enums:
         description: event free survival
       os:
         description: overall survival
+      tgi:
+        description: tumor growth inhibitiojn
+      kulgap:
+        description: kl divergence based metric
 	
   CellPerturbation:
     permissible_values:
