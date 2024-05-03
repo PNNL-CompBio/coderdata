@@ -25,6 +25,7 @@ conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zi
 def main():    
     parser = argparse.ArgumentParser()
     parser.add_argument('--test',action='store_true',default=False,help='Test script by sampling 100 chemicals')
+    parser.add_argument('--output',default='/tmp/broad_sanger_drugs.tsv')
     opts = parser.parse_args()
 
     ###primary DF
@@ -47,7 +48,7 @@ def main():
     if opts.test:
         arr = rand.sample(list(pubchems['CID']),100)
     else:
-        arr = list(pubchems['CID'])
+        arr = set(pubchems['CID'])
         
     print("Querying pubchem from CIDs")
     pr.update_dataframe_and_write_tsv(arr,batch_size=400,isname=False)
@@ -88,7 +89,7 @@ def main():
     namedf = pl.DataFrame(
         {
             "nscid": ['nsc-'+str(a) for a in mdf['NSC']],
-            'lower_name': [a.lower() for a in mdf['NAME']],
+            'lower_name': [a if a is None else str(a).lower() for a in mdf['NAME']],
             'canSMILES': list(mdf['SMILES']),
             'pubchem_id': list(mdf['CID'])
         }
@@ -97,10 +98,10 @@ def main():
     merged = pl.concat([mdf,namedf],how='horizontal').select(['SMILES','pubchem_id','nscid','lower_name'])
     melted = merged.melt(id_vars=['SMILES','pubchem_id'],value_vars=['nscid','lower_name']).select(['SMILES','pubchem_id','value']).unique()
     melted.columns = ['canSMILES','pubchem_id','chem_name']
-
-    newdf = newdf.join(melted,on='canSMILES',how='inner').select(res.columns)
-    res = pl.concat([res,newdf],how='vertical')
-    res.write_csv("drugs.tsv",separator='\t')
+    if newdf.shape[0]>0:
+        newdf = newdf.join(melted,on='canSMILES',how='inner').select(res.columns)
+        res = pl.concat([res,newdf],how='vertical')
+    res.write_csv(opts.output,separator='\t')
     
 if __name__=='__main__':
     main()
