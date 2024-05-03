@@ -32,6 +32,8 @@ cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' gCSI,PRISM,CCL
 print(cmd)
 os.system(cmd)
 
+cmd = 'python 04b-nci60-updated.py --sampleFile '+samplefile+' --drugFile '+drugfile
+
 #cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' NCI60'
 #print(cmd)
 #os.system(cmd)
