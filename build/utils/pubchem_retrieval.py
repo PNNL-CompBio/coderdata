@@ -134,11 +134,12 @@ def read_existing_data(output_filename):
     global improve_drug_id,existing_synonyms,existing_structures
     try:
         df = pd.read_csv(output_filename, sep='\t', quoting=3)
-        existing_synonyms = set([a.lower() for a in set(df.chem_name)])
-        existing_pubchemids = set(list(set(df['pubchem_id'])))
+        existing_synonyms = set([str(a).lower() for a in set(df.chem_name)])
+        existing_pubchemids = set([str(a) for a in  df['pubchem_id']])
         max_id = df['improve_drug_id'].str.extract(r'SMI_(\d+)').astype(float).max()
         improve_drug_id = int(max_id[0]) + 1 if pd.notna(max_id[0]) else 1
         existing_structures = {row['canSMILES']:row['improve_drug_id'] for index,row in df.iterrows()}
+        print('Read in '+str(len(existing_synonyms))+' drug names and '+str(len(existing_pubchemids))+' pubchem ids')
     except FileNotFoundError:
         return {}
 
@@ -154,7 +155,7 @@ def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv",ign
     time_limit=5*60*60 # 5 hours
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(time_limit)
-
+    print('starting with '+str(len(unique_names))+' drug names/ids')
     try:
         print('reading in '+output_filename)
         read_existing_data(output_filename)
@@ -163,7 +164,7 @@ def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv",ign
             unique_names = set(unique_names) - set(existing_synonyms)
             print('looking at '+str(len(unique_names))+' names')
         else:
-            unique_names = set([name for name in unique_names if not pd.isna(name)])
+            unique_names = set([str(name) for name in unique_names if not pd.isna(name)])
             unique_names = set(unique_names) - set(existing_pubchemids)
             print('looking at '+str(len(unique_names))+' ids')
         ignore_chem_set = set()
