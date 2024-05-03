@@ -18,7 +18,7 @@ def main():
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--sampleFile',dest='samplefile',default=None,help='DepMap sample file') 
-    parser.add_argument('--drugfile',dest='dfile',default=None,help='Drug database')
+    parser.add_argument('--drugFile',dest='dfile',default=None,help='Drug database')
     
     opts = parser.parse_args()
     
@@ -56,7 +56,7 @@ def main():
     ###create a time mapping tabel
     timemapping = pl.DataFrame(
         {
-            'expid':dose_resp['EXPID'],
+            'EXPID':dose_resp['EXPID'],
             'time':[72 if int(a[0:2])>22 and int(a[0:2])<50 and int(a[2:4])>0 else 48 for a in dose_resp['EXPID']],
             'time_unit':['hours' for a in dose_resp['EXPID']]
         }
@@ -64,7 +64,8 @@ def main():
 
 
     ##now we can merge all the data into the dose response data frame
-    merged = dose_resp[['CELL_NUMBER','CONCENTRATION','CELL_NAME','EXPID','NSC']].join(sampmapping,on='CELL_NAME',how='left').join(timemapping,on='EXPID',how='left')
+    merged = dose_resp[['AVERAGE_PTC','CONCENTRATION','CELL_NAME','EXPID','NSC']].join(sampmapping,on='CELL_NAME',how='left')
+    merged = merged.join(timemapping,on='EXPID',how='left')
     
     ##clean up mssing samples
     nonulls = merged.filter(pl.col('improve_sample_id').is_not_null())
@@ -79,29 +80,32 @@ def main():
     )
     newnames = newnames.unique()
     
-    fixed = nulls[['CELL_NUMBER','CONCENTRATION','CELL_NAME','EXPID','NSC']].join(newnames,on='CELL_NAME',how='left')
-    fixed.columns = ['CELL_NUMBER','CONCENTRATION','old_CELL_NAME','EXPID','NSC','CELL_NAME']
-    fixed = fixed.join(sampmapping,on='CELL_NAME',how='left')[['CELL_NUMBER','CONCENTRATION','old_CELL_NAME','EXPID','NSC','improve_sample_id']]
-    fixed.columns = ['CELL_NUMBER','CONCENTRATION','CELL_NAME','EXPID','NSC','improve_sample_id']
+    fixed = nulls[['AVERAGE_PTC','CONCENTRATION','CELL_NAME','EXPID','NSC','time','time_unit']].join(newnames,on='CELL_NAME',how='left')
+    fixed.columns = ['AVERAGE_PTC','CONCENTRATION','old_CELL_NAME','EXPID','NSC','time','time_unit','CELL_NAME']
+    fixed = fixed.join(sampmapping,on='CELL_NAME',how='left')[['AVERAGE_PTC','CONCENTRATION','old_CELL_NAME','EXPID','NSC','improve_sample_id','time','time_unit']]
+    fixed.columns = ['AVERAGE_PTC','CONCENTRATION','CELL_NAME','EXPID','NSC','improve_sample_id','time','time_unit']
     fixed = fixed.filter(pl.col('improve_sample_id').is_not_null())
 
     merged = pl.concat([nonulls,fixed])
     
     ###we get a few more results added, but still missing a bunch    
     merged = merged.join(drugmapping,on='NSC',how='left')
-  
+    nulldrugs = merged.filter(pl.col('improve_drug_id').is_null())
+    nonulls =  merged.filter(pl.col('improve_drug_id').is_not_null())
     finaldf = pl.DataFrame(
         {
-            'source':[],
-            'improve_sample_id':[],
-            'Drug':[],
-            'study':[],
-            'time':[],
-            'time_unit':[],
-            'DOSE':[]
-            'GROWTH':[]
-            }
+            'source':['NCI60_24' for a in nonulls['improve_drug_id']], ##2024 build
+            'improve_sample_id':nonulls['improve_sample_id'],
+            'Drug':nonulls['improve_drug_id'],
+            'study':['NCI60' for a in nonulls['improve_drug_id']],
+            'time':nonulls['time'],
+            'time_unit':nonulls['time_unit'],
+            'DOSE': [10**a for a in nonulls['CONCENTRATION']],
+            'GROWTH':nonulls['AVERAGE_PTC']
+        }
     )
+    ##write to file
+    finaldf.write_csv('nci60DoseResponse',separator='\t')
     
 
 if __name__=='__main__':
