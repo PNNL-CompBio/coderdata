@@ -13,7 +13,11 @@ def run_cmd(cmd_arr,filename):
     '''
     print('running...'+filename)
     env = os.environ.copy()
-    docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'],'--platform=linux/amd64']
+    if 'SYNAPSE_AUTH_TOKEN' not in env.keys():
+        print('You need to set the SYNAPSE_AUTH_TOKEN to acess the MPNST and beatAML Datasets')
+        docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','--platform=linux/amd64']
+    else:
+        docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'],'--platform=linux/amd64']
     cmd = docker_run+cmd_arr
     print(cmd)
     res = subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -53,8 +57,11 @@ def main():
             dlist.append(dsname)
             #cmd = 'docker build --platform=linux/amd64 -t '+dsname+' .  -f build/docker/'+fn+ ' --build-arg HTTPS_PROXY=$HTTPS_PROXY'
             #print(cmd)
-            res = subprocess.run(['docker','build','-t',dsname,'.','-f','build/docker/'+fn,'--build-arg','HTTPS_PROXY='+env['HTTPS_PROXY'],'--platform','linux/amd64'])
-            #os.system(cmd)
+            if 'HTTPS_PROXY' in env.keys():
+                res = subprocess.run(['docker','build','-t',dsname,'.','-f','build/docker/'+fn,'--build-arg','HTTPS_PROXY='+env['HTTPS_PROXY'],'--platform','linux/amd64'])
+            else:
+                res = subprocess.run(['docker','build','-t',dsname,'.','-f','build/docker/'+fn,'--platform','linux/amd64'])
+#os.system(cmd)
 
     ### Any new sample creation must happened here.
     ### Each sample file requires the previous one to be created
