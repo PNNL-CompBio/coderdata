@@ -26,8 +26,37 @@ please see the [schema description](schema/README.md).
 
 ## Building the data package
 
-The data package is currently assembled via continuous automation,
+We have created a build script that executes each step of the build process to enable the creation of a `local` folder with all the requisite folders.
 
+The build requires Python as well as Docker to be installed. 
+
+To build the docker images and run them, simply run (though this will take a while!):
+```
+python build/build_all.py --all
+```
+
+To only build the docker files:
+```
+python build/build_all.py --docker
+```
+
+Then to build the reference files (after dockers have been built):
+```
+python build/build_all.py --samples
+python build/build_all.py --drugs
+```
+
+Once the sample files have been created, we can collect the omics measurements:
+```
+python build/build_all.py --omics
+```
+
+Once the drugs file and samples have been created, we can refit the curves:
+```
+python build/build_all.py --exp
+```
+
+Note: this will not build the python package, just generate the data!
 
 ## Data Source Reference List
 
