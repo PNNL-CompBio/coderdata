@@ -88,7 +88,8 @@ main<-function(){
         dsets<-unlist(strsplit(args[1],split=','))
         if(length(args)==2)
             efile=args[2]
-
+        else
+            efile=''
        dl1<-getDepMapDrugData(dsets,efile)
 
 
