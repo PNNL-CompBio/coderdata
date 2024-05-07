@@ -36,7 +36,7 @@ def main():
     parser.add_argument('--drugs',dest='drugs',default=False,action='store_true')
     parser.add_argument('--exp',dest='exp',default=False,action='store_true')
     parser.add_argument('--all',dest='all',default=False,action='store_true')
-    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,cptac,hcmi,beataml,mpnst',help='Datasets to process. Defaults to all available, but if there are synapse issues, please remove beataml and mpnst')
+    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,mpnst,cptac',help='Datasets to process. Defaults to all available, but if there are synapse issues, please remove beataml and mpnst')
 
     args = parser.parse_args()
                     
@@ -72,7 +72,8 @@ def main():
     ## can be run independently but first before omics/experiemnts
     if args.samples or args.all:
         ### build gene file
-        run_cmd(['genes','sh','build_genes.sh'],'gene file')
+        if not os.path.exists('/tmp/genes.csv'):
+            run_cmd(['genes','sh','build_genes.sh'],'gene file')
         
         ###build sample files
         sf=''
@@ -101,7 +102,7 @@ def main():
                 
             if not os.path.exists('local/'+da+'_drugs.tsv'):
                 run_cmd([di,'sh','build_drugs.sh',df],da+' drugs')
-            df = '/tmp/'+di+'_drugs.tsv'
+            df = '/tmp/'+da+'_drugs.tsv'
 
     #### Any new omics files are created here.
     ## depends on samples!

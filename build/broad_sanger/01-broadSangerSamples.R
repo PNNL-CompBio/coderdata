@@ -8,6 +8,7 @@
 library(curl)
 library(dplyr)
 library(readr)
+library(XML)
 
 ##the only thing that Priyanka has here is TRP identifiers, so collecting those
 # tab<-read.table('DepMap_Argonne_Mapping.csv',sep=',',header=T)%>%
@@ -31,12 +32,12 @@ print(paste("Downloaded",nrow(depmap_models),'dep map identifiers and',nrow(sang
 
 ##query for cellosaurus automagically to get loadest version
 url='https://ftp.expasy.org/databases/cellosaurus/cellosaurus.xml'
-if(!file.exists('cell.xml'))
-  curl_download(url,'cell.xml',quiet=TRUE)#curl(url, "r", h)
-cello<-XML::xmlParse('cell.xml')
+if(!file.exists('/tmp/cell.xml'))
+  curl_download(url,'/tmp/cell.xml',quiet=TRUE)#curl(url, "r", h)
+cello<-XML::xmlParse('/tmp/cell.xml')
 cdf<-XML::xmlToList(cello)
 
-
+print('Got all cellosaurus ids')
 ### next we parse through cellosaurus to get as many samples as we deem relevant
 ##ok, this command seems to have gotten file in appropriate state
 cell.lines<-lapply(cdf$`cell-line-list`, function(x) unlist(x))
@@ -44,21 +45,24 @@ cell.lines<-lapply(cdf$`cell-line-list`, function(x) unlist(x))
 ##now we need toe xtract columns
 options(show.error.messages=TRUE)
 full.res<-do.call(rbind,lapply(cell.lines,function(x){
-  ##create a data frame for each cell lines
-  x<-unlist(x)
-  #should only be one acession
-  acc<-x[grep('accession.text',names(x),fixed=T)]%>%unlist()
+    ##create a data frame for each cell lines
+    x<-unlist(x)
+                                        #should only be one acession
+    acc<-x[grep('accession.text',names(x),fixed=T)]%>%unlist()
 
-  cn<-x[grep('name.text',names(x),fixed=T)]%>%unlist()
-  #these will fail if no key found
-  spec<-x[grep("species-list.cv-term.text",names(x),fixed=T)]%>%unlist()
-  #dis<-x[grep("disease-list.cv-term.text",names(x),fixed=T)]%>%unlist()
-  data.frame(accession=cn,
-             RRID=rep(acc,length(cn)),
-             species=rep(spec,length(cn)))
-   #          disease=rep(dis,length(cn)))
+    cn<-x[grep('name-list.name.text',names(x),fixed=T)]%>%unlist()
+                                        #these will fail if no key found
+    spec<-x[grep("species-list.xref.label",names(x),fixed=T)]%>%unlist()
+    #print(acc)
+    #print(cn)
+    #print(spec)
+                                        #dis<-x[grep("disease-list.cv-term.text",names(x),fixed=T)]%>%unlist()
+    data.frame(accession=cn,
+               RRID=rep(acc,length(cn)),
+               species=rep(spec,length(cn)))
+                                        #          disease=rep(dis,length(cn)))
 }))%>%
-  subset(species=='Homo sapiens (Human)')
+    subset(species=='Homo sapiens (Human)')
 
 
 print(paste('Got',nrow(full.res),'human cellosaurus samples'))

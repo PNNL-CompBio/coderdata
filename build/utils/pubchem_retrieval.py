@@ -150,7 +150,7 @@ def timeout_handler(signum, frame):
     should_continue = False
 
 # Call this function from other scripts. 
-def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv",ignore_chems="ignore_chems.txt", batch_size=1,isname=False):
+def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv",ignore_chems="ignore_chems.txt", batch_size=1,isname=True):
     global should_continue, existing_synonyms, existing_pubchemids
     time_limit=5*60*60 # 5 hours
     signal.signal(signal.SIGALRM, timeout_handler)
