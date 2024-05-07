@@ -12,6 +12,7 @@ TODO: add in R or dockerize requirements
 
 import os
 import argparse
+import pandas as pd
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--curSampleFile',dest='samplefile',default=None,help='DepMap sample file')
@@ -45,7 +46,12 @@ for a in allfiles:
     os.system('/opt/venv/bin/python fit_curve.py --input '+a+' --output '+a)
 
 ###step 4c concatenate all files
+outfiles = [a for a in os.listdir("./") if ".0" in a]
+final_file = []
+for of in outfiles:
+    final_file.append(pd.read_csv(of,sep='\t'))
 
-os.system('cat *.0 > /tmp/broad_sanger_experiments.tsv')
+pd.concat(final_file).to_csv('/tmp/broad_sanger_experiments.tsv',index=False,sep='\t')
+#os.system('cat *.0 > /tmp/broad_sanger_experiments.tsv')
 #os.system('gzip -f /tmp/experiments.tsv')
 

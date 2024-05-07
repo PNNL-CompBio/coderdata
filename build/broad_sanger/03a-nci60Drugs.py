@@ -19,9 +19,6 @@ cas='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version
 conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=11&modificationDate=1712351454136&api=v2'
 
 
-
-
-
 def main():    
     parser = argparse.ArgumentParser()
     parser.add_argument('--test',action='store_true',default=False,help='Test script by sampling 100 chemicals')
@@ -51,7 +48,7 @@ def main():
         arr = set(pubchems['CID'])
         
     print("Querying pubchem from CIDs")
-    pr.update_dataframe_and_write_tsv(arr,opts.output,'/tmp/ignore_chems.txt',batch_size=400,isname=False)
+    pr.update_dataframe_and_write_tsv(arr,opts.output,'/tmp/ignore_chems.txt',batch_size=400,isname=False,time_limit=10*60*60)
     
     ##then make sure to paste `nsc` in front of all nsc idds
     res = pl.read_csv(opts.output,separator='\t')
