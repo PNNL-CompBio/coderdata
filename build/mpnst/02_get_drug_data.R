@@ -70,6 +70,7 @@ alldrugs[which(alldrugs=='PD901')]<-'PD-0325901'
 
 print(paste(alldrugs,collapse=','))
 
+
 ##copy old drug to new drug
 olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x)))
 olddrugs<-unique(olddrugs)
