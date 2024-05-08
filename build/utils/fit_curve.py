@@ -163,7 +163,7 @@ def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None):
     count = count or (4484081 - start)
     groups = islice(groups, start, start+count)
     
-    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+    with multiprocessing.Pool(processes=multiprocessing.cpu_count()/4) as pool:
         results = pool.map(process_single_drug, groups)
 
     with open(f'{fname}.{start}', 'w') as f:
