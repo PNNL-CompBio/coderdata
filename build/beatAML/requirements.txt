@@ -5,3 +5,5 @@ synapseclient
 argparse
 numpy
 openpyxl
+matplotlib
+scikit-learn
