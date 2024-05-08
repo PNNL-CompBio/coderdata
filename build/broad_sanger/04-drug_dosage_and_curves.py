@@ -47,7 +47,7 @@ subprocess.run(cmd)
 allfiles=[a for a in os.listdir('./') if 'DoseResponse' in a]
 print(allfiles)
 for a in allfiles:
-    subprocess.run(['/opt/venv/bin/python','fit_curve.py','--input='+a+,'--output='+a])
+    subprocess.run(['/opt/venv/bin/python','fit_curve.py','--input='+a,'--output='+a])
 
 ###step 4c concatenate all files
 outfiles = [a for a in os.listdir("./") if ".0" in a]
