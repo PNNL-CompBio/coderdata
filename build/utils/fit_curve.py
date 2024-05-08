@@ -162,8 +162,10 @@ def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None):
     groups = df.groupby(cols)
     count = count or (4484081 - start)
     groups = islice(groups, start, start+count)
-    
-    with multiprocessing.Pool(processes=multiprocessing.cpu_count()/4) as pool:
+    cores = multiprocessing.cpu_count()
+    poolsize = round(cores/2)
+    print('we have '+str(cores)+' cores and '+str(poolsize)+' threads')
+    with multiprocessing.Pool(processes=poolsize) as pool:
         results = pool.map(process_single_drug, groups)
 
     with open(f'{fname}.{start}', 'w') as f:
