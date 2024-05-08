@@ -91,7 +91,7 @@ def main():
      ### Drug matching scripts take a while
     ### they are their own step and can be run independentyly, before others, or alongside sample/omics
     ### DepMap/Sanger, MPNST, LINCS
-    df=''
+    dflist=[]
     if args.drugs or args.all:
         ###build drug data
         for da in [a for a in datasets if a not in ['cptac','hcmi']]:
@@ -101,8 +101,8 @@ def main():
                 di = da
                 
             if not os.path.exists('local/'+da+'_drugs.tsv'):
-                run_cmd([di,'sh','build_drugs.sh',df],da+' drugs')
-            df = '/tmp/'+da+'_drugs.tsv'
+                run_cmd([di,'sh','build_drugs.sh',','.join(dflist)],da+' drugs')
+            dflist = dflist.append('/tmp/'+da+'_drugs.tsv')
 
     #### Any new omics files are created here.
     ## depends on samples!
