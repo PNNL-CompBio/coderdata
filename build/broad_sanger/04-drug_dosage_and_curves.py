@@ -24,6 +24,10 @@ opts = parser.parse_args()
 samplefile = opts.samplefile
 drugfile = opts.dfile
 
+cmd = 'python 04b-nci60-updated.py --sampleFile '+samplefile+' --drugFile '+drugfile
+print(cmd)
+os.system(cmd)
+
 ####step 4a - get dose response data
 cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' CTRPv2,FIMM,GDSC'
 print(cmd)
@@ -33,7 +37,6 @@ cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' gCSI,PRISM,CCL
 print(cmd)
 os.system(cmd)
 
-cmd = 'python 04b-nci60-updated.py --sampleFile '+samplefile+' --drugFile '+drugfile
 
 #cmd = 'Rscript 04a-drugResponseData.R '+samplefile+' '+drugfile+' NCI60'
 #print(cmd)
