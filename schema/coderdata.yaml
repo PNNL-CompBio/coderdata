@@ -191,10 +191,10 @@ classes:
         description: improve_drug_id of first drug
       drug_two_id:
         description: imrrove_drug_id of second drug
-      synergy_metric:
-        description: metric calculated
-      synergy_value:
-        description: value of metric
+      combination_metric:
+        description: metric calculated for synergy, or other metric of two drugs
+      combination_value:
+        description: value of metric for synergy or combination
 enums:
   ResponseMetric:
     permissible_values:
@@ -218,6 +218,19 @@ enums:
         description: Area under the curve measured by integrating data points
       dss:
         description: I believe this is the drug sensitivity score
+      mrecist:
+        description: For PDX data this value should be either Progressive Disease, Stable Disease, Partial Response or Complete Response.
+      gc_auc:
+        description: Area under tumor growth curve
+      efs:
+        description: event free survival
+      os:
+        description: overall survival
+      tgi:
+        description: tumor growth inhibitiojn
+      kulgap:
+        description: kl divergence based metric
+	
   CellPerturbation:
     permissible_values:
       gene_ko:

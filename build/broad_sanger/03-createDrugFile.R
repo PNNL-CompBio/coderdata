@@ -13,9 +13,13 @@ all.dsets<-PharmacoGx::availablePSets()
 
 
 #' getCellLineData - gets cell line dose response data
-getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','NCI60','CCLE')){
+getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','CCLE'),efile=''){
 
-
+    if(efile!=''){
+        existing_ids=readr::read_tsv(efile)
+    }else{
+        existing_ids=NULL
+        }
     for(cel in cell.lines){
 
         files<-subset(all.dsets,`Dataset Name`==cel)%>%
@@ -55,6 +59,12 @@ getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','
 #                 dplyr::select(common_drug_name='chem_name',improve_drug_id)%>%
 #                 distinct()
             chem_list <- unique(mapping$treatmentid)
+            print(paste('Found',length(chem_list),'chemicals for dataset',cel))
+        #    if(!is.null(existing_ids)){
+        #        chem_list=setdiff(chem_list,existing_ids$chem_name)
+        #        print(paste('Reducing to',length(chem_list),'after accounting for existing ids'))
+        #     }
+
             output_file_path <- '/tmp/broad_sanger_drugs.tsv'
             ignore_file_path <- '/tmp/ignore_chems.txt'
             update_dataframe_and_write_tsv(unique_names=chem_list,output_filename=output_file_path,ignore_chems=ignore_file_path)
@@ -70,15 +80,17 @@ getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','
 
 main<-function(){
 	args = commandArgs(trailingOnly=TRUE)
-	if(length(args)!=1){
-	  print('Usage: Rscript 03-createDrugFile.R [datasets]')
+	if(length(args)<2){
+	  print('Usage: Rscript 03-createDrugFile.R [datasets] [existing file]')
 # 	  exit()
 	  }
 #	sfile = args[1]
         dsets<-unlist(strsplit(args[1],split=','))
-
-
-       dl1<-getDepMapDrugData(dsets)
+        if(length(args)==2)
+            efile=args[2]
+        else
+            efile=''
+       dl1<-getDepMapDrugData(dsets,efile)
 
 
 }
