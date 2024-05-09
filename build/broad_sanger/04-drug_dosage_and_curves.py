@@ -25,7 +25,7 @@ opts = parser.parse_args()
 samplefile = opts.samplefile
 drugfile = opts.dfile
 
-cmd = ['/opt/venv/bin/python 04b-nci60-updated.py','--sampleFile',samplefile,'--drugFile',drugfile]
+cmd = ['/opt/venv/bin/python','04b-nci60-updated.py','--sampleFile='+samplefile,'--drugFile='+drugfile]
 print(cmd)
 subprocess.run(cmd)
 
