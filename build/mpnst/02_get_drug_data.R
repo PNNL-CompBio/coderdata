@@ -19,7 +19,7 @@ if (length(args) == 0) {
 
 # Set your personal access token
 PAT <- args[1]
-olddrugfile <- args[2]
+olddrugfiles <- args[2]
 newdrugfile <- args[3]
 # Log in to Synapse
 synLogin(authToken = PAT)
@@ -70,10 +70,16 @@ alldrugs[which(alldrugs=='PD901')]<-'PD-0325901'
 
 print(paste(alldrugs,collapse=','))
 
+
 ##copy old drug to new drug
-file.copy(olddrugfile,newdrugfile)
+olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x,header=T,sep='\t',quote='',comment.char=''))
+olddrugs<-unique(olddrugs)
+
+print(paste('Read in ',nrow(olddrugs),'old drugs'))
+                                        #file.copy(olddrugfile,newdrugfile)
+write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
 output_file_path <- newdrugfile
-ignore_file_path <- '/tmp/ignore_chems.txt'
+ignore_file_path <- '/tmp/mpnst_ignore_chems.txt'
 
 update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
 

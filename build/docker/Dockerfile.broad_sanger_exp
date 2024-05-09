@@ -13,7 +13,7 @@ WORKDIR /app
 
 ADD build/broad_sanger/03-createDrugFile.R ./
 ADD build/broad_sanger/04a-drugResponseData.R ./
-ADD build/broad_sanger/04-drug_dosage_and_curves.py ./
+ADD build/broad_sanger/*py ./
 ADD build/broad_sanger/build_drugs.sh ./
 ADD build/broad_sanger/build_exp.sh ./
 ADD build/utils/* ./
