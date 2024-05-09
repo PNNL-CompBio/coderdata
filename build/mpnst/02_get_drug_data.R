@@ -72,14 +72,14 @@ print(paste(alldrugs,collapse=','))
 
 
 ##copy old drug to new drug
-olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x)))
+olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x,header=T,sep='\t',quote='',comment.char=''))
 olddrugs<-unique(olddrugs)
 
 print(paste('Read in ',nrow(olddrugs),'old drugs'))
                                         #file.copy(olddrugfile,newdrugfile)
-write.table(olddrugs,file=newdrugfile,sep='\t')
+write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
 output_file_path <- newdrugfile
-ignore_file_path <- '/tmp/ignore_chems.txt'
+ignore_file_path <- '/tmp/mpnst_ignore_chems.txt'
 
 update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
 
