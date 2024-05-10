@@ -48,21 +48,26 @@ def main():
     #docker_run='docker run -v $PWD/local/:/tmp/ --platform=linux/amd64 
     env = os.environ.copy()
 
-    ###build docker images
-    ###
+    ### build all docker images in parallel using docker compose.
     if args.docker or args.all:
-        dlist = []
-        for fn in os.listdir("build/docker"):
-            dsname=fn.split('.')[1]
-            print(dsname)
-            dlist.append(dsname)
-            #cmd = 'docker build --platform=linux/amd64 -t '+dsname+' .  -f build/docker/'+fn+ ' --build-arg HTTPS_PROXY=$HTTPS_PROXY'
-            #print(cmd)
-            if 'HTTPS_PROXY' in env.keys():
-                res = subprocess.run(['docker','build','-t',dsname,'.','-f','build/docker/'+fn,'--build-arg','HTTPS_PROXY='+env['HTTPS_PROXY'],'--platform','linux/amd64'])
+        
+        compose_file = 'build/docker/docker-compose.yml'
+        compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel']
+        
+        log_file_path = 'local/docker.log'
+        with open(log_file_path, 'w') as log_file:
+            # Execute the docker-compose command
+            res = subprocess.run(compose_command, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            # Log both stdout and stderr to the log file
+            log_file.write(res.stdout)
+            if res.returncode != 0:
+                log_file.write("Docker compose build failed.\n")
+                print(f"Docker compose build failed. See {log_file_path} for details.")
+                exit(1)
             else:
-                res = subprocess.run(['docker','build','-t',dsname,'.','-f','build/docker/'+fn,'--platform','linux/amd64'])
-#os.system(cmd)
+                log_file.write("Docker images built successfully.\n")
+                print(f"Docker images built successfully. Details logged in {log_file_path}")
+
 
     datasets = args.datasets.split(',')
 
@@ -104,6 +109,8 @@ def main():
             if not os.path.exists('local/'+da+'_drugs.tsv'):
                 run_cmd([di,'sh','build_drugs.sh',','.join(dflist)],da+' drugs')
             dflist = dflist.append('/tmp/'+da+'_drugs.tsv')
+            
+            
 
     #### Any new omics files are created here.
     ## depends on samples!
