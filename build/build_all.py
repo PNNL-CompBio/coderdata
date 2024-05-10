@@ -5,7 +5,6 @@ script that builds the coderdata package and stores locally
 import os
 import argparse
 import time
-import random
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
@@ -27,7 +26,7 @@ def main():
     #     # Simulate running the command by printing what would be run
     #     print(f'Running: {filename} with command {" ".join(cmd_arr)}')
     #     # Simulate execution time with a random delay
-    #     time.sleep(random.randint(1, 2))
+    #     time.sleep(2)
     #     print(f'Completed: {filename}')
     
     def run_docker_cmd(cmd_arr,filename):
