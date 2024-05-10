@@ -59,6 +59,7 @@ def main():
         compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel']
         log_file_path = 'local/docker.log'
         env = os.environ.copy()
+        print(f"Docker-compose is building all images. View output in {log_file_path}.")
         with open(log_file_path, 'w') as log_file:
             # Execute the docker-compose command
             res = subprocess.run(compose_command,  env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -109,7 +110,6 @@ def main():
         for da in datasets:
                 di = 'broad_sanger_omics' if da == 'broad_sanger' else da
                 executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
-    
     
     def process_experiments(executor, datasets):
         '''
