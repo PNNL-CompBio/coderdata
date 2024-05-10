@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+  broad_sanger_exp:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.broad_sanger_exp
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: broad_sanger_exp:latest
+
+  broad_sanger_omics:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.broad_sanger_omics
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: broad_sanger_omics:latest
+
+  hcmi:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.hcmi
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: hcmi:latest
+
+  beataml:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.beataml
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: beataml:latest
+
+  mpnst:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.mpnst
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: mpnst:latest
+
+  cptac:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.cptac
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: cptac:latest
+
+
