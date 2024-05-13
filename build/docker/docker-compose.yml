@@ -53,5 +53,13 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: cptac:latest
-
+    
+  genes:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.genes
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: genes:latest
 
