@@ -94,7 +94,13 @@ def main():
         Build all samples files sequentially
         '''
         last_sample_future = None
-        sf = ''  
+        sf = ''
+        for da in datasets:
+            file_path = f'local/{da}_samples.csv'
+            if os.path.exists(file_path):
+                sf = f'/tmp/{da}_samples.csv'  # Set the most recent successfully processed dataset file
+            else:
+                break
         for da in datasets:
                 di = 'broad_sanger_omics' if da == 'broad_sanger' else da
                 if not os.path.exists(f'local/{da}_samples.csv'):
@@ -102,6 +108,7 @@ def main():
                         last_sample_future.result() 
                     last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_samples.sh', sf], f'{da} samples')
                     sf = f'/tmp/{da}_samples.csv'
+                    
         
     def process_omics(executor, datasets):
         '''
