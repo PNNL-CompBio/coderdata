@@ -146,8 +146,10 @@ def main():
             drug_thread = executor.submit(process_drugs,executor, datasets)
             
         # Wait for both processes to complete before proceeding to omics and experiments
-        drug_thread.result()
-        sample_thread.result()
+        if args.drugs:
+            drug_thread.result()
+        if args.samples:
+            sample_thread.result()
 
 
     ### At this point in the pipeline, all samples and drugs files have been created. There are no blockers to proceed.
@@ -159,8 +161,10 @@ def main():
         if args.exp or args.all:
             exp_thread = executor.submit(process_experiments, executor, datasets)
             
-        omics_thread.result()
-        exp_thread.result()
+        if args.omics:
+            omics_thread.result()
+        if args.exp:
+            exp_thread.result()
 
 
 if __name__ == '__main__':
