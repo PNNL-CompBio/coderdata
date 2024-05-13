@@ -103,7 +103,7 @@ def main():
                 
             if not os.path.exists('local/'+da+'_drugs.tsv'):
                 run_cmd([di,'sh','build_drugs.sh',','.join(dflist)],da+' drugs')
-            dflist = dflist.append('/tmp/'+da+'_drugs.tsv')
+            dflist.append('/tmp/'+da+'_drugs.tsv')
 
     #### Any new omics files are created here.
     ## depends on samples!
@@ -127,7 +127,7 @@ def main():
             else:
                 di = da
             if not os.path.exists('local/'+da+'_experiments.tsv'):
-                run_cmd([di,'sh','build_exp.sh','/tmp/'+df+'_samples.csv','/tmp/'+da+'_drugs.tsv'],da+' experiments')
+                run_cmd([di,'sh','build_exp.sh','/tmp/'+da+'_samples.csv','/tmp/'+da+'_drugs.tsv'],da+' experiments')
     
 
 

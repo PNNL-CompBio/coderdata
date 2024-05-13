@@ -105,6 +105,15 @@ sanger_files<-function(fi,value){
        rm(exp_file)
 
         print('copy call')
+
+        ##rename SANGER value
+        # Amplification -> amp
+        # Deletion -> deep del
+        # Loss -> het loss
+        # Gain -> gain
+        # Neutral -> diploid
+        #
+        res$Sanger=sapply(res$Sanger,function(x) ifelse(x=='Amplification','amp',ifelse(x=='Deletion','deep del',ifelse(x=='Loss','het loss',ifelse(x=='Gain','gain','diploid')))))
       ##calibrate the copy call
       res<-res|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
         dplyr::mutate(IMPROVE=ifelse(copy_number<0.5210507,'deep del',
