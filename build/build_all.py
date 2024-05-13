@@ -146,9 +146,9 @@ def main():
             drug_thread = executor.submit(process_drugs,executor, datasets)
             
         # Wait for both processes to complete before proceeding to omics and experiments
-        if args.drugs:
+        if args.drugs or args.all:
             drug_thread.result()
-        if args.samples:
+        if args.samples or args.all:
             sample_thread.result()
 
 
@@ -161,9 +161,9 @@ def main():
         if args.exp or args.all:
             exp_thread = executor.submit(process_experiments, executor, datasets)
             
-        if args.omics:
+        if args.omics or args.all:
             omics_thread.result()
-        if args.exp:
+        if args.exp or args.all:
             exp_thread.result()
 
 
