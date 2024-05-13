@@ -119,14 +119,21 @@ def main():
                     last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_samples.sh', sf], f'{da} samples')
                     sf = f'/tmp/{da}_samples.csv'
                     
-        
     def process_omics(executor, datasets):
         '''
         Build all omics files concurrently
         '''
+        last_sample_future = None
         for da in datasets:
-                di = 'broad_sanger_omics' if da == 'broad_sanger' else da
-                executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
+            di = 'broad_sanger_omics' if da == 'broad_sanger' else da
+            
+            #Run all at once:
+            # executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
+
+            #Run 1 at a time.
+            if last_sample_future:
+                last_sample_future.result() 
+            last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
     
     def process_experiments(executor, datasets):
         '''
@@ -136,7 +143,17 @@ def main():
             if da not in ['cptac', 'hcmi']:
                 di = 'broad_sanger_exp' if da == 'broad_sanger' else da
                 if not os.path.exists(f'local/{da}_experiments.tsv'):
-                    executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
+                    
+                    #Run all at once
+                    # executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
+                    
+                    #Run one at a time
+                    if last_sample_future:
+                        last_sample_future.result() 
+                    last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
+        
+
+
 
     def process_genes(executor):
         if not os.path.exists('/tmp/genes.csv'):
@@ -181,6 +198,18 @@ def main():
     ### At this point in the pipeline, all samples and drugs files have been created. There are no blockers to proceed.
     ### Build Omics files and Experiments files. These two steps are run in Parallel. 
     ### Within each step, all datasets are run in Parallel.
+    
+    with ThreadPoolExecutor() as executor:
+        if args.omics or args.all:
+            omics_thread = executor.submit(process_omics, executor, datasets)
+        if args.exp or args.all:
+            exp_thread = executor.submit(process_experiments, executor, datasets)
+            
+        if args.omics or args.all:
+            omics_thread.result()
+        if args.exp or args.all:
+            exp_thread.result()
+    
     with ThreadPoolExecutor() as executor:
         if args.omics or args.all:
             omics_thread = executor.submit(process_omics, executor, datasets)
