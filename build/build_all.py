@@ -80,6 +80,16 @@ def main():
         '''
         last_drug_future = None
         dflist = []  
+            
+        # WE NEED A METHOD TO CONFIRM THAT DRUG FILES ARE NOT INCOMPLETE
+            
+        # Check for existing files and update dflist with processed files
+        for da in datasets:
+            if da not in ['cptac', 'hcmi']: 
+                file_path = f'local/{da}_drugs.tsv'
+                if os.path.exists(file_path):
+                    dflist.append(f'/tmp/{da}_drugs.tsv')  # Add to dflist if already processed
+
         for da in datasets:
             if da not in ['cptac', 'hcmi']:
                 di = 'broad_sanger_exp' if da == 'broad_sanger' else da
