@@ -138,6 +138,10 @@ def main():
                 if not os.path.exists(f'local/{da}_experiments.tsv'):
                     executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
 
+    def process_genes(executor):
+        if not os.path.exists('/tmp/genes.csv'):
+            executor.submit(run_docker_cmd,['genes','sh','build_genes.sh'],'gene file')
+        
     ######
     ### Begin Pipeline
     #####
@@ -153,20 +157,25 @@ def main():
     # Ouput is logged at local/docker.log
     if args.docker or args.all:
         process_docker()
+        
 
-    ### Build Drugs files and Samples files. These two steps are run in Parallel. 
+    ### Build Drugs files, Samples files, and Genes file. These two steps are run in Parallel. 
     ### Within each step, sequential running is required.
     with ThreadPoolExecutor() as executor:
         if args.samples or args.all:
             sample_thread = executor.submit(process_samples,executor, datasets)
         if args.drugs or args.all:
             drug_thread = executor.submit(process_drugs,executor, datasets)
-            
+        if args.samples or args.omics or args.exp or args.all:
+            gene_thread = executor.submit(process_genes,executor)
+        
         # Wait for both processes to complete before proceeding to omics and experiments
         if args.drugs or args.all:
             drug_thread.result()
         if args.samples or args.all:
             sample_thread.result()
+        if args.samples or args.omics or args.exp or args.all:
+            gene_thread.result()
 
 
     ### At this point in the pipeline, all samples and drugs files have been created. There are no blockers to proceed.
