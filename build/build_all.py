@@ -280,11 +280,6 @@ def main():
     if not os.path.exists(all_files_dir):
         os.makedirs(all_files_dir)
 
-
-    for file in glob('*.*'):
-        if any(file.startswith(prefix) for prefix in prefixes):
-            shutil.move(file, os.path.join(all_files_dir, file))
-
     figshare_token = os.getenv('FIGSHARE_TOKEN')
     pypi_token = os.getenv('PYPI_TOKEN')
 
@@ -297,7 +292,7 @@ def main():
         os.makedirs(all_files_dir)
             
     # Move files based on prefixes
-    for file in glob('*.*'):
+    for file in glob(os.path.join("local", '*.*')):
         if any(file.startswith(prefix) for prefix in prefixes):
             shutil.move(file, os.path.join(all_files_dir, file))
 
