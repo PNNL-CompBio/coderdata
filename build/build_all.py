@@ -312,7 +312,7 @@ def main():
         # run_schema_checker()
         datasets_list = args.datasets.split(',')
         schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets_list
-        run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'PyPI', args.version)
+        run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'Schema', args.version)
     
         # Compress or decompress files based on specific conditions after checking
         for file in glob(os.path.join(all_files_dir, '*')):
