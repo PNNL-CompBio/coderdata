@@ -190,9 +190,9 @@ def main():
         res = subprocess.run(docker_run, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if res.returncode != 0:
             print(res.stderr.decode())
-            exit(f'Upload to {name} failed')
+            exit(f'{name} failed')
         else:
-            print(f'Upload to {name} successful')
+            print(f'{name} successful')
             
 
     def decompress_file(file_path):
