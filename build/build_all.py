@@ -180,7 +180,7 @@ def main():
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
 
         # Update setup version command
-        version_update_cmd = ['python', 'update_version.py', version]     
+        version_update_cmd = ['python', 'scripts/update_version.py', version]     
         
         docker_run.extend(version_update_cmd)
         
