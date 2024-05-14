@@ -7,7 +7,11 @@ import argparse
 import time
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
-
+import shutil
+import gzip
+import argparse
+from glob import glob
+from packaging import version
     
 def main():
     parser=argparse.ArgumentParser()
@@ -16,9 +20,11 @@ def main():
     parser.add_argument('--omics',dest='omics',default=False,action='store_true')
     parser.add_argument('--drugs',dest='drugs',default=False,action='store_true')
     parser.add_argument('--exp',dest='exp',default=False,action='store_true')
+    parser.add_argument('--figshare', action='store_true', help="Flag to trigger Figshare upload")
+    parser.add_argument('--pypi', action='store_true', help="Flag to trigger PyPI upload")
     parser.add_argument('--all',dest='all',default=False,action='store_true')
     parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,mpnst,cptac',help='Datasets to process. Defaults to all available, but if there are synapse issues, please remove beataml and mpnst')
-
+    parser.add_argument('--version', type=str, required=False, help='Version number for the package and data upload title.')
     args = parser.parse_args()
                     
     # Simulation command for testing order of everything:
@@ -40,6 +46,8 @@ def main():
             docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','--platform=linux/amd64']
         else:
             docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'],'--platform=linux/amd64']
+            
+            
         cmd = docker_run+cmd_arr
         print(cmd)
         res = subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -151,13 +159,47 @@ def main():
                     if last_sample_future:
                         last_sample_future.result() 
                     last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
-        
-
-
 
     def process_genes(executor):
         if not os.path.exists('/tmp/genes.csv'):
             executor.submit(run_docker_cmd,['genes','sh','build_genes.sh'],'gene file')
+        
+        
+    def run_docker_upload_cmd(cmd_arr, all_files_dir, name, version):
+        '''
+        Wrapper for 'docker run'. This one is focused on uploads.
+        '''
+        print('Preparing upload...')
+        env = os.environ.copy()
+        docker_run = ['docker', 'run', '--rm', '-v', f"{env['PWD']}/local/{all_files_dir}:/tmp", '-e', f"VERSION={version}"]
+
+        # Add Appropriate Environment Variables
+        if 'PYPI_TOKEN' in env and name == 'PyPI':
+            docker_run.extend(['-e', f"PYPI_TOKEN={env['PYPI_TOKEN']}", 'upload'])
+        if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
+            docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
+
+        # Update setup version command
+        version_update_cmd = ['sed', '-i', f"s/version='[0-9]+\\.[0-9]+\\.[0-9]+'/'version='{version}'/g", 'setup.py']
+        
+        # If the upload is for PyPI and token is present, also run the script to update downloader.py
+        if name == 'PyPI' and 'PYPI_TOKEN' in env:
+            update_downloader_cmd = ['&&', 'python', 'scripts/update_download_function.py', '-y', '/tmp/figshare_latest.yml', '-d', 'coderdata/download/downloader.py']
+            docker_run.extend(update_downloader_cmd)
+
+        # Full command to run including version update
+        full_command = version_update_cmd + ['&&'] + cmd_arr
+        docker_run.extend(full_command)
+
+        print('Executing:', ' '.join(docker_run))
+        
+        res = subprocess.run(docker_run, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if res.returncode != 0:
+            print(res.stderr.decode())
+            exit(f'Upload to {name} failed')
+        else:
+            print(f'Upload to {name} successful')
+        
         
     ######
     ### Begin Pipeline
@@ -221,6 +263,72 @@ def main():
         if args.exp or args.all:
             exp_thread.result()
 
+
+
+    ######
+    ### Begin Upload
+    #####
+    
+    
+    # FigShare File Prefixes:
+    prefixes = ['beataml', 'hcmi', 'cptac', 'mpnst', 'broad_sanger', 'genes', 'drugs']
+    
+    figshare_token = os.getenv('FIGSHARE_TOKEN')
+    pypi_token = os.getenv('PYPI_TOKEN')
+
+    all_files_dir = 'local/all_files_dir'
+    if not os.path.exists(all_files_dir):
+        os.makedirs(all_files_dir)
+
+
+    for file in glob('*.*'):
+        if any(file.startswith(prefix) for prefix in prefixes):
+            shutil.move(file, os.path.join(all_files_dir, file))
+
+    figshare_token = os.getenv('FIGSHARE_TOKEN')
+    pypi_token = os.getenv('PYPI_TOKEN')
+
+    # Ensure tokens are available
+    if not figshare_token or not pypi_token:
+        raise ValueError("Required tokens are not set in environment variables.")
+    
+    # Create directory to store all files
+    if not os.path.exists(all_files_dir):
+        os.makedirs(all_files_dir)
+            
+    # Compress non-samples files. Decompress samples files if compressed
+    for file in glob(os.path.join(all_files_dir, '*')):
+        is_compressed = file.endswith('.gz')
+        if 'samples' in file:
+            if is_compressed:
+                with gzip.open(file, 'rb') as f_in:
+                    decompressed_file_path = file[:-3]
+                    with open(decompressed_file_path, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+                os.remove(file) 
+        else:
+            if not is_compressed:
+                with open(file, 'rb') as f_in:
+                    compressed_file_path = file + '.gz'
+                    with gzip.open(compressed_file_path, 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+                os.remove(file)
+
+    print("File compression and decompression adjustments are complete.")
+    # Upload to Figshare using external script
+
+# Upload to Figshare using Docker
+    if args.figshare and args.version and figshare_token:
+        figshare_command = ['python', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--publish']
+        run_docker_upload_cmd(figshare_command, 'all_files_dir', 'Figshare',args.version)
+
+# Upload to PyPI using Docker
+    if args.pypi and args.version and pypi_token:
+        pypi_command = ['python', 'setup.py', 'sdist', 'bdist_wheel', '&&', 'twine', 'upload', 'dist/*', '--verbose', '-u', '__token__', '-p', os.getenv('PYPI_TOKEN')]
+        run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI',args.version)
+        
+        
+        
 
 if __name__ == '__main__':
     main()
