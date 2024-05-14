@@ -290,14 +290,14 @@ def main():
     # Compress or decompress files in the directory
     for file in glob(os.path.join(all_files_dir, '*')):
         is_compressed = file.endswith('.gz')
-        if 'samples' in file and is_compressed:
+        if ('samples' in file or 'figshare' in file) and is_compressed:
             # Decompress samples files
             with gzip.open(file, 'rb') as f_in:
                 decompressed_file_path = file[:-3]
                 with open(decompressed_file_path, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
             os.remove(file)
-        elif not 'samples' in file and not is_compressed:
+        elif not ('samples' in file or 'figshare' in file) and not is_compressed:
             # Compress other files
             with open(file, 'rb') as f_in:
                 compressed_file_path = file + '.gz'
