@@ -179,18 +179,7 @@ def main():
         if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
 
-        # Update setup version command
-        version_update_cmd = ['python3', 'scripts/update_version.py', version]     
-        
-        docker_run.extend(version_update_cmd)
-        
-        # If the upload is for PyPI and token is present, also run the script to update downloader.py
-        if name == 'PyPI' and 'PYPI_TOKEN' in env:
-            update_downloader_cmd = ['&&', 'python3', 'scripts/update_download_function.py', '-y', '/tmp/figshare_latest.yml', '-d', 'coderdata/download/downloader.py']
-            docker_run.extend(update_downloader_cmd)
-            
         # Full command to run including version update
-        cmd_arr = ['&&'] + cmd_arr
         docker_run.extend(cmd_arr)
 
         print('Executing:', ' '.join(docker_run))
@@ -322,13 +311,13 @@ def main():
 # Upload to Figshare using Docker
     if args.figshare and args.version and figshare_token:
         figshare_command = ['python3', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--publish']
-        run_docker_upload_cmd(figshare_command, 'all_files_dir', 'Figshare',args.version)
+        run_docker_upload_cmd(figshare_command, 'all_files_dir', 'Figshare', args.version)
 
 # Upload to PyPI using Docker
     if args.pypi and args.version and pypi_token:
-        pypi_command = ['python3', 'setup.py', 'sdist', 'bdist_wheel', '&&', 'twine', 'upload', 'dist/*', '--verbose', '-u', '__token__', '-p', os.getenv('PYPI_TOKEN')]
-        run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI',args.version)
-        
+        # pypi_command = ['python3', 'setup.py', 'sdist', 'bdist_wheel', '&&', 'twine', 'upload', 'dist/*', '--verbose', '-u', '__token__', '-p', os.getenv('PYPI_TOKEN')]
+        pypi_command = ['python3', 'scripts/push_to_pypi.py', '-y', '/tmp/figshare_latest.yml', '-d', 'coderdata/download/downloader.py', "-v", args.version]
+        run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI', args.version)
         
     
 if __name__ == '__main__':
