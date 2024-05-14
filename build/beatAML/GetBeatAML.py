@@ -258,6 +258,9 @@ def merge_drug_info(d_df,drug_map):
     #print(drug_map)
     #print(d_df.columns)
     #print(d_df)
+    print(d_df['isoSMILES'].dtype, drug_map['isoSMILES'].dtype)
+    d_df['isoSMILES'] = d_df['isoSMILES'].astype(str)
+    drug_map['isoSMILES'] = drug_map['isoSMILES'].astype(str)
     result_df = d_df.merge(drug_map[['isoSMILES', 'improve_drug_id']], on='isoSMILES', how='left')
     return result_df
 
