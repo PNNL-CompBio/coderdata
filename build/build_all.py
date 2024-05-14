@@ -44,9 +44,9 @@ def main():
         env = os.environ.copy()
         if 'SYNAPSE_AUTH_TOKEN' not in env.keys():
             print('You need to set the SYNAPSE_AUTH_TOKEN to acess the MPNST and beatAML Datasets')
-            docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','--platform=linux/amd64']
+            docker_run = ['docker','run','--rm','-v',env['PWD']+'/local/:/tmp/','--platform=linux/amd64']
         else:
-            docker_run = ['docker','run','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'],'--platform=linux/amd64']
+            docker_run = ['docker','run','--rm','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'],'--platform=linux/amd64']
             
             
         cmd = docker_run+cmd_arr
@@ -139,7 +139,7 @@ def main():
             #Run all at once:
             # executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
 
-            #Run 1 at a time.
+            #Run one at a time.
             if last_sample_future:
                 last_sample_future.result() 
             last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
@@ -179,14 +179,11 @@ def main():
             docker_run.extend(['-e', f"PYPI_TOKEN={env['PYPI_TOKEN']}", 'upload'])
         if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
-        if name == 'validate':
-            docker_run.extend(['upload'])
+        docker_run.extend(['upload'])
 
         # Full command to run including version update
         docker_run.extend(cmd_arr)
-
         print('Executing:', ' '.join(docker_run))
-        
         res = subprocess.run(docker_run, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if res.returncode != 0:
             print(res.stderr.decode())
@@ -274,7 +271,6 @@ def main():
             exp_thread.result()
 
 
-
     ######
     ### Begin Upload
     #####
@@ -324,43 +320,7 @@ def main():
                 compress_file(file)
 
         print("File compression and decompression adjustments are complete.")
-        
-        
-        # # Create directory to store all files
-        # if not os.path.exists(all_files_dir):
-        #     os.makedirs(all_files_dir)
-                
-        # for file in glob(os.path.join("local", '*.*')):
-        #     if any(file.startswith(os.path.join("local", prefix)) for prefix in prefixes):
-        #         shutil.move(file, os.path.join(all_files_dir, os.path.basename(file)))
-
-
-        # # Decompress all files for schema checker 
-        
-        # # Run schema checker 
-
-        # # Compress or decompress files in the directory
-        # for file in glob(os.path.join(all_files_dir, '*')):
-        #     is_compressed = file.endswith('.gz')
-        #     if ('samples' in file or 'figshare' in file) and is_compressed:
-        #         # Decompress samples files
-        #         with gzip.open(file, 'rb') as f_in:
-        #             decompressed_file_path = file[:-3]
-        #             with open(decompressed_file_path, 'wb') as f_out:
-        #                 shutil.copyfileobj(f_in, f_out)
-        #         os.remove(file)
-        #     elif not ('samples' in file or 'figshare' in file) and not is_compressed:
-        #         # Compress other files
-        #         with open(file, 'rb') as f_in:
-        #             compressed_file_path = file + '.gz'
-        #             with gzip.open(compressed_file_path, 'wb') as f_out:
-        #                 shutil.copyfileobj(f_in, f_out)
-        #         os.remove(file)
-
-        # print("File compression and decompression adjustments are complete.")
-        # # Upload to Figshare using external script
-
-
+    
     # Upload to Figshare using Docker
         if args.figshare and args.version and figshare_token:
             figshare_command = ['python3', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--publish']
