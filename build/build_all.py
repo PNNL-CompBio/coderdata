@@ -291,10 +291,10 @@ def main():
     if not os.path.exists(all_files_dir):
         os.makedirs(all_files_dir)
             
-    # Move files based on prefixes
     for file in glob(os.path.join("local", '*.*')):
-        if any(file.startswith(prefix) for prefix in prefixes):
-            shutil.move(file, os.path.join(all_files_dir, file))
+        if any(file.startswith(os.path.join("local", prefix)) for prefix in prefixes):
+            shutil.move(file, os.path.join(all_files_dir, os.path.basename(file)))
+
 
     # Compress or decompress files in the directory
     for file in glob(os.path.join(all_files_dir, '*')):
