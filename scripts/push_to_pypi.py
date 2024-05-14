@@ -11,7 +11,7 @@ def update_version(file_path, new_version):
     with open(file_path, 'w') as file:
         for line in lines:
             if "version=" in line:
-                line = f"version='{new_version}'\n"
+                line = f"    version='{new_version}',"
             file.write(line)
 
 def update_article_url(yaml_file_path, downloader_file_path):
