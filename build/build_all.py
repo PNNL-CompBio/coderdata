@@ -179,6 +179,8 @@ def main():
             docker_run.extend(['-e', f"PYPI_TOKEN={env['PYPI_TOKEN']}", 'upload'])
         if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
+        if name == 'validate':
+            docker_run.extend(['upload'])
 
         # Full command to run including version update
         docker_run.extend(cmd_arr)
@@ -312,7 +314,7 @@ def main():
         # run_schema_checker()
         datasets_list = args.datasets.split(',')
         schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets_list
-        run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'Schema', args.version)
+        run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
     
         # Compress or decompress files based on specific conditions after checking
         for file in glob(os.path.join(all_files_dir, '*')):
