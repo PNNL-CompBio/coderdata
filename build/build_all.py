@@ -296,23 +296,28 @@ def main():
     if not os.path.exists(all_files_dir):
         os.makedirs(all_files_dir)
             
-    # Compress non-samples files. Decompress samples files if compressed
+    # Move files based on prefixes
+    for file in glob('*.*'):
+        if any(file.startswith(prefix) for prefix in prefixes):
+            shutil.move(file, os.path.join(all_files_dir, file))
+
+    # Compress or decompress files in the directory
     for file in glob(os.path.join(all_files_dir, '*')):
         is_compressed = file.endswith('.gz')
-        if 'samples' in file:
-            if is_compressed:
-                with gzip.open(file, 'rb') as f_in:
-                    decompressed_file_path = file[:-3]
-                    with open(decompressed_file_path, 'wb') as f_out:
-                        shutil.copyfileobj(f_in, f_out)
-                os.remove(file) 
-        else:
-            if not is_compressed:
-                with open(file, 'rb') as f_in:
-                    compressed_file_path = file + '.gz'
-                    with gzip.open(compressed_file_path, 'wb') as f_out:
-                        shutil.copyfileobj(f_in, f_out)
-                os.remove(file)
+        if 'samples' in file and is_compressed:
+            # Decompress samples files
+            with gzip.open(file, 'rb') as f_in:
+                decompressed_file_path = file[:-3]
+                with open(decompressed_file_path, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            os.remove(file)
+        elif not 'samples' in file and not is_compressed:
+            # Compress other files
+            with open(file, 'rb') as f_in:
+                compressed_file_path = file + '.gz'
+                with gzip.open(compressed_file_path, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            os.remove(file)
 
     print("File compression and decompression adjustments are complete.")
     # Upload to Figshare using external script
@@ -328,7 +333,6 @@ def main():
         run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI',args.version)
         
         
-        
-
+    
 if __name__ == '__main__':
     main()
