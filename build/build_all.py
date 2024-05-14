@@ -310,8 +310,7 @@ def main():
         for file in glob(os.path.join(all_files_dir, '*.gz')):
             decompress_file(file)
 
-        # Run schema checker (Placeholder for actual schema checker call)
-        # run_schema_checker()
+        # Run schema checker
         datasets_list = args.datasets.split(',')
         schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets_list
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
