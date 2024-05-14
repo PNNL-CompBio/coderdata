@@ -180,9 +180,7 @@ def main():
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
 
         # Update setup version command
-        # version_update_cmd = ['sed', '-i', f"s/version='\([0-9]\+\.[0-9]\+\.\)[0-9]\+'/version='{version}'/g", 'setup.py']     
-        
-        version_update_cmd = ['/bin/bash', '-c', f"sed -i \"s/version='[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+'/'version='{version}'/g\" setup.py"]
+        version_update_cmd = ['python', 'update_version.py', version]     
         
         docker_run.extend(version_update_cmd)
         
