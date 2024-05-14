@@ -230,7 +230,6 @@ enums:
         description: tumor growth inhibitiojn
       kulgap:
         description: kl divergence based metric
-	
   CellPerturbation:
     permissible_values:
       gene_ko:
