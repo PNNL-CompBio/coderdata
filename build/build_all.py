@@ -180,7 +180,8 @@ def main():
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
 
         # Update setup version command
-        version_update_cmd = ['sed', '-i', f"s/version='[0-9]+\\.[0-9]+\\.[0-9]+'/'version='{version}'/g", 'setup.py']
+        # version_update_cmd = ['sed', '-i', f"s/version='[0-9]+\\.[0-9]+\\.[0-9]+'/'version='{version}'/g", 'setup.py']
+        version_update_cmd = "sed -i \"s/version='\([0-9]\+\.[0-9]\+\.\)[0-9]\+'/version='" + version + "'/\" setup.py"
         
         # If the upload is for PyPI and token is present, also run the script to update downloader.py
         if name == 'PyPI' and 'PYPI_TOKEN' in env:
