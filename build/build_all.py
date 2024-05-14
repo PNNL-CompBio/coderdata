@@ -165,42 +165,40 @@ def main():
             executor.submit(run_docker_cmd,['genes','sh','build_genes.sh'],'gene file')
         
         
-    def run_docker_upload_cmd(cmd_arr, all_files_dir, name, version):
-        '''
-        Wrapper for 'docker run'. This one is focused on uploads.
-        '''
-        print('Preparing upload...')
-        env = os.environ.copy()
-        docker_run = ['docker', 'run', '--rm', '-v', f"{env['PWD']}/local/{all_files_dir}:/tmp", '-e', f"VERSION={version}"]
+def run_docker_upload_cmd(cmd_arr, all_files_dir, name, version):
+    print('Preparing upload...')
+    env = os.environ.copy()
+    docker_run = ['docker', 'run', '--rm', '-v', f"{env['PWD']}/local/{all_files_dir}:/tmp", '-e', f"VERSION={version}"]
 
-        # Add Appropriate Environment Variables
-        if 'PYPI_TOKEN' in env and name == 'PyPI':
-            docker_run.extend(['-e', f"PYPI_TOKEN={env['PYPI_TOKEN']}", 'upload'])
-        if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
-            docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
+    # Add appropriate environment variables
+    if 'PYPI_TOKEN' in env and name == 'PyPI':
+        docker_run.extend(['-e', f"PYPI_TOKEN={env['PYPI_TOKEN']}"])
+    if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
+        docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}"])
 
-        # Update setup version command
-        version_update_cmd = ['python', 'scripts/update_version.py', version]     
-        
-        docker_run.extend(version_update_cmd)
-        
-        # If the upload is for PyPI and token is present, also run the script to update downloader.py
-        if name == 'PyPI' and 'PYPI_TOKEN' in env:
-            update_downloader_cmd = ['&&', 'python', 'scripts/update_download_function.py', '-y', '/tmp/figshare_latest.yml', '-d', 'coderdata/download/downloader.py']
-            docker_run.extend(update_downloader_cmd)
-            
-        # Full command to run including version update
-        cmd_arr = ['&&'] + cmd_arr
-        docker_run.extend(cmd_arr)
+    docker_run.append('upload')
 
-        print('Executing:', ' '.join(docker_run))
-        
-        res = subprocess.run(docker_run, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if res.returncode != 0:
-            print(res.stderr.decode())
-            exit(f'Upload to {name} failed')
-        else:
-            print(f'Upload to {name} successful')
+    # Construct the full command to be run inside the Docker container
+    full_command = f"python scripts/update_version.py {version}"
+
+    if name == 'PyPI' and 'PYPI_TOKEN' in env:
+        full_command += f" && python scripts/update_download_function.py -y /tmp/figshare_latest.yml -d coderdata/download/downloader.py"
+
+    # Extend with additional commands if any
+    full_command += " && " + " && ".join(cmd_arr)
+
+    # Append the bash shell execution
+    docker_run.extend(["/bin/bash", "-c", full_command])
+
+    print('Executing:', ' '.join(docker_run))
+    
+    res = subprocess.run(docker_run, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        print(res.stderr.decode())
+        exit(f'Upload to {name} failed')
+    else:
+        print(f'Upload to {name} successful')
+
         
         
     ######
