@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--omics',dest='omics',default=False,action='store_true')
     parser.add_argument('--drugs',dest='drugs',default=False,action='store_true')
     parser.add_argument('--exp',dest='exp',default=False,action='store_true')
+    parser.add_argument('--validate', action='store_true', help="Flag to trigger schema checker")
     parser.add_argument('--figshare', action='store_true', help="Flag to trigger Figshare upload")
     parser.add_argument('--pypi', action='store_true', help="Flag to trigger PyPI upload")
     parser.add_argument('--all',dest='all',default=False,action='store_true')
@@ -190,8 +191,24 @@ def main():
             exit(f'Upload to {name} failed')
         else:
             print(f'Upload to {name} successful')
-        
-        
+            
+
+    def decompress_file(file_path):
+        """Decompress a gzip file and delete the original compressed file."""
+        with gzip.open(file_path, 'rb') as f_in:
+            decompressed_file_path = file_path[:-3]  # Remove '.gz' from the filename
+            with open(decompressed_file_path, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+        os.remove(file_path)
+
+    def compress_file(file_path):
+        """Compress a file using gzip and delete the original uncompressed file."""
+        compressed_file_path = file_path + '.gz'
+        with open(file_path, 'rb') as f_in:
+            with gzip.open(compressed_file_path, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+        os.remove(file_path)
+            
     ######
     ### Begin Pipeline
     #####
@@ -261,64 +278,99 @@ def main():
     #####
     
     
-    # FigShare File Prefixes:
-    prefixes = ['beataml', 'hcmi', 'cptac', 'mpnst', 'broad_sanger', 'genes', 'drugs']
-    
-    figshare_token = os.getenv('FIGSHARE_TOKEN')
-    pypi_token = os.getenv('PYPI_TOKEN')
-
-    all_files_dir = 'local/all_files_dir'
-    if not os.path.exists(all_files_dir):
-        os.makedirs(all_files_dir)
-
-    figshare_token = os.getenv('FIGSHARE_TOKEN')
-    pypi_token = os.getenv('PYPI_TOKEN')
-
-    # Ensure tokens are available
-    if not figshare_token or not pypi_token:
-        raise ValueError("Required tokens are not set in environment variables.")
-    
-    # Create directory to store all files
-    if not os.path.exists(all_files_dir):
-        os.makedirs(all_files_dir)
-            
-    for file in glob(os.path.join("local", '*.*')):
-        if any(file.startswith(os.path.join("local", prefix)) for prefix in prefixes):
-            shutil.move(file, os.path.join(all_files_dir, os.path.basename(file)))
-
-
-    # Compress or decompress files in the directory
-    for file in glob(os.path.join(all_files_dir, '*')):
-        is_compressed = file.endswith('.gz')
-        if ('samples' in file or 'figshare' in file) and is_compressed:
-            # Decompress samples files
-            with gzip.open(file, 'rb') as f_in:
-                decompressed_file_path = file[:-3]
-                with open(decompressed_file_path, 'wb') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            os.remove(file)
-        elif not ('samples' in file or 'figshare' in file) and not is_compressed:
-            # Compress other files
-            with open(file, 'rb') as f_in:
-                compressed_file_path = file + '.gz'
-                with gzip.open(compressed_file_path, 'wb') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            os.remove(file)
-
-    print("File compression and decompression adjustments are complete.")
-    # Upload to Figshare using external script
-
-# Upload to Figshare using Docker
-    if args.figshare and args.version and figshare_token:
-        figshare_command = ['python3', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--publish']
-        run_docker_upload_cmd(figshare_command, 'all_files_dir', 'Figshare', args.version)
-
-# Upload to PyPI using Docker
-    if args.pypi and args.version and pypi_token:
-        # pypi_command = ['python3', 'setup.py', 'sdist', 'bdist_wheel', '&&', 'twine', 'upload', 'dist/*', '--verbose', '-u', '__token__', '-p', os.getenv('PYPI_TOKEN')]
-        pypi_command = ['python3', 'scripts/push_to_pypi.py', '-y', '/tmp/figshare_latest.yml', '-d', 'coderdata/download/downloader.py', "-v", args.version]
-        run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI', args.version)
+    if args.pypi or args.figshare or args.validate:
+        # FigShare File Prefixes:
+        prefixes = ['beataml', 'hcmi', 'cptac', 'mpnst', 'broad_sanger', 'genes', 'drugs']
         
+        figshare_token = os.getenv('FIGSHARE_TOKEN')
+        pypi_token = os.getenv('PYPI_TOKEN')
+
+        all_files_dir = 'local/all_files_dir'
+        if not os.path.exists(all_files_dir):
+            os.makedirs(all_files_dir)
+
+        figshare_token = os.getenv('FIGSHARE_TOKEN')
+        pypi_token = os.getenv('PYPI_TOKEN')
+
+        # Ensure tokens are available
+        if not figshare_token or not pypi_token:
+            raise ValueError("Required tokens are not set in environment variables.")
+        
+        if not os.path.exists(all_files_dir):
+            os.makedirs(all_files_dir)
+
+        # Move relevant files to a designated directory
+        for file in glob(os.path.join("local", '*.*')):
+            if any(file.startswith(os.path.join("local", prefix)) for prefix in prefixes):
+                shutil.move(file, os.path.join(all_files_dir, os.path.basename(file)))
+
+        # Decompress all compressed files in the directory for schema checking
+        for file in glob(os.path.join(all_files_dir, '*.gz')):
+            decompress_file(file)
+
+        # Run schema checker (Placeholder for actual schema checker call)
+        # run_schema_checker()
+        datasets_list = args.datasets.split(',')
+        schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets_list
+        run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'PyPI', args.version)
+    
+        # Compress or decompress files based on specific conditions after checking
+        for file in glob(os.path.join(all_files_dir, '*')):
+            is_compressed = file.endswith('.gz')
+            if ('samples' in file or 'figshare' in file) and is_compressed:
+                decompress_file(file)
+            elif not ('samples' in file or 'figshare' in file) and not is_compressed:
+                compress_file(file)
+
+        print("File compression and decompression adjustments are complete.")
+        
+        
+        # # Create directory to store all files
+        # if not os.path.exists(all_files_dir):
+        #     os.makedirs(all_files_dir)
+                
+        # for file in glob(os.path.join("local", '*.*')):
+        #     if any(file.startswith(os.path.join("local", prefix)) for prefix in prefixes):
+        #         shutil.move(file, os.path.join(all_files_dir, os.path.basename(file)))
+
+
+        # # Decompress all files for schema checker 
+        
+        # # Run schema checker 
+
+        # # Compress or decompress files in the directory
+        # for file in glob(os.path.join(all_files_dir, '*')):
+        #     is_compressed = file.endswith('.gz')
+        #     if ('samples' in file or 'figshare' in file) and is_compressed:
+        #         # Decompress samples files
+        #         with gzip.open(file, 'rb') as f_in:
+        #             decompressed_file_path = file[:-3]
+        #             with open(decompressed_file_path, 'wb') as f_out:
+        #                 shutil.copyfileobj(f_in, f_out)
+        #         os.remove(file)
+        #     elif not ('samples' in file or 'figshare' in file) and not is_compressed:
+        #         # Compress other files
+        #         with open(file, 'rb') as f_in:
+        #             compressed_file_path = file + '.gz'
+        #             with gzip.open(compressed_file_path, 'wb') as f_out:
+        #                 shutil.copyfileobj(f_in, f_out)
+        #         os.remove(file)
+
+        # print("File compression and decompression adjustments are complete.")
+        # # Upload to Figshare using external script
+
+
+    # Upload to Figshare using Docker
+        if args.figshare and args.version and figshare_token:
+            figshare_command = ['python3', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--publish']
+            run_docker_upload_cmd(figshare_command, 'all_files_dir', 'Figshare', args.version)
+
+    # Upload to PyPI using Docker
+        if args.pypi and args.version and pypi_token:
+            # pypi_command = ['python3', 'setup.py', 'sdist', 'bdist_wheel', '&&', 'twine', 'upload', 'dist/*', '--verbose', '-u', '__token__', '-p', os.getenv('PYPI_TOKEN')]
+            pypi_command = ['python3', 'scripts/push_to_pypi.py', '-y', '/tmp/figshare_latest.yml', '-d', 'coderdata/download/downloader.py', "-v", args.version]
+            run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI', args.version)
+            
     
 if __name__ == '__main__':
     main()

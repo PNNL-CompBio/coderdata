@@ -2,7 +2,7 @@
 
 # Define two parallel arrays: one for target classes, another for file names
 target_classes=("Sample" "Transcriptomics" "Copy Number" "Mutations")
-files=("hcmi_samples.csv" "hcmi_transcriptomics.csv" "hcmi_copy_number.csv" "hcmi_mutations.csv")
+files=("/tmp/hcmi_samples.csv" "/tmp/hcmi_transcriptomics.csv" "/tmp/hcmi_copy_number.csv" "/tmp/hcmi_mutations.csv")
 
 # Initialize a flag to track validation status
 validation_failed=0
