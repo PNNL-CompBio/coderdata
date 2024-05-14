@@ -6,6 +6,7 @@ import json
 import time
 import yaml
 
+
 def upload_to_figshare(token, title, directory, project_id, publish, article_id=None):
     """
     Uploads a file to Figshare and publishes the article.
