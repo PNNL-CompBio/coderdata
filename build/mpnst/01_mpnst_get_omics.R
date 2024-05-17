@@ -157,7 +157,8 @@ cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,NA),function(x){
       subset(!is.na(entrez_id))|>
       dplyr::select(entrez_id,log2)|>
       dplyr::distinct()|>
-      dplyr::mutate(copy_number=2^log2)
+        dplyr::mutate(copy_number=2^log2)|>
+        dplyr::select(-log2)
 
   res<-long_df|> ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
       dplyr::mutate(copy_call=ifelse(copy_number<0.5210507,'deep del',
