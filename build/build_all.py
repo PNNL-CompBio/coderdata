@@ -9,7 +9,6 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 import shutil
 import gzip
-import argparse
 from glob import glob
 from packaging import version
     
@@ -24,6 +23,7 @@ def main():
     parser.add_argument('--figshare', action='store_true', help="Flag to trigger Figshare upload")
     parser.add_argument('--pypi', action='store_true', help="Flag to trigger PyPI upload")
     parser.add_argument('--all',dest='all',default=False,action='store_true')
+    parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true')
     parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,mpnst,cptac',help='Datasets to process. Defaults to all available, but if there are synapse issues, please remove beataml and mpnst')
     parser.add_argument('--version', type=str, required=False, help='Version number for the package and data upload title.')
     args = parser.parse_args()
@@ -128,38 +128,39 @@ def main():
                     last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_samples.sh', sf], f'{da} samples')
                     sf = f'/tmp/{da}_samples.csv'
                     
-    def process_omics(executor, datasets):
+    def process_omics(executor, datasets,high_mem):
         '''
         Build all omics files concurrently
         '''
-        last_sample_future = None
+        last_omics_future = None
         for da in datasets:
             di = 'broad_sanger_omics' if da == 'broad_sanger' else da
-            
             #Run all at once:
-            # executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
-
+            if high_mem:
+                executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
             #Run one at a time.
-            if last_sample_future:
-                last_sample_future.result() 
-            last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
-    
-    def process_experiments(executor, datasets):
+            else:
+                if last_omics_future:
+                    last_omics_future.result() 
+                last_omics_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
+        
+    def process_experiments(executor, datasets, high_mem):
         '''
         Build all experiments files concurrently
         '''
+        last_experiments_future = None
         for da in datasets:
             if da not in ['cptac', 'hcmi']:
                 di = 'broad_sanger_exp' if da == 'broad_sanger' else da
                 if not os.path.exists(f'local/{da}_experiments.tsv'):
-                    
                     #Run all at once
-                    # executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
-                    
+                    if high_mem:
+                        executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
                     #Run one at a time
-                    if last_sample_future:
-                        last_sample_future.result() 
-                    last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
+                    else:
+                        if last_experiments_future:
+                            last_experiments_future.result() 
+                        last_experiments_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
 
     def process_genes(executor):
         if not os.path.exists('/tmp/genes.csv'):
@@ -250,20 +251,9 @@ def main():
     
     with ThreadPoolExecutor() as executor:
         if args.omics or args.all:
-            omics_thread = executor.submit(process_omics, executor, datasets)
+            omics_thread = executor.submit(process_omics, executor, datasets, args.high_mem)
         if args.exp or args.all:
-            exp_thread = executor.submit(process_experiments, executor, datasets)
-            
-        if args.omics or args.all:
-            omics_thread.result()
-        if args.exp or args.all:
-            exp_thread.result()
-    
-    with ThreadPoolExecutor() as executor:
-        if args.omics or args.all:
-            omics_thread = executor.submit(process_omics, executor, datasets)
-        if args.exp or args.all:
-            exp_thread = executor.submit(process_experiments, executor, datasets)
+            exp_thread = executor.submit(process_experiments, executor, datasets, args.high_mem)
             
         if args.omics or args.all:
             omics_thread.result()
