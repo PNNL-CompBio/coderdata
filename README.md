@@ -28,7 +28,15 @@ please see the [schema description](schema/README.md).
 
 We have created a build script that executes each step of the build process to enable the creation of a `local` folder with all the requisite folders.
 
-The build requires Python as well as Docker to be installed. 
+The build requires Python as well as Docker to be installed. To access
+the data on Synapse (MPNST, BeatAML proteomics), you will need to
+[register for a synapse account](http://synapse.org/register) and then
+request access to the [CoderData Build
+Team](https://www.synapse.org/#!Team:3503472). Then you will need to
+create a [personal authentication
+token](https://www.synapse.org/#!PersonalAccessTokens:) with Download
+access and then set the `SYNAPSE_AUTH_TOKEN` environment variable to
+that token. 
 
 To build the docker images and run them, simply run (though this will take a while!):
 ```
