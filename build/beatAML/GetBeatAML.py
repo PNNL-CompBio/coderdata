@@ -131,9 +131,10 @@ def generate_samples_file(prev_samples_path):
     prot_samples.rename(columns={"specimenType": "common_name"}, inplace=True)
     prot_samples["cancer_type"] = "Acute Myeloid Leukaemia"
     prot_samples["model_type"] = "ex vivo"
-    prot_samples["other_id_source"] = "beatAML"    
+    prot_samples["other_id_source"] = "beatAML"
     
     all_samples = pd.concat([prot_samples, full_samples])
+    all_samples['species'] = 'Homo sapiens'
     maxval = max(pd.read_csv(prev_samples_path).improve_sample_id)
     mapping = {labId: i for i, labId in enumerate(all_samples['other_id'].unique(), start=(int(maxval)+1))}
     all_samples['improve_sample_id'] = all_samples['other_id'].map(mapping)

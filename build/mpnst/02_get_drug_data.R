@@ -72,7 +72,7 @@ print(paste(alldrugs,collapse=','))
 
 
 ##copy old drug to new drug
-olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x,header=T,sep='\t',quote='',comment.char=''))
+olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x,header=T,sep='\t',quote='',comment.char='')))
 olddrugs<-unique(olddrugs)
 
 print(paste('Read in ',nrow(olddrugs),'old drugs'))
