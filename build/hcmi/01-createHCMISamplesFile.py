@@ -43,6 +43,7 @@ def align_to_linkml_schema(input_df):
     }
 
     # Apply mapping
+    input_df['species'] = 'Homo sapiens' ##i assume they're lal human? 
     input_df['model_type'] = input_df['model_type'].map(mapping_dict)
     input_df.dropna(subset=['model_type'], inplace=True)
     
