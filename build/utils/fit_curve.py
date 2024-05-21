@@ -198,8 +198,8 @@ def main():
     fname = args.output or 'combined_single_response_agg'
     process_df_part(df_all, fname, beataml=args.beataml)#, start=args.start, count=args.count)
     
-    if args.beataml == False:
-        format_coderd_schema(fname+'.0')
+#    if args.beataml == False:
+    format_coderd_schema(fname+'.0')
 
 if __name__ == '__main__':
     main()
