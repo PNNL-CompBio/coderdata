@@ -430,7 +430,7 @@ def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samp
     """
 #    samples_path = "/tmp/hcmi_samples.csv"
     samples = pl.read_csv(samples_path)
-    samples = samples.drop(["cancer_type", "common_name", "other_names", "model_type", "other_id_source"])
+    samples = samples.drop(["cancer_type", "common_name", "other_id", "model_type", "species","other_id_source"]).unique()
 
     # Determine columns to select based on data_type
     columns = {
@@ -448,8 +448,8 @@ def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samp
             chunk = chunk.rename({"Variant_Classification": "variant_classification"})
         chunk = chunk.select(selected_columns)
         
-        merged_chunk = samples.join(chunk, left_on='other_id', right_on='aliquot_id', how='inner')
-        merged_chunk = merged_chunk.drop(["aliquot_id", "other_id"])
+        merged_chunk = samples.join(chunk, left_on='other_names', right_on='aliquot_id', how='inner')
+        merged_chunk = merged_chunk.drop(["aliquot_id", "other_names"])
 
         # Append the processed chunk
         merged_data = pl.concat([merged_data, merged_chunk])
