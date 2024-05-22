@@ -1,57 +1,68 @@
-cancer_type,common_name,new_cancer_type
-Adenocarcinoma metastatic NOS,Ampulla of Vater,
-Adenocarcinoma NOS,Ampulla of Vater,
-Infiltrating duct carcinoma NOS,Ampulla of Vater,
-Neuroendocrine carcinoma NOS,Ampulla of Vater,
-Ewing sarcoma,Bone NOS,
-Osteosarcoma NOS,Bone NOS,
-Undifferentiated sarcoma,Bone NOS,
-Not Reported,Bone NOS,
-Glioblastoma,Brain NOS,Glioblastoma multiforme
-Gliosarcoma,Brain NOS,
-Metaplastic carcinoma NOS,Breast NOS,Breast carcinoma
-Pleomorphic carcinoma,Breast NOS,Breast carcinoma
-Carcinoma NOS,Breast NOS,Breast carcinoma
-Infiltrating duct carcinoma NOS,Breast NOS,Breast carcinoma
-Adenocarcinoma NOS,Colon NOS,Colon adenocarcinoma
-Tubular adenoma NOS,Colon NOS,
-Tubulovillous adenoma NOS,Colon NOS,
-Adenocarcinoma intestinal type,Colon NOS,Colon adenocarcinoma
-Adenocarcinoma metastatic NOS,Colon NOS,Colon adenocarcinoma
-Medullary carcinoma NOS,Colon NOS,
-Serrated adenoma,Colon NOS,
-Mucinous adenocarcinoma,Colon NOS,Colon adenocarcinoma
-Carcinoma NOS,Colon NOS,
-Alveolar rhabdomyosarcoma,Connective subcutaneous and other soft tissues NOS,Sarcoma
-Spindle cell sarcoma,Connective subcutaneous and other soft tissues NOS,Sarcoma
-Epithelioid sarcoma,Connective subcutaneous and other soft tissues NOS,Sarcoma
-Not Reported,Connective subcutaneous and other soft tissues NOS,Sarcoma
-Adenocarcinoma NOS,Esophagus NOS,
-Carcinoma NOS,Esophagus NOS,
-Adenocarcinoma metastatic NOS,Esophagus NOS,
-Adenocarcinoma NOS,Extrahepatic bile duct,
-Noninfiltrating intraductal papillary adenocarcinoma,Gallbladder,
-Cholangiocarcinoma,Intrahepatic bile duct,
-Nephroblastoma NOS,Kidney NOS,
-Adenocarcinoma NOS,Lung NOS,Lung adenocarcinoma
-Carcinoma NOS,Lung NOS,
-Mixed type rhabdomyosarcoma,Lung NOS,
-Intraductal papillary-mucinous carcinoma invasive,Not Reported,
-Serrated adenoma,Not Reported,
-Mucinous adenocarcinoma,Ovary,
-Infiltrating duct carcinoma NOS,Pancreas NOS,
-Adenocarcinoma NOS,Pancreas NOS,
-Mucinous adenocarcinoma,Pancreas NOS,
-Adenocarcinoma metastatic NOS,Pancreas NOS,
-Adenocarcinoma NOS,Rectosigmoid junction,
-Adenocarcinoma NOS,Rectum NOS,
-Mucinous adenocarcinoma,Rectum NOS,
-Malignant melanoma NOS,Skin NOS,Melanoma
-Not Reported,Skin NOS,Melanoma
-Spindle cell sarcoma,Skin NOS,
-Adenocarcinoma NOS,Small intestine NOS,
-Tubulovillous adenoma NOS,Small intestine NOS,
-Atypical carcinoid tumor,Small intestine NOS,
-Adenocarcinoma NOS,Stomach NOS,
-Carcinoma NOS,Stomach NOS,
-Adenocarcinoma metastatic NOS,Stomach NOS,
+primary_diagnosis,tissue_or_organ_of_origin,cancer_type
+"Adenocarcinoma metastatic, NOS",Ampulla of Vater,Ampulla of Vater cancer
+"Adenocarcinoma, NOS",Ampulla of Vater,Ampulla of Vater cancer
+"Infiltrating duct carcinoma, NOS",Ampulla of Vater,Ampulla of Vater cancer
+"Neuroendocrine carcinoma, NOS",Ampulla of Vater,Ampulla of Vater cancer
+Ewing sarcoma,"Bone, NOS",Ewing sarcoma
+"Osteosarcoma, NOS","Bone, NOS",Osteosarcoma
+Undifferentiated sarcoma,"Bone, NOS",Rare cancers
+Not Reported,"Bone, NOS",Ewings sarcoma
+Glioblastoma,"Brain, NOS",Glioblastoma
+Gliosarcoma,"Brain, NOS",Glioblastoma
+"Metaplastic carcinoma, NOS","Breast, NOS",Breast cancer
+Pleomorphic carcinoma,"Breast, NOS",Breast cancer
+"Carcinoma, NOS","Breast, NOS",Breast cancer
+"Infiltrating duct carcinoma, NOS","Breast, NOS",Breast cancer
+"Adenocarcinoma, NOS","Colon, NOS",Colon cancer
+"Tubular adenoma, NOS","Colon, NOS",Colon cancer
+"Tubulovillous adenoma, NOS","Colon, NOS",Colon cancer
+Adenocarcinoma intestinal type,"Colon, NOS",Colon cancer
+"Adenocarcinoma metastatic, NOS","Colon, NOS",Colon cancer
+"Medullary carcinoma, NOS","Colon, NOS",Colon cancer
+Serrated adenoma,"Colon, NOS",Colon cancer
+Mucinous adenocarcinoma,"Colon, NOS",Colon cancer
+"Carcinoma, NOS","Colon, NOS",Colon cancer
+Alveolar rhabdomyosarcoma,"Connective subcutaneous and other soft tissues, NOS",Rhabdomyosarcoma
+Spindle cell sarcoma,"Connective subcutaneous and other soft tissues, NOS",Rare cancers
+Epithelioid sarcoma,"Connective subcutaneous and other soft tissues, NOS",Rare cancers
+Not Reported,"Connective subcutaneous and other soft tissues, NOS",Sarcoma
+"Adenocarcinoma, NOS","Esophagus, NOS",Esophageal cancer
+"Carcinoma, NOS","Esophagus, NOS",Esophageal cancer
+"Adenocarcinoma metastatic, NOS","Esophagus, NOS",Rare cancers
+"Adenocarcinoma, NOS",Extrahepatic bile duct,Rare cancers
+Noninfiltrating intraductal papillary adenocarcinoma,Gallbladder,Rare cancers
+Cholangiocarcinoma,Intrahepatic bile duct,Intrahepatic bile duct cancer
+"Nephroblastoma, NOS","Kidney, NOS",Wilms tumor
+"Adenocarcinoma, NOS","Lung, NOS",Lung cancer
+"Carcinoma, NOS","Lung, NOS",Lung cancer
+Mixed type rhabdomyosarcoma,"Lung, NOS",Lung cancer
+Intraductal papillary-mucinous carcinoma invasive,Not Reported,Other
+Serrated adenoma,Not Reported,Other
+Mucinous adenocarcinoma,Ovary,Ovarian cancer
+"Infiltrating duct carcinoma, NOS","Pancreas, NOS",Pancreatic cancer
+"Adenocarcinoma, NOS","Pancreas, NOS",Pancreatic cancer
+Mucinous adenocarcinoma,"Pancreas, NOS",Pancreatic cancer
+"Adenocarcinoma metastatic, NOS","Pancreas, NOS",Pancreatic cancer
+"Adenocarcinoma, NOS",Rectosigmoid junction,Colon cancer
+"Adenocarcinoma, NOS","Rectum, NOS",Colon cancer
+Mucinous adenocarcinoma,"Rectum, NOS",Colon cancer
+"Malignant melanoma, NOS","Skin, NOS",Melanoma
+Not Reported,"Skin, NOS",Melanoma
+Spindle cell sarcoma,"Skin, NOS",Melanoma
+"Adenocarcinoma, NOS","Small intestine, NOS",Rare cancers
+"Tubulovillous adenoma, NOS","Small intestine, NOS",Other
+Atypical carcinoid tumor,"Small intestine, NOS",Rare cancers
+"Adenocarcinoma, NOS","Stomach, NOS",Stomach cancer
+"Carcinoma, NOS","Stomach, NOS",Stomach cancer
+"Adenocarcinoma metastatic, NOS","Stomach, NOS",Stomach cancer
+"Adenocarcinoma, intestinal type","Colon, NOS",Colon cancer
+"Adenocarcinoma, metastatic, NOSÊ",Ampulla of Vater,Ampulla of Vater cancer
+Alveolar rhabdomyosarcoma,"Connective, subcutaneous and other soft tissues",Rhabdomyosarcoma
+Epithelioid sarcoma,"Connective, subcutaneous and other soft tissues",Rare cancers
+"Intraductal papillary-mucinous carcinoma, invasive",Not Reported,Other
+Spindle cell sarcoma,"Connective, subcutaneous and other soft tissues",Rare cancers
+Not Reported,"Connective, subcutaneous and other soft tissues",Other
+"Adenocarcinoma, metastatic, NOS","Colon, NOS",Colon cancer
+"Adenocarcinoma, metastatic, NOS","Pancreas, NOS",Pancreatic cancer
+"Adenocarcinoma, metastatic, NOS","Esophagus, NOS",Esophageal cancer
+"Adenocarcinoma, metastatic, NOS","Stomach, NOS",Stomach cancer

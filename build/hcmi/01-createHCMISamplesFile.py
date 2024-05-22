@@ -4,6 +4,10 @@ import os
 import argparse
 import numpy as np
 
+
+              
+             
+
 def align_to_linkml_schema(input_df):
     """
     Maps the 'model_type' column of the input DataFrame to a set of predefined categories 
@@ -123,11 +127,18 @@ def fetch_metadata_for_samples(uuids):
         "fields": (
             "cases.sample_ids,"
             "cases.case_id,"
+            "cases.submitter_id,"
+            "cases.annotations.case_submitter_id,"
             "cases.samples.sample_id,"
             "cases.samples.portions.analytes.aliquots.aliquot_id,"
             "cases.samples.sample_type,"
+            "cases.diagnoses.submitter_id,"
+            "cases.diagnoses.diagnosis_id,"
+            "cases.diagnoses.classification_of_tumor,"
             "cases.diagnoses.tissue_or_organ_of_origin,"
             "cases.diagnoses.primary_diagnosis,"
+            "cases.diagnoses.treatments.treatment_id,"##getting these but ignoring for now
+            "cases.diagnoses.treatments.submitter_id," ##getting these but ignoring for now
             "cases.samples.tumor_descriptor,"
             "cases.samples.composition"
         ),
@@ -158,23 +169,27 @@ def extract_data(data):
             for idx, sample in enumerate(case['samples']):
                 for portion in sample['portions']:
                     for analyte in portion['analytes']:
+
                         for aliquot in analyte['aliquots']:
                             if idx < len(case['diagnoses']):
                                 diagnosis = case['diagnoses'][idx]
                                 extracted.append({
-                                    'id': hit['id'],
-                                    'case_id': case['case_id'],
+                                    'entry_id': hit['id'],
+                                    'case_uuid': case['case_id'],
+                                    'case_id': case['submitter_id'],
                                     'tissue_or_organ_of_origin': diagnosis['tissue_or_organ_of_origin'],
                                     'primary_diagnosis': diagnosis['primary_diagnosis'],
+                                    'diagnosis_id':diagnosis['submitter_id'],
+                                    'tumor_classification':diagnosis['classification_of_tumor'],
                                     'sample_id': sample['sample_id'],
                                     'sample_type': sample['sample_type'],
-                                    'tumor_descriptor': sample.get('tumor_descriptor', None),
+                                    #'tumor_descriptor': sample.get('tumor_descriptor', None),
                                     'composition': sample.get('composition', None),
-                                    'aliquot_id': aliquot['aliquot_id']
+                                    'id': aliquot['aliquot_id']
                                 })
     return pd.DataFrame(extracted)
 
-def filter_and_subset_data(df,sampfile):
+def filter_and_subset_data(df,sampfile,mapfile):
     """
     Filter and subset the data.
     
@@ -182,7 +197,7 @@ def filter_and_subset_data(df,sampfile):
         
     Parameters
     ----------
-    df : pandas dataframe
+    df : a tidied pandas dataframe
         full samples table
 
     Returns
@@ -190,27 +205,37 @@ def filter_and_subset_data(df,sampfile):
     Pandas Dataframe
     """
     duplicates_mask = df.drop('id', axis=1).duplicated(keep='first')
+    cmap = pd.read_csv(mapfile, encoding='ISO-8859-1')
     filt = df[~duplicates_mask]
-    filt= filt.drop_duplicates(subset='aliquot_id', keep=False)
+    filt= filt.drop_duplicates()#(subset='id', keep=False)
+    filt = pd.merge(filt,cmap,right_on=['tissue_or_organ_of_origin','primary_diagnosis'],left_on=['tissue_or_organ_of_origin','primary_diagnosis'],how='left')
     filt = filt.rename(
-        columns={"tissue_or_organ_of_origin":"common_name",
-                 "primary_diagnosis": "cancer_type",
-                 "composition": "model_type",
-                 "case_id": "other_names",
-                 "aliquot_id": "other_id"}
+        columns={"composition": "model_type",
+                 "case_id": "common_name",
+                 "id": "other_names"}
+                 #"id": "sample_uuid"}
             )
-    filt = filt[["cancer_type","common_name","other_names","other_id","model_type"]]
-    filt["other_id_source"] = "HCMI"
+    ##now we can melt all the identiers into other_id and other_id_source
+    longtab = pd.melt(filt, id_vars=['common_name','other_names','model_type','cancer_type'], value_vars=['diagnosis_id','tumor_classification','sample_type'])
+    longtab = longtab.rename(columns={'variable':'other_id_source','value':'other_id'}).drop_duplicates()
+    #    filt = filt[["cancer_type","common_name","other_names","other_id","model_type"]]
+#    filt["other_id_source"] = "HCMI"
     # Create new improve sample IDs
     
     #Non-docker:
     # maxval = max(pd.read_csv('../cptac/cptac_samples.csv').improve_sample_id)
     # Docker:
     maxval = max(pd.read_csv(sampfile).improve_sample_id)
-    mapping = {other_id: i for i, other_id in enumerate(filt['other_id'].unique(), start=(int(maxval)+1))}
+    alluuids = list(set(longtab.other_names))
+
+    mapping = pd.DataFrame.from_dict(
+         {"other_names": [str(a) for a in alluuids],
+          "improve_sample_id": range(int(maxval)+1,int(maxval)+len(alluuids)+1)
+          })
+    longtab = pd.merge(longtab,mapping,on='other_names',how='left')
     # Use the map method to create the new column based on the lab-id column
-    filt['improve_sample_id'] = filt['other_id'].map(mapping)
-    return filt
+    #['improve_sample_id'] = longtab['other_id'].map(mapping)
+    return longtab
 
 
 def main():
@@ -240,6 +265,7 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--samples',dest='samps',help='Previous sample file')
+    parser.add_argument('--mapfile',dest='map',help='Mapping to common_cancer from primary_diagnosis and tissue_or_organ_of_origin',default='hcmi_cancer_types.csv')
     args = parser.parse_args()
     manifest_path = "full_manifest.txt"
     #manifest_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/hcmi_update/hcmi/full_manifest.txt"
@@ -247,7 +273,7 @@ def main():
     uuids = extract_uuids_from_manifest(manifest_path)
     metadata = fetch_metadata_for_samples(uuids)
     df = extract_data(metadata)
-    output = filter_and_subset_data(df,args.samps)
+    output = filter_and_subset_data(df,args.samps,args.map)
     aligned = align_to_linkml_schema(output)
     print(aligned)
     aligned.to_csv("/tmp/hcmi_samples.csv",index=False)
