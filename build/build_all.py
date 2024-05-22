@@ -281,8 +281,15 @@ def main():
         pypi_token = os.getenv('PYPI_TOKEN')
 
         # Ensure tokens are available
-        if not figshare_token or not pypi_token:
-            raise ValueError("Required tokens are not set in environment variables.")
+        if  args.pypi and not pypi_token:
+            raise ValueError("Required tokens (PYPI) are not set in environment variables.")
+        
+                # Ensure tokens are available
+        if  args.figshare and not figshare_token:
+            raise ValueError("Required tokens (FIGSHARE) are not set in environment variables.")
+        
+        if (args.figshare or args.pypi) and not args.version:
+            raise ValueError("Version must be specified when pushing to pypi or figshare")
         
         if not os.path.exists(all_files_dir):
             os.makedirs(all_files_dir)
