@@ -1,6 +1,7 @@
 import subprocess
 import os
 import argparse
+import concurrent.futures
 
 def run_schema_checker(script_name):
     """
@@ -10,7 +11,7 @@ def run_schema_checker(script_name):
         script_name (str): The filename of the shell script to run.
     
     Returns:
-        bool: True if the validation succeeded, False if it failed.
+        tuple: (script_name, bool) where bool is True if the validation succeeded, False if it failed.
     """
     try:
         # Build the full path to the script
@@ -20,12 +21,12 @@ def run_schema_checker(script_name):
         # Print output and error from shell script
         print(result.stdout)
         if result.stderr:
-            print("Error:", result.stderr)
-        # Return True if the script executed successfully
-        return result.returncode == 0
+            print(f"Error in {script_name}:", result.stderr)
+        # Return the script name and True if the script executed successfully
+        return (script_name, result.returncode == 0)
     except Exception as e:
         print(f"An error occurred while running {script_name}: {e}")
-        return False
+        return (script_name, False)
 
 def main():
     parser = argparse.ArgumentParser(description="Run schema validations for specified datasets.")
@@ -41,15 +42,17 @@ def main():
         'mpnst': 'check_mpnst_linkml.sh'
     }
 
-    all_passed = True
     scripts_to_run = schema_mapping.values() if not args.datasets else [schema_mapping[dataset] for dataset in args.datasets if dataset in schema_mapping]
 
-    # Iterate over each script and run it
-    for script_name in scripts_to_run:
-        print(f"Running {script_name}...")
-        if not run_schema_checker(script_name):
-            all_passed = False
-            print(f"Validation failed for {script_name}")
+    all_passed = True
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = {executor.submit(run_schema_checker, script): script for script in scripts_to_run}
+
+        for future in concurrent.futures.as_completed(futures):
+            script_name, result = future.result()
+            if not result:
+                all_passed = False
+                print(f"Validation failed for {script_name}")
 
     if all_passed:
         print("All schema validations passed successfully.")
