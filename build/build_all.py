@@ -171,7 +171,6 @@ def main():
         '''
         Wrapper for 'docker run'. This one is focused on uploads.
         '''
-        print('Preparing upload...')
         env = os.environ.copy()
         docker_run = ['docker', 'run', '--rm', '-v', f"{env['PWD']}/local/{all_files_dir}:/tmp", '-e', f"VERSION={version}"]
 
@@ -225,6 +224,8 @@ def main():
     if args.docker or args.all:
         process_docker()
         
+    print("Docker image generation completed")
+        
 
     ### Build Drugs files, Samples files, and Genes file. These two steps are run in Parallel. 
     ### Within each step, sequential running is required.
@@ -243,6 +244,8 @@ def main():
             sample_thread.result()
         if args.samples or args.omics or args.exp or args.all:
             gene_thread.result()
+            
+    print("All samples, drugs files, and genes file completed")
 
 
     ### At this point in the pipeline, all samples and drugs files have been created. There are no blockers to proceed.
@@ -260,6 +263,8 @@ def main():
         if args.exp or args.all:
             exp_thread.result()
 
+
+    print("All omics and experiments files completed")
 
     ######
     ### Begin Upload
@@ -307,7 +312,9 @@ def main():
         datasets_list = args.datasets.split(',')
         schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets_list
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
-    
+        
+        print("Validation complete. Proceeding with file compression/decromession adjustments")
+        
         # Compress or decompress files based on specific conditions after checking
         for file in glob(os.path.join(all_files_dir, '*')):
             is_compressed = file.endswith('.gz')
@@ -325,7 +332,6 @@ def main():
 
     # Upload to PyPI using Docker
         if args.pypi and args.version and pypi_token:
-            # pypi_command = ['python3', 'setup.py', 'sdist', 'bdist_wheel', '&&', 'twine', 'upload', 'dist/*', '--verbose', '-u', '__token__', '-p', os.getenv('PYPI_TOKEN')]
             pypi_command = ['python3', 'scripts/push_to_pypi.py', '-y', '/tmp/figshare_latest.yml', '-d', 'coderdata/download/downloader.py', "-v", args.version]
             run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI', args.version)
             
