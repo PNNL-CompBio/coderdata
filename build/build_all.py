@@ -179,7 +179,8 @@ def main():
             docker_run.extend(['-e', f"PYPI_TOKEN={env['PYPI_TOKEN']}", 'upload'])
         if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
-        docker_run.extend(['upload'])
+        if name == "validate":
+            docker_run.extend(['upload'])
 
         # Full command to run including version update
         docker_run.extend(cmd_arr)
