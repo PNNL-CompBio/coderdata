@@ -1,4 +1,3 @@
-[![Continuous Integration](https://github.com/PNNL-CompBio/coderdata/actions/workflows/main.yml/badge.svg?branch=builder_branch_JJ&event=push)](https://github.com/PNNL-CompBio/coderdata/actions/workflows/main.yml)
 
 ## Cancer Omics Drug Experiment Response Dataset 
 
