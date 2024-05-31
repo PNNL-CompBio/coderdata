@@ -21,7 +21,7 @@ def main():
     distribution = make_filelist(args.figshare,args.sha)
     croissant = make_croissant(records,distribution)
     outfile = open('coderdata.json','w')
-    json.dump(croissant, outfile, indent=4,ensure_ascii=True)
+    json.dump(croissant, outfile, indent=4)
     outfile.close()
 
 def make_recordlist(data):
@@ -53,8 +53,9 @@ def make_recordlist(data):
             cr_id='DrugDescriptor'
 
         for slo in data['classes'][tab]['slots']:
+            print(tab+'/'+slo)
             ##need to look up metadata for slot to format properly
-            keys.append({'@id':tab+'/'+slo})
+            keys.append({'@id':cr_id+'/'+slo})
             desc=slot_desc[slo]['description']
             dtype='sc:Text'
             if 'range' in slot_desc[slo].keys():
@@ -74,7 +75,7 @@ def make_recordlist(data):
             fields.append(nd)
         for attr in data['classes'][tab]['attributes'].keys():
             print(tab+'/'+attr)
-            keys.append({'@id':tab+'/'+attr})
+            keys.append({'@id':cr_id+'/'+attr})
             ##attribute metdata should be inside
             aobj=data['classes'][tab]['attributes'][attr]
             desc=aobj['description']
@@ -97,7 +98,7 @@ def make_recordlist(data):
             fields.append(nd)
         reclist.append({
             '@type':'cr:RecordSet',
-            '@id':tab,
+            '@id':cr_id,
             'key': keys,
             'field':fields,
             })
