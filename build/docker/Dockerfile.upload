@@ -7,5 +7,3 @@ RUN python -m pip install --upgrade pip setuptools wheel twine packaging pyyaml 
 RUN git clone https://github.com/PNNL-CompBio/coderdata.git
 
 WORKDIR /usr/src/app/coderdata
-
-RUN git checkout docker-build-multi
