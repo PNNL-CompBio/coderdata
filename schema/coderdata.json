@@ -1,0 +1,1417 @@
+{
+    "@context": {
+        "@language": "en",
+        "@vocab": "https://schema.org/",
+        "citeAs": "cr:citeAs",
+        "column": "cr:column",
+        "conformsTo": "dct:conformsTo",
+        "containedIn": "cr:containedIn",
+        "description": "cr:description",
+        "cr": "http://mlcommons.org/croissant/",
+        "rai": "http://mlcommons.org/croissant/RAI/",
+        "data": {
+            "@id": "cr:data",
+            "@type": "@json"
+        },
+        "dataType": {
+            "@id": "cr:dataType",
+            "@type": "@vocab"
+        },
+        "dct": "http://purl.org/dc/terms/",
+        "examples": {
+            "@id": "cr:examples",
+            "@type": "@json"
+        },
+        "extract": "cr:extract",
+        "field": "cr:field",
+        "fileProperty": "cr:fileProperty",
+        "fileObject": "cr:FileObject",
+        "fileSet": "cr:FileSet",
+        "includes": "cr:includes",
+        "isLiveDataset": "cr:isLiveDataset",
+        "jsonPath": "cr:jsonPath",
+        "key": "cr:key",
+        "md5": "cr:md5",
+        "format": "cr:format",
+        "ml": "http://mlcommons.org/schema/",
+        "parentField": "cr:parentField",
+        "path": "cr:path",
+        "recordSet": "cr:recordSet",
+        "references": "cr:references",
+        "regex": "cr:regex",
+        "repeated": "cr:repeated",
+        "replace": "cr:replace",
+        "sc": "https://schema.org/",
+        "separator": "cr:separator",
+        "source": "cr:source",
+        "subField": "cr:subField",
+        "transform": "cr:transform"
+    },
+    "@type": "sc:Dataset",
+    "name": "coderdata",
+    "conformsTo": "http://mlcommons.org/croissant/1.0",
+    "description": "CoderData is a benchmark dataset designed for AI/ML modeling of drug sensitivity via omics measurements.",
+    "citeAs": "@Article{jac24, author = \"Jeremy Jacobson, Chang In Moon, Sydney Schwartz, Belinda Garana, Ryan Weil, and Sara Gosline}\"",
+    "license": "BSD-3",
+    "url": "https://pnnl-compbio.github.io/coderdata/",
+    "distribution": [
+        {
+            "@type": "cr:FileObject",
+            "@id": "coderdata-zip",
+            "contentUrl": "blah.blah",
+            "encodingFormat": "application/zip",
+            "sha256": "35436]"
+        },
+        {
+            "@type": "cr:FileObject",
+            "@id": "Gene",
+            "containedIn": {
+                "@id": "coderdata-zip"
+            },
+            "contentUrl": "./genes.csv",
+            "description": "Gene identifier file",
+            "encodingFormat": "text/csv",
+            "sha256": ""
+        },
+        {
+            "@type": "cr:FileSet",
+            "@id": "Sample",
+            "description": "Sample identifier files for each dataset",
+            "containedIn": {
+                "@id": "coderdata-zip"
+            },
+            "encodingFormat": "text/csv",
+            "includes": "*samples.csv"
+        },
+        {
+            "@type": "cr:FileSet",
+            "@id": "Drug",
+            "description": "Drug identifiers and SMILES string",
+            "containedIn": {
+                "@id": "coderdata-zip"
+            },
+            "encodingFormat": "text/tsv",
+            "includes": "*drugs.tsv"
+        },
+        {
+            "@type": "cr:FileSet",
+            "@id": "Transcriptomics",
+            "description": "Transcriptomics files",
+            "containedIn": {
+                "@id": "coderdata-zip"
+            },
+            "encodingFormat": "text/csv",
+            "includes": "*transcriptomics.csv.gz"
+        },
+        {
+            "@type": "cr:FileSet",
+            "@id": "Proteomics",
+            "description": "Proteomics files",
+            "containedIn": {
+                "@id": "coderdata-zip"
+            },
+            "encodingFormat": "text/csv",
+            "includes": "*proteomics.csv.gz"
+        },
+        {
+            "@type": "cr:FileSet",
+            "@id": "CopyNumber",
+            "description": "Copy number datafiles",
+            "containedIn": {
+                "@id": "coderdata-zip"
+            },
+            "encodingFormat": "text/csv",
+            "includes": "*copy_number.csv.gz"
+        },
+        {
+            "@type": "cr:FileSet",
+            "@id": "Mutations",
+            "description": "Mutation files",
+            "containedIn": {
+                "@id": "coderdata-zip"
+            },
+            "encodingFormat": "text/csv",
+            "includes": "*mutations.csv.gz"
+        }
+    ],
+    "recordSet": [
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Gene",
+            "key": [
+                {
+                    "@id": "Gene/entrez_id"
+                },
+                {
+                    "@id": "Gene/other_id"
+                },
+                {
+                    "@id": "Gene/other_id_source"
+                },
+                {
+                    "@id": "Gene/gene_symbol"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "Gene/entrez_id",
+                    "description": "Gene id according to NCBI",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileObject": {
+                            "@id": "Gene"
+                        },
+                        "extract": {
+                            "column": "entrez_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Gene/other_id",
+                    "description": "other identifier",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileObject": {
+                            "@id": "Gene"
+                        },
+                        "extract": {
+                            "column": "other_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Gene/other_id_source",
+                    "description": "source of other identifier",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileObject": {
+                            "@id": "Gene"
+                        },
+                        "extract": {
+                            "column": "other_id_source"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Gene/gene_symbol",
+                    "description": "HGNC Gene symbol or synomym",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileObject": {
+                            "@id": "Gene"
+                        },
+                        "extract": {
+                            "column": "gene_symbol"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Sample",
+            "key": [
+                {
+                    "@id": "Sample/improve_sample_id"
+                },
+                {
+                    "@id": "Sample/other_id"
+                },
+                {
+                    "@id": "Sample/other_id_source"
+                },
+                {
+                    "@id": "Sample/common_name"
+                },
+                {
+                    "@id": "Sample/cancer_type"
+                },
+                {
+                    "@id": "Sample/other_names"
+                },
+                {
+                    "@id": "Sample/species"
+                },
+                {
+                    "@id": "Sample/model_type"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "Sample/improve_sample_id",
+                    "description": "Unique sample identifier for this dataset, generated by this package",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Sample"
+                        },
+                        "extract": {
+                            "column": "improve_sample_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Sample/other_id",
+                    "description": "other identifier",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Sample"
+                        },
+                        "extract": {
+                            "column": "other_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Sample/other_id_source",
+                    "description": "source of other identifier",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Sample"
+                        },
+                        "extract": {
+                            "column": "other_id_source"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Sample/common_name",
+                    "description": "name for drug",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Sample"
+                        },
+                        "extract": {
+                            "column": "common_name"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Sample/cancer_type",
+                    "description": "Type of cancer",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Sample"
+                        },
+                        "extract": {
+                            "column": "cancer_type"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Sample/other_names",
+                    "description": "Other name for sample",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Sample"
+                        },
+                        "extract": {
+                            "column": "other_names"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Sample/species",
+                    "description": "Species",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Sample"
+                        },
+                        "extract": {
+                            "column": "species"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Sample/model_type",
+                    "description": "Type of model, must be confined to our existing set of definitions",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Sample"
+                        },
+                        "extract": {
+                            "column": "model_type"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Drug",
+            "key": [
+                {
+                    "@id": "Drug/improve_drug_id"
+                },
+                {
+                    "@id": "Drug/chem_name"
+                },
+                {
+                    "@id": "Drug/canSMILES"
+                },
+                {
+                    "@id": "Drug/isoSMILES"
+                },
+                {
+                    "@id": "Drug/InChIKey"
+                },
+                {
+                    "@id": "Drug/formula"
+                },
+                {
+                    "@id": "Drug/weight"
+                },
+                {
+                    "@id": "Drug/pubchem_id"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "Drug/improve_drug_id",
+                    "description": "Unique identifier for this dataset, one for each smile string.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Drug"
+                        },
+                        "extract": {
+                            "column": "improve_drug_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Drug/chem_name",
+                    "description": "Name of drug",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Drug"
+                        },
+                        "extract": {
+                            "column": "chem_name"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Drug/canSMILES",
+                    "description": "Canonical SMILE string",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Drug"
+                        },
+                        "extract": {
+                            "column": "canSMILES"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Drug/isoSMILES",
+                    "description": "Isomeric SMILE string",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Drug"
+                        },
+                        "extract": {
+                            "column": "isoSMILES"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Drug/InChIKey",
+                    "description": "InChIKey",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Drug"
+                        },
+                        "extract": {
+                            "column": "InChIKey"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Drug/formula",
+                    "description": "Chemical formula",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Drug"
+                        },
+                        "extract": {
+                            "column": "formula"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Drug/weight",
+                    "description": "Molecular weight",
+                    "dataType": "sc:Float",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Drug"
+                        },
+                        "extract": {
+                            "column": "weight"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Drug/pubchem_id",
+                    "description": "PubChem Identifier for this drug, can be many.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Drug"
+                        },
+                        "extract": {
+                            "column": "pubchem_id"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Drug Descriptor",
+            "key": [
+                {
+                    "@id": "Drug Descriptor/improve_drug_id"
+                },
+                {
+                    "@id": "Drug Descriptor/structural_descriptor"
+                },
+                {
+                    "@id": "Drug Descriptor/descriptor_value"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "DrugDescriptor/improve_drug_id",
+                    "description": "Unique identifier for this dataset, one for each smile string.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "DrugDescriptor"
+                        },
+                        "extract": {
+                            "column": "improve_drug_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "DrugDescriptor/structural_descriptor",
+                    "description": "string name describing structural descriptor",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "DrugDescriptor"
+                        },
+                        "extract": {
+                            "column": "structural_descriptor"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "DrugDescriptor/descriptor_value",
+                    "description": "value representing descriptor value",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "DrugDescriptor"
+                        },
+                        "extract": {
+                            "column": "descriptor_value"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Transcriptomics",
+            "key": [
+                {
+                    "@id": "Transcriptomics/entrez_id"
+                },
+                {
+                    "@id": "Transcriptomics/improve_sample_id"
+                },
+                {
+                    "@id": "Transcriptomics/source"
+                },
+                {
+                    "@id": "Transcriptomics/study"
+                },
+                {
+                    "@id": "Transcriptomics/transcriptomics"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "Transcriptomics/entrez_id",
+                    "description": "Gene id according to NCBI",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Transcriptomics"
+                        },
+                        "extract": {
+                            "column": "entrez_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Transcriptomics/improve_sample_id",
+                    "description": "Unique sample identifier for this dataset, generated by this package",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Transcriptomics"
+                        },
+                        "extract": {
+                            "column": "improve_sample_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Transcriptomics/source",
+                    "description": "Source of data generated.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Transcriptomics"
+                        },
+                        "extract": {
+                            "column": "source"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Transcriptomics/study",
+                    "description": "Study informatiom identifying where/when data was collected.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Transcriptomics"
+                        },
+                        "extract": {
+                            "column": "study"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Transcriptomics/transcriptomics",
+                    "description": "Transcripts per million of sample at baseline.",
+                    "dataType": "sc:Float",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Transcriptomics"
+                        },
+                        "extract": {
+                            "column": "transcriptomics"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Proteomics",
+            "key": [
+                {
+                    "@id": "Proteomics/entrez_id"
+                },
+                {
+                    "@id": "Proteomics/improve_sample_id"
+                },
+                {
+                    "@id": "Proteomics/source"
+                },
+                {
+                    "@id": "Proteomics/study"
+                },
+                {
+                    "@id": "Proteomics/proteomics"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "Proteomics/entrez_id",
+                    "description": "Gene id according to NCBI",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Proteomics"
+                        },
+                        "extract": {
+                            "column": "entrez_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Proteomics/improve_sample_id",
+                    "description": "Unique sample identifier for this dataset, generated by this package",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Proteomics"
+                        },
+                        "extract": {
+                            "column": "improve_sample_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Proteomics/source",
+                    "description": "Source of data generated.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Proteomics"
+                        },
+                        "extract": {
+                            "column": "source"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Proteomics/study",
+                    "description": "Study informatiom identifying where/when data was collected.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Proteomics"
+                        },
+                        "extract": {
+                            "column": "study"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Proteomics/proteomics",
+                    "description": "Log-normalized log ratio of proteomics measurements of sample at baseline.",
+                    "dataType": "sc:Float",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Proteomics"
+                        },
+                        "extract": {
+                            "column": "proteomics"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Copy Number",
+            "key": [
+                {
+                    "@id": "Copy Number/entrez_id"
+                },
+                {
+                    "@id": "Copy Number/improve_sample_id"
+                },
+                {
+                    "@id": "Copy Number/source"
+                },
+                {
+                    "@id": "Copy Number/study"
+                },
+                {
+                    "@id": "Copy Number/copy_number"
+                },
+                {
+                    "@id": "Copy Number/copy_call"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "CopyNumber/entrez_id",
+                    "description": "Gene id according to NCBI",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "CopyNumber"
+                        },
+                        "extract": {
+                            "column": "entrez_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "CopyNumber/improve_sample_id",
+                    "description": "Unique sample identifier for this dataset, generated by this package",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "CopyNumber"
+                        },
+                        "extract": {
+                            "column": "improve_sample_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "CopyNumber/source",
+                    "description": "Source of data generated.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "CopyNumber"
+                        },
+                        "extract": {
+                            "column": "source"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "CopyNumber/study",
+                    "description": "Study informatiom identifying where/when data was collected.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "CopyNumber"
+                        },
+                        "extract": {
+                            "column": "study"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "CopyNumber/copy_number",
+                    "description": "Copy number measurements of sample at baseline",
+                    "dataType": "sc:Float",
+                    "source": {
+                        "fileSet": {
+                            "@id": "CopyNumber"
+                        },
+                        "extract": {
+                            "column": "copy_number"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "CopyNumber/copy_call",
+                    "description": "Categorical variable defining copy number measurement.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "CopyNumber"
+                        },
+                        "extract": {
+                            "column": "copy_call"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Mutations",
+            "key": [
+                {
+                    "@id": "Mutations/entrez_id"
+                },
+                {
+                    "@id": "Mutations/improve_sample_id"
+                },
+                {
+                    "@id": "Mutations/source"
+                },
+                {
+                    "@id": "Mutations/study"
+                },
+                {
+                    "@id": "Mutations/mutation"
+                },
+                {
+                    "@id": "Mutations/variant_classification"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "Mutations/entrez_id",
+                    "description": "Gene id according to NCBI",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Mutations"
+                        },
+                        "extract": {
+                            "column": "entrez_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Mutations/improve_sample_id",
+                    "description": "Unique sample identifier for this dataset, generated by this package",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Mutations"
+                        },
+                        "extract": {
+                            "column": "improve_sample_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Mutations/source",
+                    "description": "Source of data generated.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Mutations"
+                        },
+                        "extract": {
+                            "column": "source"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Mutations/study",
+                    "description": "Study informatiom identifying where/when data was collected.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Mutations"
+                        },
+                        "extract": {
+                            "column": "study"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Mutations/mutation",
+                    "description": "Description of the mutation, when available.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Mutations"
+                        },
+                        "extract": {
+                            "column": "mutation"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Mutations/variant_classification",
+                    "description": "Classification of the variant",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Mutations"
+                        },
+                        "extract": {
+                            "column": "variant_classification"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Experiments",
+            "key": [
+                {
+                    "@id": "Experiments/improve_drug_id"
+                },
+                {
+                    "@id": "Experiments/improve_sample_id"
+                },
+                {
+                    "@id": "Experiments/source"
+                },
+                {
+                    "@id": "Experiments/study"
+                },
+                {
+                    "@id": "Experiments/time"
+                },
+                {
+                    "@id": "Experiments/time_unit"
+                },
+                {
+                    "@id": "Experiments/dose_response_metric"
+                },
+                {
+                    "@id": "Experiments/dose_response_value"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "Experiments/improve_drug_id",
+                    "description": "Unique identifier for this dataset, one for each smile string.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Experiments"
+                        },
+                        "extract": {
+                            "column": "improve_drug_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Experiments/improve_sample_id",
+                    "description": "Unique sample identifier for this dataset, generated by this package",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Experiments"
+                        },
+                        "extract": {
+                            "column": "improve_sample_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Experiments/source",
+                    "description": "Source of data generated.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Experiments"
+                        },
+                        "extract": {
+                            "column": "source"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Experiments/study",
+                    "description": "Study informatiom identifying where/when data was collected.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Experiments"
+                        },
+                        "extract": {
+                            "column": "study"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Experiments/time",
+                    "description": "Time at which measurement was administered, unit below.",
+                    "dataType": "sc:Float",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Experiments"
+                        },
+                        "extract": {
+                            "column": "time"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Experiments/time_unit",
+                    "description": "Unit of time in which drug treatment was measured, e.g. minutes, hours, weeks.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Experiments"
+                        },
+                        "extract": {
+                            "column": "time_unit"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Experiments/dose_response_metric",
+                    "description": "Metric by which dose response value is measured",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Experiments"
+                        },
+                        "extract": {
+                            "column": "dose_response_metric"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Experiments/dose_response_value",
+                    "description": "Value of metric",
+                    "dataType": "sc:Float",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Experiments"
+                        },
+                        "extract": {
+                            "column": "dose_response_value"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Perturbations",
+            "key": [
+                {
+                    "@id": "Perturbations/entrez_id"
+                },
+                {
+                    "@id": "Perturbations/improve_sample_id"
+                },
+                {
+                    "@id": "Perturbations/time"
+                },
+                {
+                    "@id": "Perturbations/time_unit"
+                },
+                {
+                    "@id": "Perturbations/source"
+                },
+                {
+                    "@id": "Perturbations/study"
+                },
+                {
+                    "@id": "Perturbations/data_value"
+                },
+                {
+                    "@id": "Perturbations/data_type"
+                },
+                {
+                    "@id": "Perturbations/perturbation"
+                },
+                {
+                    "@id": "Perturbations/perturbation_type"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/entrez_id",
+                    "description": "Gene id according to NCBI",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "entrez_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/improve_sample_id",
+                    "description": "Unique sample identifier for this dataset, generated by this package",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "improve_sample_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/time",
+                    "description": "Time at which measurement was administered, unit below.",
+                    "dataType": "sc:Float",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "time"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/time_unit",
+                    "description": "Unit of time in which drug treatment was measured, e.g. minutes, hours, weeks.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "time_unit"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/source",
+                    "description": "Source of data generated.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "source"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/study",
+                    "description": "Study informatiom identifying where/when data was collected.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "study"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/data_value",
+                    "description": "Response value of the gene",
+                    "dataType": "sc:Float",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "data_value"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/data_type",
+                    "description": "The value represented in the data value",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "data_type"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/perturbation",
+                    "description": "Drug or gene id that was perturbed",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "perturbation"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Perturbations/perturbation_type",
+                    "description": "The perturbagen that was used",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Perturbations"
+                        },
+                        "extract": {
+                            "column": "perturbation_type"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "cr:RecordSet",
+            "@id": "Combinations",
+            "key": [
+                {
+                    "@id": "Combinations/improve_sample_id"
+                },
+                {
+                    "@id": "Combinations/source"
+                },
+                {
+                    "@id": "Combinations/study"
+                },
+                {
+                    "@id": "Combinations/drug_one_id"
+                },
+                {
+                    "@id": "Combinations/drug_two_id"
+                },
+                {
+                    "@id": "Combinations/combination_metric"
+                },
+                {
+                    "@id": "Combinations/combination_value"
+                }
+            ],
+            "field": [
+                {
+                    "@type": "cr:Field",
+                    "@id": "Combinations/improve_sample_id",
+                    "description": "Unique sample identifier for this dataset, generated by this package",
+                    "dataType": "sc:Integer",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Combinations"
+                        },
+                        "extract": {
+                            "column": "improve_sample_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Combinations/source",
+                    "description": "Source of data generated.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Combinations"
+                        },
+                        "extract": {
+                            "column": "source"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Combinations/study",
+                    "description": "Study informatiom identifying where/when data was collected.",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Combinations"
+                        },
+                        "extract": {
+                            "column": "study"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Combinations/drug_one_id",
+                    "description": "improve_drug_id of first drug",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Combinations"
+                        },
+                        "extract": {
+                            "column": "drug_one_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Combinations/drug_two_id",
+                    "description": "imrrove_drug_id of second drug",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Combinations"
+                        },
+                        "extract": {
+                            "column": "drug_two_id"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Combinations/combination_metric",
+                    "description": "metric calculated for synergy, or other metric of two drugs",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Combinations"
+                        },
+                        "extract": {
+                            "column": "combination_metric"
+                        }
+                    }
+                },
+                {
+                    "@type": "cr:Field",
+                    "@id": "Combinations/combination_value",
+                    "description": "value of metric for synergy or combination",
+                    "dataType": "sc:Text",
+                    "source": {
+                        "fileSet": {
+                            "@id": "Combinations"
+                        },
+                        "extract": {
+                            "column": "combination_value"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
