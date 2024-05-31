@@ -3,9 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - builder_branch_JJ
-      - docs_update_4_5_24
-      - doc_update_4_23_24
+      - docker-build-multi
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 

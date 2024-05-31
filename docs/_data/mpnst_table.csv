@@ -1,4 +1,5 @@
 "Dataset","Unique_Entrez_IDs","Unique_Sample_IDs"
-"Transcriptomics",9809,35
-"Copy_number",27985,30
-"Mutations",13409,29
+"Transcriptomics",5530,35
+"Copy_number",19309,32
+"Mutations",13343,29
+"Proteomics",9224,6
