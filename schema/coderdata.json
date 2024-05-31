@@ -58,9 +58,9 @@
         {
             "@type": "cr:FileObject",
             "@id": "coderdata-zip",
-            "contentUrl": "blah.blah",
+            "contentUrl": "https://figshare.com/ndownloader/articles/25935544/versions/1",
             "encodingFormat": "application/zip",
-            "sha256": "35436]"
+            "sha256": "tbd"
         },
         {
             "@type": "cr:FileObject",
@@ -501,16 +501,16 @@
         },
         {
             "@type": "cr:RecordSet",
-            "@id": "Drug Descriptor",
+            "@id": "DrugDescriptor",
             "key": [
                 {
-                    "@id": "Drug Descriptor/improve_drug_id"
+                    "@id": "DrugDescriptor/improve_drug_id"
                 },
                 {
-                    "@id": "Drug Descriptor/structural_descriptor"
+                    "@id": "DrugDescriptor/structural_descriptor"
                 },
                 {
-                    "@id": "Drug Descriptor/descriptor_value"
+                    "@id": "DrugDescriptor/descriptor_value"
                 }
             ],
             "field": [
@@ -746,25 +746,25 @@
         },
         {
             "@type": "cr:RecordSet",
-            "@id": "Copy Number",
+            "@id": "CopyNumber",
             "key": [
                 {
-                    "@id": "Copy Number/entrez_id"
+                    "@id": "CopyNumber/entrez_id"
                 },
                 {
-                    "@id": "Copy Number/improve_sample_id"
+                    "@id": "CopyNumber/improve_sample_id"
                 },
                 {
-                    "@id": "Copy Number/source"
+                    "@id": "CopyNumber/source"
                 },
                 {
-                    "@id": "Copy Number/study"
+                    "@id": "CopyNumber/study"
                 },
                 {
-                    "@id": "Copy Number/copy_number"
+                    "@id": "CopyNumber/copy_number"
                 },
                 {
-                    "@id": "Copy Number/copy_call"
+                    "@id": "CopyNumber/copy_call"
                 }
             ],
             "field": [
