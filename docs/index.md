@@ -44,14 +44,12 @@ View our [Usage](pages/usage.md) page for full instructions.
 
 ### Datasets
 
-
 <table>
   <thead>
     <tr>
       <th>Dataset</th>
       <th>Cancer Types</th>
       <th>Samples</th>
-      <th>Genes</th>
       <th>Drugs</th>
       <th>Transcriptomics</th>
       <th>Proteomics</th>
@@ -62,61 +60,57 @@ View our [Usage](pages/usage.md) page for full instructions.
   <tbody>
     <tr>
       <td><a href="datasets/broad_sanger">Broad Sanger</a></td>
-      <td>{{site.data.stats.broad_sanger.cell_lines}}</td>
+      <td>{{site.data.stats.broad_sanger.cancer_types}}</td>
       <td>{{site.data.stats.broad_sanger.samples}}</td>
-      <td>{{site.data.stats.broad_sanger.genes}}</td>
       <td>{{site.data.stats.broad_sanger.drugs}}</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>Yes</td>
+      <td>{{site.data.stats.broad_sanger.transcriptomics}}</td>
+      <td>{{site.data.stats.broad_sanger.proteomics}}</td>
+      <td>{{site.data.stats.broad_sanger.mutations}}</td>
+      <td>{{site.data.stats.broad_sanger.copy_number}}</td>
     </tr>
     <tr>
       <td><a href="datasets/cptac">CPTAC</a></td>
       <td>{{site.data.stats.cptac.cancer_types}}</td>
       <td>{{site.data.stats.cptac.samples}}</td>
-      <td>{{site.data.stats.cptac.genes}}</td>
       <td>{{site.data.stats.cptac.drugs}}</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>Yes</td>
+      <td>{{site.data.stats.cptac.transcriptomics}}</td>
+      <td>{{site.data.stats.cptac.proteomics}}</td>
+      <td>{{site.data.stats.cptac.mutations}}</td>
+      <td>{{site.data.stats.cptac.copy_number}}</td>
     </tr>
     <tr>
       <td><a href="datasets/hcmi">HCMI</a></td>
       <td>{{site.data.stats.hcmi.cancer_types}}</td>
       <td>{{site.data.stats.hcmi.samples}}</td>
-      <td>{{site.data.stats.hcmi.genes}}</td>
       <td>{{site.data.stats.hcmi.drugs}}</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td>Yes</td>
-      <td>Yes</td>
+      <td>{{site.data.stats.hcmi.transcriptomics}}</td>
+      <td>{{site.data.stats.hcmi.proteomics}}</td>
+      <td>{{site.data.stats.hcmi.mutations}}</td>
+      <td>{{site.data.stats.hcmi.copy_number}}</td>
     </tr>
     <tr>
       <td><a href="datasets/beataml">BeatAML</a></td>
       <td>{{site.data.stats.beataml.cancer_types}}</td>
       <td>{{site.data.stats.beataml.samples}}</td>
-      <td>{{site.data.stats.beataml.genes}}</td>
       <td>{{site.data.stats.beataml.drugs}}</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td>No</td>
+      <td>{{site.data.stats.beataml.transcriptomics}}</td>
+      <td>{{site.data.stats.beataml.proteomics}}</td>
+      <td>{{site.data.stats.beataml.mutations}}</td>
+      <td>{{site.data.stats.beataml.copy_number}}</td>
     </tr>
     <tr>
       <td><a href="datasets/mpnst">MPNST</a></td>
       <td>{{site.data.stats.mpnst.cancer_types}}</td>
       <td>{{site.data.stats.mpnst.samples}}</td>
-      <td>{{site.data.stats.mpnst.genes}}</td>
       <td>{{site.data.stats.mpnst.drugs}}</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td>Yes</td>
-      <td>Yes</td>
+      <td>{{site.data.stats.mpnst.transcriptomics}}</td>
+      <td>{{site.data.stats.mpnst.proteomics}}</td>
+      <td>{{site.data.stats.mpnst.mutations}}</td>
+      <td>{{site.data.stats.mpnst.copy_number}}</td>
     </tr>
   </tbody>
 </table>
+
 
 
 
