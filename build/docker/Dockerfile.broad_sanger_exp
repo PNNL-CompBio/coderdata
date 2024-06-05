@@ -8,6 +8,12 @@ RUN apt-get install -y --fix-missing --allow-unauthenticated build-essential pyt
 RUN python3 -m venv /opt/venv
 RUN /opt/venv/bin/pip3 install --upgrade pip
 
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/tmp/matplotlib
+RUN mkdir -p /tmp/matplotlib
+
+
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 

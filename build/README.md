@@ -8,46 +8,34 @@ are added.
 
 ![Build process](coderDataBuild.jpg?raw=true "Build process")
 
+## build_all.py script
 
-We have created a build script that executes each step of the build process to enable the creation of a `local` folder with all the requisite folders.
+This script initializes all docker containers, builds all datasets, validates them, and uploads them to figshare and pypi.
 
-The build requires Python as well as Docker to be installed. To access
-the data on Synapse (MPNST, BeatAML proteomics), you will need to
-[register for a synapse account](http://synapse.org/register) and then
-request access to the [CoderData Build
-Team](https://www.synapse.org/#!Team:3503472). Then you will need to
-create a [personal authentication
-token](https://www.synapse.org/#!PersonalAccessTokens:) with Download
-access and then set the `SYNAPSE_AUTH_TOKEN` environment variable to
-that token. 
+It requires the following authorization tokens to be set in the local environment depending on the use case:  
+`SYNAPSE_AUTH_TOKEN`: Required for beataml and mpnst datasets. Join the [CoderData team](https://www.synapse.org/#!Team:3503472) on Synapse and generate an access token.
+`PYPI_TOKEN`: This token is required to upload to PyPI.
+`FIGSHARE_TOKEN`: This token is required to upload to Figshare.
 
-To build the docker images and run them, simply run (though this will take a while!):
-```
-python build/build_all.py --all
-```
+Available arguments:
 
-To only build the docker files:
-```
-python build/build_all.py --docker
-```
+- `--docker`: Initializes and builds all docker containers.
+- `--samples`: Processes and builds the sample data files.
+- `--omics`: Processes and builds the omics data files.
+- `--drugs`: Processes and builds the drug data files.
+- `--exp`: Processes and builds the experiment data files.
+- `--all`: Executes all available processes above (docker, samples, omics, drugs, exp).
+- `--validate`: Validates the generated datasets using the schema check scripts.
+- `--figshare`: Uploads the datasets to Figshare.
+- `--pypi`: Uploads the package to PyPI.
+- `--high_mem`: Utilizes high memory mode for concurrent data processing.
+- `--dataset`: Specifies the datasets to process (default='broad_sanger,hcmi,beataml,mpnst,cptac').
+- `--version`: Specifies the version number for the package and data upload title. This is required to upload to figshare and PyPI
 
-Then to build the reference files (after dockers have been built):
+Example usage:
+```bash
+python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.29
 ```
-python build/build_all.py --samples
-python build/build_all.py --drugs
-```
-
-Once the sample files have been created, we can collect the omics measurements:
-```
-python build/build_all.py --omics
-```
-
-Once the drugs file and samples have been created, we can refit the curves:
-```
-python build/build_all.py --exp
-```
-
-Note: this will not build the python package, just generate the data!
 
 ## Data Source Reference List
 
