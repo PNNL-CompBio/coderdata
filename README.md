@@ -53,10 +53,16 @@ CoderData.
 [build directory](build) with your own build files. 
 
 3. Develop your scripts to build the data files according to our
-[LinkML Schema](schema/coderdata.yaml]). You can validate each file by
+[LinkML Schema](schema/coderdata.yaml]). This will require collecting
+the following metadata:
+- entrez gene identifiers (or you can use the `genes.csv` file
+- sample information such as species and model system type
+- drug name that can be searched on PubChem
+
+You can validate each file by
 using the [linkML
 validator](https://linkml.io/linkml/data/validating-data) together
-with our schema file.
+with our schema file. 
 
 You can use the following scripts as part of your build process:
 - [build/utils/fit_curve.py](build/utils/fit_curve.py): This script
