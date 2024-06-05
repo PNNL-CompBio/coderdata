@@ -1,4 +1,3 @@
-[![Continuous Integration](https://github.com/PNNL-CompBio/coderdata/actions/workflows/main.yml/badge.svg?branch=builder_branch_JJ&event=push)](https://github.com/PNNL-CompBio/coderdata/actions/workflows/main.yml)
 
 ## Cancer Omics Drug Experiment Response Dataset 
 
@@ -24,7 +23,7 @@ infrastructure.
 
 ## Data access
 For the access to the latest version of CoderData, please visit our
-[documentation site]() which provides access to Figshare and
+[documentation site](https://pnnl-compbio.github.io/coderdata/) which provides access to Figshare and
 instructions for using the Python package to download the data.
 
 ## Data format
@@ -84,3 +83,5 @@ directory](./build/docker) with the name
 6. Run `build_all.py` from the root directory, which should now add in
 your Dockerfile in the mix and call the scripts in your Docker
 container to build the files.
+
+
