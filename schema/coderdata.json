@@ -49,7 +49,7 @@
     },
     "@type": "sc:Dataset",
     "name": "coderdata",
-    "conformsTo": "http://mlcommons.org/croissant/1.0",
+    "conformsTo": "http://mlcommons.org/croissant/1.0/",
     "description": "CoderData is a benchmark dataset designed for AI/ML modeling of drug sensitivity via omics measurements.",
     "citeAs": "@Article{jac24, author = \"Jeremy Jacobson, Chang In Moon, Sydney Schwartz, Belinda Garana, Ryan Weil, and Sara Gosline}\"",
     "license": "BSD-3",
@@ -60,7 +60,7 @@
             "@id": "coderdata-zip",
             "contentUrl": "https://figshare.com/ndownloader/articles/25935544/versions/1",
             "encodingFormat": "application/zip",
-            "sha256": "tbd"
+            "md5": "fb38383c09f2a212ed9f3b695012c757"
         },
         {
             "@type": "cr:FileObject",
