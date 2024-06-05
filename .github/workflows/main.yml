@@ -3,7 +3,8 @@ name: CI
 on:
   push:
     branches:
-      - * #docker-build-multi
+      - "*"
+  #docker-build-multi
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
