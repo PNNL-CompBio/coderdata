@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser('Script to generate croissant metadata for CoderData')
     parser.add_argument('--figsharePath',dest='figshare',help='Path prefix to figshare to generate URLs for each file')
     parser.add_argument('--yamlFile',dest='yaml',help='LinkML yaml file')
-    parser.add_argument('--sha',dest='sha',help='SHA256 hash for file')
+    parser.add_argument('--md5',dest='sha',help='md5 hash for file')
     args = parser.parse_args()
     
 
@@ -116,7 +116,7 @@ def make_filelist(figshare,sha):
 	        "@id": "coderdata-zip",
 	        "contentUrl":figshare,
 	        "encodingFormat":"application/zip",
-	        "sha256": sha
+	        "md5": "fb38383c09f2a212ed9f3b695012c757"
 	    },
 	    {
 	        "@type": "cr:FileObject",
@@ -233,14 +233,15 @@ def make_croissant(recordlist,distribution):
         },
         "@type": "sc:Dataset",
         "name": "coderdata",
-        "conformsTo": "http://mlcommons.org/croissant/1.0",
+        "conformsTo": "http://mlcommons.org/croissant/1.0/",
         "description": "CoderData is a benchmark dataset designed for AI/ML modeling of drug sensitivity via omics measurements.",
         "citeAs": "@Article{jac24, author = \"Jeremy Jacobson, Chang In Moon, Sydney Schwartz, Belinda Garana, Ryan Weil, and Sara Gosline}\"",
         "license": "BSD-3",
-        "url": "https://pnnl-compbio.github.io/coderdata/",
-        "distribution": distribution,
-        "recordSet": recordlist        
+        "url": "https://pnnl-compbio.github.io/coderdata/"
     }
+    croissant['distribution'] = distribution
+    croissant['recordSet'] =recordlist
+
     return croissant
     
     
