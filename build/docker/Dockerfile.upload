@@ -1,0 +1,9 @@
+FROM python:3.9
+
+WORKDIR /usr/src/app
+
+RUN python -m pip install --upgrade pip setuptools wheel twine packaging pyyaml requests linkml
+
+RUN git clone https://github.com/PNNL-CompBio/coderdata.git
+
+WORKDIR /usr/src/app/coderdata
