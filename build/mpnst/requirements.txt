@@ -7,3 +7,5 @@ tqdm
 scikit-learn
 scipy
 requests
+mordred
+rdkit
