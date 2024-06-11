@@ -1,36 +1,64 @@
 ## Building Broad and Sanger cell line data
 The Broad and Sanger data is the first to be built, and requires the
 following commands. All scripts write files in to the `/tmp/`
-directory, so mounting to that directly will help output the files
+directory, so mounting to that directly will help output the files. We
+broke the Docker image into two to reduce overall size and complexity
+of each image. 
 
 
-### Docker image and gene file
-First step is to build the docker file and the genes.csv file. This is
-required for all future data files.
+### Build gene, sample, and omics data
+Below are the steps required to build and test the gene/sample/omics
+builds. Commands are designed to be run from the root of the repo. 
+
+1. Build omics docker
 ```
-docker build -f ../../build/docker/Dockerfile.broad_sanger -t broad_sanger ../../
-docker run -v $PWD:/tmp/ broad_sanger Rscript 00-buildGeneFile.R
-
+   docker build -f build/docker/Dockerfile.broad_sanger_omics -t broad_sanger_omics . --build-arg HTTPS_PROXY=$HTTPS_PROXY 
 ```
-
-### DepMap reference samples and identifiers
-Next we retrieve all the standard cell line identifiers we can, from diverse
-sources, and map them to IMPROVE sample identifiers for future reference.
+2. Build gene file
 ```
-docker run -v $PWD:/tmp/ broad_sanger Rscript 01-broadSangerSamples.R
-
+	docker run -v $PWD:/tmp broad_sanger_omics sh build_genes.sh
 ```
 
-### Omics data for Broad/Sanger cell lines
-Third we collect the omics data for these cell lines, again from
-diverse sources. Currently we have a single script for each
-source. Each script takes our list of gene and sample identifiers
+3. Build sample file
 ```
-docker run -v $PWD:/tmp/ broad_sanger Rscript 02-broadSangerOmics.R /tmp/genes.csv /tmp/broad_sanger_samples.csv
+  docker run -v $PWD:/tmp broad_sanger_omics sh build_samples.sh
+```
+4. Build omics files
+```
+  docker run -v $PWD:/tmp broad_sanger_omics sh build_omics.sh
+```
+This should leave you with the following files for al the cell lines
+```
+├── broad_sanger_samples.csv.gz
+├── broad_sanger_transcriptomics.csv.gz
+├── broad_sanger_mutations.csv.gz
+├── broad_sanger_copy_number.csv.gz
+├── genes.csv
 
 ```
 
-### Drug data for all experiments
+### Build out drug files and experiments
+Both of these steps can be lengthy - the experiment fitting can be
+parallelized but the drug information requires querying PubChem which
+can take a while.
+
+1. Build experiment docker fille
+
+```
+   docker build -f build/docker/Dockerfile.broad_sanger_exp -t broad_sanger_exp . --build-arg HTTPS_PROXY=$HTTPS_PROXY 
+
+
+```
+2. Build drug files
+   ```
+   docker run -v $PWD:/tmp broad_sanger_exp sh build_drugs.sh /tmp/build/build_test/test_drugs.tsv
+   ```
+3. Build experiment files
+   ```
+   docker run -v $PWD:/tmp   broad_sanger_exp sh build_exp.sh /tmp/broad_sanger_samples.csv /tmp/broad_sanger_drugs.tsv.gz
+   ```
+
+### Datasets collected
 
 Fourth we collect drugs and map them to pubchem, then structure. This
 is a slow step as we collect from diverse studies including:
@@ -42,27 +70,5 @@ is a slow step as we collect from diverse studies including:
 6. CCLE
 7. FIMM
 8. NCI60
-
-```
-docker run -v $PWD:/tmp broad_sanger Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM,NCI60
-
-```
-### Dose response and curve fitting
-This last command will generate the drug file, drugs.tsv.gz, which we
-can pass into the next commands. Then we will collect the dose
-response data and fit the curves for the following experiments:
-1. CTRPv2
-2. GDSCv1
-3. GDSCv2
-4. gCSI
-5. PRISM2020
-6. CCLE
-7. FIMM
-8. NCI60
-
-```
-docker run -v $PWD:/tmp/ broad_sanger /opt/venv/bin/python 04-drug_dosage_and_curves.py --drugfile=/tmp/broad_sanger_drugs.tsv --curSampleFile=/tmp/broad_sanger_samples.csv
-
-```
 
 
