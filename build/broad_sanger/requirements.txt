@@ -8,3 +8,5 @@ scipy
 requests
 openpyxl
 polars
+mordred
+rdkit
