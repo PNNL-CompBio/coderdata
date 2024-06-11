@@ -1,0 +1,1707 @@
+nsc241240
+platinum, diammine[1,1-cyclobutanedi(carboxylato-ko)(2-)]-, (sp-4-2)-
+platinum,1-cyclobutanedicarboxylato(2-)-o,o']-, (sp-4-2)-
+stl451040
+cbdca
+tox21_112586_1
+cis-diammine(1,1-cyclobutanedicarboxylato)platinum(ii)
+epitope id:194801
+carboplatin
+7,7-diamino-6,8-dioxa-7-platinaspiro[3.5]nonane-5,9-dione
+diamino[cyclobutane-1,1-dicarboxylato(2-)-kappa~2~o~1~,o~1~]platinum
+nsc758182
+paraplatin
+hms3269h03
+ncgc00167800-01
+pharmakon1600-01502106
+en300-123065
+azanide;cyclobutane-1,1-dicarboxylic acid;platinum(2+)
+cis-diammine(1,1-cyclobutanedicarboxylato)platinum
+platinum(ii),1-cyclobutanedicarboxylato)diammine-, cis-
+dtxsid3046742
+sy075575
+1,1-cyclobutanedicarboxylate diammine platinum(ii)
+chebi:31355
+cis-(1,1-cyclobutanedicarboxylato)diammineplatinum(ii)
+platinum,1-cyclobutanedicarboxylato(2-)-o,o')-, (sp-4-2)-
+platinum, diammine[1,1-cyclobutanedicarboxylato(2-)-.kappa.o,.kappa.o'']-, (sp-4-2)-
+ab01273939-01
+mfcd00070464
+ns00076275
+carboplatinum
+nsc201345
+nsc-241240
+lopac0_000230
+1,1-cyclobutanedicarboxylatodiammineplatinum(ii)
+dtxcid201476080
+cas-41575-94-4
+41575-94-4
+schembl4964
+bp-25385
+nsc-758182
+ncgc00263858-02
+paraplatin (bristol meyers)
+(-)-n-(((r)-2,3-dihydroxypropyl)oxy)-3,4-difluoro-2-((2-fluoro-4-iodophenyl)amino)benzamide
+n-((r)-2,3-dihydroxy[propoxy)-3,4-difluoro-2-(2-fluoro-4-iodo-phenylamino)-benzamide
+4bm
+nsc800840
+bdbm104963
+schembl172904
+cs-0062
+n-[(2r)-2,3-dihydroxypropoxy]-3,4-d ifluoro-2-[(2-fluoro-4-iodophenyl)amino]-benzamide
+benzamide, n-((2r)-2,3-dihydroxypropoxy)-3,4-difluoro-2-((2-fluoro-4-iodophenyl)amino)-
+mirdametinib [usan]
+db07101
+nsc-755770
+n-((2r)-2,3-dihydroxypropoxy)-3,4-difluoro-2-((2-fluoro-4-iodophenyl)amino)-benzamide
+mirdametinib [inn]
+ex-8602
+gtpl7935
+(r)-n-(2,3-dihydroxypropoxy)-3,4-difluoro-2-(2-fluoro-4-iodophenylamino)benzamide
+pd 901
+pd0325901 (pd325901)
+benzamide, n-[(2r)-2,3-dihydroxypropoxy]-3,4-difluoro-2-[(2-fluoro-4-iodophenyl)amino]-
+n-[(2r)-2,3-dihydroxypropoxy]-3,4-difluoro-2-[(2-fluoro-4-iodophenyl)amino]benzamide
+hms3648a14
+(r)-n-(2,3-dihydroxypropoxy)-3,4-difluoro-2-((2-fluoro-4-iodophenyl)amino)benzamide
+n-((r)-2,3-dihydroxy-propoxy)-3,4-difluoro-2-(2-fluoro-4-iodo-phenylamino)-benzamide
+us8575391, q
+j-502503
+pd-325901
+c16h14f3in2o4
+ccg-221316
+who 11299
+chembl507361
+mirdametinib
+391209-97-5
+ns00069616
+mirdametinib [who-dd]
+cas-391210-10-9
+pd 0325901
+n-[((r)-2,3-dihydroxypropyl)oxy]-3,4-difluoro-2-[(2-fluoro-4-iodophenyl)amino]benzamide
+(s)-n-(2,3-dihydroxypropoxy)-3,4-difluoro-2-((2-fluoro-4-iodophenyl)amino)benzamide
+q27088255
+dtxcid8024024
+dtxsid0044024
+d11675
+n-[(r)-2,3-dihydroxy-propoxy]-3,4-difluoro-2-(2-fluoro-4-iodo-phenylamino)-benzamide
+n-[(2r)-2,3-dihydroxypropoxy]-3,4-difluoro-2-(2-fluoro-4-iodoanilino)benzamide
+n-(((r)-2,3-dihydroxypropyl)oxy)-3,4-difluoro-2-((2-fluoro-4-iodophenyl)amino)benzamide n-((2r)-2,3-dihydroxypropoxy)-3,4-difluoro-2-(2-fluoro-4-iodoanilino)benzamide
+pd325901    ,    pd0325901
+mfcd08435926
+nsc-800840
+hb2240
+chebi:88249
+86k0j5ak6m
+pd 0325901, >=98% (hplc)
+bcp9001057
+n-{[(2r)-2,3-dihydroxypropyl]oxy}-3,4-difluoro-2-[(2-fluoro-4-iodophenyl)amino]benzamide
+pd-0325901
+unii-86k0j5ak6m
+nsc755770
+tox21_113364
+pd0325901
+n-[(2r)-2,3-dihydroxypropoxy]-3,4-difluoro-2-[(2-fluoro-4-iodophenyl)amino]-benzamide
+sr-01000946344
+amy36437
+n-(((r)-2,3-dihydroxypropyl)oxy)-3,4-difluoro-2-((2-fluoro-4-iodophenyl)amino)benzamide
+s1036
+sw218101-2
+sr-01000946344-1
+ncgc00189075-01
+391210-10-9
+pd-0325901,pd325901
+pd0325901(mirdametinib)
+ncgc00381744-09
+brd-k49865102-001-01-9
+ex-a102
+pd 325901
+mirdametinib (usan)
+hy-10254
+akos015855518
+bcpp000126
+pd 03525901
+n-[(2r)-2,3-dihydroxypropoxy]-3,4-difluoro-2-[(2-fluoro-4-iodophenyl)amino]- benzamide
+digoxin pediatric
+lanorale
+nsc 95100
+20830-75-5 (free)
+digomal
+20830-75-5
+mapluxin
+digoxin [who-ip]
+digoxina (inn-spanish)
+hy-b1049
+3-[(3s,5r,8r,9s,10s,12r,13s,14s,17r)-3-[(2r,4s,5s,6r)-5-[(2s,4s,5s,6r)-5-[(2s,4s,5s,6r)-4,5-dihydroxy-6-methyloxan-2-yl]oxy-4-hydroxy-6-methyloxan-2-yl]oxy-4-hydroxy-6-methyloxan-2-yl]oxy-12,14-dihydroxy-10,13-dimethyl-1,2,3,4,5,6,7,8,9,11,12,15,16,17-tetradecahydrocyclopenta[a]phenanthren-17-yl]-2h-furan-5-one
+prestwick2_000437
+lifusin
+sr-01000721866
+digoxin, certified reference material, tracecert(r)
+digoxine navtivelle
+db00390
+tox21_201678
+smr000653537
+vanoxin
+d00298
+prestwick0_000437
+ncgc00090797-07
+saroxin
+digoxin (jp17/usp)
+lanoxicaps (tn)
+toloxin
+ncgc00090797-04
+human serum - digoxin, low level
+ncgc00259227-01
+digoxin
+lanocardin
+sk-digoxin
+digoxin, analytical standard
+ncgc00257022-01
+hms1569g16
+0b9662a7-264e-4acd-94b2-9e1138c0ca5a
+digoxin, european pharmacopoeia (ep) reference standard
+digoxina [inn-spanish]
+stillacor-
+digitek
+12a-hydroxydigitoxin
+davoxin
+lanoxin pediatric
+digoxin [ep monograph]
+lanoxin (tn)
+bpbio1_000500
+12beta-hydroxydigitoxin
+c01aa05
+novodigal (inj.)
+q422222
+digoxin for peak identification, european pharmacopoeia (ep) reference standard
+digoxin [mart.]
+digoxin [iarc]
+digoxin (ep monograph)
+digoxigenin-tridigitoxosid [german]
+acygoxin
+3.beta.-((o-2,6-dideoxy-.beta.-d-ribo-hexopyranosyl-(1->4)-o-2,6-dideoxy-.beta.-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-.beta.-d-ribo-hexopyranosyl)oxy)-12.beta.,14-dihydroxy-5.beta.-card-20(22)-enolide
+digoxin (usp:inn:ban:jan)
+digitalis glycoside
+cas-20830-75-5
+digos
+bdbm46355
+4-[(1r,3as,3br,5ar,7s,9as,9bs,11r,11as)-7-{[(2r,4s,5s,6r)-5-{[(2s,4s,5s,6r)-5-{[(2s,4s,5s,6r)-4,5-dihydroxy-6-methyloxan-2-yl]oxy}-4-hydroxy-6-methyloxan-2-yl]oxy}-4-hydroxy-6-methyloxan-2-yl]oxy}-3a,11-dihydroxy-9a,11a-dimethyl-hexadecahydro-1h-cyclopenta[a]phenanthren-1-yl]-2,5-dihydrofuran-2-one
+prestwick3_000437
+hsdb 214
+ncgc00090797-12
+digoxin (mart.)
+4-((3s,5r,8r,9s,10s,12r,13s,14s,17r)-3-(((2r,4s,5s,6r)-5-(((2s,4s,5s,6r)-5-(((2s,4s,5s,6r)-4,5-dihydroxy-6-methyltetrahydro-2h-pyran-2-yl)oxy)-4-hydroxy-6-methyltetrahydro-2h-pyran-2-yl)oxy)-4-hydroxy-6-methyltetrahydro-2h-pyran-2-yl)oxy)-12,14-dihydroxy-10,13-dimethylhexadecahydro-1h-cyclopenta[a]phenanthren-17-yl)furan-2(5h)-one
+digossina
+digoxin [hsdb]
+dtxsid5022934
+digoxin [who-dd]
+12 beta -hydroxydigitoxin
+gtpl4726
+s4290
+digoxina
+spbio_002393
+3-[(3s,5r,8r,9s,10s,12r,13s,14s,17r)-10,13-dimethyl-3-[(2r,4s,5s,6r)-6-methyl-5-[(2s,4s,5s,6r)-6-methyl-5-[(2s,4s,5s,6r)-6-methyl-4,5-bis(oxidanyl)oxan-2-yl]oxy-4-oxidanyl-oxan-2-yl]oxy-4-oxidanyl-oxan-2-yl]oxy-12,14-bis(oxidanyl)-1,2,3,4,5,6,7,8,9,11,12,
+3-[(3s,5r,8r,9s,10s,12r,13s,14s,17r)-3-[[(2r,4s,5s,6r)-5-[[(2s,4s,5s,6r)-5-[[(2s,4s,5s,6r)-4,5-dihydroxy-6-methyl-2-oxanyl]oxy]-4-hydroxy-6-methyl-2-oxanyl]oxy]-4-hydroxy-6-methyl-2-oxanyl]oxy]-12,14-dihydroxy-10,13-dimethyl-1,2,3,4,5,6,7,8,9,11,12,15,16,
+card-20(22)-enolide, 3-((o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(hexopyranosyl-(1-4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl)oxy)-12,14-dihydroxy-,
+digoxin, pharmaceutical secondary standard; certified reference material
+3b0w
+brd-k23478508-001-03-7
+digitoxin, 12beta-hydroxy-
+hb1138
+ncgc00090797-01
+3beta-(2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-beta-d-ribo-hexopyranosyloxy)-12beta,14-dihydroxy-5beta,14beta-card-20(22)-enolide
+ncgc00090797-15
+digoxin (usp monograph)
+cardiogoxin
+digoxine
+d1828
+ncgc00090797-02
+dixina
+digoxin [orange book]
+digoxin [usp-rs]
+lenoxin
+mfcd00003674
+[3h]-digoxin
+digoxina-sandoz
+schembl20506
+digoxin for peak identification
+ncgc00090797-03
+sr-01000721866-4
+sr-01000721866-3
+cardigox
+bidd:pxr0148
+ncgc00090797-09
+coragoxine
+digon
+akos024283494
+dynamos
+digoxin [usp monograph]
+hemigoxine nativelle
+digoxin, 1mg/ml in methanol
+digoxin [usp:inn:ban:jan]
+digoxinum
+(3beta,5beta,12beta)-3-((o-2,6-dideoxy-beta-d-ribo-hexapyranosyl-(1-4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1-4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl)oxy)-12,14-dihydroxycard-20(22)-enolide
+chembl1751
+lanoxicaps
+lanikor
+tox21_303050
+ccg-220437
+card-20(22)-enolide, 3-((o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl)oxy)-12,14-dihydroxy-,(3beta,5beta,12beta)-
+digoxin [jan]
+card-20(22)-enolide, 3-((o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1.fwdarw.4)-o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1.fwdarw.4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl)oxy)-12,14-dihydroxy-, (3beta,5beta,12beta)-
+prestwick_170
+cordioxil
+digacin
+homolle's digitalin
+hms3713g16
+lanoxin pg
+c06956
+natigoxin
+dimecip
+nsc95100
+digoxinum [who-ip latin]
+dokim
+3beta-((o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1-4)-o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1-4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl)oxy)-12beta,14-dihydroxy-5beta-card-20(22)-enolide
+73k4184t59
+card-20(22)-enolide, 3-((o-2,6-dideoxy-.beta.-d-ribo-hexopyranosyl-(1->4)-o-2,6-dideoxy-.beta.-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-.beta.-d-ribo-hexopyranosyl)oxy)-12,14-dihydroxy-,(3.beta.,5.beta.,12.beta.)-
+[3h]digoxin
+card-20(22)-enolide, 3-((o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1-4)-o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1-4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl)oxy)-12,14-dihydroxy-, (3beta,5beta,12beta)-
+epitope id:122964
+lanacordin
+4-((1s,2s,5s,11s,15s,7r,10r,14r,16r)-5-{5-[5-((2s,4s,5s,6r)-4,5-dihydroxy-6-me thyl(2h-3,4,5,6-tetrahydropyran-2-yloxy))(4s,5s,2r,6r)-4-hydroxy-6-methyl(2h-3 ,4,5,6-tetrahydropyran-2-yloxy)](4s,5s,2r,6r)-4-hydroxy-6-methyl(2h-3,4,5,6-te trahydropyran-2-yl
+digox
+card-20(22)-enolide, 3-((o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl)oxy)-12,14-dihydroxy-, (3beta,5beta,12beta)-
+unii-73k4184t59
+lanacrist
+purgoxin
+bspbio_000454
+digoxin [inn]
+rougoxin
+digossina [dcit]
+4-[(1s,2s,5s,7r,10r,11s,14r,15s,16r)-5-{[(2r,4s,5s,6r)-5-{[(2s,4s,5s,6r)-5-{[(2s,4s,5s,6r)-4,5-dihydroxy-6-methyloxan-2-yl]oxy}-4-hydroxy-6-methyloxan-2-yl]oxy}-4-hydroxy-6-methyloxan-2-yl]oxy}-11,16-dihydroxy-2,15-dimethyltetracyclo[8.7.0.0^{2,7}.0^{11,15}]heptadecan-14-yl]-2,5-dihydrofuran-2-one
+digoxinum (latin)
+ncgc00090797-05
+akos015895113
+digoxin-sandoz
+digoxin (usp-rs)
+chebi:4551
+hms2096g16
+digoxin 1.0 mg/ml in methanol
+ncgc00090797-06
+novodigal [inj.]
+smr000059217
+a814956
+human serum - digoxin, high level
+mls000069819
+(3beta,5beta,12beta)-3-{[2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl]oxy}-12,14-dihydroxycard-20(22)-enolide
+neo-lanicor
+brn 0077011
+as-13281
+mls001055371
+card-20(22)-enolide, 3-[[o-2,6-dideoxy-.beta.-d-ribo-hexopyranosyl-(1-->4)-o-2,6-dideoxy-.beta.-d-ribo-hexopyranosyl-(1-->4)-2,6-dideoxy-.beta.-d-ribo-hexopyranosyl]oxy]-12,14-dihydroxy-, (3.beta.,5.beta.,12.beta.)-
+digoxinum [inn-latin]
+cs-4571
+digoxin [vandf]
+mls001076495
+5-18-04-00381 (beilstein handbook reference)
+digoxinum (inn-latin)
+opera_id_1134
+digoxin, united states pharmacopeia (usp) reference standard
+digosin
+nsc-95100
+3beta-((o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-o-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl)oxy)-12beta,14-dihydroxy-5beta-card-20(22)-enolide
+grexin
+c41h64o14
+chloroformic digitalin
+prestwick1_000437
+digoxin nativelle
+eudigox
+cardioxin
+gtpl4725
+3beta,12beta,14-trihydroxy-5beta,14beta-card-20(22)-enolid-3-tridigitoxosid
+digoxin-zori
+hms2232g20
+4-[(3s,5r,8r,9s,10s,12r,13s,14s)-3-[(2s,4s,5r,6r)-5-[(2s,4s,5r,6r)-5-[(2s,4s,5r,6r)-4,5-dihydroxy-6-methyl-oxan-2-yl]oxy-4-hydroxy-6-methyl-oxan-2-yl]oxy-4-hydroxy-6-methyl-oxan-2-yl]oxy-12,14-dihydroxy-10,13-dimethyl-1,2,3,4,5,6,7,8,9,11,12,15,16,17-tetradecahydrocyclopenta[a]phenanthren-17-yl]-5h-furan-2-one
+tox21_111025
+z2108699066
+fargoxin
+ns00008620
+3-[(3s,5r,8r,9s,10s,12r,13s,14s,17r)-3-[(2r,4s,5s,6r)-5-[(2s,4s,5s,6r)-5-[(2s,4s,5s,6r)-4,5-dihydroxy-6-methyl-tetrahydropyran-2-yl]oxy-4-hydroxy-6-methyl-tetrahydropyran-2-yl]oxy-4-hydroxy-6-methyl-tetrahydropyran-2-yl]oxy-12,14-dihydroxy-10,13-dimethyl-1,2,3,4,5,6,7,8,9,11,12,15,16,17-tetradecahydrocyclopenta[a]phenanthren-17-yl]-2h-furan-5-one
+digonix
+neodioxanin
+digoxin [mi]
+en300-6492954
+j-013666
+3-[(3s,5r,10s,12r,13s,14s,17r)-3-[(2r,4s,5s,6r)-5-[(2s,4s,5s,6r)-5-[(2s,4s,5s,6r)-4,5-dihydroxy-6-methyloxan-2-yl]oxy-4-hydroxy-6-methyloxan-2-yl]oxy-4-hydroxy-6-methyloxan-2-yl]oxy-12,14-dihydroxy-10,13-dimethyl-1,2,3,4,5,6,7,8,9,11,12,15,16,17-tetradecahydrocyclopenta[a]phenanthren-17-yl]-2h-furan-5-one
+(3beta,5beta,12beta)-3-((2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl-(1->4)-2,6-dideoxy-beta-d-ribo-hexopyranosyl)oxy)-12,14-dihydroxycard-20(22)-enolide
+cid_2724385
+lanoxin
+regid_for_cid_2724385
+digoksyna [polish]
+lenoxicaps
+digoksyna
+dilanacin
+dtxcid502934
+einecs 244-068-1
+digoxin (iarc)
+digoxigenin-tridigitoxosid
+6gy
+db12267
+ncgc00483924-01
+d10866
+brigatinib
+(2-((5-chloro-2-((2-methoxy-4-(4-(4-methylpiperazin-1-yl)piperidin-1-yl)phenyl)amino)pyrimidin-4-yl)amino)phenyl)dimethyl-,delta5-phosphanone
+(2-((5-chloro-2-(2-methoxy-4-(4-(4-methylpiperazin-1-yl)piperidin-1-yl)anilino)pyrimidin-4-yl)amino)phenyl)dimethyl-lambda5-phosphanone
+brigatinib; ap26113
+alunbrig (tn)
+compound 11q (pmid: 27144831)
+5-chloro-n4-[2-(dimethylphosphoryl)phenyl]-n2-{2-methoxy-4-[4-(4-methylpiperazin-1-yl)piperidin-1-yl]phenyl}pyrimidine-2,4-diamine
+schembl11916361
+cs-4278
+ap-26113
+brigatinib (ap-26113)
+compound 11q [pmid: 27144831]
+brigatinib [who-dd]
+nsc-787457
+nsc-784728
+brigatinib [jan]
+db-118419
+(2-((5-chloro-2-((2-methoxy-4-(4-(4-methylpiperazin-1-yl)piperidin-1-yl)phenyl)amino)pyrimidin-4-yl)amino)phenyl)dimethyl-,.delta.5-phosphanone
+chembl3545311
+unii-hyw8db273j
+brigatinib [orange book]
+nsc787457
+5-chloro-n4-(2-(dimethylphosphoryl)phenyl)-n2-(2-methoxy-4(4-(4-methylpiperazin-1-yl)piperidin-1-yl)phenyl)pyrimidine-2,4-diamine
+2,4-pyrimidinediamine, 5-chloro-n4-[2-(dimethylphosphinyl)phenyl]-n2-[2-methoxy-4-[4-(4-methyl-1-piperazinyl)-1-piperidinyl]phenyl]-
+en300-6477855
+brigatinib (jan/usan)
+brigatinib [mi]
+brigatinibum
+5-chloro-n4-(2-(dimethylphosphoryl)phenyl)-n2-(2-methoxy-4-(4-(4-methylpiperazin-1-yl)piperidin-1-yl)phenyl)pyrimidine-2,4-diamine
+alunbrig
+ap 26113
+brigatinib [usan]
+q27456393
+(2-((5-chloro-2-((2-methoxy-4-(4-(4-methylpiperazin-1-yl)piperidin-1-yl)phenyl)amino)pyrimidin-4-yl)amino)phenyl)dimethylphosphine oxide
+gtpl7741
+bdbm50185140
+5-chloro-n4-(2-(dimethylphosphoryl)phenyl)-n2-(2-methoxy-4-(4-(4-methylpiperazin-1- yl)piperidin-1-yl)phenyl)pyrimidine-2,4-diamine
+mfcd29472221
+akos030257612
+as-75176
+amy10294
+2,4-pyrimidinediamine, 5-chloro-n4-(2-(dimethylphosphinyl)phenyl)-n2-(2-methoxy-4-(4-(4-methyl-1-piperazinyl)-1-piperidinyl)phenyl)-
+dtxsid501027929
+hy-12857
+ex-a775
+5-chloro-4-n-(2-dimethylphosphorylphenyl)-2-n-[2-methoxy-4-[4-(4-methylpiperazin-1-yl)piperidin-1-yl]phenyl]pyrimidine-2,4-diamine
+ns00073439
+l01xe43
+brigatinib [inn]
+hyw8db273j
+brigatinib [usan:inn]
+brigatinib (ap26113)
+5-chloro-n~4~-[2-(dimethylphosphoryl)phenyl]-n~2~-{2-methoxy-4-[4-(4-methylpiperazin-1-yl)piperidin-1-yl]phenyl}pyrimidine-2,4-diamine
+z2512157852
+bcp17214
+sb40412
+s8229
+1197953-54-0
+ac-29958
+nsc784728
+ripretinibum
+1-(4-bromo-5-(1-ethyl-7-(methylamino)-2-oxo-1,2-dihydro-1,6-naphthyridin-3-yl)-2-fluorophenyl)-3-phenylurea
+schembl14999718
+akos040759418
+ripretinib [who-dd]
+hy-112306
+unii-9xw757o13d
+qinlock (tn)
+ripretinib [inn]
+ms-29471
+gtpl9175
+ripretinib [orange book]
+9xw757o13d
+1442472-39-0
+qinlock
+3-{4-bromo-5-[1-ethyl-7-(methylamino)-2-oxo-1,6-naphthyridin-3-yl]-2-fluorophenyl}-1-phenylurea
+at18473
+n-{4-bromo-5-[1-ethyl-7-(methylamino)-2-oxo-1,2-dihydro-1,6-naphthyridin-3- yl]-2-fluorophenyl}-n'-phenylurea
+ripretinib; urea, n-[4-bromo-5-[1-ethyl-1,2-dihydro-7-(methylamino)-2-oxo-1,6-naphthyridin-3-yl]-2-fluorophenyl]-n'-phenyl-; n-[4-bromo-5-[1-ethyl-1,2-dihydro-7-(methylamino)-2-oxo-1,6-naphthyridin-3-yl]-2-fluorophenyl]-n'-phenylurea; 1-[4-bromo-5-[1-ethyl-7-(methyla
+quinlock
+ripretinib [mi]
+cs-0044835
+db14840
+en300-22895298
+dcc2618
+dtxsid201027956
+1-[4-bromo-5-[1-ethyl-7-(methylamino)-2-oxo-1,6-naphthyridin-3-yl]-2-fluorophenyl]-3-phenylurea
+ex-a4883
+bdbm50609506
+1-n'-(2,5-difluoro-4-(2-(1-methylpyrazol-4-yl)pyridin-4-yl)oxyphenyl)-1-n'-phenylcyclopropane-1,1-dicarboxamide
+s8757
+ripretinib
+1442472-39-0 (free base)
+ac-36722
+kit/pdgfr inhibitor dcc-2618
+3-{4-bromo-5-[1-ethyl-7-(methylamino)-2-oxo-1,2-dihydro-1,6-naphthyridin-3-yl]-2-fluorophenyl}-1-phenylurea
+dcc 2618;dcc2618;kit/pdgfr inhibitor;ripretinib
+bcp29218
+dcc-2618
+ripretinib (dcc-2618)
+d11353
+chembl4216467
+ripretinib free base
+urea, n-(4-bromo-5-(1-ethyl-1,2-dihydro-7-(methylamino)-2-oxo-1,6-naphthyridin-3-yl)-2-fluorophenyl)-n'-phenyl-
+glxc-15506
+urea, n-[4-bromo-5-[1-ethyl-1,2-dihydro-7-(methylamino)-2-oxo-1,6- naphthyridin-3-yl]-2-fluorophenyl]-n'-phenyl-39-0
+ripretinib (usan)
+n-(4-bromo-5-(1-ethyl-7-(methylamino)-2-oxo-1,2-dihydro-1,6-naphthyridin-3-yl)-2-fluorophenyl)-n'-phenylurea
+ripretinib [usan]
+c24h21brfn5o2
+fimepinostat
+bcp06870
+hy-13522
+pi3k/hdac inhibitor centn
+ncgc00346692-01
+cudc-907 (pi3k/hdac inhibitori)
+pi3k/hdac inhibitor
+gtpl8952
+jowxjlifiioyms-uhfffaoysa-n
+mls006010994
+pi3k/hdac inhibitor cudc-907
+smr004702794
+db11891
+mfcd22420823
+sb16569
+n-hydroxy-2-[[2-(6-methoxypyridin-3-yl)-4-morpholin-4-ylthieno[3,2-d]pyrimidin-6-yl]methyl-methylamino]pyrimidine-5-carboxamide
+unii-3s9rx35s5x
+fimepinostat (usan/inn)
+cudc 907
+nsc771751
+j-690133
+n-hydroxy-2-({[2-(6-methoxypyridin-3-yl)-4-(morpholin-4-yl)thieno[3,2-d]pyrimidin-6-yl]methyl}(methyl)amino)pyrimidine-5-carboxamide
+bdbm50188961
+hms3673e03
+chembl3622533
+5-pyrimidinecarboxamide, n-hydroxy-2-[[[2-(6-methoxy-3-pyridinyl)-4-(4-morpholinyl)thieno[3,2-d]pyrimidin-6-yl]methyl]methylamino]-
+d11319
+cudc-907
+n-hydroxy-2-(((2-(6-methoxypyridin-3-yl)-4-morpholinothieno[3,2-d]pyrimidin-6-yl)methyl)(methyl)amino)pyrimidine-5-carboxamide
+fimepinostat [inn]
+schembl1284705
+sw219871-1
+q27076926
+ncgc00346692-11
+ns00072982
+cs-1610
+ncgc00346692-04
+dtxsid90712307
+cudc907
+5-pyrimidinecarboxamide, n-hydroxy-2-(((2-(6-methoxy-3-pyridinyl)-4-(4-morpholinyl)thieno(3,2-d)pyrimidin-6-yl)methyl)methylamino)-
+fimepinostat (cudc-907)
+akos026750340
+fimepinostat [usan]
+ac-30227
+1339928-25-4
+da-34958
+cudc-907 (pi3k/hdac inhibitori)?
+db-057451
+as-57131
+3s9rx35s5x
+n-hydroxy-2-[{[2-(6-methoxypyridin-3-yl)-4-(morpholin-4-yl)thieno[3,2-d]pyrimidin-6-yl]methyl}(methyl)amino]pyrimidine-5-carboxamide
+nsc-771751
+fimepinostat [who-dd]
+hms3656h04
+ccg-269763
+ex-a742
+s2759
+2-benzoxazolamine, 5-(4-amino-1-(1-methylethyl)-1h-pyrazolo(3,4-d)pyrimidin-3-yl)-
+ncgc00346654-10
+d11183
+ccg-265002
+schembl7902875
+us10172858, table 1.22
+jgh0df1u03
+3-(2-amino-5-benzoxazolyl)-1-(1-methylethyl)-1h-pyrazolo[3,4-d]pyrimidin-4-amine
+sapanisertib [inn]
+ns00072976
+ink-128/ink128
+cb-228
+nsc764658
+5-(4-amino-1-isopropyl-1h-pyrazolo[3,4-d]pyrimidin-3-yl)benzo[d]oxazol-2-amine
+nsc780880
+smr004702810
+3-(2-aminobenzo[d]oxazol-5-yl)-1-isopropyl-1h-pyrazolo[3,4-d]pyrimidin-4-amine
+ncgc00346654-01
+cs-0557
+ink-128,cas:1224844-38-5
+j-004811
+q27078072
+5-(4-amino-1-isopropyl-1h-pyrazolo[3,4-d]-pyrimidin-3-yl)benzo[d]oxazol-2-amine
+ac-26848
+chembl3545097
+unii-jgh0df1u03
+mln-0128
+s2811
+1224844-38-5
+ink-128;sapanisertib;mln0128
+chebi:91450
+1h-pyrazolo[3,4-d]pyrimidin-4-amine, 3-(2-amino-5-benzoxazolyl)-1-(1-methylethyl)-
+hms3656h12
+3-(2-amino-1,3-benzoxazol-5-yl)-1-isopropyl-1h-pyrazolo(3,4-d)pyrimidin-4-amine
+nsc768435
+ink-128
+mls006011012
+ink-0128
+sapanisertibum
+fe5
+as-16294
+tak-228
+sapanisertib (usan/inn)
+db11836
+bcp0726000086
+akos025149512
+nsc-764658
+sapanisertib [usan:inn]
+bcp9000789
+bdbm315477
+3-(2-amino-1,3-benzoxazol-5-yl)-1-(propan-2-yl)-1h-pyrazolo[3,4-d]pyrimidin-4-amine
+bs170924
+ink 128
+sapanisertib
+5-(4-azanyl-1-propan-2-yl-pyrazolo[3,4-d]pyrimidin-3-yl)-1,3-benzoxazol-2-amine
+ink128
+ink 128 (mln0128)
+sb16566
+sw220210-1
+sapanisertib [who-dd]
+1h-pyrazolo(3,4-d)pyrimidin-4-amine, 3-(2-amino-5-benzoxazolyl)-1-(1-methylethyl)-
+db-293450
+5-(4-amino-1-propan-2-ylpyrazolo[3,4-d]pyrimidin-3-yl)-1,3-benzoxazol-2-amine
+us10172858, table 1.1
+sapanisertib; ink128
+mln0128
+nsc-780880
+ink 128; mln 0128; sapanisertib
+5-(4-amino-1-isopropyl-pyrazolo[3,4-d]pyrimidin-3-yl)-1,3-benzoxazol-2-amine
+mfcd22124893
+dtxsid401022538
+hms3672c21
+sapanisertib [usan]
+3-(2-amino-1,3-benzoxazol-5-yl)-1-(propan-2-yl)-1h-pyrazolo(3,4-d)pyrimidin-4-amine
+sapanisertib (mln0128)
+nsc-768435
+ex-a951
+gtpl7933
+hy-13328
+chembl3545110
+7-cyclopentyl-n,n-dimethyl-2-{[5-(piperazin-1-yl)pyridin-2-yl]amino}-7h-pyrrolo[2,3-d]pyrimidine-6-carboxamide
+1211441-98-3
+q27088552
+da-35904
+akos025404915
+nsc-794613
+7-cyclopentyl-2-(5-piperazin-1-yl-pyridin-2-ylamino)-7h-pyrrolo[2,3-d]pyrimidine-6-carboxylic acid dimethylamide
+as-10159
+en300-7409093
+ribociclibum
+7-cyclopentyl-n,n-dimethyl-2-((5-(piperazin-1-yl)pyridin-2-yl)amino)-7h-pyrrolo(2,3-d)pyrimidine-6-carboxamide
+7-cyclopentyl-n,n-dimethyl-2-((5-(piperazin-1-yl)pyridin-2-yl)amino)-7h-pyrrolo[2,3-d]pyrimidine-6-carboxamide
+ribociclib (lee011)
+sw220101-1
+nsc778909
+lee-011; lee 011;lee011
+a858033
+rhxhgraepcafml-uhfffaoysa-n
+ribociclib (usan/inn)
+ribociclib [who-dd]
+sb18480
+ns00072964
+lee011
+ribociclib [mi]
+ribociclib
+hms3748m05
+7h-pyrrolo[2,3-d]pyrimidine-6-carboxamide, 7-cyclopentyl-n,n-dimethyl-2-[[5-(1-piperazinyl)-2-pyridinyl]amino]-; 7-cyclopentyl-n,n-dimethyl-2-[[5-(1-piperazinyl)-2-pyridinyl]amino]-7h-pyrrolo[2,3-d]pyrimidine-6-carboxamide; kisqali; lee 011; lee 011a; ribociclib
+s7440
+ex-a304
+example 74 [us8962630]
+gtpl7383
+us8962630, 74
+7h-pyrrolo(2,3-d)pyrimidine-6-carboxamide, 7-cyclopentyl-n,n-dimethyl-2-((5-(1-piperazinyl)-2-pyridinyl)amino)-
+lee-011a
+7-cyclopentyl-n,n-dimethyl-2-(5-(piperazin-1-yl)pyridin-2-ylamino)-7h-pyrrolo[2,3-d]pyrimidine-6-carboxamide
+bcp08804
+lee-011
+7-cyclopentyl-n,n-dimethyl-2-[[5-(1-piperazinyl)-2-pyridinyl]amino]-7h-pyrrolo[2,3-d]pyrimidine-6-carboxamide
+hy-15777
+6zz
+lee011a
+tk8ere8p56
+bdbm148264
+nvp-lee011
+nsc800867
+ribociclib, lee011
+chebi:230905
+hms3673i19
+nsc-800867
+ribociclib [usan:inn]
+example 74 (us8962630)
+6-(1h-indazol-6-yl)-n-[4-(4-morpholinyl)phenyl]-imidazo[1,2-a]pyrazin-8-amine
+hms3653n03
+cs-1750
+akos032949987
+kisqali
+ac-30029
+j-690066
+schembl302310
+ncgc00386317-11
+l01xe42
+dtxsid201021027
+ribociclib (lee011)?
+7-cyclopentyl-2-(5-piperazin-1-yl-pyridin-2-ylamino)-7h-pyrrolo [2,3-d]pyrimidine-6-carboxylic acid dimethylamide
+ribociclib [inn]
+d10883
+ncgc00386317-10
+lee 011
+unii-tk8ere8p56
+db11730
+ribociclib [usan]
+ccg-269070
+mfcd27976795
+amy16792
+nsc-778909
+nsc794613
+7-cyclopentyl-n,n-dimethyl-2-[(5-piperazin-1-ylpyridin-2-yl)amino]pyrrolo[2,3-d]pyrimidine-6-carboxamide
+n,n-bis(beta-chloroethyl)-amino-n',o-propylene-phosphoric acid ester diamide
+q418560
+isophosphamide,(s)
+asta z-4942
+tox21_302775
+ifosfamide (ep impurity)
+tronoxal
+bi166243
+n,n-bis(beta-chloroethyl)-amino-n'-o-propylene-phosphoric acid ester diamide
+2h-1,3,2-oxazaphosphorin-2-amine, n,3-bis(2-chloroethyl)tetrahydro-, 2-oxide
+hms1570h07
+ifosfamide; (rs)-n,3-bis(2-chloroethyl)-1,3,2-oxazaphosphinan-2-amine 2-oxide
+z-4942
+ifosfamide [vandf]
+akos005711213
+ifosfamide [inn]
+ifosfamide, analytical reference material
+3-(2-chloroethyl)-2-[(2-chloroethyl)amino]tetrahydro-2h-1,2-oxazaphosphorine 2-oxide
+isophosphamide [iarc]
+ifosfamide, >=98%
+sw197177-4
+nsc759154
+ab00513932_09
+nsc-759154
+2,3-(n,n(sup 1)-bis(2-chloroethyl)diamido)-1,3,2-oxazaphosphoridinoxyd
+ifosfamide (usp monograph)
+ifosphamide
+ifoxan
+nci60_000233
+ncgc00179435-07
+{3-(2-chloroethyl)-2-[(2-chloroethyl)amino]perhydro-2h-1,3,} 2-oxazaphosphorine oxide
+holoxan
+i0713
+ab00513932-08
+3-(2-chloroethyl)-2-[(2-chloroethyl)amino]-1,3,2$l^{5}-oxazaphosphinan-2-one
+ncgc00256413-01
+tox21_110539_1
+asta z 4942
+hms2090m12
+2,3-(n,n(,)-bis(2-chloroethyl)diamido)-1,3,2-oxazaphosphoridinoxy
+s1302
+ifosfamid a
+naxamide
+nci-co1638
+a823873
+tox21_110539
+bbl028071
+gtpl7201
+1,3,2-oxazaphosphorine, 3-(2-chloroethyl)-2-((2-chloroethyl)amino)tetrahydro-, 2-oxide
+n-(2-chloraethyl)-n'-(2 chloroethyl)-n'-o-propylen-phosphorsaeureester-diamid
+ifosfamida
+3-(2-chloroethyl)-2-((2-chloroethyl)amino)tetrahydro-2h-1,3,2-oxazaphosphorine-2 -oxide
+ifosfamide [ep impurity]
+3-(2-chloroethyl)-2-[(2-chloroethyl)amino]tetrahydro-2h-1,3,2-oxazaphosphorine 2-oxide
+iphosphamide
+n,3-bis(2-chloroethyl)-2-oxo-1,3,2$l;{5}-oxazaphosphinan-2-amine
+n-(2-chloroethyl)-n-(3-(2-chloroethyl)-2-oxido-1,3,2-oxazaphosphinan-2-yl)amine
+hsdb 7023
+3-(2-chloroethyl)-2-[(2-chloroethyl)amino]perhydro-2h-1,2-oxazaphosphorineoxide
+l01aa06
+tox21_201815
+ncgc00179435-02
+bcp06596
+unii-um20qqm95y
+n,3-bis(2-chloroethyl)-2-oxo-1,3,2$l^{5}-oxazaphosphinan-2-amine
+3-(2-chloroethyl)-2-((2-chloroethyl)amino)perhydro-2h-1,3,2-oxazaphosphorine oxide
+wln: t6npotj am2g bo b2g
+ncgc00179435-01
+ifosfamida (inn-spanish)
+ccg-213464
+n,3-bis(2-chloroethyl)tetrahydro-2h-1,3,2-oxazaphosphorin-2-amine 2-oxide
+cas-3778-73-2
+um20qqm95y
+z4942
+ifosfamide (ep monograph)
+2-oxo-n,3-bis-(2-chloroethyl) tetrahydro-2h-1,3,2-oxazaphosphorin-2-amine
+bdbm189358
+ifosfamide [mart.]
+ifosfamide, european pharmacopoeia (ep) reference standard
+ifosfamida [inn-spanish]
+3-(2-chloroethyl)-2-[(2-chloroethyl)amino]-1,3,2lambda5-oxazaphosphinan-2-one
+ab00513932_10
+ifosfamide - bio-x
+{3-(2-chloroethyl)-2-[(2-
+hms2097h07
+pharmakon1600-01505480
+ifosfamide [orange book]
+66849-34-1
+mjf 9325
+ifosfamide [ep monograph]
+n,3-bis(2-chloroethyl)-1,3,2-oxazaphosphinan-2-amine 2-oxide
+ifosfamide (jan/usp/inn)
+seromida
+einecs 223-237-3
+prestwick2_000833
+n-(2-chloroethyl)-n'-(2-chloroethyl)-n',o-propylenephosphoric acid diamide
+sy066721
+ab00513932-07
+hms2232o10
+3-(2-chloroethyl)-2-[(2-chloroethyl)amino]perhydro-2h-1,2-oxazaphosphorine oxide
+ccris 352
+hms3714h07
+dtxsid7020760
+3-(2-chloroethyl)-2-((2-chloroethyl)amino)perhydro-2h-1,3,2-oxazaphosphorineoxide
+ifosfamide [who-dd]
+3-(2-chloroethyl)-2-(2-chloroethylamino)tetrahydro-2h-1,3,2-oxaazaphosphorin 2-oxide
+bspbio_000785
+ab02316
+2,n(sup 1)-bis(2-chloroethyl)diamido-1,3,2-oxazaphosphoridinoxyd
+(2-chloro-ethyl)-[(r)-3-(2-chloro-ethyl)-2-oxo-2lambda5-[1,3,2]oxazaphosphinan-2-yl]-amine
+hy-17419
+sr-05000002022-5
+ifosfamide in bulk
+spbio_002706
+isocyclophosphamide
+ifosfamide [usp-rs]
+ifosfamide [usp monograph]
+mls002154021
+3-(2-chloroethyl)-2-((2-chloroethyl)amino)tetrahydro-2h-1,3,2-oxazaphosphorin-2-oxide
+brn 0611835
+bpbio1_000865
+isophosphamide (iarc)
+cyfos
+db01181
+1,2-oxazaphosphorine, 3-(2-chloroethyl)-2-[(2-chloroethyl)amino]tetrahydro-, 2-oxide
+3-(2-chloroethyl)-2-((2-chloroethyl)amino)tetrahydro-2h-1,3,2-oxazaphosphorine 2-oxide
+sr-05000002022-1
+iso-endoxan
+ncgc00016639-01
+a 4942
+ifosfamidum (inn-latin)
+prestwick1_000833
+ns00000356
+n,3-bis(2-chloroethyl)tetrahydro-2h-1,3,2-oxazaphosphinan-2-amine 2-oxide #
+ifosfamide (usp-rs)
+d00343
+ac-2113
+ifosfamide, british pharmacopoeia (bp) reference standard
+iso endoxan
+ifosfamide [mi]
+holoxan 1000
+nsc-109724
+stl058690
+n-(2-chloraethyl)-n'-(2-chloraethyl)-n',o-propylen-phosphorsaureester-diamid
+isofosfamide
+ifosfamide
+holoxane
+schembl4885
+isophosphamide
+(s)-3-(2-chloroethyl)-2-((2-chloroethyl)amino)-1,3,2-oxazaphosphinane 2-oxide
+3-(2-chloroethyl)-2-[(2-chloroethyl)amino]perhydro-2h-1,3,2-oxazaphosphorineoxide
+(r)-3-(2-chloroethyl)-2-((2-chloroethyl)amino)-1,3,2-oxazaphosphinane 2-oxide
+sr-05000002022-3
+hms3654b15
+ifosfamide [usan]
+nsc109724
+ifosfamidum
+prestwick0_000833
+ifosfamide [jan]
+ncgc00259364-01
+z 4942
+hms2093n07
+hms3374b08
+ifo-cell
+iphosphamid
+n-(2-chloroethyl)-n'-(2-chloroethyl)-n',o-propylenephosphoric acid ester diamide
+smr001233348
+3778-73-2
+ncgc00179435-06
+ifosfamid
+ifomida
+mitoxana
+ifosfamide (mart.)
+prestwick3_000833
+db-049196
+ab00513932
+ifomide
+n,3-bis(2-chloroethyl)-2-oxo-1,3,2lambda5-oxazaphosphinan-2-amine
+en300-7476797
+chebi:5864
+3-(2-chloroethyl)-2-((2-chloroethyl)amino)-1,3,2-oxazaphosphinane 2-oxide
+starbld0001221
+isosfamide
+n-(2-chloraethyl)-n'-(2-chloraethyl)-n',o-propylen-phosphorsaureester-diamid [german]
+ifex
+ifosfamidum [inn-latin]
+ifolem
+n,3-bis(2-chloroethyl)tetrahydro-2h-1,3,2-oxazaphosphorin-2-amine-2-oxide
+cs-1424
+sr-05000002022
+ncgc00179435-03
+brd-a67097164-001-11-2
+n-(2-chloroethyl)-n'-(2-chloroethyl)-n',o-propylene phosphoric acid ester diamide
+sbi-0206804.p001
+2,n(sup 1)-bis(2-chloroethyl)diamido-1,3,2-oxazaphosphoridinoxy-
+ifosfamide [usan:usp:inn:ban:jan]
+mjf-9325
+ifex (tn) (bristol meyers)
+c07047
+dtxcid90760
+2h-1,2-oxazaphosphorine, 3-(2-chloroethyl)-2-[(2-chloroethyl)amino]tetrahydro-, 2-oxide
+chembl1024
+ifosfamide (usan:usp:inn:ban:jan)
+q-101874
+ifsofamide
+nsc 109724
+2h-1,2-oxazaphosphorin-2-amine, n,3-bis(2-chloroethyl)tetrahydro-, 2-oxide
+mfcd00057374
+nci-c01638
+ifex (tn)
+ab00513932-06
+ifosfamide, united states pharmacopeia (usp) reference standard
+i-phosphamide
+as-10978
+ifosfamide sterile
+ifosfamide [hsdb]
+isoendoxan
+2h-1,3,2-oxazaphosphorine, 3-(2-chloroethyl)-2-((2-chloroethyl)amino)tetrahydro-, 2-oxide
+epirubicina (inn-spanish)
+4' epi dxr
+epirubicine [inn-french]
+3z8479zz5x
+q425122
+10-((3-amino-2,3,6-trideoxy-beta-l-arabino-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-(8s-cis)-5,12-naphthacenedione
+l01db03
+4' epiadriamycin
+nsc256942
+ab00698552_16
+pidorubicine [inn-french]
+brd-k04548931-003-16-5
+hsdb 6962
+pidorubicine
+5,12-naphthacenedione, 10-[(3-amino-2,3,6-trideoxy-.alpha.-l-arabino-hexopyranosyl)oxy]-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(2-hydroxyacetyl)-1-methoxy-, (8s,10s)-
+epirubicin (inn)
+(8s,10s)-10-(((2r,4s,5r,6s)-4-amino-5-hydroxy-6-methyltetrahydro-2h-pyran-2-yl)oxy)-6,8,11-trihydroxy-8-(2-hydroxyacetyl)-1-methoxy-7,8,9,10-tetrahydrotetracene-5,12-dione
+(7s,9r)-7-[(2s,4s,5r,6s)-4-amino-5-hydroxy-6-methyl-oxan-2-yl]oxy-6,9,11-trihydroxy-9-(2-hydroxyacetyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione
+ellence
+pidorubicinum [inn-latin]
+(1s,3s)-3,5,12-trihydroxy-3-(hydroxyacetyl)-10-methoxy-6,11-dioxo-1,2,3,4,6,11-hexahydrotetracen-1-yl 3-amino-2,3,6-trideoxy-alpha-l-arabino-hexopyranoside
+5,12-naphthacenedione,10-[(3-amino-2,3,6-trideoxy-a-l-arabino-hexopyranosyl)oxy]-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-, (8s,10s)-
+epirubicinum [inn-latin]
+pidorubicina [inn-spanish]
+56420-45-2
+4'-epiadriamycin
+db00445
+farmorubicin
+schembl8582
+epirubicinum (inn-latin)
+epirubicine (inn-french)
+epirubicina [spanish]
+dm2
+epirubicinum
+epirubicin [mi]
+ab00698552-11
+epi-dx
+(7s,9s)-7-[(2r,4s,5r,6s)-4-azanyl-6-methyl-5-oxidanyl-oxan-2-yl]oxy-4-methoxy-6,9,11-tris(oxidanyl)-9-(2-oxidanylethanoyl)-8,10-dihydro-7h-tetracene-5,12-dione
+(7s,9s)-7-[(2r,4s,5r,6s)-4-amino-5-hydroxy-6-methyl-tetrahydropyran-2-yl]oxy-6,9,11-trihydroxy-9-(2-hydroxyacetyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione
+epirubicine
+pidorubicine (inn-french)
+dtxcid202987
+nsc-256942
+4'-epidoxorubicin
+4'-epi-doxorubicin
+bdbm43839
+epirubicin free base
+4'-epi-dxr
+pidorubicinum (latin)
+5,12-naphthacenedione, 10-((3-amino-2,3,6-trideoxy-beta-l-arabino-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-, (8s-cis)-
+brn 1445813
+pidorubicina (inn-spanish)
+(1s,3s)-3,5,12-trihydroxy-3-(hydroxyacetyl)-10-(methyloxy)-6,11-dioxo-1,2,3,4,6,11-hexahydrotetracen-1-yl 3-amino-2,3,6-trideoxy-alpha-l-arabino-hexopyranoside
+ridorubicin
+4-epidoxorubicin
+epi dx
+5,12-naphthacenedione, 10-((3-amino-2,3,6-trideoxy-.alpha.-l-arabino-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-, (8s-cis)-
+nsc 256942
+imi 28
+ab00698552-14
+epirubicin [who-dd]
+(8s-cis)-10-((3-amino-2,3,6-trideoxy-beta-l-arabino-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-5,12-naphthacenedione
+4' epi doxorubicin
+dm6
+4'-epi dx
+4' epi adriamycin
+epirubicinum (latin)
+(7s,9s)-7-[(2r,4s,5r,6s)-4-amino-5-hydroxy-6-methyloxan-2-yl]oxy-6,9,11-trihydroxy-9-(2-hydroxyacetyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione
+epidoxorubicin
+acid, 8
+unii-3z8479zz5x
+d07901
+epirubicin [inn]
+(1s,3s)-3-glycoloyl-1,2,3,4,6,11-hexahydro-3,5,12-trihydroxy-10-methoxy-6,11-dioxo-1-naphthacenyl 3-amino-2,3,6-trideoxy-.alpha.-l-arabino-hexopyranoside
+ab00698552_15
+pidorubicin
+(1s,3s)-3-glycoloyl-1,2,3,4,6,11-hexahydro-3,5,12-trihydroxy-10-methoxy-6,11-dioxo-1-naphthacenyl 3-amino-2,3,6-trideoxy-alpha-l-arabino-hexopyranoside
+5,12-naphthacenedione, 10-((3-amino-2,3,6-trideoxy-beta-l-arabino-hexopyranosyl)oxy-7,8,9,10-tetrahydro -6,8,(8s-cis)-
+dtxsid0022987
+4' epidoxorubicin
+hy-13624
+sbi-0206890.p001
+pidorubicina
+epirubicin [hsdb]
+56420-45-2 (free base)
+epirubicina [inn-spanish]
+pidorubicinum
+epirubicin [vandf]
+ncgc00263918-08
+ncgc00263918-04
+pidorubicinum (inn-latin)
+3-glycoloyl-1,2,3,4,6,11-hexahydro-3,5,12-trihydroxy-10-methoxy-6,11-dioxo-1-naphthacenyl-3-amino-2,3,6-trideoxy-alpha-l-arabino-hexopyranoside
+epiadriamycin
+a831042
+wp 697
+chembl417
+ns00069619
+epirubicin [inn:ban]
+epirubicin
+ab00698552-13
+farmorubicin (tn)
+5,12-naphthacenedione, 10-((3-amino-2,3,6-trideoxy-alpha-l-arabino-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-, (8s-cis)-
+(8s,10s)-10-{[(2r,4s,5r,6s)-4-amino-5-hydroxy-6-methyloxan-2-yl]oxy}-6,8,11-trihydroxy-8-(2-hydroxyacetyl)-1-methoxy-5,7,8,9,10,12-hexahydrotetracene-5,12-dione
+epirubicine [french]
+ccris 2261
+epirubicinum [latin]
+chebi:47898
+epirubicina
+epi-doxorubicin
+(7s,9s)-7-[[(2r,4s,5r,6s)-4-amino-5-hydroxy-6-methyl-2-oxanyl]oxy]-6,9,11-trihydroxy-9-(2-hydroxy-1-oxoethyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione
+en300-7410311
+hy-100388
+6-(4-amino-4-methylpiperidin-1-yl)-3-(2,3-dichlorophenyl)pyrazin-2-amine
+akos030526670
+sb18819
+shp099 2hcl
+ac-35665
+6-(4-azanyl-4-methyl-piperidin-1-yl)-3-[2,3-bis(chloranyl)phenyl]pyrazin-2-amine
+sy251378
+db-107836
+a901187
+shp099
+6-(4-amino-4-methylpiperidin-1-yl)-3-(2,3-dichlorophenyl)pyrazin-2-amin
+chembl4060033
+6-(4-amino-4-methyl-1-piperidinyl)-3-(2,3-dichlorophenyl)-2-pyrazinamine
+bxc74742
+cs-5684
+bs-16291
+us10093646, compound 1
+nsc804254
+nsc-804254
+shp099 free base?
+q27455906
+mfcd29059453
+shp099 free base
+s6388
+schembl16914284
+shp-099 2hcl
+bcp18366
+ex-a1067
+2-pyrazinamine, 6-(4-amino-4-methyl-1-piperidinyl)-3-(2,3-dichlorophenyl)-
+1801747-42-1
+shp-099
+en300-21637536
+5od
+bdbm38019
+epipodophyllotoxin, 4'-demethyl-, 9-(4,6-o-ethylidene-beta-d-glucopyranoside)
+9-((4,6-o-ethylidine-beta-d-glucopyranosyl)oxy)-5,8,8a,9-tetrahydro-5-(4-hydroxy-3,4-dimethyloxyphenyl)furo(3',4'':6,7)naptho-(2,3-d)-1,3-dioxol-6(5ah)-one
+hsdb 6517
+cpd000112002
+mls001424283
+hy-13629
+brd-k37798499-001-02-5
+etoposide (usp impurity)
+bdbm50127140
+etoposide [usan:usp:inn:ban:jan]
+etoposide impurity c (ep impurity)
+brd-k37798499-001-27-2
+etoposide (ep monograph)
+nsc141540
+etoposido [inn-spanish]
+etoposide [ep impurity]
+einecs 251-509-1
+furo(3',4':6,7)naphtho(2,3-d)-1,3-dioxol-6(5ah)-one-, 9-((4,6-o-ethylidene-.beta.-d-glucopyranosyl)oxy)5,8,8a,9-tetrahydro-5-(4-hydroxy-3,5-dimethoxyphenyl), (5r-(5.alpha.,5a.beta.,8a.alpha.,9.beta.(r*)))-
+4''-demethylepipodophyllotoxin 9-(4,6-o-(r)-ethylidene-beta-d-glucopyranoside)
+evp
+cs-1774
+zuyeyidal
+etoposide (ep impurity)
+vp-16
+9-((4,6-o-ethylidene-beta-d-glucopyranosyl)oxy)-5,8,8a,9-tetrahydro-5-(4-hydroxy-3,5-dimethoxyphenyl)-furo(3',4':6,7)naphtho(2,3-d)-1,3-dioxol-6(5ah)-one, (5r-(5alpha,5abeta,8aalpha,9beta(r*)))-
+4-demethylepipodophyllotoxin beta-d-ethylideneglucoside
+etoposide [mart.]
+sbi-0051910.p002
+(5s,5ar,8ar,9r)-9-(4-hydroxy-3,5-dimethoxyphenyl)-8-oxo-5,5a,6,8,8a,9-hexahydrofuro[3',4':6,7]naphtho[2,3-d][1,3]dioxol-5-yl 4,6-o-[(1r)-ethylidene]-beta-d-glucopyranoside
+(5s,5ar,8ar,9r)-5-[[(2r,4ar,6r,7r,8r,8as)-7,8-dihydroxy-2-methyl-4,4a,6,7,8,8a-hexahydropyrano[3,2-d][1,3]dioxin-6-yl]oxy]-9-(4-hydroxy-3,5-dimethoxy-phenyl)-5a,6,8a,9-tetrahydro-5h-isobenzofuro[5,6-f][1,3]benzodioxol-8-one
+trans-etoposide
+c01576
+sr-01000763196-3
+4'-demethylepipodophyllotoxin 9-(4,6-o-(r)-ethylidene-beta-d-glucopyranoside)
+9-((4,6-o-ethylidine-beta-d-glucopyranosyl)oxy)-5,8,8a,9-tetrahydro-5-(4-hydroxy-3,4-dimethyloxyphenyl)furo(3'',4'''':6,7)naptho-(2,3-d)-1,3-dioxol-6(5ah)-one
+ncgc00255126-01
+(-)-etoposide
+4'-demethylepipodophyllotoxin ethylidene-.beta.-d-glucoside
+tox21_110630
+4'-demethyl-epipodophyllotoxin 9-[4,6-o-(r)-ethylidene-beta-d-glucopyranoside
+bcp9000669
+4'-o-demethyl-1-o-(4,6-o-ethylidene-beta-d-glucopyranosyl)epipodophyllotoxin
+(5r,5ar,8ar,9s)-9-((4,6-o-((1r)-ethane-1,1-diyl)-.alpha.-d-glucopyranosyl)oxy)-5-(4-hydroxy-3,5-dimethoxyphenyl)-5,8,8a,9-tetrahydro(2)benzofuro(5,6-f)(1,3)benzodioxol-6(5ah)-one
+ccg-101165
+ccris 2392
+etoposide [inn]
+prestwick3_000396
+etoposide, united states pharmacopeia (usp) reference standard
+(10r,11r,15r,16s)-16-{[(2r,4ar,6r,7r,8r,8as)-7,8-dihydroxy-2-methyl-hexahydro-2h-pyrano[3,2-d][1,3]dioxin-6-yl]oxy}-10-(4-hydroxy-3,5-dimethoxyphenyl)-4,6,13-trioxatetracyclo[7.7.0.0^{3,7}.0^{11,15}]hexadeca-1(9),2,7-trien-12-one
+bpbio1_000673
+gtpl6815
+etoposide [usp monograph]
+vepesid (tn)
+etoposide [jan]
+etoposide, british pharmacopoeia (bp) reference standard
+epipodophyllotoxin vp-16213
+ncgc00016821-01
+hms3713o13
+4'-demethylepipodophyllotoxin ethylidene-beta-d-glucoside
+mls001074951
+etoposide (mart.)
+nc00415
+etosid
+vp 16
+etoposide [usan]
+mfcd00869325
+mls002222184
+(5r,5ar,8ar,9s)-9-(((4ar,6r,7r,8r,8as)-7,8-dihydroxy-2-methylhexahydropyrano[3,2-d][1,3]dioxin-6-yl)oxy)-5-(4-hydroxy-3,5-dimethoxyphenyl)-5,5a,8a,9-tetrahydrofuro[3',4':6,7]naphtho[2,3-d][1,3]dioxol-6(8h)-one
+etoposide - cas 33419-42-0
+etoposide [vandf]
+ab00438905_19
+etoposide; vp-16
+hms2096o13
+etoposidum [inn-latin]
+etoposide [mi]
+ex-a1207
+sr-01000763196
+etoposido
+bspbio_000611
+tox21_302201
+sintopozid
+ncgc00179504-02
+akos007930275
+etoposide (vp-16)
+q418817
+etoposide (jp17/usp/inn)
+4'-demethylepipodophyllotoxin 9-(4,6-o-ethylidene-beta-d-glucopyranoside)
+etoposide [usp impurity]
+etoposide [iarc]
+(5s,5ar,8ar,9r)-9-(4-hydroxy-3,5-dimethoxyphenyl)-8-oxo-5,5a,6,8,8a,9-hexahydrofuro[3',4':6,7]naphtho[2,3-d][1,3]dioxol -5-yl 4,6-o-[(1r)-ethylidene]-beta-d-glucopyranoside
+(5r,5ar,8ar,9s)-9-[[4,6-o-(1r)-ethylidene-beta-d-glucopyranosyl]oxy]-5,8,8a,9-tetrahydro-5-(4-hydroxy-3,5-dimethoxyphenyl)furo[3',4':6,7]naphtho[2,3-d]-1,3-dioxol-6(5ah)-one
+vepesid
+(5r,5ar,8ar,9s)-9-(((2r,4ar,6r,7r,8r,8as)-7,8-dihydroxy-2-methylhexahydropyrano[3,2-d][1,3]dioxin-6-yl)oxy)-5-(4-hydroxy-3,5-dimethoxyphenyl)-5,5a,8a,9-tetrahydrofuro[3',4':6,7]naphtho[2,3-d][1,3]dioxol-6(8h)-one
+toposar
+etopophos (phosphate salt)
+etoposide (iarc)
+etopol
+cas-33419-42-0
+mls002153463
+epe
+as-35312
+etoposide [ep monograph]
+etoposide [orange book]
+unii-6plq3cp4p3
+epeg
+etoposide [who-ip]
+furo(3',4':6,7)naphtho(2,3-d)-1,3-dioxol-6(5ah)-one, 9-((4,6-o-(1r)-ethylidene-beta-d-glucopyranosyl)oxy)-5,8,8a,9-tetrahydro-5-(4-hydroxy-3,5-dimethoxyphenyl)-, (5r,5ar,8ar,9s)-
+epipodophyllotoxin-beta-d-ethyliden-glucoside, 4'-demethyl-
+etoposide, european pharmacopoeia (ep) reference standard
+hms2232l03
+121471-01-0
+z1304065033
+etoposido (inn-spanish)
+ab00438905-17
+d00125
+etoposide
+(5r,5ar,8ar,9s)-9-(((2r,4ar,6r,7r,8r,8as)-7,8-dihydroxy-2-methylhexahydropyrano[3,2-d][1,3]dioxin-6-yl)oxy)-5-(4-hydroxy-3,5-dimethoxyphenyl)-5,5a,8a,9-tetrahy
+-5-yl 4,6-o-[(1r)-ethylidene]-beta-d-glucopyranoside
+nk 171
+dtxsid5023035
+epipodophyllotoxin, 4'-demethyl-, 4,6-o-ethylidene-beta-d-glucopyranoside
+33419-42-0
+etoposide [usp-rs]
+s1225
+brd-k37798499-001-14-0
+db00773
+furo[3',4':6,7]naphtho[2,3-d]-1,3-dioxol-6(5ah)-one, 9-[[4,6-o-(1r)-ethylidene-.beta.-d-glucopyranosyl]oxy]-5,8,8a,9-tetrahydro-5-(4-hydroxy-3,5-dimethoxyphenyl)-, (5r,5ar,8ar,9s)-
+furo(3',4':6,7)naphtho(2,3-d)-1,3-dioxol-6(5ah)-one-, 9-((4,6-o-ethylidene-beta-d-glucopyranosyl)oxy)5,8,8a,9-tetrahydro-5-(4-hydroxy-3,5-dimethoxyphenyl), (5r-(5alpha,5abeta,8aalpha,9beta(r*)))-
+smr000112002
+etoposide,(s)
+dtxcid601473876
+9-((4,6-o-ethylidine-beta-d-glucopyranosyl)oxy)-5,8,8a,9-tetrahydro-5-(4- hydroxy-3,4-dimethyloxyphenyl)furo (3',4'':6,7) naptho-(2,3-d)-1,3-dioxol-6 (5ah)-one
+ab00438905-18
+eposide
+etoposide (usp-rs)
+etoposide [hsdb]
+brd-k37798499-001-10-8
+vp 16 (pharmaceutical)
+brd-k37798499-001-05-8
+etoposide (vp16)
+schembl4259
+l01cb01
+hms2052n05
+etoposide [who-dd]
+etoposidum [who-ip latin]
+etoposide (usan:usp:inn:ban:jan)
+en300-97099
+(5s,5ar,8ar,9r)-5-[[(2r,4ar,6r,7r,8r,8as)-7,8-dihydroxy-2-methyl-4,4a,6,7,8,8a-hexahydropyrano[3,2-d][1,3]dioxin-6-yl]oxy]-9-(4-hydroxy-3,5-dimethoxyphenyl)-5a,6,8a,9-tetrahydro-5h-[2]benzofuro[6,5-f][1,3]benzodioxol-8-one
+be164434
+nsc 141540
+etoposide, synthetic, >=98%, powder
+demethyl epipodophyllotoxin ethylidine glucoside
+lastet
+vp 16213
+mls002207239
+prestwick 211
+ns00009585
+4'-demethylepipodophyllotoxin 9-(4,6-o-(r)-ethylidene-.beta.-d-glucopyranoside)
+etoposide for system suitability, european pharmacopoeia (ep) reference standard
+demethylepipodophyllotoxin-beta-d-ethylideneglucoside
+etoposide (usp monograph)
+6plq3cp4p3
+ab00438905
+sdccgsbi-0050405.p002
+etoposidum (inn-latin)
+hms2089f14
+nsc-141540
+chembl44657
+mls000049957
+vp-16-213
+(5s,5ar,8ar,9r)-9-(4-hydroxy-3,5-dimethoxyphenyl)-8-oxo-5,5a,6,8,8a,9-hexahydrofuro[3'',4'':6,7]naphtho[2,3-d][1,3]dioxol-5-yl 4,6-o-[(1r)-ethylidene]-beta-d-glucopyranoside
+etoposidum
+chebi:4911
+vepesid j
+vp 16-213
+campto
+nsc-728073
+cs-1138
+(19s)-10,19-diethyl-19-hydroxy-14,18-dioxo-17-oxa-3,13-diazapentacyclo[11.8.0.0^{2,11}.0^{4,9}.0^{15,20}]henicosa-1(21),2(11),3,5,7,9,15(20)-heptaen-7-yl 4-(piperidin-1-yl)piperidine-1-carboxylate
+dtxsid1041051
+irinotecan [inn:ban]
+(diethyl-hydroxy-dioxo-[?]yl) 4-(1-piperidyl)piperidine-1-carboxylate
+irinotecan [mi]
+s1198
+(+)-7-ethyl-10-hydroxycamptothecine 10-(1,4'-bipiperidine)-1'-carboxylate
+(s)-4,11-diethyl-4-hydroxy-3,14-dioxo-3,4,12,14-tetrahydro-1h-pyrano[3',4':6,7]indolizino[1,2-b]quinolin-9-yl [1,4'-bipiperidine]-1'-carboxylate
+hy-16562
+ns00004943
+ncgc00178697-02
+ab00698464_12
+a845740
+dtxcid9021051
+(4s)-4,11-diethyl-4-hydroxy-3,14-dioxo-3,4,12,14-tetrahydro-1h-pyrano[3'',4'':6,7]indolizino[1,2-b]quinolin-9-yl 1,4''-bipiperidine-1''-carboxylate
+ab00698464_14
+brd-k08547377-003-02-4
+2-methoxy-5-[2-(3-sulfophenyl)-5-(4-sulfophenyl)pyrylium-4-yl]benzenesulfonic acid
+(4s)-4,11-diethyl-4-hydroxy-3,14-dioxo-3,4,12,14-tetrahydro-1h-pyrano[3',4':6,7]indolizino[1,2-b]quinolin-9-yl 1,4'-bipiperidine-1'-carboxylate
+as-14323
+(+)-(4s)-4,11-diethyl-4-hydroxy-9-((4-piperidino-piperidino)carbonyloxy)-1h-pyrano(3',4':6,7)indolizino(1,2-b)quinol-3,14,(4h,12h)-dione
+irinotecanum
+(1,4'-bipiperidine)-1'-carboxylic acid (s)-4,11-diethyl-3,4,12,14-tetrahydro-4-hydroxy-3,14-dioxo-1h-pyrano(3',4':6,7)indolizino(1,2-b)quinolin-9-yl ester
+schembl4034
+cpt-11 hydrochloride;camptothecin 11 hydrochloride
+ab00698464-10
+(1,4'-bipiperidine)-1'-carboxylic acid, 4,11-diethyl-3,4,12-14-tetrahydro-4-hydroxy-3,14-dioxo-1h-pyrano(3',4':6,7)indolizino(1,2-b)quinolin-9-yl ester, (s)-
+(19s)-10,19-diethyl-19-hydroxy-14,18-dioxo-17-oxa-3,13-diazapentacyclo[11.8.0.0^{2,11}.0^{4,9}.0^{15,20}]henicosa-1(21),2(11),3,5,7,9,15(20)-heptaen-7-yl [1,4'-bipiperidine]-1'-carboxylate
+(+)-irinotecan
+bspbio_002346
+mfcd00866307
+camptosar
+bcp9000793
+nci60_005051
+irinotecan lactone
+irinotecan [vandf]
+(s)-4,11-diethyl-4-hydroxy-3,14-dioxo-3,4,12,14-tetrahydro-1h-pyrano[3',4':6,7]indolizino[1,2-b]quinolin-9-yl[1,4'-bipiperidine]-1'-carboxylate
+1,4'-bipiperidine-1'-carboxylic acid (s)-4,11-diethyl-3,4,12,14- tetrahydro-4-hydroxy-3,14-dioxo-1h-pyrano[3',4':6,7]indolizino[1,2-b]quinolin-9-yl ester
+(4s)-4,11-diethyl-4-hydroxy-3,14-dioxo-3,4,12,14-tetrahydro-1h-pyrano(3',4':6,7)indolizino(1,2-b)quinolin-9-yl (1,4'-bipiperidine)-1'-carboxylate
+(4s)-4,11-diethyl-4-hydroxy-3,14-dioxo-4,12-dihydro-1h-pyrano[3,4-f]quinolino[2,3-a]indolizin-9-yl 4-piperidylpiperidinecarboxylate
+[1,4'']bipiperidinyl-1''-carboxylic acid (s)-4,11-diethyl-4-hydroxy-3,13-dioxo-3,4,12,13-tetrahydro-1h-2-oxa-6,12a-diaza-dibenzo[b,h]fluoren-9-yl ester
+irinotecanum (inn-latin)
+nsc728073
+ab00698464_13
+irinotecan mylan
+unii-7673326042
+97682-44-5 (free base)
+irinotecan [who-dd]
+chembl481
+irinotecan; cpt-11
+irinotecan
+biotecan (tn)
+bcp02860
+ab00698464-07
+cpt-11
+ac-7469
+1u65
+irrinotecan
+irinotecan [hsdb]
+ab00698464-11
+irinotecan (inn)
+d08086
+irinotecan [inn]
+ncgc00178697-05
+l01xx19
+[(19s)-10,19-diethyl-19-hydroxy-14,18-dioxo-17-oxa-3,13-diazapentacyclo[11.8.0.02,11.04,9.015,20]henicosa-1(21),2,4(9),5,7,10,15(20)-heptaen-7-yl] 4-piperidin-1-ylpiperidine-1-carboxylate
+97682-44-5
+1,4'-bipiperidine-1'-carboxylic acid (s)-4,11-diethyl-3,4,12,14- tetrahydro-4-hydroxy-3,14-dioxo-1h-pyrano(3',4':6,7)indolizino(1,2-b)quinolin-9-yl ester
+(4s)-4,11-diethyl-4-hydroxy-3,14-dioxo-3,4,12,14-tetrahydro-1h-pyrano[3',4':6,7]indolizino[1,2-b]quinolin-9-yl [1,4'-bipiperidine]-1'-carboxylate
+akos015894969
+amy4227
+biotecan
+irinotecanum [inn-latin]
+(1,4'-bipiperidine)-1'-carboxylic acid, (4s)-4,11-diethyl-3,4,12,14-tetrahydro-4-hydroxy-3,14-dioxo-1h-pyrano(3',4':6,7)indolizino(1,2-b)quinolin-9-yl ester
+en300-708800
+nsc 728073
+irinophore c
+bdbm50128267
+gtpl6823
+irinotecan?
+chebi:80630
+q412197
+[1,4'']bipiperidinyl-1''-carboxylic acid 4,11-diethyl-4-hydroxy-3,13-dioxo-3,4,12,13-tetrahydro-1h-2-oxa-6,12a-diaza-dibenzo[b,h]fluoren-9-yl ester
+ab07527
+hsdb 7607
+db00762
+ab00698464-09
+irinotecan free base
+eribulinum
+(1s,3s,6s,9s,12s,14r,16r,18s,20r,21r,22s,26r,29s,31r,32s,35r,36s)-20-((2s)-3-amino-2-hydroxypropyl)-21-methoxy-14-methyl-8,15-bis(methylene)-2,19,30,34,37,39,40,41-octaoxanonacyclo(24.9.2.1(3,32).1(3,33).1(6,9).1(12,16).0(18,22).0(29,36).0(31,35))hentetracontan-24-one
+nsc-707389
+dtxsid101009321
+(2r,3r,3as,7r,8as,9s,10ar,11s,12r,13ar,13bs,15s,18s,21s,24s,26r,28r,29as)-2-[(2s)-3-amino-2-hydroxypropyl]hexacosahydro-3-methoxy-26-methyl-20,27-bis(methylene)-11,15:18,21:24,28-triepoxy-7,9-ethano-12,15-methano-9h,15h-furo[3,2-i]furo[2',3':5,6]pyrano[4,3-b][1,4]dioxacyclopentacosin-5(4h)-one
+hy-13442
+gtpl6813
+eribulin (mart.)
+eribulin free
+253128-41-5
+eribulin [vandf]
+(1s,3s,6s,9s,12s,14r,16r,18s,20r,21r,22s,26r,29s,31r,32s,33r,35r,36s)-20-[(2s)-3-amino-2-hydroxypropyl]-21-methoxy-14-methyl-8,15-dimethylidene-2,19,30,34,37,39,40,41-octaoxanonacyclo[24.9.2.13,32.13,33.16,9.112,16.018,22.029,36.031,35]hentetracontan-24-one
+dtxcid701436148
+glxc-10730
+eribulin [mart.]
+(1s,3s,6s,9s,12s,14r,16r,18s,20r,21r,22s,26r,29s,31r,32s,35r,36s)-20-[(2s)-3-amino-2-hydroxypropyl]-21-methoxy-14-methyl-8,15-bis(methylene)-2,19,30,34,37,39,40,41-octaoxanonacyclo[24.9.2.1(3,32).1(3,33).1(6,9).1(12,16).0(18,22).0(29,36).0(31,35)]hentetracontan-24-one
+chembl1683590
+eribulin
+eribulin [mi]
+2-(3-amino-2-hydroxypropyl)hexacosahydro-3-methoxy-26-methyl-20,27-bis(methylene)11,15-18,21-24,28-triepoxy-7,9-ethano-12,15-methano-9h,15h-furo(3,2-i)furo(2',3'-5,6)pyrano(4,3-b)(1,4)dioxacyclopentacosin-5-(4h)-one
+chebi:63587
+ex-a4873d
+eribuline
+ufnvpogxiszxjd-jbqzkeiosa-n
+l01xx41
+db08871
+11,15:18,21:24,28-triepoxy-7,9-ethano-12,15-methano-9h,15h-furo[3,2-i]furo[2',3':5,6]pyrano[4,3-b][1,4]dioxacyclopentacosin-5(4h)-one, 2-[(2s)-3-amino-2-hydroxypropyl]hexacosahydro-3-methoxy-26-methyl-20,27-bis(methylene)-, (2r,3r,3as,7r,8as,9s,10ar,11s,12r,13ar,13bs,15s,18s,21s,24s,26r,28r,29as)-
+er-086526
+schembl15783821
+lr24g6354g
+b 1939
+unii-lr24g6354g
+ms-31267
+q408717
+eribulin [who-dd]
+(1s,3s,6s,9s,12s,14r,16r,18s,20r,21r,22s,26r,29s,31r,32s,33r,35r,36s)-20-[(2s)-3-amino-2-hydroxypropyl]-21-methoxy-14-methyl-8,15-dimethylidene-2,19,30,34,37,39,40,41-octaoxanonacyclo[24.9.2.13,32.13,33.16,9.112,16.018,22.029,36.031,35]hentetracontan-24-o
+2-[4-[[(2r)-2-aminobutyl]amino]-2-quinazolinyl]-4-chloro-phenol
+akos040740784
+at36513
+ncgc00510497-02
+bp-29357
+e-7389 free base
+er 086526
+eribulina
+(1s,3s,6s,9s,12s,14r,16r,18s,20r,21r,22s,26r,29s,31r,32s,33r,35r,36s)-20-[(2s)-3-amino-2-hydroxypropyl]-21-methoxy-14-methyl-8,15-dimethylidene-2,19,30,34,37,39,40,41-octaoxanonacyclo[24.9.2.1~3,32~.1~3,33~.1~6,9~.1~12,16~.0~18,22~.0~29,36~.0~31,35~]hentetracontan-24-one (non-preferred name)
+e7389-lf
+eribulin [inn]
+verteporfin
+nsc-825827
+nsc800071
+5-pyrimidinecarboxamide, 4-(cyclopropylamino)-2-((4-(4-(ethylsulfonyl)-1-piperazinyl)phenyl)amino)-
+c71670
+prt-2070
+yxb30079
+ac-30243
+prt062070
+cerdulatinib (prt062070)
+prt 062070
+schembl736734
+4-(cyclopropylamino)-2-(4-(4-(ethylsulfonyl)piperazin-1-yl)phenylamino)pyrimidine-5-carboxamide
+cerdulatinib [inn]
+unii-d1lxq45s1o
+bcp10681
+d1lxq45s1o
+bdbm50468574
+akos026750510
+cerdulatinib; prt062070; prt2070
+4-(cyclopropylamino)-2-({4-[4-(ethanesulfonyl)piperazin-1-yl]phenyl}amino)pyrimidine-5-carboxamide
+cerdulatinib
+db15499
+dtxsid001115521
+s3566
+4-(cyclopropylamino)-2-[4-(4-ethylsulfonylpiperazin-1-yl)anilino]pyrimidine-5-carboxamide
+as-56368
+prt-062070
+rvt-502
+nsc825827
+s5i
+da-34986
+cs-3329
+4-(cyclopropylamino)-2-((4-(4-(ethanesulfonyl)piperazin-1-yl)phenyl)amino)pyrimidine-5-carboxamide
+1198300-79-6
+4-(cyclopropylamino)-2-[[4-[4-(ethylsulfonyl)-1-piperazinyl]phenyl]amino]-5-pyrimidinecarboxamide,
+4-(cyclopropylamino)-2-((4-(4-(ethylsulfonyl)piperazin-1-yl)phenyl)amino)pyrimidine-5-carboxamide
+hy-15999
+nsc-800071
+gtpl8957
+ex-a2143
+chembl4116008
+sb16931
+q27075860
+cerdulatinib (prt2070)
+ncgc00386415-04
+prt2070; prt-2070; prt 2070; prt-062070; prt 062070; prt062070
+cerdulatinib [who-dd]
+ncgc00164574-03
+erlotinib [vandf]
+ac-399
+mfcd02089651
+j4t82ndh7e
+hms3713c22
+erlotinibum
+sr-05000001460-2
+183321-74-6 (free base)
+cp-35877401
+gtpl4920
+ab01273955-02
+tox21_112202
+sr-05000001460-6
+kinome_3317
+db00530
+hy-50896
+tox21_112202_1
+rg-1415
+4-quinazolinamine, n-(3-ethynylphenyl)-6,7-bis(2-methoxyethoxy)-
+183321-74-6
+chembl553
+(6,7-bis(2-methoxy-ethoxy)quinazoline-4-yl)-(3-ethynylphenyl)amine
+unii-j4t82ndh7e
+sr-05000001460
+[6,7-bis-(2-methoxy-ethoxy)-quinazolin-4-yl]-(3-ethynyl-phenyl)-amine
+ncgc00164574-01
+nsc-800097
+hms3745m05
+n-(3-ethynylphenyl)-6,7-bis(2-methoxyethoxy)-4-quinazolinamine
+en300-708808
+hms3295a19
+as-35132
+nsc800097
+cp-358774
+erotinib
+bcb03_000783
+sy028059
+be164419
+am20090621
+erlotinib, free base
+erlotinib free base
+ncgc00164574-25
+nchembio866-comp3
+ab01273955-01
+ns00006169
+chebi:114785
+1429636-49-6
+aakjlrggtjkamg-uhfffaoysa-n
+bdbm5446
+(6,7-bis-(2-methoxy-ethoxy)-quinazolin-4-yl)-(3-ethynyl-phenyl)-amine
+sr-05000001460-3
+z2588038919
+osi 744
+hms2089f05
+osi-774
+ro-508231
+dtxcid6026454
+k00241
+erlotinib [ema epar]
+dtxsid8046454
+stk623143
+n-(3-ethynylphenyl)-6,7-bis(2-methoxyethoxy)-4-quinazolinamine monohydrochloride
+4-[(3-ethynylphenyl)amino]-6,7-bis(2-methoxyethoxy)quinazoline
+hms3244m20
+hms3244n19
+cas-183321-74-6
+n-(3-ethynylphenyl)-6,7-bis(2-methoxyethoxy)quinazolin-4-amine
+erlotinib [who-dd]
+l01xe03
+q418369
+ncgc00164574-14
+cid_176870
+ncgc00164574-06
+erlotinib [inn:ban]
+hms3244m19
+cp-358,774
+r-1415
+tarceva
+brd-k70401845-003-04-7
+nsc 718781
+hsdb 8082
+ncgc00164574-05
+schembl8413
+cs-0620
+[6,7-bis(2-methoxy-ethoxy)quinazoline-4-yl]-(3-ethynylphenyl)amine
+sr-05000001460-1
+erlotinib free base?
+cp358774
+ccg-220420
+r 1415
+erlotinib(tarceva)
+akos000282911
+ab01273955-03
+sb16916
+s7786
+erlotinib
+erlotinib [mi]
+(6r,6ar,7r,13s,14s,16r,20r)-6',8,14-trihydroxy-7',9-dimethoxy-4,10,23-trimethyl-19-oxo-3',4',6,7,12,13,14,16-octahydro-2'h,6ah-spiro(7,13-epimino-6,16-(epithiopropanooxymethano)(1,3)dioxolo(7,8)isoquinolino(3,2-b)(3)benzazocine-20,1'-isoquinolin)-5-yl acetate
+ncgc00181159-01
+trabectedin [ema epar]
+(1'r,6r,6ar,7r,13s,14s,16r)-6',8,14-trihydroxy-7',9-dimethoxy-4,10,23-trimethyl-19-oxo-3',4',6,7,12,13,14,16-octahydrospiro(6,16-(epithiopropanooxymethano)-7,13-imino-6ah-1,3-dioxolo(7,8)isoquino(3,2-b)(3)benzazocine-20,1'(2'h)-isoquinolin)-5-yl acetate
+id0yzq2tcp
+trabectedin [usan]
+ccris 8133
+cs-1608
+cas-114899-77-3
+trabectedina
+ecteinascidin-743
+(1'r,6r,6ar,7r,13s,14s,16r)-5-(acetyloxy)-3',4',6,6a,7,13,14,16-octahydro-6',8,14-trihydroxy-7',9-dimethoxy-4,10,23-trimethylspiro[6,16-(epithiopropanoxymethano)-7,13-imino-12h-1,3-dioxolo[7,8]isoquino[3,2-b][3]benzazocine-20,1'(2'h)-isoquinolin]-19-one; ecteinascidin 743; et 743; nsc 648766; yondelis;
+(1r,2r,3r,11s,12s,14r,26r)-5,6',12-trihydroxy-6,7'-dimethoxy-7,21,30-trimethyl-27-oxo-3',4'-dihydro-2'h-17,19,28-trioxa-24-thia-13,30-diazaspiro[heptacyclo[12.9.6.1^{3,11}.0^{2,13}.0^{4,9}.0^{15,23}.0^{16,20}]triacontane-26,1'-isoquinoline]-4(9),5,7,15(23),16(20),21-hexaen-22-yl acetate
+et743
+et-743
+ac-27767
+ms-31361
+tox21_112762
+dtxsid2046880
+gtpl2774
+ecteinascidine 743
+spiro(6,16-(epithiopropanoxymethano)-7,13-imino-12h-1,3-dioxolo(7,8)isoquino(3,2,-b)(3)benzazocine-20,1'(2'h)-isoquinolin)-19-one, 3',4',6,6a,7,13,14,16-octahydro-5-(acetyloxy)-6',8,14-trihydroxy-7',9-dimethoxy-4,10,23-trimethyl-, (6r-(6-alpha,6a-beta,7-beta,13-beta,14-beta,16-alpha,20r*))-
+ecteinascidin
+hy-50936
+nsc648766
+[(1r,2r,3r,11s,12s,14r,26r)-5,6',12-trihydroxy-6,7'-dimethoxy-7,21,30-trimethyl-27-oxospiro[17,19,28-trioxa-24-thia-13,30-diazaheptacyclo[12.9.6.13,11.02,13.04,9.015,23.016,20]triaconta-4(9),5,7,15,20,22-hexaene-26,1'-3,4-dihydro-2h-isoquinoline]-22-yl] acetate
+nsc-684766
+q2637746
+trabectedinum
+114899-77-3
+pkvrcirhqmsyjx-aifwhqitsa-n
+trabectedin
+ecteinascidins trabectedin
+(6r,6ar,7r,13s,14s,16r,20r)-6',8,14-trihydroxy-7',9-dimethoxy-4,10,23-trimethyl-19-oxo-3',4',6,7,12,13,14,16-octahydro-2'h,6ah-spiro[7,13-epimino-6,16-(epithiopropanooxymethano)[1,3]dioxolo[7,8]isoquinolino[3,2-b][3]benzazocine-20,1'-isoquinolin]-5-yl acetate
+chebi:84050
+nsc813783
+trabectedin [inn]
+en300-19768451
+f81329
+trabectedine
+nsc 684766
+trabectedin [jan]
+et 743
+trabectedin [usan:inn:ban]
+nsc-813783
+schembl12119916
+trabectedin (mart.)
+nsc-648766
+ect 743
+unii-id0yzq2tcp
+ex-a4317
+ncgc00181159-02
+dtxcid0026880
+trabectedin [who-dd]
+chembl450449
+ecteinascidins trabectedin [mi]
+yondelis
+(1'r,6r,6ar,7r,13s,14s,16r)-6',8,14-trihydroxy-7',9-dimethoxy-4,10,23-trimethyl-19-oxo-3',4',6a,7,12,13,14,16-octahydro-2'h,6h-spiro(6,16-(epithiopropanooxymethano)-7,13-epiminobenzo(4,5)azocino(1,2-b)(1,3)dioxolo(4,5-h)isoquinolin-20,1'-isoquinolin)-5-yl acetate
+akos025401985
+tox21_113236
+trabectedin [mart.]
+trabectedin [orange book]
+db05109
+spiro(6,16-(epithiopropanoxymethano)-7,13-imino-12h-1,3-dioxolo(7,8)isoquino(3,2,-b)(3)benzazocine-20,1'(2'h)-isoquinolin)-19-one, 5-(acetyloxy)-3',4',6,6a,7,13,14,16-octahydro-6',8,14-trihydroxy-7',9-dimethoxy-4,10,23-trimethyl-, (1'r,6r,6ar,7r,13s,14s,16r)-
+ecteinascidin 743;et-743
+ecteinascidin 743
+nsc 648766
+l01cx01
+(1s,3s)-3-glycoloyl-1,2,3,4,6,11-hexahydro-3,5,12-trihydroxy-10-methoxy-6,11-dioxo-1-naphthacenyl-(3-amino-2,3,6-tridesoxy-alpha-l-lyxo-hexopyranosid)
+doxorubicin (usan/inn)
+bpbio1_000502
+bspbio_001031
+doxorubicinum
+doxorubicina (inn-spanish)
+dtxcid301480
+(8s-cis)-10-[(3-amino-2,3,6-trideoxy-.alpha.-l-lyxo-hexopyranosyl]-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-5,12-naphthacenedione
+ncgc00024415-38
+doxorubicin (mart.)
+c01661
+chembl53463
+doxorubicin [who-dd]
+unii-80168379ag
+nsc-123127
+doxorubicine (inn-french)
+conjugate of doxorubicin with humanized monoclonal antibody ll1 against cd74
+d03899
+adr
+en300-120698
+bp-23114
+(8s,10s)-10-((2r,4s,5s,6s)-4-amino-5-hydroxy-6-methyltetrahydro-2h-pyran-2-yloxy)-6,8,11-trihydroxy-8-(2-hydroxyacetyl)-1-methoxy-7,8,9,10-tetrahydrotetracene-5,12-dione
+23214-92-8
+1,2,3,4,6,11-hexahydro-4beta,5,12-trihydroxy-4-(hydroxyacetyl)-10-methoxy-6,11-dioxonaphthacen-1beta-yl-3-amino-2,3,6-trideoxy-alpha-l-lyxohexopyranoside
+chebi:28748
+(7s,9s)-7-[(2r,4s,5s,6s)-4-amino-5-hydroxy-6-methyloxan-2-yl]oxy-6,9,11-trihydroxy-9-(2-hydroxyacetyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione
+dtxsid8021480
+adriablastin
+(8s-cis)-10-
+hydroxyl daunorubicin
+smp1_000106
+doxorubicin-hll1 conjugate
+adriamycin
+(8s,10s)-10-((3-amino-2,3,6-trideoxy-.alpha.-l-lyxo-hexopyranosyl)oxy)-8-glycoloyl-7,8,9,10-tetrahydro-6,8,11-trihydroxy-1-methoxy-5,12-naphthacenedione
+prestwick3_000438
+spbio_002395
+mls000028393
+10-((3-amino-2,3,6-trideoxy-d-lyxohexopyranosyl)oxy)-8-glycolcyl-7,8,9,10-tetrahydro-6,8,11-trihydroxy-1-methoxy-5,12-naphthacenedione
+5,12-naphthacenedione, 10-((3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-, (8s-cis)-
+(8s,10s)-10
+doxorubicin [usan:inn:ban]
+hydroxydaunomycin
+h11954
+(7s,9r)-7-[(2s,4s,5s,6s)-4-amino-5-hydroxy-6-methyl-oxan-2-yl]oxy-6,9,11-trihydroxy-9-(2-hydroxyacetyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione
+14-hydroxydaunorubicine
+5,12-naphthacenedione, 10-((3-amino-2,3,6-trideoxy-.alpha.-l-lyxo-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-, (8s-cis)-
+akos015951330
+nsc-759155
+hsdb 3070
+nci-c01514
+caelyx (liposomal doxorubicin)
+valrubicin impurity, doxorubicin (usp impurity)
+(8s,10s)-10-
+1392315-46-6
+80168379ag
+doxorubicin [mi]
+prestwick0_000438
+lmpk13050001
+nsc 123127
+doxil
+adm
+doxorubicin-hll1
+doxorubicin [inn]
+5,12-naphthacenedione, 10-((3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranosyl)oxy)-7,8,9,10-tetrahydro- 6,8,11-trihydroxy-1-methoxy-5,12-naphthacenedione
+doxorubicin [hsdb]
+(7s,9s)-7-[(2r,4s,5s,6s)-4-amino-5-hydroxy-6-methyl-tetrahydropyran-2-yl]oxy-6,9,11-trihydroxy-9-(2-hydroxyacetyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione
+hydroxydaunorubicin
+bspbio_000456
+(1s,3s)-3-glycoloyl-3,5,12-trihydroxy-10-methoxy-6,11-dioxo-1,2,3,4,6,11-hexahydrotetracen-1-yl 3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranoside
+(7s,9s)-7-[(4s,5s,6s)-4-amino-5-hydroxy-6-methyloxan-2-yl]oxy-6,9,11-trihydroxy-9-(2-hydroxyacetyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione
+hydroxyldaunorubicin
+brd-k92093830-003-25-8
+cid_443939
+einecs 245-495-6
+5,12-naphthacenedione, 10-((3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-, (8s,10s)-
+ncgc00024415-42
+doxorubicina
+(1s,3s)-3,5,12-trihydroxy-3-(hydroxyacetyl)-10-methoxy-6,11-dioxo-1,2,3,4,6,11-hexahydrotetracen-1-yl 3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranoside
+doxorubicin [mart.]
+schembl3243
+epirubicin hydrochloride impurity, doxorubicin- [usp impurity]
+(7s,9s)-7-[(2r,4s,5s,6s)-4-azanyl-6-methyl-5-oxidanyl-oxan-2-yl]oxy-4-methoxy-6,9,11-tris(oxidanyl)-9-(2-oxidanylethanoyl)-8,10-dihydro-7h-tetracene-5,12-dione;hydrochloride
+1,2,3,4,6,11-hexahydro-4beta,5,12-trihydroxy-4-(hydroxyacetyl)-10-methoxy-6, 11-dioxonaphthacen-1beta-yl-3-amino-2,3,6-trideoxy-alpha-l-lyxohexopyranoside
+(8s-cis)-10-((3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroxyacetyl)-1-methoxy-5,12-naphthacenedione
+(7s,9s)-7-[(2r,4s,5s,6s)-4-amino-5-hydroxy-6-methyl-tetrahydropyran-2-yl]oxy-9-glycoloyl-6,9,11-trihydroxy-4-methoxy-8,10-dihydro-7h-tetracene-5,12-quinone;hydrochloride
+5,12-naphthacenedione, 10-[(3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranosyl)oxy]-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(2-hydroxyacetyl)-1-methoxy-, (8s,10s)-
+doxorubicina [inn-spanish]
+doxorubicinum [inn-latin]
+hms2089h06
+bdbm22984
+doxorubicine
+gtpl7069
+db00997
+ncgc00024415-61
+ns00002473
+doxorubicin
+probes1_000151
+valrubicin impurity, doxorubicin [usp impurity]
+probes2_000129
+doxorubicin [vandf]
+ncgc00024415-40
+a816625
+nsc123127
+adriamycin semiquinone
+(8s,10s)-10-{[(2r,4s,5s,6s)-4-amino-5-hydroxy-6-methyloxan-2-yl]oxy}-6,8,11-trihydroxy-8-(2-hydroxyacetyl)-1-methoxy-5,7,8,9,10,12-hexahydrotetracene-5,12-dione
+(8s-cis)-10-((3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranosyl)oxy)-7,8,9,10-tetrahydro-6,8,11-trihydroxy-8-(hydroacetyl)-1-methoxy-5,12-naphthacenedione
+l01db01
+bdbm32022
+prestwick2_000438
+ncgc00024415-37
+(7s,9s)-7-[[(2r,4s,5s,6s)-4-amino-5-hydroxy-6-methyl-2-oxanyl]oxy]-6,9,11-trihydroxy-9-(2-hydroxy-1-oxoethyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione;hydrochloride
+epirubicin hydrochloride impurity c [ep impurity]
+ndc 38242-874
+doxorubicin [usan]
+(7s,9s)-7-[(2r,4s,5s,6s)-4-amino-5-hydroxy-6-methyloxan-2-yl]oxy-6,9,11-trihydroxy-9-(2-hydroxyacetyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione;hydrochloride
+ccris 739
+brd-k92093830-003-04-3
+14-hydroxydaunomycin
+doxorubicin-p4/d10 conjugate
+valrubicin impurity, doxorubicin
+q18936
+ncgc00024415-35
+hy-15142a
+fi 106
+(8s,10s)-10-(((2r,4s,5s,6s)-4-amino-5-hydroxy-6-methyltetrahydro-2h-pyran-2-yl)oxy)-6,8,11-trihydroxy-8-(2-hydroxyacetyl)-1-methoxy-7,8,9,10-tetrahydrotetracene-5,12-dione;(7s,9s)-7-[(4s,5s,6s)-4-amino-5-hydroxy-6-methyl-tetrahydropyran-2-yl]oxy-6,9,11-trihydroxy-9-(2-hydroxyacetyl)-4-methoxy-8,10-dihydro-7h-tetracene-5,12-dione
+thermodox
+(8s,10s)-10-(((2r,4s,5s,6s)-4-amino-5-hydroxy-6-methyltetrahydro-2h-pyran-2-yl)oxy)-6,8,11-trihydroxy-8-(2-hydroxyacetyl)-1-methoxy-7,8,9,10-tetrahydrotetracene-5,12-dione
+gr-319
+doxorubicine [inn-french]
+(8s,10s)-10-((3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranosyl)oxy)-8-glycoloyl-7,8,9,10-tetrahydro-6,8,11-trihydroxy-1-methoxy-5,12-naphthacenedione
+adriblastina
+prestwick1_000438
+conjugate of doxorubicin with monoclonal antibody p4/d10 against gp120
+ncgc00024415-41
+doxorubicinum (inn-latin)
+epirubicin hydrochloride impurity, doxorubicin-
+daunorubicin hydrochloride impurity d [ep impurity]
+doxorrubicina
+doxorubicin-p4/d10
+(1s,3s)-3,5,12-trihydroxy-3-(hydroxyacetyl)-10-(methyloxy)-6,11-dioxo-1,2,3,4,6,11-hexahydrotetracen-1-yl 3-amino-2,3,6-trideoxy-alpha-l-lyxo-hexopyranoside
+adriblastina (tn)
