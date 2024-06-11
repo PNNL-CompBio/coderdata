@@ -20,6 +20,7 @@ def smiles_to_fingerprint(smiles):
     ##get morgan fingerprint
     print('Computing morgan fingerprints for '+str(len(smiles))+' SMILES')
     for s in smiles:
+        print(s)
         mol = Chem.MolFromSmiles(s)
         fingerprint = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=1024)  # update these parameters
         fingerprint_array = np.array(fingerprint)
@@ -33,7 +34,10 @@ def smiles_to_mordred(smiles):
     '''
     get descriptors - which ones?
     '''
+    print('Computing mordred descriptors for '+str(len(smiles))+' SMILES')
+
     mols = [Chem.MolFromSmiles(s) for s in smiles]
+
     calc = Calculator(descriptors, ignore_3D=True)
     dd = calc.pandas( mols, nmols=None, quiet=False, ipynb=False )
     values = dd.columns
@@ -53,7 +57,7 @@ def main():
     print('Adding drug table for '+args.drugtable)
     tab = pd.read_csv(args.drugtable,sep='\t')
 
-    cansmiles = list(set(tab.canSMILES))
+    cansmiles = [a for a in set(tab.canSMILES) if str(a)!='nan']
     #    isosmiles = list(set(tab.isoSMILES))
     morgs = smiles_to_fingerprint(cansmiles)
 
