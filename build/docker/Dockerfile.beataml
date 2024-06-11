@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 
 COPY build/beatAML/GetBeatAML.py . 
 COPY build/utils/fit_curve.py .
-COPY build/utils/built_drug_desc.py .
+COPY build/utils/build_drug_desc.py .
 COPY build/beatAML/*sh ./
 COPY build/beatAML/requirements.txt .
 
