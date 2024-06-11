@@ -33,7 +33,15 @@ def smiles_to_mordred(smiles):
     '''
     get descriptors - which ones?
     '''
-    
+    mols = [Chem.MolFromSmiles(s) for s in smiles]
+    calc = Calculator(descriptors, ignore_3D=True)
+    dd = calc.pandas( mols, nmols=None, quiet=False, ipynb=False )
+    values = dd.columns
+    dd['smile'] = smiles
+    ##reformat here
+    longtab = pd.melt(dd,id_vars='smile',value_vars=values)
+    longtab = longtab.rename({'variable':'structural_descriptor','value':'descriptor_value'},axis=1)
+    return longtab
 
 def main():
     parser = argparse.ArgumentParser('Build drug descriptor table')
@@ -50,9 +58,14 @@ def main():
     morgs = smiles_to_fingerprint(cansmiles)
 
     ids = pd.DataFrame(tab[['improve_drug_id','canSMILES']]).drop_duplicates()
-    ids = ids.rename({"canSMILES":'smile'},axis=1).merge(morgs)[['improve_drug_id','structural_descriptor','descriptor_value']]
+    id_morg = ids.rename({"canSMILES":'smile'},axis=1).merge(morgs)[['improve_drug_id','structural_descriptor','descriptor_value']]
 
-    ids.to_csv(args.outtable,sep='\t',index=False)
+    mords = smiles_to_mordred(cansmiles)
+    
+    id_mord = ids.rename({'canSMILES':'smile'},axis=1).merge(mords)[['improve_drug_id','structural_descriptor','descriptor_value']]
+    
+    full = pd.concat([id_morg,id_mord],axis=0)                     
+    full.to_csv(args.outtable,sep='\t',index=False,compression='gzip')
 
 if __name__=='__main__':
     main()
