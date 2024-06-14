@@ -6,7 +6,20 @@ broke the Docker image into two to reduce overall size and complexity
 of each image. 
 
 
-### Build gene, sample, and omics data
+### Build gene table
+First we need to build the gene table
+
+1. Build genes docker
+```
+   docker build -f build/docker/Dockerfile.genes -t genes . --build-arg HTTPS_PROXY=$HTTPS_PROXY 
+```
+
+2. Build gene file
+```
+	docker run -v $PWD:/tmp genes sh build_genes.sh
+```
+
+### Build sample, and omics data
 Below are the steps required to build and test the gene/sample/omics
 builds. Commands are designed to be run from the root of the repo. 
 
@@ -14,16 +27,11 @@ builds. Commands are designed to be run from the root of the repo.
 ```
    docker build -f build/docker/Dockerfile.broad_sanger_omics -t broad_sanger_omics . --build-arg HTTPS_PROXY=$HTTPS_PROXY 
 ```
-2. Build gene file
-```
-	docker run -v $PWD:/tmp broad_sanger_omics sh build_genes.sh
-```
-
-3. Build sample file
+2. Build sample file
 ```
   docker run -v $PWD:/tmp broad_sanger_omics sh build_samples.sh
 ```
-4. Build omics files
+3. Build omics files
 ```
   docker run -v $PWD:/tmp broad_sanger_omics sh build_omics.sh
 ```
