@@ -55,12 +55,13 @@ compilation.
 
 
 ### BeatAML Dataset structure
-The build commands above create the following files
+The build commands above create the following files in the local directory
 
 ```
-├── beataml_samples.csv
-├── beataml_transcriptomics.csv
-├── beataml_mutations.csv
+├── beataml_samples.csv.gz
+├── beataml_transcriptomics.csv.gz
+├── beataml_mutations.csv.gz
+├── beataml_proteomics.csv.gg
 ├── beataml_drugs.tsv.gz
 ├── beataml_drug_descriptors.tsv.gz
 ├── beataml_experiments.tsv.gz
