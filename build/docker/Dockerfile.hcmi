@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 COPY build/hcmi/01-createHCMISamplesFile.py .
 COPY build/hcmi/02-getHCMIData.py .
 COPY build/hcmi/full_manifest.txt .
-COPY build/hcmi/requirements.txt
+COPY build/hcmi/requirements.txt .
 COPY build/hcmi/*sh ./
 COPY build/hcmi/hcmi_cancer_types.csv ./
 
