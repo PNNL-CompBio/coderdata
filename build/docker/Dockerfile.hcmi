@@ -11,7 +11,3 @@ COPY build/hcmi/hcmi_cancer_types.csv ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# CMD python 01-createHCMISamplesFile.py && \
-#     python 02-getHCMIData.py -m full_manifest.txt -t transcriptomics -o hcmi_transcriptomics.csv && \
-#     python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t copy_number -o hcmi_copy_number.csv && \
-#     python 02-getHCMIData.py -m full_manifest.txt -M full_manifest_files -t mutations -o hcmi_mutations.csv
