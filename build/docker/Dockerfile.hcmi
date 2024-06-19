@@ -9,8 +9,6 @@ COPY build/hcmi/requirements.txt .
 COPY build/hcmi/*sh ./
 COPY build/hcmi/hcmi_cancer_types.csv ./
 
-
-COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # CMD python 01-createHCMISamplesFile.py && \
