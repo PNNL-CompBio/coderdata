@@ -239,9 +239,9 @@ def main():
             gene_thread = executor.submit(process_genes,executor)
         
         # Wait for both processes to complete before proceeding to omics and experiments
-        if args.drugs or args.all or args.exp:
+        if args.drugs or args.all:
             drug_thread.result()
-        if args.samples or args.all or args.omics or args.exp:##need to wait for samples for all of these
+        if args.samples or args.all:##need to wait for samples for all of these
             sample_thread.result()
         if args.samples or args.omics or args.exp or args.all:
             gene_thread.result()
