@@ -15,7 +15,8 @@ if(length(args)!=2){
 orig_samples<-fread(args[1])
 
 synapser::synLogin(authToken=args[2])
-manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()
+manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
+                                                             as.data.frame()
 
 
 ###sample file has a strict schema
