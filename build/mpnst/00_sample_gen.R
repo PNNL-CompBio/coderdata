@@ -36,7 +36,7 @@ tumorTable<-manifest|>
 
 ##then create samples for the PDX
 sampTable<-manifest|>
-    dplyr::select(c(common_name='Sample',MicroTissueDrugFolder))|>
+    dplyr::select(common_name='Sample',MicroTissueDrugFolder)|>
     dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='patient derived xenograft')|>
     tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
