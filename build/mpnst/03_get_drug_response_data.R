@@ -31,6 +31,7 @@ org_samps<-subset(samples_df,model_type=='organoid')
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
+                                                             as.data.frame()|>
                                                              dplyr::rename(common_name='Sample')
 
 
@@ -68,6 +69,7 @@ extract_date_hour <- function(experiment_id) {
 ##first function to get children from parentId
 getDrugDataByParent<-function(parid,sampleId){
     qtab<-synTableQuery(paste('select id,name,experimentalCondition,parentId from syn21993642 where parentId=\'',parid,'\''))$asDataFrame()|>
+                                                                                                                            as.data.frame()|>
         subset(!is.na(experimentalCondition))|>dplyr::select(id,name,experimentalCondition)
     ##now we need to parse the metadatda table get the info
 

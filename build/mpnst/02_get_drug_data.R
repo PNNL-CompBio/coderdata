@@ -27,6 +27,7 @@ synLogin(authToken = PAT)
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
+                                                             as.data.frame()|>
                                                              dplyr::rename(common_name='Sample')
 
 
