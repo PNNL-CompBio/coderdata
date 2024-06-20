@@ -20,9 +20,13 @@ def smiles_to_fingerprint(smiles):
     ##get morgan fingerprint
     print('Computing morgan fingerprints for '+str(len(smiles))+' SMILES')
     for s in smiles:
-        print(s)
+       # print(s)
         mol = Chem.MolFromSmiles(s)
-        fingerprint = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=1024)  # update these parameters
+        try:
+            fingerprint = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=1024)  # update these parameters
+        except Error:
+            print('Cannot compute fingerprint for '+s)
+            continue
         fingerprint_array = np.array(fingerprint)
         fstr = ''.join([str(a) for a in fingerprint_array])
         fdict.append({'smile':s,'descriptor_value':fstr,'structural_descriptor':'morgan fingerprint'})
