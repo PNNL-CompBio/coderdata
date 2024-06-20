@@ -91,22 +91,23 @@ def main():
         dflist = []  
             
         # WE NEED A METHOD TO CONFIRM THAT DRUG FILES ARE NOT INCOMPLETE
-            
+        ##THIS IS BUILT IN- always rerun drug code to check
         # Check for existing files and update dflist with processed files
         for da in datasets:
             if da not in ['cptac', 'hcmi']: 
                 file_path = f'local/{da}_drugs.tsv'
-                if os.path.exists(file_path):
-                    dflist.append(f'/tmp/{da}_drugs.tsv')  # Add to dflist if already processed
+                desc_path = f'local/{da}_drug_descriptor.tsv.gz'
+                #if os.path.exists(file_path): ##always rerun drug process
+                #    dflist.append(f'/tmp/{da}_drugs.tsv')  # Add to dflist if already processed
 
         for da in datasets:
             if da not in ['cptac', 'hcmi']:
                 di = 'broad_sanger_exp' if da == 'broad_sanger' else da
-                if not os.path.exists(f'local/{da}_drugs.tsv'):
-                    if last_drug_future:
-                        last_drug_future.result()  # Ensure the last drug process is completed before starting the next
-                    last_drug_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_drugs.sh', ','.join(dflist)], f'{da} drugs')
-                    dflist.append(f'/tmp/{da}_drugs.tsv')
+                #if not os.path.exists(f'local/{da}_drugs.tsv'):
+                if last_drug_future:
+                    last_drug_future.result()  # Ensure the last drug process is completed before starting the next
+                last_drug_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_drugs.sh', ','.join(dflist)], f'{da} drugs')
+                dflist.append(f'/tmp/{da}_drugs.tsv')
     
     def process_samples(executor, datasets):
         '''
