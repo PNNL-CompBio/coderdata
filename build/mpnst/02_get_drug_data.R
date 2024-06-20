@@ -1,7 +1,6 @@
 # Load required libraries
 library(data.table)
 # library(biomaRt)# biomart issues still exist
-library(synapser)
 library(dplyr)
 library(stringr)
 library(reticulate)
@@ -22,6 +21,7 @@ PAT <- args[1]
 olddrugfiles <- args[2]
 newdrugfile <- args[3]
 # Log in to Synapse
+library(synapser)
 synLogin(authToken = PAT)
 
 
