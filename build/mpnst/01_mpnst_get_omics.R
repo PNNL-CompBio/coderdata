@@ -37,7 +37,7 @@ tumor_samps<-subset(samples_df,model_type=='tumor')
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
-                                                             as.data.frame()
+                                                             as.data.frame()|>
                                                              dplyr::rename(common_name='Sample')
 
 
