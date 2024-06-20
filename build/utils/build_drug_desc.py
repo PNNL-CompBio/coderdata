@@ -24,7 +24,7 @@ def smiles_to_fingerprint(smiles):
         mol = Chem.MolFromSmiles(s)
         try:
             fingerprint = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=1024)  # update these parameters
-        except OSError:
+        except:
             print('Cannot compute fingerprint for '+s)
             continue
         fingerprint_array = np.array(fingerprint)
