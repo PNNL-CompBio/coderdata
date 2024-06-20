@@ -1,7 +1,7 @@
 pyarrow
 pandas
 matplotlib
-numpy==1.26.0
+numpy==1.26.4
 argparse
 tqdm
 scikit-learn
