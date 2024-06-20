@@ -1,6 +1,6 @@
 pandas
 matplotlib
-numpy
+numpy==1.26.0
 argparse
 tqdm
 scikit-learn
