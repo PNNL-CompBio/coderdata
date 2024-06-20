@@ -12,9 +12,8 @@ WORKDIR /app
 
 ADD build/mpnst/requirements.txt .
 ADD build/mpnst/requirements.r .
-ADD build/mpnst/*.R ./
+ADD build/mpnst/* ./
 ADD build/utils/* ./
-ADD build/mpnst/*sh ./
 
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
