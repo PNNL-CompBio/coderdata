@@ -40,12 +40,20 @@ def smiles_to_mordred(smiles):
     '''
     print('Computing mordred descriptors for '+str(len(smiles))+' SMILES')
 
+    
     mols = [Chem.MolFromSmiles(s) for s in smiles]
+    smols = []
+    ssmil = []
+    for i in range(len(mols)):
+        m = moles[i]
+        if m is not None:
+            smols.append(m)
+            ssmil.append(smiles[i])
 
     calc = Calculator(descriptors, ignore_3D=True)
-    dd = calc.pandas( mols, nmols=None, quiet=False, ipynb=False )
+    dd = calc.pandas( smols, nmols=None, quiet=False, ipynb=False )
     values = dd.columns
-    dd['smile'] = smiles
+    dd['smile'] = ssmil
     ##reformat here
     longtab = pd.melt(dd,id_vars='smile',value_vars=values)
     longtab = longtab.rename({'variable':'structural_descriptor','value':'descriptor_value'},axis=1)
