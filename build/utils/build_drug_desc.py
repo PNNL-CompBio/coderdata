@@ -11,6 +11,8 @@ from rdkit.Chem import AllChem
 import pandas as pd
 import numpy as np
 from mordred import Calculator, descriptors
+import multiprocessing
+
 
 def smiles_to_fingerprint(smiles):
     '''
@@ -34,7 +36,7 @@ def smiles_to_fingerprint(smiles):
     return pd.DataFrame(fdict)#fingerprint_array
 
 
-def smiles_to_mordred(smiles):
+def smiles_to_mordred(smiles,nproc=2):
     '''
     get descriptors - which ones?
     '''
@@ -45,13 +47,13 @@ def smiles_to_mordred(smiles):
     smols = []
     ssmil = []
     for i in range(len(mols)):
-        m = moles[i]
+        m = mols[i]
         if m is not None:
             smols.append(m)
             ssmil.append(smiles[i])
 
     calc = Calculator(descriptors, ignore_3D=True)
-    dd = calc.pandas( smols, nmols=None, quiet=False, ipynb=False )
+    dd = calc.pandas( smols, nproc=nproc, mols=None, quiet=False, ipynb=False )
     values = dd.columns
     dd['smile'] = ssmil
     ##reformat here
@@ -66,6 +68,9 @@ def main():
 
     args  = parser.parse_args()
 
+    cores = multiprocessing.cpu_count()
+    ncors = cores-1
+    print("Running with "+str(ncors)+' out of '+str(cores))
     print('Adding drug table for '+args.drugtable)
     tab = pd.read_csv(args.drugtable,sep='\t')
 
@@ -76,7 +81,7 @@ def main():
     ids = pd.DataFrame(tab[['improve_drug_id','canSMILES']]).drop_duplicates()
     id_morg = ids.rename({"canSMILES":'smile'},axis=1).merge(morgs)[['improve_drug_id','structural_descriptor','descriptor_value']]
 
-    mords = smiles_to_mordred(cansmiles)
+    mords = smiles_to_mordred(cansmiles,nproc=ncors)
     
     id_mord = ids.rename({'canSMILES':'smile'},axis=1).merge(mords)[['improve_drug_id','structural_descriptor','descriptor_value']]
     
