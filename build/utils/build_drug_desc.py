@@ -8,6 +8,7 @@ build drug descriptor table from drug table
 import argparse
 from rdkit import Chem
 from rdkit.Chem import AllChem
+#from rdkit.Chem import rdFingerprintGenerator
 import pandas as pd
 import numpy as np
 from mordred import Calculator, descriptors
@@ -21,11 +22,15 @@ def smiles_to_fingerprint(smiles):
     fdict = []
     ##get morgan fingerprint
     print('Computing morgan fingerprints for '+str(len(smiles))+' SMILES')
+ #   morgan_fp_gen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=1024, useCountSimulation=False)
     for s in smiles:
        # print(s)
         mol = Chem.MolFromSmiles(s)
         try:
+            #this has been depracated despite being in Alex's original script
             fingerprint = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=1024)  # update these parameters
+  #          fingerprint = morgan_fp_gen.GetFingerprint(mol)
+            #            vec2 = np.array(fp2)
         except:
             print('Cannot compute fingerprint for '+s)
             continue
@@ -53,7 +58,7 @@ def smiles_to_mordred(smiles,nproc=2):
             ssmil.append(smiles[i])
 
     calc = Calculator(descriptors, ignore_3D=True)
-    dd = calc.pandas( smols, nproc=nproc, mols=None, quiet=False, ipynb=False )
+    dd = calc.pandas(mols=smols, nproc=nproc, quiet=False, ipynb=False )
     values = dd.columns
     dd['smile'] = ssmil
     ##reformat here
@@ -70,7 +75,7 @@ def main():
 
     cores = multiprocessing.cpu_count()
     ncors = cores-1
-    print("Running with "+str(ncors)+' out of '+str(cores))
+    print("Running with "+str(ncors)+' out of '+str(cores)+' processors')
     print('Adding drug table for '+args.drugtable)
     tab = pd.read_csv(args.drugtable,sep='\t')
 
