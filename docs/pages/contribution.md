@@ -23,10 +23,26 @@ detail. These will be triaged by the CoderData team as they are received.
 ## Add your own data
 
 CoderData is designed to be federated and therefore you can build your
-own dataset that can be accessed locally. 
+own dataset that can be accessed locally. Below is an image of the
+current CoderData framework. Each dataset is processed by a single
+Docker image with a series of standard scripts
+
+![Coderdata Build](coderDataBuild.jpg?raw=true "Modular build
+process")
+
 
 ###  Documentation and steps
-This process is documented
+To add your own data, you must add a Docker image with the following
+constraints:
+
+1. Be named `Dockerfile.[yourdataset]` and reside in the
+   `/build/docker` directory
+2. Possess scripts called `build_omics.sh`, `build_samples.sh`,
+   `build_drugs.sh` and
+   `build_exp.sh` 
+3. Create tables that mirror the schema described by the [LinkML YAML file]().
+
+The full process is documented
 on our [GitHub site](http://github.com/pnnl-compbio/coderdata) under
 'Adding a new dataset'.
 

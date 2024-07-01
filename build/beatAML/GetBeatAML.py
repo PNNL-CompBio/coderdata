@@ -409,7 +409,7 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
     # Process each dataframe based on its data_type
     if data_type == "transcriptomics":
         df['Gene'] = df['Gene'].str.replace(r'\.\d+$', '', regex=True)
-        mapped_df = df.merge(genes, left_on='Gene', right_on='gene_symbol', how='left').reindex(
+        mapped_df = df.merge(genes, left_on='Gene', right_on='other_id', how='left').reindex(
                         columns=['transcriptomics', 'entrez_id', "sample_id","Gene"])
         mapped_df = mapped_df.merge(mapped_ids[['dbgap_rnaseq_sample', 'labId']], 
                          left_on='sample_id', 
@@ -631,8 +631,8 @@ if __name__ == "__main__":
             exit()
         else:
             improve_map_file = args.curSamples
-            transcriptomics_file = "beataml_waves1to4_norm_exp_dbgap.txt"
-            transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"
+            transcriptomics_file = "beataml_waves1to4_counts_dbgap.txt" #"beataml_waves1to4_norm_exp_dbgap.txt" ##this is the wrong file, these are the normalize values
+            transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_counts_dbgap.txt" #"https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"
             download_from_github(transcriptomics_url, transcriptomics_file)
             
             mutations_file = "beataml_wes_wv1to4_mutations_dbgap.txt"
@@ -644,15 +644,19 @@ if __name__ == "__main__":
             download_from_github(mutation_map_url, mutation_map_file)
             # New Transcriptomics Data
             print("Starting Transcriptomics Data")
-            t_df = pd.read_csv(transcriptomics_file, sep = '\t')
-            t_df.index = t_df.display_label
-            t_df = t_df.iloc[:, 4:]
-            t_df = t_df.reset_index().rename(columns={'display_label': 'Gene'})
+            ##first run conversion tool
+            os.system("python tpmFromCounts.py --counts "+transcriptomics_file)
+            
+            
+            t_df = pd.read_csv('tpm_'+transcriptomics_file, sep = '\t')
+           # t_df.index = t_df.stable_id#display_label
+#            t_df = t_df.iloc[:, 4:]
+            t_df = t_df.reset_index().rename(columns={'stable_id': 'Gene'})
             t_df = pd.melt(t_df, id_vars=['Gene'], var_name='sample_id', value_name='transcriptomics')
             print(improve_map_file)
             t_df = map_and_combine(t_df, "transcriptomics", args.genes, improve_map_file, sample_mapping_file)
             t_df = t_df[t_df.entrez_id.notna()]
-            t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]]
+            t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]].drop_duplicates()
             t_df.to_csv("/tmp/beataml_transcriptomics.csv.gz",index=False,compression='gzip')
 
             # New Proteomics Data
