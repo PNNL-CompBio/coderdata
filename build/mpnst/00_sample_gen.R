@@ -45,7 +45,7 @@ sampTable<-manifest|>
 ##third, generate a sample for the MTs if they were generated
 pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
 pdxmt$model_type=rep('organoid',nrow(pdxmt))
-#print(pdxmt)
+print(pdxmt)
 
 main<-rbind(sampTable,pdxmt)|>
     dplyr::select(-MicroTissueDrugFolder)|>
