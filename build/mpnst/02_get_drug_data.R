@@ -3,10 +3,8 @@ library(data.table)
 # library(biomaRt)# biomart issues still exist
 library(dplyr)
 library(stringr)
-library(reticulate)
+library(synapser)
 
-use_python("/opt/venv/bin/python3", required = TRUE)
-source_python("pubchem_retrieval.py")
 
 # Retrieve command line arguments
 args <- commandArgs(trailingOnly = TRUE)
@@ -81,6 +79,14 @@ print(paste('Read in ',nrow(olddrugs),'old drugs'))
 write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
 output_file_path <- newdrugfile
 ignore_file_path <- '/tmp/mpnst_ignore_chems.txt'
+
+
+##now load reticulate down here
+
+library(reticulate)
+
+use_python("/opt/venv/bin/python3", required = TRUE)
+source_python("pubchem_retrieval.py")
 
 update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
 
