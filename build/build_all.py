@@ -225,8 +225,7 @@ def main():
     # Ouput is logged at local/docker.log
     if args.docker or args.all:
         process_docker()
-        
-    print("Docker image generation completed")
+        print("Docker image generation completed")
         
 
     ### Build Drugs files, Samples files, and Genes file. These two steps are run in Parallel. 
@@ -247,7 +246,7 @@ def main():
         if args.samples or args.omics or args.exp or args.all:
             gene_thread.result()
             
-    print("All samples, drugs files, and genes file completed")
+    print("All samples, drugs files, and genes file completed or skipped")
 
 
     ### At this point in the pipeline, all samples and drugs files have been created. There are no blockers to proceed.
@@ -262,11 +261,10 @@ def main():
             
         if args.omics or args.all:
             omics_thread.result()
+            print("All omics files completed")
         if args.exp or args.all:
             exp_thread.result()
-
-
-    print("All omics and experiments files completed")
+            print("All experiments files completed")
 
     ######
     ### Begin Upload
