@@ -127,5 +127,5 @@ long.df<-full.df%>%
   subset(other_id!="")
 
 
-write.table(long.df,'/tmp/broad_sanger_samples.csv',sep=',',row.names=F,col.names=T)
+readr::write_csv(long.df,'/tmp/broad_sanger_samples.csv',quote='needed')
 
