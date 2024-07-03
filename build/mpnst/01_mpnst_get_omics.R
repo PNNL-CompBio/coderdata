@@ -37,6 +37,7 @@ tumor_samps<-subset(samples_df,model_type=='tumor')
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
+                                                             as.data.frame()|>
                                                              dplyr::rename(common_name='Sample')
 
 
@@ -59,10 +60,8 @@ combined<-rbind(pdx_data,tumor_data)|>distinct()
 genes_df <- fread(genefile)
 
 
-
-
 ##added proteomics first
-proteomics<-do.call('rbind',lapply(setdiff(combined$Proteomics,c('',NA)),function(x){
+proteomics<-do.call('rbind',lapply(setdiff(combined$Proteomics,c('',NA,"NA")),function(x){
                                         # if(x!=""){
     #print(x)
     sample<-subset(combined,Proteomics==x)
@@ -89,7 +88,7 @@ fwrite(proteomics,'/tmp/mpnst_proteomics.csv.gz')
 
 #### FIRST WE GET RNASeq Data
 
-rnaseq<-do.call('rbind',lapply(setdiff(combined$RNASeq,NA),function(x){
+rnaseq<-do.call('rbind',lapply(setdiff(combined$RNASeq,c(NA,"NA")),function(x){
                                         # if(x!=""){
     #print(x)
     sample<-subset(combined,RNASeq==x)
@@ -115,7 +114,7 @@ fwrite(rnaseq,'/tmp/mpnst_transcriptomics.csv.gz')
 
 #####NEXT WE DO WES DATA
 print("Getting WES")
-wes<-do.call(rbind,lapply(setdiff(combined$`Mutations`,NA),function(x){
+wes<-do.call(rbind,lapply(setdiff(combined$`Mutations`,c(NA,"NA")),function(x){
 
     x2=x#gsub('"','',gsub("[",'',gsub("]",'',x,fixed=T),fixed=T),fixed=T)
     print(x)
@@ -142,7 +141,7 @@ fwrite(wes,'/tmp/mpnst_mutations.csv.gz')
 
 print(paste("getting CNV"))
 ##next let's do CNVs!
-cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,NA),function(x){
+cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,c(NA,"NA")),function(x){
 
     x2=x#gsub('"','',gsub("[",'',gsub("]",'',x,fixed=T),fixed=T),fixed=T)
     print(x)
