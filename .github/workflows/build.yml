@@ -1457,7 +1457,7 @@ jobs:
           tags: sgosline/broad-sanger-exp:latest
           push: true
           platforms: linux/amd64,linux/arm64
-   build-genes:
+  build-genes:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
