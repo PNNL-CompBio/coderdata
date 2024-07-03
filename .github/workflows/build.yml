@@ -1427,62 +1427,62 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN_SECRET }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build and push broad sanger omics
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.broad_sanger_omics
-          tags: jjacobson95/broad-sanger-omics:latest
+          tags: sgosline/broad-sanger-omics:latest
           push: true
           platforms: linux/amd64,linux/arm64
       - name: Build and push broad sanger experiment
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.broad_sanger_exp
-          tags: jjacobson95/broad-sanger-exp:latest
+          tags: sgosline/broad-sanger-exp:latest
           push: true
           platforms: linux/amd64,linux/arm64
       - name: Build and push genes
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.genes
-          tags: jjacobson95/genes:latest
+          tags: sgosline/genes:latest
           push: true
           platforms: linux/amd64,linux/arm64
       - name: Build and push hcmi
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.hcmi
-          tags: jjacobson95/hcmi:latest
+          tags: sgosline/hcmi:latest
           push: true
           platforms: linux/amd64,linux/arm64	  
       - name: Build and push cptac
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.c[tac
-          tags: jjacobson95/cptac:latest
+          tags: sgosline/cptac:latest
           push: true
           platforms: linux/amd64,linux/arm64
       - name: Build and push mpnst
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.mpnst
-          tags: jjacobson95/mpnst:latest
+          tags: sgosline/mpnst:latest
           push: true
           platforms: linux/amd64,linux/arm64	  
       - name: Build and push beataml
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.beataml
-          tags: jjacobson95/beataml:latest
+          tags: sgosline/beataml:latest
           push: true
           platforms: linux/amd64,linux/arm64
       - name: Build and push upload
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.upload
-          tags: jjacobson95/upload:latest
+          tags: sgosline/upload:latest
           push: true
           platforms: linux/amd64,linux/arm64	  
   
