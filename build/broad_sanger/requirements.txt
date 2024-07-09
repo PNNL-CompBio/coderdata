@@ -1,6 +1,6 @@
 pandas
 matplotlib
-numpy
+numpy==1.26.4
 argparse
 tqdm
 scikit-learn
@@ -8,3 +8,5 @@ scipy
 requests
 openpyxl
 polars
+mordredcommunity
+rdkit
