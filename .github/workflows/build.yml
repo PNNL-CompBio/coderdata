@@ -29,7 +29,7 @@ jobs:
           file: ./build/docker/Dockerfile.broad_sanger_omics
           tags: sgosline/broad-sanger-omics:latest
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
   build-cellline-exp:
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +50,7 @@ jobs:
           file: ./build/docker/Dockerfile.broad_sanger_exp
           tags: sgosline/broad-sanger-exp:latest
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
   build-genes:
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +71,7 @@ jobs:
           file: ./build/docker/Dockerfile.genes
           tags: sgosline/genes:latest
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
   build-hcmi:
     runs-on: ubuntu-latest
     steps:
@@ -92,7 +92,7 @@ jobs:
           file: ./build/docker/Dockerfile.hcmi
           tags: sgosline/hcmi:latest
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
   build-cptac:
     runs-on: ubuntu-latest
     steps:
@@ -113,7 +113,7 @@ jobs:
           file: ./build/docker/Dockerfile.cptac
           tags: sgosline/cptac:latest
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
   build-mpnst:
     runs-on: ubuntu-latest
     steps:
@@ -134,7 +134,7 @@ jobs:
           file: ./build/docker/Dockerfile.mpnst
           tags: sgosline/mpnst:latest
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
   build-beataml:
     runs-on: ubuntu-latest
     steps:
@@ -155,7 +155,7 @@ jobs:
           file: ./build/docker/Dockerfile.beataml
           tags: sgosline/beataml:latest
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
   build-upload:
     runs-on: ubuntu-latest
     steps:
@@ -176,6 +176,5 @@ jobs:
           file: ./build/docker/Dockerfile.upload
           tags: sgosline/upload:latest
           push: true
-          platforms: linux/amd64,linux/arm64        
+          platforms: linux/amd64        
   
-
