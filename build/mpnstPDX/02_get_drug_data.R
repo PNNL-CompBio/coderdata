@@ -1,0 +1,99 @@
+# Load required libraries
+library(data.table)
+# library(biomaRt)# biomart issues still exist
+library(dplyr)
+library(stringr)
+library(synapser)
+
+
+# Retrieve command line arguments
+args <- commandArgs(trailingOnly = TRUE)
+
+# Check if a token was provided
+if (length(args) == 0) {
+  stop("No token or sample file provided. Usage: Rscript my_script.R <PAT> [olddrugfile] [newdrugfile]", call. = FALSE)
+}
+
+# Set your personal access token
+PAT <- args[1]
+olddrugfiles <- args[2]
+newdrugfile <- args[3]
+# Log in to Synapse
+library(synapser)
+synLogin(authToken = PAT)
+
+
+##now get the manifest from synapse
+manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
+                                                             as.data.frame()|>
+                                                             dplyr::rename(common_name='Sample')
+
+
+##PDX contain list of files
+pdx<-manifest|>
+    dplyr::select(common_name,PDX_Drug_Data)|>
+    distinct()|>
+    subset(!is.na(PDX_Drug_Data))
+
+
+
+
+
+##define functions
+
+
+##now loop through manifest to get all the files
+pdx_fold <- data.table(pdx)[,strsplit(as.character(PDX_Drug_Data),","), by = .(common_name)]
+
+
+###this is not all of themju
+pdx_meta<-do.call(rbind,lapply(pdx_fold$V1, function(x) synapser::synGetAnnotations(x)|>
+                                          as.data.frame()|>
+                                          dplyr::select('experimentalCondition')|>
+                                          dplyr::mutate(id=x)))
+
+drugs<-sapply(pdx_meta$experimentalCondition,function(x) tolower(unlist(strsplit(x,split=';'))))|>
+    unlist()|>
+    unique()
+
+drugs<-setdiff(drugs,'control')
+
+
+print(paste(drugs,collapse=','))
+
+
+##copy old drug to new drug
+olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x,header=T,sep='\t',quote='',comment.char='')))
+olddrugs<-unique(olddrugs)
+
+print(paste('Read in ',nrow(olddrugs),'old drug files'))
+                                        #file.copy(olddrugfile,newdrugfile)
+write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
+output_file_path <- newdrugfile
+ignore_file_path <- '/tmp/mpnst_ignore_chems.txt'
+
+
+##now load reticulate down here
+
+library(reticulate)
+
+use_python("/opt/venv/bin/python3", required = TRUE)
+source_python("pubchem_retrieval.py")
+
+update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
+
+
+tab<-read.table(newdrugfile,sep='\t',header=T,quote="",comment.char="")
+
+newdrugs<-tab|>
+    subset(chem_name%in%tolower(alldrugs))
+
+tab<-tab|>
+    subset(improve_drug_id%in%newdrugs$improve_drug_id)
+
+write.table(tab,file=newdrugfile,sep='\t',row.names=FALSE,quote=FALSE)
+
+
+##now call the python drug script
+
+
