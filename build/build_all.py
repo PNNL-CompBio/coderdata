@@ -91,22 +91,23 @@ def main():
         dflist = []  
             
         # WE NEED A METHOD TO CONFIRM THAT DRUG FILES ARE NOT INCOMPLETE
-            
+        ##THIS IS BUILT IN- always rerun drug code to check
         # Check for existing files and update dflist with processed files
         for da in datasets:
             if da not in ['cptac', 'hcmi']: 
                 file_path = f'local/{da}_drugs.tsv'
-                if os.path.exists(file_path):
-                    dflist.append(f'/tmp/{da}_drugs.tsv')  # Add to dflist if already processed
+                desc_path = f'local/{da}_drug_descriptor.tsv.gz'
+                #if os.path.exists(file_path): ##always rerun drug process
+                #    dflist.append(f'/tmp/{da}_drugs.tsv')  # Add to dflist if already processed
 
         for da in datasets:
             if da not in ['cptac', 'hcmi']:
                 di = 'broad_sanger_exp' if da == 'broad_sanger' else da
-                if not os.path.exists(f'local/{da}_drugs.tsv'):
-                    if last_drug_future:
-                        last_drug_future.result()  # Ensure the last drug process is completed before starting the next
-                    last_drug_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_drugs.sh', ','.join(dflist)], f'{da} drugs')
-                    dflist.append(f'/tmp/{da}_drugs.tsv')
+                #if not os.path.exists(f'local/{da}_drugs.tsv'):
+                if last_drug_future:
+                    last_drug_future.result()  # Ensure the last drug process is completed before starting the next
+                last_drug_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_drugs.sh', ','.join(dflist)], f'{da} drugs')
+                dflist.append(f'/tmp/{da}_drugs.tsv')
     
     def process_samples(executor, datasets):
         '''
@@ -224,8 +225,7 @@ def main():
     # Ouput is logged at local/docker.log
     if args.docker or args.all:
         process_docker()
-        
-    print("Docker image generation completed")
+        print("Docker image generation completed")
         
 
     ### Build Drugs files, Samples files, and Genes file. These two steps are run in Parallel. 
@@ -241,12 +241,12 @@ def main():
         # Wait for both processes to complete before proceeding to omics and experiments
         if args.drugs or args.all:
             drug_thread.result()
-        if args.samples or args.all:
+        if args.samples or args.all:##need to wait for samples for all of these
             sample_thread.result()
         if args.samples or args.omics or args.exp or args.all:
             gene_thread.result()
             
-    print("All samples, drugs files, and genes file completed")
+    print("All samples, drugs files, and genes file completed or skipped")
 
 
     ### At this point in the pipeline, all samples and drugs files have been created. There are no blockers to proceed.
@@ -261,11 +261,10 @@ def main():
             
         if args.omics or args.all:
             omics_thread.result()
+            print("All omics files completed")
         if args.exp or args.all:
             exp_thread.result()
-
-
-    print("All omics and experiments files completed")
+            print("All experiments files completed")
 
     ######
     ### Begin Upload

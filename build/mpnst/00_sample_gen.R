@@ -15,7 +15,8 @@ if(length(args)!=2){
 orig_samples<-fread(args[1])
 
 synapser::synLogin(authToken=args[2])
-manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()
+manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
+                                                             as.data.frame()
 
 
 ###sample file has a strict schema
@@ -36,7 +37,7 @@ tumorTable<-manifest|>
 
 ##then create samples for the PDX
 sampTable<-manifest|>
-    dplyr::select(c(common_name='Sample',MicroTissueDrugFolder))|>
+    dplyr::select(common_name='Sample',MicroTissueDrugFolder)|>
     dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='patient derived xenograft')|>
     tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
@@ -44,7 +45,7 @@ sampTable<-manifest|>
 ##third, generate a sample for the MTs if they were generated
 pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
 pdxmt$model_type=rep('organoid',nrow(pdxmt))
-#print(pdxmt)
+print(pdxmt)
 
 main<-rbind(sampTable,pdxmt)|>
     dplyr::select(-MicroTissueDrugFolder)|>

@@ -1,13 +1,10 @@
 # Load required libraries
 library(data.table)
 # library(biomaRt)# biomart issues still exist
-library(synapser)
 library(dplyr)
 library(stringr)
-library(reticulate)
+library(synapser)
 
-use_python("/opt/venv/bin/python3", required = TRUE)
-source_python("pubchem_retrieval.py")
 
 # Retrieve command line arguments
 args <- commandArgs(trailingOnly = TRUE)
@@ -22,11 +19,13 @@ PAT <- args[1]
 olddrugfiles <- args[2]
 newdrugfile <- args[3]
 # Log in to Synapse
+library(synapser)
 synLogin(authToken = PAT)
 
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
+                                                             as.data.frame()|>
                                                              dplyr::rename(common_name='Sample')
 
 
@@ -80,6 +79,14 @@ print(paste('Read in ',nrow(olddrugs),'old drugs'))
 write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
 output_file_path <- newdrugfile
 ignore_file_path <- '/tmp/mpnst_ignore_chems.txt'
+
+
+##now load reticulate down here
+
+library(reticulate)
+
+use_python("/opt/venv/bin/python3", required = TRUE)
+source_python("pubchem_retrieval.py")
 
 update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
 
