@@ -24,13 +24,15 @@ synLogin(authToken = PAT)
 # Read the sample mapping CSV and genes.csv
 samples_df <- fread(patients)|>
     dplyr::select(improve_sample_id,common_name,model_type)|>
-                                        distinct()#"mpnst/synapse_NF-MPNST_samples.csv")
+    distinct()#"mpnst/synapse_NF-MPNST_samples.csv")
+print(head(samples_df))
 
 pdx_samps<-subset(samples_df,model_type=='patient derived xenograft')
 org_samps<-subset(samples_df,model_type=='organoid')
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
+                                                             as.data.frame()|>
                                                              dplyr::rename(common_name='Sample')
 
 
@@ -68,14 +70,17 @@ extract_date_hour <- function(experiment_id) {
 ##first function to get children from parentId
 getDrugDataByParent<-function(parid,sampleId){
     qtab<-synTableQuery(paste('select id,name,experimentalCondition,parentId from syn21993642 where parentId=\'',parid,'\''))$asDataFrame()|>
-        subset(!is.na(experimentalCondition))|>dplyr::select(id,name,experimentalCondition)
+                                                                                                                            as.data.frame()|>
+                                                                                                                            subset(!is.na(experimentalCondition))|>
+                                                                                                                            dplyr::select(id,name,experimentalCondition)|>
+                                                                                                                            subset(name!='synapse_storage_manifest.csv')
     ##now we need to parse the metadatda table get the info
 
     res<-do.call(rbind,lapply(qtab$id,function(x){
         sname <- subset(qtab,id==x)
         #print(sname)
         sname <-extract_date_hour(sname$name)
-
+        #print(x)
         #print(sname)
         data <- fread(synGet(x)$path)|>
             filter(response_type=='percent viability')|>
@@ -97,8 +102,13 @@ getDrugDataByParent<-function(parid,sampleId){
 ##now loop through manifest to get all the files
 mts_fold <- data.table(mts)[,strsplit(as.character(MicroTissueDrugFolder),","), by = .(improve_sample_id,common_name)]
 
+mts_fold <- mts_fold[which(!mts_fold$V1%in%c("NA",NA)),]
+
+print(mts_fold)
+
 alldrugs<-do.call(rbind,lapply(mts_fold$V1,function(x){
     samp<-subset(mts_fold,V1==x)
+    print(samp$common_name)
     res<-getDrugDataByParent(x,samp$improve_sample_id)
     return(res)
 }))
