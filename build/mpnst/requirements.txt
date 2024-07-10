@@ -1,5 +1,5 @@
 pyarrow
-pandas
+pandas==2.1.1
 matplotlib
 numpy==1.26.4
 argparse

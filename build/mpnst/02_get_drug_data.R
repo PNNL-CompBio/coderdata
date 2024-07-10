@@ -56,7 +56,10 @@ getDrugsByParent<-function(parid){
 }
 
 ##now loop through manifest to get all the files
-mts_fold <- data.table(mts)[,strsplit(as.character(MicroTissueDrugFolder),","), by = .(common_name)]
+mts_fold <- data.table(mts)[,strsplit(as.character(MicroTissueDrugFolder),","), by = .(common_name)]|>
+    subset(!is.na(V1))|>
+    subset(V1!='NA')
+print(mts_fold)
 
 alldrugs<-unique(unlist(lapply(mts_fold$V1,function(x){
     samp<-subset(mts_fold,V1==x)
@@ -66,6 +69,7 @@ alldrugs<-unique(unlist(lapply(mts_fold$V1,function(x){
 
 
 alldrugs[which(alldrugs=='PD901')]<-'PD-0325901'
+alldrugs<-sapply(alldrugs,tolower)
 
 print(paste(alldrugs,collapse=','))
 
@@ -74,7 +78,23 @@ print(paste(alldrugs,collapse=','))
 olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x,header=T,sep='\t',quote='',comment.char='')))
 olddrugs<-unique(olddrugs)
 
+
+
 print(paste('Read in ',nrow(olddrugs),'old drugs'))
+
+fdrugs<-subset(olddrugs,chem_name%in%drugs)
+if(nrow(fdrugs)>0){
+    dids<-fdrugs$improve_drug_id
+}else{
+    dids<-c()
+}
+newdrugs<-subset(olddrugs,improve_drug_id%in%dids)
+
+print(paste('Found',length(dids),'improved drug ids that exist, saving those'))
+
+
+                                        #file.copy(olddrugfile,newdrugfile)
+write.table(newdrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
                                         #file.copy(olddrugfile,newdrugfile)
 write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
 output_file_path <- newdrugfile
