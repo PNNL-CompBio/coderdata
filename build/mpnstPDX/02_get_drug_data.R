@@ -19,7 +19,6 @@ PAT <- args[1]
 olddrugfiles <- args[2]
 newdrugfile <- args[3]
 # Log in to Synapse
-library(synapser)
 synLogin(authToken = PAT)
 
 
@@ -41,20 +40,26 @@ pdx<-manifest|>
 
 ##define functions
 
-
+#print(pdx)
 ##now loop through manifest to get all the files
-pdx_fold <- data.table(pdx)[,strsplit(as.character(PDX_Drug_Data),","), by = .(common_name)]
+pdx_fold <- data.table(pdx)[,strsplit(as.character(PDX_Drug_Data),","), by = .(common_name)]|>
+    subset(!is.na(V1))|>
+    subset(V1!='NA')|>
+    dplyr::rename(id='V1')
 
-
+#print(pdx_fold)
 ###this is not all of themju
-pdx_meta<-do.call(rbind,lapply(pdx_fold$V1, function(x) synapser::synGetAnnotations(x)|>
+pdx_meta<-do.call(rbind,lapply(pdx_fold$id, function(x) synapser::synGetAnnotations(x)|>
                                           as.data.frame()|>
                                           dplyr::select('experimentalCondition')|>
-                                          dplyr::mutate(id=x)))
+                                          dplyr::mutate(id=x)))|>
+    left_join(pdx_fold)
 
-drugs<-sapply(pdx_meta$experimentalCondition,function(x) tolower(unlist(strsplit(x,split=';'))))|>
-    unlist()|>
-    unique()
+pdx_drug <- data.table(pdx_meta)[,strsplit(as.character(experimentalCondition),';'),by= .(common_name,id)]|>
+    mutate(drug=tolower(experimentalCondition))
+#drugs<-sapply(pdx_meta$experimentalCondition,function(x) tolower(unlist(strsplit(x,split=';'))))|>
+#    unlist()|>
+#    unique()
 
 drugs<-setdiff(drugs,'control')
 
@@ -67,10 +72,22 @@ olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),
 olddrugs<-unique(olddrugs)
 
 print(paste('Read in ',nrow(olddrugs),'old drug files'))
+
+fdrugs<-subset(olddrugs,chem_name%in%drugs)
+if(nrow(fdrugs)>0){
+    dids<-fdrugs$improve_drug_id
+}else{
+    dids<-c()
+}
+newdrugs<-subset(olddrugs,improve_drug_id%in%dids)
+
+print(paste('Found',length(dids),'improved drug ids that exist, saving those'))
+
+
                                         #file.copy(olddrugfile,newdrugfile)
-write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
+write.table(newdrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
 output_file_path <- newdrugfile
-ignore_file_path <- '/tmp/mpnst_ignore_chems.txt'
+ignore_file_path <- '/tmp/mpnstpdx_ignore_chems.txt'
 
 
 ##now load reticulate down here
