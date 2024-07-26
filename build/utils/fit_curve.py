@@ -146,15 +146,15 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     dss1 = (0.9 * (ic10x - xmin) - int10x) / (0.9 * (xmax - xmin)) if xmin < ic10x else 0
     auc = (response_integral(d2, *popt) - response_integral(d1, *popt)) / (d2 - d1)
     ##added by sara, i'm not sure where the above came from
-    ## orig definition https://static-content.springer.com/esm/art%3A10.1038%2Fsrep05193/MediaObjects/41598_2014_BFsrep05193_MOESM1_ESM.pdf
-
-    dss1 = (auc1-0.1*(ic10x-xmin)) / (0.9 * (xmax - xmin)) if xmin<ic10x else 0 #xmax > ic50 else 0
-    dss2 = dss1/(1-einf) ##made this dss2 
+    ## orig definition from paper is here: https://static-content.springer.com/esm/art%3A10.1038%2Fsrep05193/MediaObjects/41598_2014_BFsrep05193_MOESM1_ESM.pdf
+    ## here t = 0.1 and i use the fitted curve values
+    dss1 = (auc1-0.1*(ic10x-xmin)) / (0.9 * (xmax - xmin)) if xmax > ic50 else 0
+    dss2 = dss1/(1-einf) ##made this dss2 doesn't change much 
     metrics = pd.Series({'fit_auc':auc, 'fit_ic50':ic50, 'fit_ec50':ec50,'fit_einf':einf,
                          'fit_ec50se':ec50se, 'fit_r2':r2, 'einf':einf, 'fit_hs':hs,
                          'aac':aac1, 'auc':auc1, 'dss':dss2}).round(4)
     return metrics
-    ##and also this: https://github.com/bhklab/PharmacoGx/blob/master/R/computeDSS.R
+
 
 
 def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS_NEG):
