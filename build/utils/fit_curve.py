@@ -40,8 +40,8 @@ def hs_response_curve_original(x, einf, ec50, hs):
     return einf + (1 - einf) / (1 + np.power(x/ec50, hs))
 
 
-HS_BOUNDS = ([0, 0, 0], [1, 12, 4])
-
+HS_BOUNDS = ([0, 0, 0], [1, 12, 4]) 
+HS_BOUNDS_NEG = ([0, -3,-1],[1,8,0]) ## made hill slope forced to be negative
 def response_curve(x, einf, ec50, hs):
     """ transformed the original function with ec50 in -log10(M) instead of M
     """
@@ -65,6 +65,54 @@ def compute_area(x1, x2, einf, ec50, hs, mode='trapz'):
         area = response_integral(x2, *popt) - response_integral(x1, *popt)
     return area
 
+
+
+'''
+added back this function as a spot check of data
+'''
+def fit_exp(df_exp, title=None, dmin=None, dmax=None, save=False):
+    if save:
+        font = {'family' : 'normal',
+                # 'weight' : 'bold',
+                'size'   : 14}
+        matplotlib.rc('font', **font)
+        plt.figure(figsize=(12, 6))
+
+    print(df_exp)
+    xdata = df_exp.DOSE.astype(float)
+    ydata = df_exp.GROWTH.astype(float)
+    # ydata = df_exp.GROWTH.clip(lower=0, upper=1.0).astype(float)
+
+    # print(xdata)
+    # print(ydata)
+
+    popt, pcov = response_curve_fit(xdata, ydata)
+    metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
+
+    if popt is None:
+        return metrics
+
+    dmin = dmin or xdata.min()
+    dmax = dmax or xdata.max()
+    xx = np.linspace(dmin, dmax, 100)
+    yy = response_curve(xx, *popt)
+
+    plt.xlim(dmax, dmin)
+    plt.ylim(0, np.max([105, np.max(yy)]))
+    plt.plot(xx, yy*100, 'r-', label='fit: einf=%.3f, ec50=%.3f, hs=%.3f' % tuple(popt))
+    plt.plot(xdata, ydata.clip(lower=0, upper=1.0)*100, 'b*', label='')
+    plt.xlabel('Dose (-log10(M))')
+    plt.ylabel('Growth%')
+    plt.title(title)
+    plt.tight_layout()
+    plt.legend()
+    if save:
+        plt.savefig('exp.png', dpi=360)
+        plt.close()
+    else:
+        plt.show()
+
+    return metrics.to_frame(name='metrics').T
 
 def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     '''
@@ -91,17 +139,25 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     ic90 = ec50 - np.log10(0.9/(0.1-einf)) / hs if einf < 0.1 else np.nan
     ic10 = ec50 - np.log10(0.1/(0.9-einf)) / hs if einf < 0.9 else np.nan
     ic10x = min(ic10, xmax)
+
+    ##compute area under the ic10 to subtract from total
     int10x = compute_area(xmin, ic10x, *popt)
+    ##old code - assumes a positive hill slope, otherwise doesn't seem to work.
     dss1 = (0.9 * (ic10x - xmin) - int10x) / (0.9 * (xmax - xmin)) if xmin < ic10x else 0
     auc = (response_integral(d2, *popt) - response_integral(d1, *popt)) / (d2 - d1)
+    ##added by sara, i'm not sure where the above came from
+    ## orig definition https://static-content.springer.com/esm/art%3A10.1038%2Fsrep05193/MediaObjects/41598_2014_BFsrep05193_MOESM1_ESM.pdf
+
+    dss1 = (auc1-0.1*(ic10x-xmin)) / (0.9 * (xmax - xmin)) if xmin<ic10x else 0 #xmax > ic50 else 0
+    dss2 = dss1/(1-einf) ##made this dss2 
     metrics = pd.Series({'fit_auc':auc, 'fit_ic50':ic50, 'fit_ec50':ec50,'fit_einf':einf,
                          'fit_ec50se':ec50se, 'fit_r2':r2, 'einf':einf, 'fit_hs':hs,
-                         'aac':aac1, 'auc':auc1, 'dss':dss1}).round(4)
+                         'aac':aac1, 'auc':auc1, 'dss':dss2}).round(4)
     return metrics
+    ##and also this: https://github.com/bhklab/PharmacoGx/blob/master/R/computeDSS.R
 
 
-
-def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS):
+def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS_NEG):
     '''
      xdata: log10 molar concetnration
      ydata: value between 0 and 1 for response
