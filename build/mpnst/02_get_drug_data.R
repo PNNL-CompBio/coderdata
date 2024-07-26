@@ -3,6 +3,7 @@ library(data.table)
 # library(biomaRt)# biomart issues still exist
 library(dplyr)
 library(stringr)
+library(reticulate)
 library(synapser)
 
 
@@ -47,7 +48,8 @@ mts<-manifest|>
 
 ##first function to get children from parentId
 getDrugsByParent<-function(parid){
-    qtab<-synTableQuery(paste('select id,name,experimentalCondition,parentId from syn21993642 where parentId=\'',parid,'\''))$asDataFrame()|>
+    print(parid)
+    qtab<-synTableQuery(paste('select id,name,experimentalCondition,parentId from syn21993642 where parentId=\'',parid,'\''))$asDataFrame()|>as.data.frame()|>
         subset(!is.na(experimentalCondition))|>dplyr::select(id,name,experimentalCondition)
     ##now we need to parse the metadatda table get the info
 
@@ -62,7 +64,7 @@ mts_fold <- data.table(mts)[,strsplit(as.character(MicroTissueDrugFolder),","), 
 print(mts_fold)
 
 alldrugs<-unique(unlist(lapply(mts_fold$V1,function(x){
-    samp<-subset(mts_fold,V1==x)
+    #samp<-subset(mts_fold,V1==x)
     res<-getDrugsByParent(x)
     return(res)
 })))
@@ -82,7 +84,7 @@ olddrugs<-unique(olddrugs)
 
 print(paste('Read in ',nrow(olddrugs),'old drugs'))
 
-fdrugs<-subset(olddrugs,chem_name%in%drugs)
+fdrugs<-subset(olddrugs,chem_name%in%alldrugs)
 if(nrow(fdrugs)>0){
     dids<-fdrugs$improve_drug_id
 }else{
@@ -96,14 +98,14 @@ print(paste('Found',length(dids),'improved drug ids that exist, saving those'))
                                         #file.copy(olddrugfile,newdrugfile)
 write.table(newdrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
                                         #file.copy(olddrugfile,newdrugfile)
-write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
+#write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
 output_file_path <- newdrugfile
 ignore_file_path <- '/tmp/mpnst_ignore_chems.txt'
 
 
 ##now load reticulate down here
 
-library(reticulate)
+
 
 use_python("/opt/venv/bin/python3", required = TRUE)
 source_python("pubchem_retrieval.py")

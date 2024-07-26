@@ -65,7 +65,7 @@ def main():
         All output and errors are logged at local/docker.log
         '''
         compose_file = 'build/docker/docker-compose.yml'
-        compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel']
+        compose_command = ['docker','compose', '-f', compose_file, 'build', '--parallel']
         log_file_path = 'local/docker.log'
         env = os.environ.copy()
         print(f"Docker-compose is building all images. View output in {log_file_path}.")
