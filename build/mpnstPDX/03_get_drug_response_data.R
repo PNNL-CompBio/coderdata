@@ -39,9 +39,11 @@ manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
 ##PDX contain list of files
 pdx<-manifest|>
     dplyr::select(common_name,PDX_Drug_Data)|>
+    subset(!PDX_Drug_Data%in%c("NA",NA))|>
     left_join(pdx_samps)|>
-    distinct()|>
-    subset(!is.na(PDX_Drug_Data))
+    distinct()
+
+print(pdx)
 
 
 # Modify the extract_date_hour function to return a named vector
@@ -74,7 +76,8 @@ drug_df<-fread(drugfile)|>
 ##update drug name PD901 since it's mussing
 ##now loop through manifest to get all the files
 pdx_fold <- data.table(pdx)[,strsplit(as.character(PDX_Drug_Data),","), by = .(common_name)]|>
-    dplyr::rename(id='V1')
+    dplyr::rename(id='V1')|>
+    subset(!is.na(id))
 
 pdx_meta<-do.call(rbind,lapply(pdx_fold$id, function(x) synapser::synGetAnnotations(x)|>
                                            as.data.frame()|>
@@ -85,7 +88,8 @@ pdx_meta<-do.call(rbind,lapply(pdx_fold$id, function(x) synapser::synGetAnnotati
    # left_join(drug_df)|>
     left_join(pdx_samps)|>
     dplyr::select(improve_sample_id,id)|>
-    distinct()
+    distinct()|>
+    subset(!is.na(id))
 pdx_meta$parentId=unlist(lapply(pdx_meta$id,function(x) synGet(x)$parentId))
 
 ##the older pdx data is in separate files. the newer is not.
@@ -94,7 +98,8 @@ oldfolders=c('syn22018363','syn22024460','syn22024428','syn22024429','syn2202443
 
 old_meta<-subset(pdx_meta,parentId%in%oldfolders)
 old_data<-do.call(rbind,lapply(unique(old_meta$parentId),function(x){
-  ids<-subset(old_meta,parentId==x)
+    ids<-subset(old_meta,parentId==x)|>
+        subset(!is.na(id))
 
   do.call(rbind,lapply(ids$id,function(y){
       tab<-readr::read_csv(synapser::synGet(y)$path)
