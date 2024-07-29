@@ -449,8 +449,10 @@ def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samp
         chunk = chunk.select(selected_columns)
         
         merged_chunk = samples.join(chunk, left_on='other_names', right_on='aliquot_id', how='inner')
-        merged_chunk = merged_chunk.drop(["aliquot_id", "other_names"])
-
+        if 'aliquot_id' in merged_chunk.columns:
+            merged_chunk = merged_chunk.drop(["aliquot_id"])
+        if 'other_names' in merged_chunk.columns:
+            merged_chunk = merged_chunk.drop(["other_names"])            
         # Append the processed chunk
         merged_data = pl.concat([merged_data, merged_chunk])
         gc.collect()
