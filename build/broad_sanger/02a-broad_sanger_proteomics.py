@@ -2,6 +2,9 @@ import pandas as pd
 import argparse
 from zipfile import ZipFile
 import requests
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 def main():
     parser = argparse.ArgumentParser()
