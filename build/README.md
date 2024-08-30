@@ -24,21 +24,22 @@ Available arguments:
 - `--omics`: Processes and builds the omics data files.
 - `--drugs`: Processes and builds the drug data files.
 - `--exp`: Processes and builds the experiment data files.
-- `--all`: Executes all available processes above (docker, samples, omics, drugs, exp).
-- `--validate`: Validates the generated datasets using the schema check scripts.
-- `--figshare`: Uploads the datasets to Figshare.
-- `--pypi`: Uploads the package to PyPI.
-- `--high_mem`: Utilizes high memory mode for concurrent data processing. This has been successfully tested using 32 or more vCPUs.
+- `--all`: Executes all available processes above (docker, samples, omics, drugs, exp). This does not run the validate, figshare, or pypi commands.
+- `--validate`: Validates the generated datasets using the schema check scripts. This is automatically included if data upload occurs.
+- `--figshare`: Uploads the datasets to Figshare. FIGSHARE_TOKEN must be set in local environment.
+- `--pypi`: Uploads the package to PyPI. PYPI_TOKEN must be set in local environment.
+- `--high_mem`: Utilizes high memory mode for concurrent data processing. This has been successfully tested using 32 or more vCPUs. 
 - `--dataset`: Specifies the datasets to process (default='broad_sanger,hcmi,beataml,mpnst,cptac').
-- `--version`: Specifies the version number for the package and data upload title. This is required to upload to figshare and PyPI
+- `--version`: Specifies the version number for the PyPI package and Figshare upload title (e.g., "0.1.29"). This is required for figshare and PyPI upload steps. This must be a higher version than previously published versions.
 
-Example usage:
-Build all datasets and upload to Figshare and PyPI. (Ensure tokens are set locally first)
+Example usage:  
+Build all datasets and upload to Figshare and PyPI. (Ensure tokens are set locally first)  
 ```bash
 python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.29
 ```
-
-To only build the experiment files use the following. **Note**: Preceding steps will not automatically be run. This assumes that docker images, samples, omics, and drugs were all previously built. 
+  
+Build only the experiment files.  
+**Note**: Preceding steps will not automatically be run. This assumes that docker images, samples, omics, and drugs were all previously built.   
 ```bash
 python build/build_all.py --exp
 ```
