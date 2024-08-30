@@ -13,19 +13,36 @@ from glob import glob
 from packaging import version
     
 def main():
-    parser=argparse.ArgumentParser()
-    parser.add_argument('--docker',dest='docker',default=False,action='store_true')
-    parser.add_argument('--samples',dest='samples',default=False,action='store_true')
-    parser.add_argument('--omics',dest='omics',default=False,action='store_true')
-    parser.add_argument('--drugs',dest='drugs',default=False,action='store_true')
-    parser.add_argument('--exp',dest='exp',default=False,action='store_true')
-    parser.add_argument('--validate', action='store_true', help="Flag to trigger schema checker")
-    parser.add_argument('--figshare', action='store_true', help="Flag to trigger Figshare upload")
-    parser.add_argument('--pypi', action='store_true', help="Flag to trigger PyPI upload")
-    parser.add_argument('--all',dest='all',default=False,action='store_true')
-    parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true')
+    parser=argparse.ArgumentParser(
+        description="This script initializes all docker containers, builds datasets, validates them, and uploads to Figshare and PyPI.",
+        epilog="""Examples of usage:
+
+Build all datasets in a high memory environment, validate them, and upload to Figshare and PyPI:
+  python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.29
+
+Build only experiment files. This assumes preceding steps (docker images, samples, omics, and drugs) have already been completed:
+  python build/build_all.py --exp
+
+Validate all local files without building or uploading. These files must be located in ./local. Includes compression/decompression steps.
+  python build/build_all.py --validate
+
+Upload the latest data to Figshare and PyPI (ensure tokens are set in the local environment):
+  python build/build_all.py --figshare --pypi --version 0.1.30
+        """
+    )
+    parser.add_argument('--docker',dest='docker',default=False,action='store_true', help="Build all docker images.")
+    parser.add_argument('--samples',dest='samples',default=False,action='store_true', help="Build all sample files.")
+    parser.add_argument('--omics',dest='omics',default=False,action='store_true', help="Build all omics files.")
+    parser.add_argument('--drugs',dest='drugs',default=False,action='store_true', help="Build all drug files")
+    parser.add_argument('--exp',dest='exp',default=False,action='store_true', help="Build all experiment file.")
+    parser.add_argument('--validate', action='store_true', help="Run schema checker on all local files. Note this will be run, whether specified or not, if figshare or pypi arguments are included.")
+    parser.add_argument('--figshare', action='store_true', help="Upload all local data to Figshare. FIGSHARE_TOKEN required to be set in local environment.")
+    parser.add_argument('--pypi', action='store_true', help="Update PYPI Package with latest Figshare data. PYPI_TOKEN required to be set in local environment.")
+    parser.add_argument('--all',dest='all',default=False,action='store_true', help="Run all data build commands. This includes docker, samples, omics, drugs, exp arguments. This does not run the validate, figshare, or pypi commands.")
+    parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true',help = "If you have 32 or more CPUs, this option is recommended. It will run many code portions in parallel. If you don't have enough memory, this will cause a run failure.")
     parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,mpnst,cptac',help='Datasets to process. Defaults to all available, but if there are synapse issues, please remove beataml and mpnst')
-    parser.add_argument('--version', type=str, required=False, help='Version number for the package and data upload title.')
+    parser.add_argument('--version', type=str, required=False, help='Version number for the PyPI package and Figshare upload title (e.g., "0.1.29"). This is required for Figshare and PyPI upload. This must be a higher version than previously published versions.')
+    
     args = parser.parse_args()
                     
     # Simulation command for testing order of everything:
@@ -211,6 +228,22 @@ def main():
         os.remove(file_path)
             
     ######
+    ### Pre-Build Environment Token Check
+    #####
+
+    figshare_token = os.getenv('FIGSHARE_TOKEN')
+    pypi_token = os.getenv('PYPI_TOKEN')
+    synapse_auth_token = os.getenv('SYNAPSE_AUTH_TOKEN')
+
+    # Error handling for required tokens
+    if args.figshare and not figshare_token:
+        raise ValueError("FIGSHARE_TOKEN environment variable is not set.")
+    if args.pypi and not pypi_token:
+        raise ValueError("PYPI_TOKEN environment variable is not set.")
+    if ('beataml' in args.datasets or 'mpnst' in args.datasets) and not synapse_auth_token:
+        raise ValueError("SYNAPSE_AUTH_TOKEN is required for accessing MPNST and beatAML datasets.")
+       
+    ######
     ### Begin Pipeline
     #####
     
@@ -267,7 +300,7 @@ def main():
             print("All experiments files completed")
 
     ######
-    ### Begin Upload
+    ### Begin Upload and/or validation
     #####
     
     
@@ -282,22 +315,17 @@ def main():
         if not os.path.exists(all_files_dir):
             os.makedirs(all_files_dir)
 
-        figshare_token = os.getenv('FIGSHARE_TOKEN')
-        pypi_token = os.getenv('PYPI_TOKEN')
-
-        # Ensure tokens are available
+        # Ensure pypi tokens are available
         if  args.pypi and not pypi_token:
             raise ValueError("Required tokens (PYPI) are not set in environment variables.")
         
-                # Ensure tokens are available
+        # Ensure figshare tokens are available
         if  args.figshare and not figshare_token:
             raise ValueError("Required tokens (FIGSHARE) are not set in environment variables.")
         
+        # Ensure version is specified
         if (args.figshare or args.pypi) and not args.version:
             raise ValueError("Version must be specified when pushing to pypi or figshare")
-        
-        if not os.path.exists(all_files_dir):
-            os.makedirs(all_files_dir)
 
         # Move relevant files to a designated directory
         for file in glob(os.path.join("local", '*.*')):
@@ -308,7 +336,7 @@ def main():
         for file in glob(os.path.join(all_files_dir, '*.gz')):
             decompress_file(file)
 
-        # Run schema checker
+        # Run schema checker - This will always run if uploading data.
         datasets_list = args.datasets.split(',')
         schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets_list
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)

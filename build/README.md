@@ -28,13 +28,19 @@ Available arguments:
 - `--validate`: Validates the generated datasets using the schema check scripts.
 - `--figshare`: Uploads the datasets to Figshare.
 - `--pypi`: Uploads the package to PyPI.
-- `--high_mem`: Utilizes high memory mode for concurrent data processing.
+- `--high_mem`: Utilizes high memory mode for concurrent data processing. This has been successfully tested using 32 or more vCPUs.
 - `--dataset`: Specifies the datasets to process (default='broad_sanger,hcmi,beataml,mpnst,cptac').
 - `--version`: Specifies the version number for the package and data upload title. This is required to upload to figshare and PyPI
 
 Example usage:
+Build all datasets and upload to Figshare and PyPI. (Ensure tokens are set locally first)
 ```bash
 python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.29
+```
+
+To only build the experiment files use the following. **Note**: Preceding steps will not automatically be run. This assumes that docker images, samples, omics, and drugs were all previously built. 
+```bash
+python build/build_all.py --exp
 ```
 
 ## Data Source Reference List
