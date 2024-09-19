@@ -12,13 +12,13 @@ are added.
 
 This script initializes all docker containers, builds all datasets, validates them, and uploads them to figshare and pypi.
 
-It requires the following authorization tokens to be set in the local environment depending on the use case:  
-`SYNAPSE_AUTH_TOKEN`: Required for beataml and mpnst datasets. Join the [CoderData team](https://www.synapse.org/#!Team:3503472) on Synapse and generate an access token.
-`PYPI_TOKEN`: This token is required to upload to PyPI.
-`FIGSHARE_TOKEN`: This token is required to upload to Figshare.
-`GITHUB_TOKEN`: This token is required to upload to GitHub.
+It requires the following authorization tokens to be set in the local environment depending on the use case:   
+`SYNAPSE_AUTH_TOKEN`: Required for beataml and mpnst datasets. Join the [CoderData team](https://www.synapse.org/#!Team:3503472) on Synapse and generate an access token.  
+`PYPI_TOKEN`: This token is required to upload to PyPI.  
+`FIGSHARE_TOKEN`: This token is required to upload to Figshare.  
+`GITHUB_TOKEN`: This token is required to upload to GitHub.  
 
-Available arguments:
+**Available arguments**:
 
 - `--docker`: Initializes and builds all docker containers.
 - `--samples`: Processes and builds the sample data files.
@@ -36,14 +36,14 @@ Available arguments:
 - `--github-email`: GitHub email matching the GITHUB_TOKEN. Required to push the new Tag to the GitHub Repository.
 
 **Example usage**:  
-Build all datasets and upload to Figshare and PyPI and GitHub.
-Required tokens for the following command: `SYNAPSE_AUTH_TOKEN`, `PYPI_TOKEN`, `FIGSHARE_TOKEN`, `GITHUB_TOKEN`.
+- Build all datasets and upload to Figshare and PyPI and GitHub.  
+Required tokens for the following command: `SYNAPSE_AUTH_TOKEN`, `PYPI_TOKEN`, `FIGSHARE_TOKEN`, `GITHUB_TOKEN`.  
 ```bash
 python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.41 --github-username jjacobson95 --github-email jeremy.jacobson3402@gmail.com
 ```
   
-Build only the experiment files.  
-**Note**: Preceding steps will not automatically be run. This assumes that docker images, samples, omics, and drugs were all previously built.   
+- Build only the experiment files.  
+**Note**: Preceding steps will not automatically be run. This assumes that docker images, samples, omics, and drugs were all previously built. Ensure all required tokens are set.   
 ```bash
 python build/build_all.py --exp
 ```
