@@ -16,6 +16,7 @@ It requires the following authorization tokens to be set in the local environmen
 `SYNAPSE_AUTH_TOKEN`: Required for beataml and mpnst datasets. Join the [CoderData team](https://www.synapse.org/#!Team:3503472) on Synapse and generate an access token.
 `PYPI_TOKEN`: This token is required to upload to PyPI.
 `FIGSHARE_TOKEN`: This token is required to upload to Figshare.
+`GITHUB_TOKEN`: This token is required to upload to GitHub.
 
 Available arguments:
 
@@ -31,11 +32,14 @@ Available arguments:
 - `--high_mem`: Utilizes high memory mode for concurrent data processing. This has been successfully tested using 32 or more vCPUs. 
 - `--dataset`: Specifies the datasets to process (default='broad_sanger,hcmi,beataml,mpnst,cptac').
 - `--version`: Specifies the version number for the PyPI package and Figshare upload title (e.g., "0.1.29"). This is required for figshare and PyPI upload steps. This must be a higher version than previously published versions.
+- `--github-username`: GitHub username matching the GITHUB_TOKEN. Required to push the new Tag to the GitHub Repository.
+- `--github-email`: GitHub email matching the GITHUB_TOKEN. Required to push the new Tag to the GitHub Repository.
 
-Example usage:  
-Build all datasets and upload to Figshare and PyPI. (Ensure tokens are set locally first)  
+**Example usage**:  
+Build all datasets and upload to Figshare and PyPI and GitHub.
+Required tokens for the following command: `SYNAPSE_AUTH_TOKEN`, `PYPI_TOKEN`, `FIGSHARE_TOKEN`, `GITHUB_TOKEN`.
 ```bash
-python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.29
+python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.41 --github-username jjacobson95 --github-email jeremy.jacobson3402@gmail.com
 ```
   
 Build only the experiment files.  

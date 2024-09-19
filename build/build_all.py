@@ -42,6 +42,8 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
     parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true',help = "If you have 32 or more CPUs, this option is recommended. It will run many code portions in parallel. If you don't have enough memory, this will cause a run failure.")
     parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,mpnst,cptac',help='Datasets to process. Defaults to all available.')
     parser.add_argument('--version', type=str, required=False, help='Version number for the PyPI package and Figshare upload title (e.g., "0.1.29"). This is required for Figshare and PyPI upload. This must be a higher version than previously published versions.')
+    parser.add_argument('--github-username', type=str, required=False, help='GitHub username for the repository.')
+    parser.add_argument('--github-email', type=str, required=False, help='GitHub email for the repository.')
     
     args = parser.parse_args()
                     
@@ -368,15 +370,17 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI', args.version)
             
             # Push changes to GitHub using Docker
-        if args.version and args.figshare and args.pypi and pypi_token and figshare_token and github_token:
+        if args.version and args.figshare and args.pypi and pypi_token and figshare_token and github_token and args.github_username and args.github_email:
             git_command = [
                 'bash', '-c', (
-                    'cp /tmp/figshare_latest.yml /usr/src/app/coderdata/docs/_data/figshare_latest.yml '
-                    '&& git add docs/_data/figshare_latest.yml '
+                    f'git config --global user.name "{args.github_username}" '
+                    f'&& git config --global user.email "{args.github_email}" '
+                    f'&& cp /tmp/figshare_latest.yml /usr/src/app/coderdata/docs/_data/figshare_latest.yml '
+                    f'&& git add docs/_data/figshare_latest.yml '
                     f'&& git commit -m "Data Built and Uploaded. New Tag: {args.version}" '
                     f'&& git tag {args.version} '
-                    f'&& git push https://{os.getenv("GITHUB_TOKEN")}@github.com/PNNL-CompBio/coderdata.git main '
-                    f'&& git push https://{os.getenv("GITHUB_TOKEN")}@github.com/PNNL-CompBio/coderdata.git --tags'
+                    f'&& git push https://{args.github_username}:{github_token}@github.com/PNNL-CompBio/coderdata.git main '
+                    f'&& git push https://{args.github_username}:{github_token}@github.com/PNNL-CompBio/coderdata.git --tags'
                 )
             ]
             run_docker_upload_cmd(git_command, 'all_files_dir', 'GitHub', args.version)
