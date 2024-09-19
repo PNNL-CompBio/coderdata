@@ -199,6 +199,8 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
         if name == "validate":
             docker_run.extend(['upload'])
+        if 'GITHUB_TOKEN' in env and name == "GitHub":
+            docker_run.extend(['-e', f"GITHUB_TOKEN={env['GITHUB_TOKEN']}", 'upload'])
 
         # Full command to run including version update
         docker_run.extend(cmd_arr)
@@ -234,6 +236,8 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
     figshare_token = os.getenv('FIGSHARE_TOKEN')
     pypi_token = os.getenv('PYPI_TOKEN')
     synapse_auth_token = os.getenv('SYNAPSE_AUTH_TOKEN')
+    github_token = os.getenv('GITHUB_TOKEN')
+
 
     # Error handling for required tokens
     if args.figshare and not figshare_token:
@@ -341,7 +345,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
         schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets_list
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
         
-        print("Validation complete. Proceeding with file compression/decromession adjustments")
+        print("Validation complete. Proceeding with file compression/decompression adjustments")
         
         # Compress or decompress files based on specific conditions after checking
         for file in glob(os.path.join(all_files_dir, '*')):
@@ -362,6 +366,20 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
         if args.pypi and args.version and pypi_token:
             pypi_command = ['python3', 'scripts/push_to_pypi.py', '-y', '/tmp/figshare_latest.yml', '-d', 'coderdata/download/downloader.py', "-v", args.version]
             run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI', args.version)
+            
+            # Push changes to GitHub using Docker
+        if args.version and args.figshare and args.pypi and pypi_token and figshare_token and github_token:
+            git_command = [
+                'bash', '-c', (
+                    'cp /tmp/figshare_latest.yml /usr/src/app/coderdata/docs/_data/figshare_latest.yml '
+                    '&& git add docs/_data/figshare_latest.yml '
+                    f'&& git commit -m "Data Built and Uploaded. New Tag: {args.version}" '
+                    f'&& git tag {args.version} '
+                    f'&& git push https://{os.getenv("GITHUB_TOKEN")}@github.com/PNNL-CompBio/coderdata.git main '
+                    f'&& git push https://{os.getenv("GITHUB_TOKEN")}@github.com/PNNL-CompBio/coderdata.git --tags'
+                )
+            ]
+            run_docker_upload_cmd(git_command, 'all_files_dir', 'GitHub', args.version)
             
     
 if __name__ == '__main__':
