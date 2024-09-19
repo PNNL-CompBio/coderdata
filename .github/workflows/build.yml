@@ -2,16 +2,13 @@ name: Build docker images
 
 on:
   push:
-    branches:
-      - '**'
-    paths:
-      - './build/*'
+    tags:
+        - 'v*'  # Triggers the workflow only on version tags
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-
 jobs:
-  build-cellline-omics:
+  build-cell-line-omics:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,10 +26,13 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.broad_sanger_omics
-          tags: sgosline/broad-sanger-omics:latest
+          tags: |
+            sgosline/broad-sanger-omics:latest
+            sgosline/broad-sanger-omics:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
-  build-cellline-exp:
+
+  build-cell-line-exp:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -50,9 +50,13 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.broad_sanger_exp
-          tags: sgosline/broad-sanger-exp:latest
+          tags: |
+            sgosline/broad-sanger-exp:latest
+            sgosline/broad-sanger-exp:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
+
+  # Repeat the same tag update for the remaining steps:
   build-genes:
     runs-on: ubuntu-latest
     steps:
@@ -66,14 +70,17 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}   
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build and push genes
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.genes
-          tags: sgosline/genes:latest
+          tags: |
+            sgosline/genes:latest
+            sgosline/genes:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
+
   build-hcmi:
     runs-on: ubuntu-latest
     steps:
@@ -92,9 +99,12 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.hcmi
-          tags: sgosline/hcmi:latest
+          tags: |
+            sgosline/hcmi:latest
+            sgosline/hcmi:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
+
   build-cptac:
     runs-on: ubuntu-latest
     steps:
@@ -108,14 +118,17 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}  
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build and push cptac
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.cptac
-          tags: sgosline/cptac:latest
+          tags: |
+            sgosline/cptac:latest
+            sgosline/cptac:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
+
   build-mpnst:
     runs-on: ubuntu-latest
     steps:
@@ -129,14 +142,17 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}  
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build and push mpnst
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.mpnst
-          tags: sgosline/mpnst:latest
+          tags: |
+            sgosline/mpnst:latest
+            sgosline/mpnst:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
+
   build-beataml:
     runs-on: ubuntu-latest
     steps:
@@ -150,14 +166,17 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}  
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build and push beataml
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.beataml
-          tags: sgosline/beataml:latest
+          tags: |
+            sgosline/beataml:latest
+            sgosline/beataml:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
+
   build-upload:
     runs-on: ubuntu-latest
     steps:
@@ -171,12 +190,13 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}  
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build and push upload
         uses: docker/build-push-action@v3
         with:
           file: ./build/docker/Dockerfile.upload
-          tags: sgosline/upload:latest
+          tags: |
+            sgosline/upload:latest
+            sgosline/upload:${{ github.ref_name }}
           push: true
-          platforms: linux/amd64        
-  
+          platforms: linux/amd64
