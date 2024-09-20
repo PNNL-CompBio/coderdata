@@ -308,7 +308,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
     ### Build Docker Images. These are all built in Parallel. Nothing else can run until these are built.
     # Ouput is logged at local/docker.log
     if args.docker or args.all:
-        process_docker()
+        process_docker(datasets)
         print("Docker image generation completed")
         
 
