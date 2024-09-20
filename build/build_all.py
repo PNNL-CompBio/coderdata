@@ -128,12 +128,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
         for dataset in datasets:
             datasets_to_build.extend(dataset_map.get(dataset, []))
         
-        # If no specific services were found, exit early
-        if not datasets_to_build:
-            print("No matching services found for the provided datasets.")
-            return
-        
-        # Build the docker-compose command, adding specific services
+        # Build the docker-compose command, adding specific datasets
         compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel'] + datasets_to_build
         
         log_file_path = 'local/docker.log'
