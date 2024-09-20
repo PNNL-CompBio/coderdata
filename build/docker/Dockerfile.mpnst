@@ -19,6 +19,9 @@ ADD build/utils/* ./
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
+# Install R libraries including devtools
+RUN Rscript -e "install.packages('devtools', repos='https://cloud.r-project.org')"
+
 # installing r libraries
 RUN Rscript requirements.r
 
