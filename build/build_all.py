@@ -78,29 +78,79 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             print(filename+' retrieved')
         
     
-    def process_docker():
+    # def process_docker():
+    #     '''
+    #     Build all docker images using docker compose
+    #     All output and errors are logged at local/docker.log
+    #     '''
+    #     compose_file = 'build/docker/docker-compose.yml'
+    #     compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel']
+    #     log_file_path = 'local/docker.log'
+    #     env = os.environ.copy()
+    #     print(f"Docker-compose is building all images. View output in {log_file_path}.")
+    #     with open(log_file_path, 'w') as log_file:
+    #         # Execute the docker-compose command
+    #         res = subprocess.run(compose_command,  env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    #         # Log both stdout and stderr to the log file
+    #         log_file.write(res.stdout)
+    #         if res.returncode != 0:
+    #             log_file.write("Docker compose build failed.\n")
+    #             print(f"Docker compose build failed. See {log_file_path} for details.")
+    #             exit(1)
+    #         else:
+    #             log_file.write("Docker images built successfully.\n")
+    #             print(f"Docker images built successfully. Details logged in {log_file_path}")
+
+
+    def process_docker(datasets):
         '''
-        Build all docker images using docker compose
-        All output and errors are logged at local/docker.log
+        Build specific docker images using docker-compose based on the dataset argument.
+        All output and errors are logged at local/docker.log.
+        
+        Parameters:
+        - datasets: list of datasets to process (e.g., ['broad_sanger', 'hcmi', 'mpnst'])
         '''
         compose_file = 'build/docker/docker-compose.yml'
-        compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel']
+        
+        # Map datasets to corresponding Docker Containers
+        dataset_map = {
+            'broad_sanger': ['broad_sanger_exp', 'broad_sanger_omics'],
+            'hcmi': ['hcmi'],
+            'beataml': ['beataml'],
+            'mpnst': ['mpnst'],
+            'cptac': ['cptac'],
+            'genes': ['genes'],
+            'upload': ['upload']
+        }
+        
+        # Collect container names to build based on the datasets provided. Always build genes and upload.
+        datasets_to_build = ['genes', 'upload']
+        for dataset in datasets:
+            datasets_to_build.extend(dataset_map.get(dataset, []))
+        
+        # If no specific services were found, exit early
+        if not datasets_to_build:
+            print("No matching services found for the provided datasets.")
+            return
+        
+        # Build the docker-compose command, adding specific services
+        compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel'] + datasets_to_build
+        
         log_file_path = 'local/docker.log'
         env = os.environ.copy()
-        print(f"Docker-compose is building all images. View output in {log_file_path}.")
+        
+        print(f"Docker-compose is building images for {', '.join(datasets_to_build)}. View output in {log_file_path}.")
+        
         with open(log_file_path, 'w') as log_file:
-            # Execute the docker-compose command
-            res = subprocess.run(compose_command,  env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-            # Log both stdout and stderr to the log file
-            log_file.write(res.stdout)
-            if res.returncode != 0:
-                log_file.write("Docker compose build failed.\n")
-                print(f"Docker compose build failed. See {log_file_path} for details.")
-                exit(1)
-            else:
+            try:
+                # Execute the docker-compose command
+                res = subprocess.run(compose_command, env=env, stdout=log_file, stderr=log_file, text=True, check=True)
                 log_file.write("Docker images built successfully.\n")
-                print(f"Docker images built successfully. Details logged in {log_file_path}")
-
+                print(f"Docker images for {', '.join(datasets_to_build)} built successfully. Details logged in {log_file_path}.")
+            except subprocess.CalledProcessError as e:
+                log_file.write(f"Docker compose build failed with error: {e}\n")
+                print(f"Docker compose build failed. See {log_file_path} for details.")
+                raise
 
     def process_drugs(executor, datasets):
         '''
