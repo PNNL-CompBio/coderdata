@@ -53,7 +53,15 @@ main<-rbind(sampTable,pdxmt)|>
 
 #main <- fread("mpnst/NF_MPNST_samples.csv")
 #previous_aml <- fread(args[1])#"beatAML/beataml_samples.csv")
-max_id <- max(orig_samples$improve_sample_id)
+
+# If there is no previous samples file - start at 1, else, continue where the previous one left off.
+if (identical(orig_samples, "")) {
+    max_id <- 1  
+} else {
+    max_id <- max(orig_samples$improve_sample_id, na.rm = TRUE)
+}
+
+
 main$improve_sample_id <- seq(from = max_id + 1, length.out = nrow(main))
 
 #synapse_main <- fread("mpnst/synapse_NF-MPNST_samples.csv")
