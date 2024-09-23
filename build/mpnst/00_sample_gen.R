@@ -12,7 +12,11 @@ if(length(args)!=2){
 
 }
 
-orig_samples<-fread(args[1])
+if (file.size(args[1]) == 0) {
+    orig_samples <- ""
+} else {
+    orig_samples <- fread(args[1])
+}
 
 synapser::synLogin(authToken=args[2])
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
