@@ -150,11 +150,14 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     ## here t = 0.1 and i use the fitted curve values
     dss1 = (auc1-0.1*(ic10x-xmin)) / (0.9 * (xmax - xmin)) if xmax > ic50 else 0
     dss2 = dss1/(1-einf) ##made this dss2 doesn't change much 
+
+    dss1 = (auc1-0.1*(ic10x-xmin)) / (0.9 * (xmax - xmin)) if xmin<ic10x else 0 #xmax > ic50 else 0
+    dss2 = dss1/(1-einf) ##made this dss2 
     metrics = pd.Series({'fit_auc':auc, 'fit_ic50':ic50, 'fit_ec50':ec50,'fit_einf':einf,
                          'fit_ec50se':ec50se, 'fit_r2':r2, 'einf':einf, 'fit_hs':hs,
                          'aac':aac1, 'auc':auc1, 'dss':dss2}).round(4)
     return metrics
-
+    ##and also this: https://github.com/bhklab/PharmacoGx/blob/master/R/computeDSS.R
 
 
 def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS_NEG):

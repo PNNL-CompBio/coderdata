@@ -3,7 +3,9 @@ library(data.table)
 # library(biomaRt)# biomart issues still exist
 library(dplyr)
 library(stringr)
+library(reticulate)
 library(synapser)
+library(tidyr)
 
 
 # Retrieve command line arguments
@@ -53,15 +55,17 @@ pdx_meta<-do.call(rbind,lapply(pdx_fold$id, function(x) synapser::synGetAnnotati
                                           as.data.frame()|>
                                           dplyr::select('experimentalCondition')|>
                                           dplyr::mutate(id=x)))|>
-    left_join(pdx_fold)
+    left_join(pdx_fold)|>
+    tidyr::separate_rows(experimentalCondition,sep=';')|>
+    mutate(chem_name=tolower(experimentalCondition))
 
-pdx_drug <- data.table(pdx_meta)[,strsplit(as.character(experimentalCondition),';'),by= .(common_name,id)]|>
-    mutate(drug=tolower(experimentalCondition))
+#pdx_drug <- data.table(pdx_meta)[,strsplit(as.character(experimentalCondition),';'),by= .(common_name,id)]|>
+#    mutate(drug=tolower(experimentalCondition))
 #drugs<-sapply(pdx_meta$experimentalCondition,function(x) tolower(unlist(strsplit(x,split=';'))))|>
 #    unlist()|>
 #    unique()
 
-drugs<-setdiff(drugs,'control')
+drugs<-setdiff(pdx_meta$chem_name,'control')
 
 
 print(paste(drugs,collapse=','))
@@ -92,7 +96,7 @@ ignore_file_path <- '/tmp/mpnstpdx_ignore_chems.txt'
 
 ##now load reticulate down here
 
-library(reticulate)
+
 
 use_python("/opt/venv/bin/python3", required = TRUE)
 source_python("pubchem_retrieval.py")
