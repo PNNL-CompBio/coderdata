@@ -7,9 +7,7 @@ library(dplyr)
 
 ##adding a command line argument
 args = commandArgs(trailingOnly=TRUE)
-if(length(args)==0 ){
-    stop("No Argument (or empty string) was passed in.  Improve Sample ID will start at 1.")
-} else if (length(args) > 1){
+if(length(args) > 1 ){
     stop("Up to one argument is allowed. This is the filepath to the previously run samples file.")
 }
 
