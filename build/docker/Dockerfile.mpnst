@@ -1,26 +1,47 @@
 FROM r-base:4.3.2
+
+# Set environment to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update --allow-insecure-repositories
-#RUN apt-get install -y --allow-unauthenticated build-essential --fix-missing libpq-dev python3-pip python3-setuptools python3-dev python3-venv libcurl4-openssl-dev libxml2-dev
-RUN apt-get install -y --allow-unauthenticated build-essential --fix-missing python3-pip python3-setuptools python3-dev python3-venv libcurl4-openssl-dev libxml2-dev 
 
+# Update package list and install required packages
+RUN apt-get update && \
+    apt-get install -y build-essential wget curl libcurl4-openssl-dev libxml2-dev \
+    zlib1g-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev
+
+# Download and compile Python 3.10 with shared library support
+RUN wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz && \
+    tar -xf Python-3.10.12.tgz && \
+    cd Python-3.10.12 && \
+    ./configure --enable-optimizations --enable-shared && \
+    make -j$(nproc) && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-3.10.12.tgz Python-3.10.12
+
+# Set Python 3.10 as default
+RUN ln -s /usr/local/bin/python3.10 /usr/bin/python3 && \
+    ln -s /usr/local/bin/pip3.10 /usr/bin/pip3
+
+# Update library paths for Python shared library
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/python3.10.conf && ldconfig
+
+# Create a Python virtual environment
 RUN python3 -m venv /opt/venv
-RUN /opt/venv/bin/pip3 install --upgrade pip
+RUN /opt/venv/bin/pip install --upgrade pip
 
-
-ENV PYTHONPATH "${PYTHONPATH}:/app"
+# Set environment variables for reticulate
+ENV RETICULATE_PYTHON="/opt/venv/bin/python"
+ENV PYTHONPATH="${PYTHONPATH}:/app"
 WORKDIR /app
 
+# Add necessary files to the container
 ADD build/mpnst/requirements.txt .
 ADD build/mpnst/requirements.r .
 ADD build/mpnst/* ./
 ADD build/utils/* ./
 
-# installing python libraries
-RUN /opt/venv/bin/pip3 install -r requirements.txt
-
-# installing r libraries
+# Install all R libraries from requirements.r
 RUN Rscript requirements.r
 
-
+# Set up volume for temporary storage
 VOLUME ["/tmp"]

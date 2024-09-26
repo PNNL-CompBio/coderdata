@@ -7,12 +7,23 @@ library(dplyr)
 
 ##adding a command line argument
 args = commandArgs(trailingOnly=TRUE)
-if(length(args)!=2){
-    stop("Need a sample file and synapse token as argument. Rscript 00_sample_gen.R [samplefile] [synapse token]")
-
+if(length(args) > 1 ){
+    stop("Up to one argument is allowed. This is the filepath to the previously run samples file.")
 }
 
-orig_samples<-fread(args[1])
+
+if (file.size(args[1]) == 0) {
+    orig_samples <- ""
+} else {
+    orig_samples <- fread(args[1])
+}
+
+
+# Check if Synapse token is available from the environment
+synapse_token <- Sys.getenv("SYNAPSE_AUTH_TOKEN")
+if (synapse_token == "") {
+    stop("Error: SYNAPSE_AUTH_TOKEN environment variable is not set.")
+}
 
 synapser::synLogin(authToken=args[2])
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
@@ -53,7 +64,15 @@ main<-rbind(sampTable,pdxmt)|>
 
 #main <- fread("mpnst/NF_MPNST_samples.csv")
 #previous_aml <- fread(args[1])#"beatAML/beataml_samples.csv")
-max_id <- max(orig_samples$improve_sample_id)
+
+# If there is no previous samples file - start at 1, else, continue where the previous one left off.
+if (identical(orig_samples, "")) {
+    max_id <- 1  
+} else {
+    max_id <- max(orig_samples$improve_sample_id, na.rm = TRUE)
+}
+
+
 main$improve_sample_id <- seq(from = max_id + 1, length.out = nrow(main))
 
 #synapse_main <- fread("mpnst/synapse_NF-MPNST_samples.csv")
@@ -71,4 +90,3 @@ main$improve_sample_id <- seq(from = max_id + 1, length.out = nrow(main))
 #fwrite(synapse_main, "mpnst/synapse_NF-MPNST_samples.csv")
 #fwrite(main, "mpnst/NF_MPNST_samples.csv") # updated sample file
 fwrite(main,'/tmp/mpnst_samples.csv')
-
