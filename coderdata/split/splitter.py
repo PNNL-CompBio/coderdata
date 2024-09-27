@@ -1,11 +1,14 @@
 
-import pandas as pd
-import sys
-
+from copy import deepcopy
 from typing import Literal
 
+import numpy as np
 from numpy.random import RandomState
+
+import pandas as pd
+
 from sklearn.model_selection import GroupShuffleSplit
+
 from coderdata.load.loader import DatasetLoader
 
 def train_test_validate(
@@ -121,7 +124,7 @@ def train_test_validate(
             idx1, idx2 = next(
                 gss.split(df_full, groups=df_full.sample_id_drug_id)
                 )
-        elif split_type == 'drug_blind':
+        elif split_type == 'drug-blind':
             # same as above we just group only over the drug id
             idx1, idx2 = next(
                 gss.split(df_full, groups=df_full.improve_drug_id)
@@ -170,14 +173,68 @@ def train_test_validate(
         df_val = df_other.iloc[idx2]
     elif split_type == 'disjoint':
         raise NotImplementedError('disjoint currently not implemented')
-    
     else:
         raise Exception(
             f"`split_type` contains unexpected value '{split_type}'!"
             )
-
     
-    return (df_train, df_test, df_val)
+    # dropping the previously generated combined index for mixed-type
+    # as it is no longer necessary and would otherwise appear in the 
+    # finalized CoderData objects that are to be returned
+    if split_type == 'mixed-set':
+        df_full.drop('sample_id_drug_id', axis='columns', inplace=True)
+
+    # generating filtered CoderData objects that contain only the 
+    # respective data for each split
+    data_train = _filter(data, df_train)
+    data_test = _filter(data, df_test)
+    data_val = _filter(data, df_val)
+    
+    return (data_train, data_test, data_val)
+
+
+def _filter(data: DatasetLoader, split: pd.DataFrame) -> DatasetLoader:
+    """
+    Helper function to filter down the CoderData object(s) to create
+    indipendent more concise CoderData objects for training, testing 
+    and validation splits.
+    """
+
+    # cd.drugs -> reduce based on improve_drug_id
+    # cd.mutations -> reduce based on improve_sample_id
+    # cd.proteomics -> reduce based on improve_sample_id
+    # cd.samples -> reduce based on improve_sample_id
+    # cd.transcriptomics -> reduce based on improve_sample_id
+
+    # extracting improve sample and drug ids from the provided split
+    sample_ids = np.unique(split['improve_sample_id'].values)
+    drug_ids = np.unique(split['improve_drug_id'].values)
+    
+    # creating a deep copy of the CoderData object such that any 
+    # further operations on the object are not changing the original
+    # object / data
+    data_ret = deepcopy(data)
+
+    # filtering each individual data type down by only the improve 
+    # sample / drug ids that are present in the split (extracted above)
+    data_ret.drugs = data_ret.drugs[
+        data_ret.drugs['improve_drug_id'].isin(drug_ids)
+        ]
+    data_ret.mutations = data_ret.mutations[
+        data_ret.mutations['improve_sample_id'].isin(sample_ids)
+        ]
+    data_ret.proteomics = data_ret.proteomics[
+        data_ret.proteomics['improve_sample_id'].isin(sample_ids)
+        ]
+    data_ret.samples = data_ret.samples[
+        data_ret.samples['improve_sample_id'].isin(sample_ids)
+        ]
+    data_ret.transcriptomics = data_ret.transcriptomics[
+        data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
+        ]
+    data_ret.experiments = split
+    
+    return data_ret
 
 
 def get_subset(df_full: pd.DataFrame, df_subset: pd.DataFrame):
