@@ -74,7 +74,7 @@ def main():
     
     newnames = pl.DataFrame(
         {
-            'new_name':[re.split(' |\(|\/',a)[0] for a in nulls['CELL_NAME']],
+            'new_name': [re.split(r' |\(|/', a)[0] for a in nulls['CELL_NAME']],
             'CELL_NAME':nulls['CELL_NAME']
         }
     )

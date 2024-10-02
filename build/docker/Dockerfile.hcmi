@@ -9,5 +9,10 @@ COPY build/hcmi/requirements.txt .
 COPY build/hcmi/*sh ./
 COPY build/hcmi/hcmi_cancer_types.csv ./
 
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
 RUN pip install --no-cache-dir -r requirements.txt
 

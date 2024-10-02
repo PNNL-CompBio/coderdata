@@ -34,6 +34,10 @@ ENV RETICULATE_PYTHON="/opt/venv/bin/python"
 ENV PYTHONPATH="${PYTHONPATH}:/app"
 WORKDIR /app
 
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
 # Add necessary files to the container
 ADD build/mpnst/requirements.txt .
 ADD build/mpnst/requirements.r .
