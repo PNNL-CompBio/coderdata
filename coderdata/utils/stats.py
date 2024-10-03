@@ -6,9 +6,9 @@ contained in a CoderData Object.
 from coderdata import DatasetLoader
 import pandas as pd
 
-import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+import seaborn as sns
 
 def summarize_response_metric(data: DatasetLoader) -> pd.DataFrame:
     """
@@ -43,34 +43,79 @@ def summarize_response_metric(data: DatasetLoader) -> pd.DataFrame:
 def plot_response_metric(
         data: DatasetLoader,
         metric: str='auc',
+        ax: Axes=None,
         **kwargs: dict
-    ) -> Figure:
+    ) -> None:
     """
-    Will cerate a `matplot.figure.Figure` object and return it, e.g. to 
-    be saved locally. If the only purpose is to display the figure in a
-    Jupyter notebook for example the return value does not need to be
-    caught.
+    Creates a histogram detailing the distribution of dose response 
+    values for a given dose respones metric.
 
+    If used in conjunction with `matplotlib.pyplot.subplot` or 
+    `matplotlib.pyplot.subplots` and the axes object is passed to the
+    function, the function populates the axes object with the generated
+    plot.
+    
     Parameters
     ----------
     data : coderdata.DataLoader
         A full CoderData object of a dataset
     metric : str, default='auc'
         A string that defines the response metric that should be plotted
+    ax : matplotlib.axes.Axes, default=None
+        An `Axes` object can be defined. This is uesful if a multipannel 
+        subplot has been defined prior via `matplotlib.pyplot.subplots`.
+        Passing the location of the axes to the function will then 
+        populate the subplot at the given location with the generated 
+        plot.
     **kwargs : dict, optional
         Additional keyword arguments that can be passed to the function
+        - bins : int - sets the number of bins; passed to 
+        `seaborn.histplot`
+        - title : str - sets the title of the axes
+        - kde : bool - adds a kernel density estimate plot into the
+        histogram
 
-    Returns
+    Example
     -------
-    matplotlib.figure.Figure
-        A `Figure` object that contains the generated figure. Can be 
-        passed to a variable and saved locally via `Figure.savefig()`
+    In a Jupyter Notebook environment the following snippet can be used 
+    to display a histgram detailing the distribution of drug response
+    AUC measures in the beataml dataset. 
+
+    >>> import coderdata as cd
+    >>> beataml = cd.DataLoader('beataml')
+    >>> cd.plot_response_metric(data=beataml, metric='auc', bin=10)
+
+    For generating multipanel plots we can make use of matplotlib and 
+    the `ax` parameter of this function. Furthermore, other features / 
+    parameters of the cerated figure can be changed (e.g. the title of 
+    the figure via `suptitle()`). Finally it can be saved.
+
+    >>> import coderdata as cd
+    >>> import matplotlib.pyplot as plt
+    >>> beataml = cd.DataLoader('beataml')
+    >>> fig, axs = plt.subplots(ncols=2, figsize=(10, 5))
+    >>> plot_response_metric(
+    ...     data=beataml,
+    ...     metric='auc', 
+    ...     bins=10,
+    ...     ax=axs[0]
+    ...     )
+    >>> plot_response_metric(
+    ...     data=beataml,
+    ...     metric='aac', 
+    ...     bins=10,
+    ...     ax=axs[0]
+    ...     )
+    >>> fig.set_layout_engine('tight')
+    >>> fig.suptitle('Distribution of drug response values')
+    >>> fig.savefig('figure.png')
     """
 
     # assinging values to variables based on **kwargs and defining
     # default values if not present in **kwargs
-    bins = kwargs.get('bins', 10)
-    title = kwargs.get('title', f"Value distributino for metric '{metric}'")
+    bins_ = kwargs.get('bins', 10)
+    title_ = kwargs.get('title', None)
+    kde_ = kwargs.get('kde', False)
 
     # retrieving the data/values necessary to generate the figure
     metrics = (
@@ -80,9 +125,7 @@ def plot_response_metric(
     metric_ = metrics.get_group(metric) # retrieving the desired group
     x = metric_['dose_response_value'] # getting the values
 
-    fig, ax = plt.subplots() # generating the "Plot objects"
-
-    ax.hist(x, bins=bins, linewidth=0.5, edgecolor="white")
-    ax.set_title(title)
-    
-    return fig
+    sns.set_theme(palette='colorblind')
+    p = sns.histplot(data=x, kde=kde_, bins=bins_, ax=ax)
+    p.set_xlabel(metric)
+    p.set_title(title_)
