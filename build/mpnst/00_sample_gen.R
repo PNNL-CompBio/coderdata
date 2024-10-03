@@ -12,7 +12,7 @@ if(length(args) > 1 ){
 }
 
 
-if (file.size(args[1]) == 0) {
+if (length(args) == 0 || is.na(args[1]) || args[1] == "" || !file.exists(args[1])) {
     orig_samples <- ""
 } else {
     orig_samples <- fread(args[1])
@@ -25,7 +25,7 @@ if (synapse_token == "") {
     stop("Error: SYNAPSE_AUTH_TOKEN environment variable is not set.")
 }
 
-synapser::synLogin(authToken=args[2])
+synapser::synLogin(authToken=synapse_token)
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
                                                              as.data.frame()
 

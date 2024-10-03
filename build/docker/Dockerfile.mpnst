@@ -30,7 +30,7 @@ RUN python3 -m venv /opt/venv
 RUN /opt/venv/bin/pip install --upgrade pip
 
 # Set environment variables for reticulate
-ENV RETICULATE_PYTHON="/opt/venv/bin/python"
+ENV RETICULATE_PYTHON="/opt/venv/bin/python3"
 ENV PYTHONPATH="${PYTHONPATH}:/app"
 WORKDIR /app
 
@@ -43,6 +43,9 @@ ADD build/mpnst/requirements.txt .
 ADD build/mpnst/requirements.r .
 ADD build/mpnst/* ./
 ADD build/utils/* ./
+
+# installing python libraries
+RUN /opt/venv/bin/pip3 install -r requirements.txt
 
 # Install all R libraries from requirements.r
 RUN Rscript requirements.r
