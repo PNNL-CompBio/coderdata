@@ -6,6 +6,8 @@ contained in a CoderData Object.
 from coderdata import DatasetLoader
 import pandas as pd
 
+import matplotlib
+import matplotlib.pyplot as plt
 
 def summarize_response_metric(data: DatasetLoader) -> pd.DataFrame:
     
@@ -18,3 +20,15 @@ def summarize_response_metric(data: DatasetLoader) -> pd.DataFrame:
 
     return df_ret
 
+
+def plot_response_metric(data: DatasetLoader, metric: str='auc'):
+
+    metrics = data.experiments.groupby('dose_response_metric')
+    metric_ = metrics.get_group(metric)
+    x = metric_['dose_response_value']
+
+    fig, ax = plt.subplots()
+
+    ax.hist(x, bins=10, linewidth=0.5, edgecolor="white")
+    ax.set_title(f"value distribution for {metric}")
+    plt.show()
