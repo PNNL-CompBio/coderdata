@@ -1,7 +1,8 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python3
 '''
-Basic CLI to import CPTAC protegenomic data
+Script to import CPTAC proteogenomic data and handle previous samples argument.
 '''
+
 import argparse
 import cptac
 import os
@@ -10,52 +11,55 @@ import pandas as pd
 import gzip
 from pathvalidate.argparse import validate_filename_arg
 
-
 def reclass_var(arr):
-    # the dictionary started with
-    # CCLE data
-    newarr=[]
-    variant_schema = {"3'UTR":["3'UTR"],\
-                      "5'Flank":["5'Flank"],\
-                      "5'UTR": ["5'UTR"], \
-                      'Undetermined':['COULD_NOT_DETERMINE'],\
-                      'De_novo_Start_InFrame':['DE_NOVO_START_IN_FRAME','De_novo_Start_InFrame'],\
-                      'De_novo_Start_OutOfFrame':['DE_NOVO_START_OUT_FRAME','De_novo_Start_OutOfFrame'],\
-                      'Frame_Shift_Del':['Frame_Shift_Del'],\
-                      'Frame_Shift_Ins':['Frame_Shift_Ins'],\
-                      'IGR':['IGR'],\
-                      'In_Frame_Del':['In_Frame_Del'],\
-                      'In_Frame_Ins':['In_Frame_Ins'],\
-                      'Intron':['Intron'],\
-                      'Missense_Mutation': ['Missense_Mutation'],\
-                      'Nonsense_Mutation': ['Nonsense_Mutation'],\
-                      'Nonstop_Mutation': ['Nonstop_Mutation'],\
-                      'RNA':['RNA'],\
-                      'Start_Codon_SNP':['START_CODON_SNP','Start_Codon_SNP'],\
-                      'Start_Codon_Del':['Start_Codon_Del'],\
-                      'Start_Codon_Ins':['Start_Codon_Ins','START_CODON_INS'],\
-                      'Stop_Codon_Del' :['Stop_Codon_Del'],\
-                      'Stop_Codon_Ins' :['Stop_Codon_Ins'],\
-                      'Silent':['Silent'],\
-                      'Splice_Site':['Splice_Site'],\
-                      'Translation_Start_Site':['Translation_Start_Site']}
-    #there has to be a better way to loop through each element of the dictionary
-    #but here we are
+    '''
+    Reclassify variant annotations to a standard set.
+    '''
+    variant_schema = {
+        "3'UTR": ["3'UTR"],
+        "5'Flank": ["5'Flank"],
+        "5'UTR": ["5'UTR"],
+        'Undetermined': ['COULD_NOT_DETERMINE'],
+        'De_novo_Start_InFrame': ['DE_NOVO_START_IN_FRAME', 'De_novo_Start_InFrame'],
+        'De_novo_Start_OutOfFrame': ['DE_NOVO_START_OUT_FRAME', 'De_novo_Start_OutOfFrame'],
+        'Frame_Shift_Del': ['Frame_Shift_Del'],
+        'Frame_Shift_Ins': ['Frame_Shift_Ins'],
+        'IGR': ['IGR'],
+        'In_Frame_Del': ['In_Frame_Del'],
+        'In_Frame_Ins': ['In_Frame_Ins'],
+        'Intron': ['Intron'],
+        'Missense_Mutation': ['Missense_Mutation'],
+        'Nonsense_Mutation': ['Nonsense_Mutation'],
+        'Nonstop_Mutation': ['Nonstop_Mutation'],
+        'RNA': ['RNA'],
+        'Start_Codon_SNP': ['START_CODON_SNP', 'Start_Codon_SNP'],
+        'Start_Codon_Del': ['Start_Codon_Del'],
+        'Start_Codon_Ins': ['Start_Codon_Ins', 'START_CODON_INS'],
+        'Stop_Codon_Del': ['Stop_Codon_Del'],
+        'Stop_Codon_Ins': ['Stop_Codon_Ins'],
+        'Silent': ['Silent'],
+        'Splice_Site': ['Splice_Site'],
+        'Translation_Start_Site': ['Translation_Start_Site']
+    }
+
+    newarr = []
     for a in arr:
         found = False
-        for key,var in variant_schema.items():
-            if a in var:
+        for key, var_list in variant_schema.items():
+            if a in var_list:
                 newarr.append(key)
                 found = True
+                break
         if not found:
-            print("Variant "+a+' not found, returning undetermined')
+            print(f"Variant {a} not found, returning 'Undetermined'")
             newarr.append('Undetermined')
-    ##double check here
-    print('udpdated '+str(len(arr))+' old variants with '+str(len(newarr))+' new ones')
+    print(f'Updated {len(arr)} old variants with {len(newarr)} new ones')
     return newarr
 
 def getCancerObj(cancertype):
-   # cptac.download(dataset=cancertype,source='harmonized',)
+    '''
+    Retrieve the CPTAC data object for a given cancer type.
+    '''
     if cancertype == 'brca':
         dat = cptac.Brca()
     elif cancertype == 'ccrcc':
@@ -72,86 +76,91 @@ def getCancerObj(cancertype):
         dat = cptac.Luad()
     elif cancertype == 'ov':
         dat = cptac.Ov()
-    elif cancertype =='pdac':
+    elif cancertype == 'pdac':
         dat = cptac.Pdac()
-    elif cancertype =='ucec':
+    elif cancertype == 'ucec':
         dat = cptac.Ucec()
     else:
-        print('Wrong cancer type: '+cancertype)
+        print('Wrong cancer type: ' + cancertype)
         exit()
     return dat
 
+ct_vals = {
+    'brca': 'Breast carcinoma',
+    'ccrcc': 'Clear cell renal cell carcinoma',
+    'coad': 'Colon adenocarcinoma',
+    'gbm': 'Glioblastoma multiforme',
+    'hnscc': 'Head and Neck squamous cell carcinoma',
+    'lscc': 'Lung squamous cell carcinoma',
+    'luad': 'Lung adenocarcinoma',
+    'ov': 'Ovarian carcinoma',
+    'pdac': 'Pancreatic ductal adenocarcinoma',
+    'ucec': 'Uterine Corpus Endometrial Carcinoma'
+}
 
-ct_vals={'brca':'Breast carcinoma','ccrcc':'Clear cell renal cell carcinoma',\
-         'coad':'Colon adenocarcinoma',\
-         'gbm':'Glioblastoma multiforme',\
-         'hnscc':'Head and Neck squamous cell carcinoma',\
-         'lscc':'Lung squamous cell carcinoma','luad':'Lung adenocarcinoma',\
-         'ov':'Ovarian carcinoma',\
-         'pdac': 'Pancreatic ductal adenocarcinoma','ucec':'Uterine Corpus Endometrial Carcinoma'}
-
-
-def buildTumorSampleTable(sample_names,cancer_type,samples,maxval):
+def buildTumorSampleTable(sample_names, cancer_type, samples, maxval):
     '''
-    we have to read in existing sample information first to see if it is part of the samples
+    Builds or updates the samples DataFrame with new samples.
+
+    Parameters:
+    - sample_names: list of sample names to process.
+    - cancer_type: string indicating the cancer type.
+    - samples: existing samples DataFrame.
+    - maxval: integer indicating the starting improve_sample_id.
+
+    Returns:
+    - Updated samples DataFrame.
+    - Updated maxval.
     '''
     for samp in sample_names:
-       if len(samples)==0 or samp not in samples.common_name:
-           maxval = int(maxval+1)
-           samples = pd.concat([samples,
-                                pd.DataFrame({'common_name':[samp],\
-                                              'cancer_type':[ct_vals[cancer_type]],\
-                                              'other_names':[''],\
-                                              'species':['Homo Sapiens (Human)'],\
-                                              'improve_sample_id':[maxval],\
-                                              'other_id_source':['CPTAC3'],\
-                                              'other_id':[samp],\
-                                              'model_type':['tumor']}).reset_index(drop=True)])
-
-
+        if len(samples) == 0 or samp not in samples.common_name.values:
+            maxval = int(maxval + 1)
+            new_sample = pd.DataFrame({
+                'common_name': [samp],
+                'cancer_type': [ct_vals[cancer_type]],
+                'other_names': [''],
+                'species': ['Homo sapiens'],
+                'improve_sample_id': [maxval],
+                'other_id_source': ['CPTAC3'],
+                'other_id': [samp],
+                'model_type': ['tumor']
+            })
+            samples = pd.concat([samples, new_sample], ignore_index=True)
     samples = samples.reset_index(drop=True)
-    #print(samples)
-    samples.to_csv('/tmp/cptac_samples.csv',index=False)
-    return samples
-   
-def formatMutData(df,dtype,ctype,samp_names,source,samples):
+    return samples, maxval
+
+def formatMutData(df, dtype, ctype, samp_names, source, samples):
     '''
-    formats mutational data, which is different as its not a matrix!
+    Formats mutational data.
     '''
-    # some dataset has two level of indices some has only one
+    # Some datasets have two levels of indices, some have only one
     if df.columns.nlevels == 2:
         df.columns = df.columns.droplevel(1)
     elif df.columns.nlevels != 1:
-        print("The number of column levels is larger not 1 or 2!\n")
-        raise
+        print("The number of column levels is not 1 or 2!\n")
+        raise Exception("Invalid column levels")
 
-    ##firstr get relevant columnsz
     df = df.reset_index()
-    subset = df[['Patient_ID','HGNC_Entrez_Gene_ID(supplied_by_NCBI)','Mutation','Genome_Change']]
-    subset.columns=['Patient_ID','entrez_gene','variant_classification','Mutation']
+    subset = df[['Patient_ID', 'HGNC_Entrez_Gene_ID(supplied_by_NCBI)', 'Mutation', 'Genome_Change']]
+    subset.columns = ['Patient_ID', 'entrez_gene', 'variant_classification', 'Mutation']
 
-    improve_mapping = samples
-    improve_mapping.reset_index(drop=True)
-    improve_mapping.index=improve_mapping.common_name
+    improve_mapping = samples.set_index('common_name')
+    blongdf = subset.join(improve_mapping, on='Patient_ID', how='inner')
+    blongdf['source'] = source
+    blongdf['study'] = 'CPTAC3'
 
-    blongdf = subset.join(improve_mapping,on='Patient_ID')
-    blongdf.reset_index(drop=True)
-
-
-    blongdf[['source']]=source
-    blongdf[['study']]='CPTAC3'
-    if(len(blongdf)) > 0:
-        blongdf[['new_class']] =  blongdf[['variant_classification']].apply(reclass_var)
+    if len(blongdf) > 0:
+        blongdf['variant_classification'] = reclass_var(blongdf['variant_classification'])
     else:
-        blongdf[['new_class']] = blongdf[['variant_classification']]
-    blongdf = blongdf.rename(columns={'variant_classification':'old_class',\
-                                      'new_class':'variant_classification',\
-                                      'entrez_gene':'entrez_id',
-                                      'Mutation':'mutation'})
-    blongdf = blongdf[['improve_sample_id','entrez_id','mutation','variant_classification','source','study']]
-    print(blongdf)
+        blongdf['variant_classification'] = blongdf['variant_classification']
 
+    blongdf = blongdf.rename(columns={
+        'entrez_gene': 'entrez_id',
+        'Mutation': 'mutation'
+    })
+    blongdf = blongdf[['improve_sample_id', 'entrez_id', 'mutation', 'variant_classification', 'source', 'study']]
     return blongdf
+
 
 def formatData(df,dtype,ctype,samp_names,source,genes,samples):
     '''
@@ -197,6 +206,9 @@ def formatData(df,dtype,ctype,samp_names,source,genes,samples):
 
 
 def copy_num(arr):
+    '''
+    Converts copy number values to categorical calls.
+    '''
     copy_call=[]
     for a in arr:
         a = 2**float(a)
@@ -213,127 +225,167 @@ def copy_num(arr):
         copy_call.append(b)
     return copy_call
 
+
+
 def main():
     '''
-      main function that takes a sample file and gene file as arguments
+    Main function that processes CPTAC data and handles previous samples.
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument('--prevSampleFile', dest='sampfile', 
-                        default=None, help='Sample file to use to generate new ids. Returns sample file')
-    parser.add_argument('--geneFile', dest='genefile',default='/tmp/genes.csv',
-                       help='gene file to get gene ids')
-    parser.add_argument('--curSampleFile', dest='newsamps',default=None, 
+    parser.add_argument('--prevSampleFile', dest='sampfile', nargs='?', type=str, default=None, const=None,
+                        help='Sample file to use to generate new ids. Returns sample file')
+    parser.add_argument('--geneFile', dest='genefile', default='/tmp/genes.csv',
+                        help='Gene file to get gene ids')
+    parser.add_argument('--curSampleFile', dest='newsamps', default=None,
                         help='Sample file to use to generate data. Returns data for samples')
     opts = parser.parse_args()
+
     dat_files = {}
 
-    ####here is where we decide to build the data or not
-    ## if there is an old sample file, we build only build sample file
-    build_data=False
-    if(opts.sampfile is not None):
-        print(opts.sampfile)
-        old_samples = pd.read_csv(opts.sampfile)
-        samples = pd.DataFrame()
-        print("generating sample file")
-    elif(opts.newsamps is not None): ##otherwise we build the data
-        build_data=True
-        print(opts.newsamps)
-        samples = pd.read_csv(opts.newsamps)
-        ##read in existing gene identifier table from cell line data
-        genes = pd.read_csv(opts.genefile)
+    # Decide whether to build samples, data, or both
+    build_data = False
+    build_samples = False
+    maxval = 1  # Initialize maxval to 1
 
-        print("Building dataset from generated sample file")
-    else:
-        print("Need a sample file to continue")
-        exit()
-    ##this loops through the 10 main cancer types and collects samples and then data
-    for cancertype in ['brca','coad','hnscc','lscc','luad','ov','gbm','pdac','ucec','ccrcc']:
-        dat = getCancerObj(cancertype)
-
-        ##get available data for cancer
-        #this call changed in recent version
-        dat_list = dat.list_data_sources().set_index('Data type').to_dict()['Available sources']
-        clinsource = dat_list['clinical']
-        if 'harmonized' in clinsource:
-            cs = 'harmonized'
-    #    elif 'umich' in clinsource:
-    #        cs = 'umich'
-        else:
-            cs = clinsource[0]
-        tumor_samps = dat.get_clinical(cs)#.Sample_Tumor_Normal=='Tumor'
-        tumor_samps = list(tumor_samps.index)
-        if not build_data:
-            print('Building sample file only for '+cancertype)
-            if len(samples)==0:
-                maxval = max(old_samples.improve_sample_id)
+    if opts.sampfile is not None:
+        if opts.sampfile != '':
+            # Previous samples file provided and not empty
+            print("Previous Samples File Provided: ", opts.sampfile)
+            if os.path.exists(opts.sampfile):
+                old_samples = pd.read_csv(opts.sampfile)
+                samples = old_samples.copy()
+                maxval = samples['improve_sample_id'].max()
+                print("Max improve_sample_id from previous samples: ", maxval)
             else:
-                maxval = max(samples.improve_sample_id)
-            samples = buildTumorSampleTable(tumor_samps,cancertype,samples,maxval)
-        if build_data:
-            print('Building data file')
+                print("Previous samples file not found. Exiting.")
+                exit()
+            build_samples = True
+            print("Generating sample file")
+        else:
+            # opts.sampfile is an empty string
+            print("No previous samples file provided. Proceeding with maxval=1")
+            samples = pd.DataFrame(columns=[
+                'common_name', 'cancer_type', 'other_names', 'species',
+                'improve_sample_id', 'other_id_source', 'other_id', 'model_type'
+            ])
+            maxval = 1
+            build_samples = True
+            print("Generating sample file")
+    elif opts.newsamps is not None and opts.newsamps != '':
+        # Build data
+        build_data = True
+        print("Current Samples File Provided: ", opts.newsamps)
+        if os.path.exists(opts.newsamps):
+            samples = pd.read_csv(opts.newsamps)
+            # Read in existing gene identifier table
+            genes = pd.read_csv(opts.genefile)
+            print("Building dataset from generated sample file")
+        else:
+            print("Current samples file not found. Exiting.")
+            exit()
+    else:
+        print("No sample file provided. Exiting.")
+        exit()
+
+    # Proceed to build samples and/or data
+    if build_samples:
+        # Loop through the cancer types to build samples
+        for cancertype in ['brca', 'coad', 'hnscc', 'lscc', 'luad', 'ov', 'gbm', 'pdac', 'ucec', 'ccrcc']:
+            dat = getCancerObj(cancertype)
+
+            # Get available data for cancer
+            dat_list = dat.list_data_sources().set_index('Data type').to_dict()['Available sources']
+            clinsource = dat_list.get('clinical', [])
+            if 'harmonized' in clinsource:
+                cs = 'harmonized'
+            else:
+                cs = clinsource[0] if clinsource else None
+            if cs is None:
+                print(f"No clinical data available for {cancertype}. Skipping.")
+                continue
+
+            tumor_samps = dat.get_clinical(cs)
+            tumor_samps = list(tumor_samps.index)
+
+            print('Building sample file for ' + cancertype)
+            samples, maxval = buildTumorSampleTable(tumor_samps, cancertype, samples, maxval)
+
+        # Save the updated samples file
+        samples = samples.reset_index(drop=True)
+        samples.to_csv('/tmp/cptac_samples.csv', index=False)
+        print("Samples file saved to /tmp/cptac_samples.csv")
+
+    if build_data:
+        # Now proceed to build data
+        # Ensure that 'samples' and 'genes' are loaded
+        # Loop through the cancer types to build data
+        for cancertype in ['brca', 'coad', 'hnscc', 'lscc', 'luad', 'ov', 'gbm', 'pdac', 'ucec', 'ccrcc']:
+            dat = getCancerObj(cancertype)
+
+            # Get available data for cancer
+            dat_list = dat.list_data_sources().set_index('Data type').to_dict()['Available sources']
+            clinsource = dat_list.get('clinical', [])
+            if 'harmonized' in clinsource:
+                cs = 'harmonized'
+            else:
+                cs = clinsource[0] if clinsource else None
+            if cs is None:
+                print(f"No clinical data available for {cancertype}. Skipping.")
+                continue
+
+            tumor_samps = dat.get_clinical(cs)
+            tumor_samps = list(tumor_samps.index)
+
+            print('Building data files for ' + cancertype)
             all_dfs = {}
-            all_sources = {} ##keep track of sources for long table
-            ##all the data types we're collecting so far
-            ## these are specifically the names of the file data keys in the `list_data_sources` function
-            ## so have to match EXACTLY
-            for dtype in ['somatic_mutation','proteomics','transcriptomics','CNV']: #'miRNA doesnt work
+            all_sources = {}
+            for dtype in ['somatic_mutation', 'proteomics', 'transcriptomics', 'CNV']:
                 if dtype not in dat_list.keys():
                     continue
-                ###figure out whic source, prioritize harmonized when available
                 source_list = dat_list[dtype]
                 if 'harmonized' in source_list:
                     source = 'harmonized'
-                elif 'umich' in dat_list[dtype]:
-                    source = 'umich'
                 else:
                     source = source_list[0]
-                all_sources[dtype] = source #we can keep the source for future analysis/batch
-                    #print(source)
-                if dtype=='proteomics':
+                all_sources[dtype] = source
+                if dtype == 'proteomics':
                     all_dfs[dtype] = dat.get_proteomics(source)
-                if dtype=='transcriptomics':
+                elif dtype == 'transcriptomics':
                     all_dfs[dtype] = dat.get_transcriptomics(source)
-                if dtype=='somatic_mutation':
+                elif dtype == 'somatic_mutation':
                     all_dfs[dtype] = dat.get_somatic_mutation(source)
-                if dtype=='miRNA':
-                    all_dfs[dtype] = dat.get_miRNA(source)
-                if dtype=='CNV':
+                elif dtype == 'CNV':
                     all_dfs[dtype] = dat.get_CNV(source)
 
-            for dtype,df in all_dfs.items():
-                #tumor_samps = [t for t in df.index]  ##clinical sample info broke, so used this as a bypass
-                df = df.loc[[t for t in tumor_samps if t in df.index]] ##get the data for those samples
-                dfU = df
-                dfU.dropna(how='all', axis=0, inplace=True)
-                print(cancertype+' '+dtype)
-                ##now we move to long form and match identifiers
-                if dtype=='somatic_mutation': ## we actually want the column to be mutation
-                    fdf = formatMutData(dfU,'mutation',cancertype,tumor_samps,all_sources[dtype],samples)
+            for dtype, df in all_dfs.items():
+                df = df.loc[[t for t in tumor_samps if t in df.index]]
+                df.dropna(how='all', axis=0, inplace=True)
+                print(cancertype + ' ' + dtype)
+                if dtype == 'somatic_mutation':
+                    fdf = formatMutData(df, 'mutation', cancertype, tumor_samps, all_sources[dtype], samples)
                     fdf = fdf.reset_index(drop=True)
-                    dtype='mutations' ##but we want the file name to be mutations
-                elif dtype=='CNV':##column should be copy_number
-                    fdf = formatData(dfU,'copy_number',cancertype,tumor_samps,all_sources[dtype],genes,samples)
+                    dtype_key = 'mutations'
+                elif dtype == 'CNV':
+                    fdf = formatData(df, 'copy_number', cancertype, tumor_samps, all_sources[dtype], genes, samples)
                     fdf = fdf.reset_index(drop=True)
-                    dtype='copy_number'##so should file name
+                    dtype_key = 'copy_number'
                 else:
-                    fdf = formatData(dfU,dtype,cancertype,tumor_samps,all_sources[dtype],genes,samples)
+                    fdf = formatData(df, dtype, cancertype, tumor_samps, all_sources[dtype], genes, samples)
                     fdf = fdf.reset_index(drop=True)
-                print(fdf)
-                if dtype in dat_files.keys():
-                    of = dat_files[dtype].dropna()
-                    fdf2 = pd.concat([of,fdf])
-                    dat_files[dtype] = fdf2
+                    dtype_key = dtype
+
+                if dtype_key in dat_files.keys():
+                    of = dat_files[dtype_key].dropna()
+                    fdf2 = pd.concat([of, fdf])
+                    dat_files[dtype_key] = fdf2
                 else:
-                    dat_files[dtype] = fdf.dropna()
-                print(dtype)
-                
-    print(build_data)
-    if build_data:
-        ##now concatenate all the cancers into a single file
-        for dtype,df in dat_files.items():
-            print('saving '+"cptac_"+dtype+'.csv.gz'+' file')
-            df.to_csv("/tmp/"+"cptac_"+dtype+'.csv.gz',sep=',',index=False, compression='gzip')
+                    dat_files[dtype_key] = fdf.dropna()
+                print(dtype_key)
+
+        # Now concatenate all the cancers into a single file
+        for dtype_key, df in dat_files.items():
+            print('Saving ' + "cptac_" + dtype_key + '.csv.gz' + ' file')
+            df.to_csv("/tmp/" + "cptac_" + dtype_key + '.csv.gz', sep=',', index=False, compression='gzip')
 
 if __name__ == '__main__':
     main()
-
