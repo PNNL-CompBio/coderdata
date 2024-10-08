@@ -119,7 +119,7 @@ def buildTumorSampleTable(sample_names, cancer_type, samples, maxval):
                 'common_name': [samp],
                 'cancer_type': [ct_vals[cancer_type]],
                 'other_names': [''],
-                'species': ['Homo sapiens'],
+                'species': ['Homo Sapiens (Human)'],
                 'improve_sample_id': [maxval],
                 'other_id_source': ['CPTAC3'],
                 'other_id': [samp],

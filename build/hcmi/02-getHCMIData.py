@@ -317,6 +317,8 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
 #    print(final_dataframe)
 #    print(df_metadata)
     # Merge the metadata DataFrame with the final dataframe based on 'file_id'
+    print(df_metadata)
+    print(final_dataframe)
     final_dataframe = final_dataframe.join(df_metadata, on='file_id', how='left')
     
     return final_dataframe
@@ -442,12 +444,14 @@ def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samp
 
     # Process in chunks
     merged_data = pl.DataFrame()
+    print(f"merged_data:\n {merged_data}")
+    
     for i in range(0, len(data), chunksize):
         chunk = data[i:i + chunksize]
         if data_type == "mutations":
             chunk = chunk.rename({"Variant_Classification": "variant_classification"})
         chunk = chunk.select(selected_columns)
-        
+        print(f"chunk: \n{chunk}")
         merged_chunk = samples.join(chunk, left_on='other_names', right_on='aliquot_id', how='inner')
         merged_chunk = merged_chunk.drop(["aliquot_id", "other_names"])
 
@@ -479,180 +483,180 @@ def write_dataframe_to_csv(dataframe, outname):
         dataframe.to_pandas().to_csv(outname,compression='gzip',index=False)
     else:
         dataframe.to_pandas().to_csv(outname,index=False)
-    return
+#     return
 
-def upload_to_figshare(token, title, filepath):
-    """
-    Uploads a file to Figshare and publishes the article.
+# def upload_to_figshare(token, title, filepath):
+#     """
+#     Uploads a file to Figshare and publishes the article.
 
-    This function automates the process of uploading a file to Figshare and
-    subsequently publishing the associated article.
+#     This function automates the process of uploading a file to Figshare and
+#     subsequently publishing the associated article.
 
-    Parameters
-    ----------
-    token : str
-        The authentication token for Figshare API access.
+#     Parameters
+#     ----------
+#     token : str
+#         The authentication token for Figshare API access.
     
-    title : str
-        The title of the article to be created on Figshare.
+#     title : str
+#         The title of the article to be created on Figshare.
     
-    filepath : str
-        The path to the file that is to be uploaded to Figshare.
+#     filepath : str
+#         The path to the file that is to be uploaded to Figshare.
 
-    Notes
-    -----
-    The function uses various helper functions for each specific tasks.
-    - Sending requests to the Figshare API.
-    - Creating a new article on Figshare.
-    - Computing the MD5 checksum and size of a given file.
-    - Handling the multipart upload for large files.
-    - Publishing the article once the upload is complete.
+#     Notes
+#     -----
+#     The function uses various helper functions for each specific tasks.
+#     - Sending requests to the Figshare API.
+#     - Creating a new article on Figshare.
+#     - Computing the MD5 checksum and size of a given file.
+#     - Handling the multipart upload for large files.
+#     - Publishing the article once the upload is complete.
 
-    The Figshare API endpoint is defined by the `BASE_URL` constant and the size
-    of each chunk in the multipart upload is defined by the `CHUNK_SIZE` constant.
+#     The Figshare API endpoint is defined by the `BASE_URL` constant and the size
+#     of each chunk in the multipart upload is defined by the `CHUNK_SIZE` constant.
 
-    Raises
-    ------
-    HTTPError
-        If there is any issue with the Figshare API requests.
+#     Raises
+#     ------
+#     HTTPError
+#         If there is any issue with the Figshare API requests.
     
-    ValueError
-        If there's an issue parsing the response from the Figshare API.
+#     ValueError
+#         If there's an issue parsing the response from the Figshare API.
 
-    """
+#     """
     
-    BASE_URL = 'https://api.figshare.com/v2/{endpoint}'
-    CHUNK_SIZE = 1048576
-    def raw_issue_request(method, url, data=None, binary=False):
-        """
-        Sends an HTTP request and returns the response.
-        """
-        headers = {'Authorization': 'token ' + token}
-        if data is not None and not binary:
-            data = json.dumps(data)
-        response = requests.request(method, url, headers=headers, data=data)
-        response.raise_for_status()
-        try:
-            data = json.loads(response.content)
-        except ValueError:
-            data = response.content
-        return data
+#     BASE_URL = 'https://api.figshare.com/v2/{endpoint}'
+#     CHUNK_SIZE = 1048576
+#     def raw_issue_request(method, url, data=None, binary=False):
+#         """
+#         Sends an HTTP request and returns the response.
+#         """
+#         headers = {'Authorization': 'token ' + token}
+#         if data is not None and not binary:
+#             data = json.dumps(data)
+#         response = requests.request(method, url, headers=headers, data=data)
+#         response.raise_for_status()
+#         try:
+#             data = json.loads(response.content)
+#         except ValueError:
+#             data = response.content
+#         return data
 
-    def issue_request(method, endpoint, *args, **kwargs):
-        """
-        Sends a request to a specific Figshare API endpoint.
-        """
-        return raw_issue_request(method, BASE_URL.format(endpoint=endpoint), *args, **kwargs)
+#     def issue_request(method, endpoint, *args, **kwargs):
+#         """
+#         Sends a request to a specific Figshare API endpoint.
+#         """
+#         return raw_issue_request(method, BASE_URL.format(endpoint=endpoint), *args, **kwargs)
 
-    def create_article(title):
-        """
-        Creates a new article on Figshare with a given title.
-        """
-        data = {
-            'title': title,
-            'description': "Cancer Organoid Data",
-            'keywords': ["cancer","organoid","hcmi"],
-            "categories_by_source_id": [
-            "321101",
-            "400207"
-          ]
-        }
-        result = issue_request('POST', 'account/articles', data=data)
-        result = raw_issue_request('GET', result['location'])
-        return result['id']
+#     def create_article(title):
+#         """
+#         Creates a new article on Figshare with a given title.
+#         """
+#         data = {
+#             'title': title,
+#             'description': "Cancer Organoid Data",
+#             'keywords': ["cancer","organoid","hcmi"],
+#             "categories_by_source_id": [
+#             "321101",
+#             "400207"
+#           ]
+#         }
+#         result = issue_request('POST', 'account/articles', data=data)
+#         result = raw_issue_request('GET', result['location'])
+#         return result['id']
     
     
 
-    def get_file_check_data(file_name):
-        """
-        Check the MD5 checksum and size of a given file.
-        """
-        with open(file_name, 'rb') as fin:
-            md5 = hashlib.md5()
-            size = 0
-            data = fin.read(CHUNK_SIZE)
-            while data:
-                size += len(data)
-                md5.update(data)
-                data = fin.read(CHUNK_SIZE)
-            return md5.hexdigest(), size
+#     def get_file_check_data(file_name):
+#         """
+#         Check the MD5 checksum and size of a given file.
+#         """
+#         with open(file_name, 'rb') as fin:
+#             md5 = hashlib.md5()
+#             size = 0
+#             data = fin.read(CHUNK_SIZE)
+#             while data:
+#                 size += len(data)
+#                 md5.update(data)
+#                 data = fin.read(CHUNK_SIZE)
+#             return md5.hexdigest(), size
 
-    def initiate_new_upload(article_id, file_name):
-        """
-        Initiates the file upload process for a specific article.
-        """
-        endpoint = 'account/articles/{}/files'.format(article_id)
-        md5, size = get_file_check_data(file_name)
-        data = {'name': os.path.basename(file_name),
-                'md5': md5,
-                'size': size}
-        result = issue_request('POST', endpoint, data=data)
-        result = raw_issue_request('GET', result['location'])
-        return result
+#     def initiate_new_upload(article_id, file_name):
+#         """
+#         Initiates the file upload process for a specific article.
+#         """
+#         endpoint = 'account/articles/{}/files'.format(article_id)
+#         md5, size = get_file_check_data(file_name)
+#         data = {'name': os.path.basename(file_name),
+#                 'md5': md5,
+#                 'size': size}
+#         result = issue_request('POST', endpoint, data=data)
+#         result = raw_issue_request('GET', result['location'])
+#         return result
 
-    def complete_upload(article_id, file_id):
-        """
-        Marks the file upload as complete for a specific article.
-        """
-        issue_request('POST', 'account/articles/{}/files/{}'.format(article_id, file_id))
+#     def complete_upload(article_id, file_id):
+#         """
+#         Marks the file upload as complete for a specific article.
+#         """
+#         issue_request('POST', 'account/articles/{}/files/{}'.format(article_id, file_id))
 
-    def upload_parts(file_info):
-        """
-        Handles the multipart upload for large files.
-        """
-        url = '{upload_url}'.format(**file_info)
-        print("url: ", url)
-        result = raw_issue_request('GET', url)
-        print("result: ", result)
-        with open(filepath, 'rb') as fin:
-            for part in result['parts']:
-                upload_part(file_info, fin, part)
+#     def upload_parts(file_info):
+#         """
+#         Handles the multipart upload for large files.
+#         """
+#         url = '{upload_url}'.format(**file_info)
+#         print("url: ", url)
+#         result = raw_issue_request('GET', url)
+#         print("result: ", result)
+#         with open(filepath, 'rb') as fin:
+#             for part in result['parts']:
+#                 upload_part(file_info, fin, part)
 
-    def upload_part(file_info, stream, part):
-        """
-        Uploads a specific part/chunk of the file.
-        """
-        udata = file_info.copy()
-        udata.update(part)
-        url = '{upload_url}/{partNo}'.format(**udata)
-        stream.seek(part['startOffset'])
-        data = stream.read(part['endOffset'] - part['startOffset'] + 1)
-        raw_issue_request('PUT', url, data=data, binary=True)
+#     def upload_part(file_info, stream, part):
+#         """
+#         Uploads a specific part/chunk of the file.
+#         """
+#         udata = file_info.copy()
+#         udata.update(part)
+#         url = '{upload_url}/{partNo}'.format(**udata)
+#         stream.seek(part['startOffset'])
+#         data = stream.read(part['endOffset'] - part['startOffset'] + 1)
+#         raw_issue_request('PUT', url, data=data, binary=True)
         
 
-    def change_article_status(article_id, status='public'):
-        """
-        Changes the visibility status of a specific article on Figshare.
-        """
-        data = {'status': status}
-        response = issue_request('PUT', f'account/articles/{article_id}', data=data)
+#     def change_article_status(article_id, status='public'):
+#         """
+#         Changes the visibility status of a specific article on Figshare.
+#         """
+#         data = {'status': status}
+#         response = issue_request('PUT', f'account/articles/{article_id}', data=data)
         
-    def publish_article(token, article_id):
-        """
-        Publishes a specific article on Figshare.
-        """
-        headers = {
-            'Authorization': 'token ' + token,
-            'Content-Type': 'application/json'
-        }
+#     def publish_article(token, article_id):
+#         """
+#         Publishes a specific article on Figshare.
+#         """
+#         headers = {
+#             'Authorization': 'token ' + token,
+#             'Content-Type': 'application/json'
+#         }
     
-        url = BASE_URL.format(endpoint=f'account/articles/{article_id}/publish')
-        response = requests.post(url, headers=headers)
+#         url = BASE_URL.format(endpoint=f'account/articles/{article_id}/publish')
+#         response = requests.post(url, headers=headers)
 
-        # Handle the response
-        if response.status_code == 201:
-            print("Article published successfully!")
-        else:
-            print("Error:", response.status_code)
-            print(response.text)
+#         # Handle the response
+#         if response.status_code == 201:
+#             print("Article published successfully!")
+#         else:
+#             print("Error:", response.status_code)
+#             print(response.text)
             
-    article_id = create_article(title)
-    file_info = initiate_new_upload(article_id, filepath)
-    upload_parts(file_info)
-    complete_upload(article_id, file_info['id'])
-    change_article_status(article_id, 'public')
-    print("Make the file public")
-    publish_article(token,article_id)
+#     article_id = create_article(title)
+#     file_info = initiate_new_upload(article_id, filepath)
+#     upload_parts(file_info)
+#     complete_upload(article_id, file_info['id'])
+#     change_article_status(article_id, 'public')
+#     print("Make the file public")
+#     publish_article(token,article_id)
 
 
 def main():
@@ -718,9 +722,9 @@ def main():
     tc = ['transcriptomics', 'copy_number', 'mutations']
     parser.add_argument('-t', '--type', help='Type of data (e.g., transcriptomics, copy_number)',choices = tc, required=True)
     parser.add_argument('-o', '--outname', help='Output CSV Name', required=True)
-    parser.add_argument('-z', '--token', help='figshare token ID', required=False)
-    parser.add_argument('-s', '--samples',help='Samples file', required=False,default='/tmp/hcmi_samples.csv')
-    parser.add_argument('-g', '--genes',help='File containing valid gene ids',required=False,default='/tmp/genes.csv')
+    # parser.add_argument('-z', '--token', help='figshare token ID', required=False)
+    parser.add_argument('-s', '--samples', nargs='?',type=str, help='Samples file', required=False, const='/tmp/hcmi_samples.csv', default='/tmp/hcmi_samples.csv')
+    parser.add_argument('-g', '--genes',  nargs='?',type=str, help='File containing valid gene ids',required=False, const='/tmp/genes.csv', default='/tmp/genes.csv')
     args = parser.parse_args()
     
         
@@ -732,7 +736,6 @@ def main():
         ensure_gdc_client()
         print("Using provided manifest and downloading data...")
         
-          
     # Use gdc tool to get metadata
     print("Using gdc tool and retrieving get metadata...")
     metadata = use_gdc_tool(args.manifest, args.type, download_data=download_option)
@@ -766,13 +769,13 @@ def main():
     print("Running 'write_dataframe_to_csv' function")
     write_dataframe_to_csv(final_data, args.outname)
     
-    print("Data processing complete!")
-    if args.token:
-        token = args.token
-        print("Running 'upload_to_figshare' function")
-        upload_to_figshare(token, args.outname, args.outname)
-    else:
-        print("No token provided. Data not uploaded to Figshare")
+    # print("Data processing complete!")
+    # if args.token:
+    #     token = args.token
+    #     print("Running 'upload_to_figshare' function")
+    #     upload_to_figshare(token, args.outname, args.outname)
+    # else:
+    #     print("No token provided. Data not uploaded to Figshare")
 
 
 if __name__ == "__main__":

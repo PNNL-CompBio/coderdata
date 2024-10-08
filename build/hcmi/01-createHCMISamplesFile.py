@@ -189,7 +189,7 @@ def extract_data(data):
                                 })
     return pd.DataFrame(extracted)
 
-def filter_and_subset_data(df,sampfile,mapfile):
+def filter_and_subset_data(df,maxval,mapfile):
     """
     Filter and subset the data.
     
@@ -225,7 +225,7 @@ def filter_and_subset_data(df,sampfile,mapfile):
     #Non-docker:
     # maxval = max(pd.read_csv('../cptac/cptac_samples.csv').improve_sample_id)
     # Docker:
-    maxval = max(pd.read_csv(sampfile).improve_sample_id)
+    
     alluuids = list(set(longtab.other_names))
 
     mapping = pd.DataFrame.from_dict(
@@ -264,8 +264,9 @@ def main():
     A local CSV file named '/tmp/hcmi_samples.csv' containing the processed metadata.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--samples',dest='samps',help='Previous sample file')
+    parser.add_argument('--prevSamples',dest='prev_samps', nargs='?',type=str, default='', const='', help='Previous sample file')
     parser.add_argument('--mapfile',dest='map',help='Mapping to common_cancer from primary_diagnosis and tissue_or_organ_of_origin',default='hcmi_cancer_types.csv')
+
     args = parser.parse_args()
     manifest_path = "full_manifest.txt"
     #manifest_url = "https://raw.githubusercontent.com/PNNL-CompBio/candleDataProcessing/hcmi_update/hcmi/full_manifest.txt"
@@ -273,7 +274,15 @@ def main():
     uuids = extract_uuids_from_manifest(manifest_path)
     metadata = fetch_metadata_for_samples(uuids)
     df = extract_data(metadata)
-    output = filter_and_subset_data(df,args.samps,args.map)
+
+    if args.prev_samps is None or args.prev_samps=='':
+        print("No Previous Samples file was found. HCMI Data will not align with other datasets. Use ONLY for testing purposes.")
+        maxval = 0
+    else:
+        print("Previous Samples File Provided. Running HCMI Sample File Generation")
+        maxval = max(pd.read_csv(args.prev_samps).improve_sample_id)
+    
+    output = filter_and_subset_data(df,maxval,args.map)
     aligned = align_to_linkml_schema(output)
     print(aligned)
     aligned.to_csv("/tmp/hcmi_samples.csv",index=False)
