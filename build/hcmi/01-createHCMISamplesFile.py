@@ -188,54 +188,6 @@ def extract_data(data):
                                 })
     return pd.DataFrame(extracted)
 
-# def filter_and_subset_data(df,maxval,mapfile):
-#     """
-#     Filter and subset the data.
-    
-#     Taking a pandas dataframe containing all sample information, filter it to desired columns and rename them to match schema.
-        
-#     Parameters
-#     ----------
-#     df : a tidied pandas dataframe
-#         full samples table
-
-#     Returns
-#     -------
-#     Pandas Dataframe
-#     """
-#     duplicates_mask = df.drop('id', axis=1).duplicated(keep='first')
-#     cmap = pd.read_csv(mapfile, encoding='ISO-8859-1')
-#     filt = df[~duplicates_mask]
-#     filt= filt.drop_duplicates()#(subset='id', keep=False)
-#     filt = pd.merge(filt,cmap,right_on=['tissue_or_organ_of_origin','primary_diagnosis'],left_on=['tissue_or_organ_of_origin','primary_diagnosis'],how='left')
-#     filt = filt.rename(
-#         columns={"composition": "model_type",
-#                  "case_id": "common_name",
-#                  "id": "other_names"}
-#                  #"id": "sample_uuid"}
-#             )
-#     ##now we can melt all the identiers into other_id and other_id_source
-#     longtab = pd.melt(filt, id_vars=['common_name','other_names','model_type','cancer_type'], value_vars=['diagnosis_id','tumor_classification','sample_type'])
-#     longtab = longtab.rename(columns={'variable':'other_id_source','value':'other_id'}).drop_duplicates()
-#     #    filt = filt[["cancer_type","common_name","other_names","other_id","model_type"]]
-# #    filt["other_id_source"] = "HCMI"
-#     # Create new improve sample IDs
-    
-#     #Non-docker:
-#     # maxval = max(pd.read_csv('../cptac/cptac_samples.csv').improve_sample_id)
-#     # Docker:
-    
-#     alluuids = list(set(longtab.other_names))
-
-#     mapping = pd.DataFrame.from_dict(
-#          {"other_names": [str(a) for a in alluuids],
-#           "improve_sample_id": range(int(maxval)+1,int(maxval)+len(alluuids)+1)
-#           })
-#     longtab = pd.merge(longtab,mapping,on='other_names',how='left')
-#     # Use the map method to create the new column based on the lab-id column
-#     #['improve_sample_id'] = longtab['other_id'].map(mapping)
-#     return longtab
-
 def filter_and_subset_data(df, maxval, mapfile):
     """
     Filter and subset the data, then assign improve_sample_id at the end.
@@ -296,10 +248,6 @@ def filter_and_subset_data(df, maxval, mapfile):
     # Convert 'other_names' to string to ensure consistency
     longtab['other_names'] = longtab['other_names'].astype(str)
 
-    # **Perform any additional filtering or processing here**
-
-    # At this point, 'longtab' should be your final DataFrame after all processing.
-
     # Reassign 'improve_sample_id's at the end
     unique_other_names = longtab['other_names'].unique()
     print("Number of unique 'other_names' after filtering:", len(unique_other_names))
@@ -323,8 +271,6 @@ def filter_and_subset_data(df, maxval, mapfile):
     if not missing_ids.empty:
         print("\nWarning: Some samples could not be assigned an 'improve_sample_id'.")
         print(missing_ids)
-        # Handle missing IDs if necessary
-
     return longtab
 
 def main():
