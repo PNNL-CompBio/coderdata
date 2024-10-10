@@ -31,7 +31,7 @@ def run_docker_cmd(cmd_arr, filename):
     else:
         print(f'{filename} completed successfully')
 
-def process_docker(dataset):
+def process_docker(dataset,validate):
     '''
     Build Docker images required for the specified dataset.
     '''
@@ -46,8 +46,12 @@ def process_docker(dataset):
         'upload': ['upload']
     }
 
-    # Collect container names to build based on the dataset provided. Always build 'genes' and 'upload'.
-    datasets_to_build = ['genes', 'upload']
+    # Collect container names to build based on the dataset provided. Always build 'genes'.
+    datasets_to_build = ['genes']
+    # Append upload if validation step is included
+    if validate is True:
+        datasets_to_build.append('upload')
+        
     datasets_to_build.extend(dataset_map.get(dataset, []))
 
     compose_command = ['docker-compose', '-f', compose_file, 'build'] + datasets_to_build
@@ -186,7 +190,7 @@ def compress_file(file_path):
             shutil.copyfileobj(f_in, f_out)
     os.remove(file_path)
 
-def run_docker_upload_cmd(cmd_arr, all_files_dir, name):
+def run_docker_validate_cmd(cmd_arr, all_files_dir, name):
     '''
     Wrapper for 'docker run' command used during validation and uploads.
     '''
@@ -224,7 +228,7 @@ def run_schema_checker(dataset):
 
     # Run schema checker
     schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets', dataset]
-    run_docker_upload_cmd(schema_check_command, all_files_dir, 'Validation')
+    run_docker_validate_cmd(schema_check_command, all_files_dir, 'Validation')
 
 def main():
     parser = argparse.ArgumentParser(
@@ -242,7 +246,7 @@ def main():
         os.mkdir('local')
         
     # Build Docker Image
-    process_docker(args.dataset)
+    process_docker(args.dataset,args.validate)
 
     # Use ThreadPoolExecutor for parallel execution
     with ThreadPoolExecutor() as executor:

@@ -5,8 +5,6 @@ import argparse
 import numpy as np
 
 
-              
-             
 
 def align_to_linkml_schema(input_df):
     """
@@ -47,9 +45,10 @@ def align_to_linkml_schema(input_df):
     }
 
     # Apply mapping
-    input_df['species'] = 'Homo sapiens' ##i assume they're lal human? 
+    input_df['species'] = 'Homo Sapiens (Human)' ##i assume they're lal human? 
     input_df['model_type'] = input_df['model_type'].map(mapping_dict)
     input_df.dropna(subset=['model_type'], inplace=True)
+    input_df = input_df.sort_values(by='improve_sample_id')
     
     return input_df
 
@@ -189,54 +188,144 @@ def extract_data(data):
                                 })
     return pd.DataFrame(extracted)
 
-def filter_and_subset_data(df,maxval,mapfile):
-    """
-    Filter and subset the data.
+# def filter_and_subset_data(df,maxval,mapfile):
+#     """
+#     Filter and subset the data.
     
-    Taking a pandas dataframe containing all sample information, filter it to desired columns and rename them to match schema.
+#     Taking a pandas dataframe containing all sample information, filter it to desired columns and rename them to match schema.
         
+#     Parameters
+#     ----------
+#     df : a tidied pandas dataframe
+#         full samples table
+
+#     Returns
+#     -------
+#     Pandas Dataframe
+#     """
+#     duplicates_mask = df.drop('id', axis=1).duplicated(keep='first')
+#     cmap = pd.read_csv(mapfile, encoding='ISO-8859-1')
+#     filt = df[~duplicates_mask]
+#     filt= filt.drop_duplicates()#(subset='id', keep=False)
+#     filt = pd.merge(filt,cmap,right_on=['tissue_or_organ_of_origin','primary_diagnosis'],left_on=['tissue_or_organ_of_origin','primary_diagnosis'],how='left')
+#     filt = filt.rename(
+#         columns={"composition": "model_type",
+#                  "case_id": "common_name",
+#                  "id": "other_names"}
+#                  #"id": "sample_uuid"}
+#             )
+#     ##now we can melt all the identiers into other_id and other_id_source
+#     longtab = pd.melt(filt, id_vars=['common_name','other_names','model_type','cancer_type'], value_vars=['diagnosis_id','tumor_classification','sample_type'])
+#     longtab = longtab.rename(columns={'variable':'other_id_source','value':'other_id'}).drop_duplicates()
+#     #    filt = filt[["cancer_type","common_name","other_names","other_id","model_type"]]
+# #    filt["other_id_source"] = "HCMI"
+#     # Create new improve sample IDs
+    
+#     #Non-docker:
+#     # maxval = max(pd.read_csv('../cptac/cptac_samples.csv').improve_sample_id)
+#     # Docker:
+    
+#     alluuids = list(set(longtab.other_names))
+
+#     mapping = pd.DataFrame.from_dict(
+#          {"other_names": [str(a) for a in alluuids],
+#           "improve_sample_id": range(int(maxval)+1,int(maxval)+len(alluuids)+1)
+#           })
+#     longtab = pd.merge(longtab,mapping,on='other_names',how='left')
+#     # Use the map method to create the new column based on the lab-id column
+#     #['improve_sample_id'] = longtab['other_id'].map(mapping)
+#     return longtab
+
+def filter_and_subset_data(df, maxval, mapfile):
+    """
+    Filter and subset the data, then assign improve_sample_id at the end.
+
     Parameters
     ----------
-    df : a tidied pandas dataframe
-        full samples table
+    df : pd.DataFrame
+        A tidied pandas DataFrame containing the full samples table.
+    maxval : int
+        The maximum value of improve_sample_id from previous samples, used to continue numbering.
+    mapfile : str
+        File path to the mapping file that maps primary diagnosis and tissue of origin to common cancer types.
 
     Returns
     -------
-    Pandas Dataframe
+    pd.DataFrame
+        The processed DataFrame ready for further use.
     """
+    # Remove duplicates based on all columns except 'id'
     duplicates_mask = df.drop('id', axis=1).duplicated(keep='first')
     cmap = pd.read_csv(mapfile, encoding='ISO-8859-1')
     filt = df[~duplicates_mask]
-    filt= filt.drop_duplicates()#(subset='id', keep=False)
-    filt = pd.merge(filt,cmap,right_on=['tissue_or_organ_of_origin','primary_diagnosis'],left_on=['tissue_or_organ_of_origin','primary_diagnosis'],how='left')
+    filt = filt.drop_duplicates()
+
+    # Merge with the cancer type mapping file
+    filt = pd.merge(
+        filt,
+        cmap,
+        right_on=['tissue_or_organ_of_origin', 'primary_diagnosis'],
+        left_on=['tissue_or_organ_of_origin', 'primary_diagnosis'],
+        how='left'
+    )
+
+    # Rename columns to match the schema
     filt = filt.rename(
-        columns={"composition": "model_type",
-                 "case_id": "common_name",
-                 "id": "other_names"}
-                 #"id": "sample_uuid"}
-            )
-    ##now we can melt all the identiers into other_id and other_id_source
-    longtab = pd.melt(filt, id_vars=['common_name','other_names','model_type','cancer_type'], value_vars=['diagnosis_id','tumor_classification','sample_type'])
-    longtab = longtab.rename(columns={'variable':'other_id_source','value':'other_id'}).drop_duplicates()
-    #    filt = filt[["cancer_type","common_name","other_names","other_id","model_type"]]
-#    filt["other_id_source"] = "HCMI"
-    # Create new improve sample IDs
-    
-    #Non-docker:
-    # maxval = max(pd.read_csv('../cptac/cptac_samples.csv').improve_sample_id)
-    # Docker:
-    
-    alluuids = list(set(longtab.other_names))
+        columns={
+            "composition": "model_type",
+            "case_id": "common_name",
+            "id": "other_names"
+        }
+    )
 
-    mapping = pd.DataFrame.from_dict(
-         {"other_names": [str(a) for a in alluuids],
-          "improve_sample_id": range(int(maxval)+1,int(maxval)+len(alluuids)+1)
-          })
-    longtab = pd.merge(longtab,mapping,on='other_names',how='left')
-    # Use the map method to create the new column based on the lab-id column
-    #['improve_sample_id'] = longtab['other_id'].map(mapping)
+    # Melt the dataframe to create 'other_id' and 'other_id_source'
+    longtab = pd.melt(
+        filt,
+        id_vars=['common_name', 'other_names', 'model_type', 'cancer_type'],
+        value_vars=['diagnosis_id', 'tumor_classification', 'sample_type']
+    )
+    longtab = longtab.rename(columns={'variable': 'other_id_source', 'value': 'other_id'}).drop_duplicates()
+
+    # Handle missing 'other_names'
+    missing_other_names = longtab[longtab['other_names'].isnull()]
+    if not missing_other_names.empty:
+        print("Warning: Some samples have missing 'other_names' (aliquot_id). These samples will be excluded.")
+        print(missing_other_names)
+    longtab = longtab.dropna(subset=['other_names'])
+
+    # Convert 'other_names' to string to ensure consistency
+    longtab['other_names'] = longtab['other_names'].astype(str)
+
+    # **Perform any additional filtering or processing here**
+
+    # At this point, 'longtab' should be your final DataFrame after all processing.
+
+    # Reassign 'improve_sample_id's at the end
+    unique_other_names = longtab['other_names'].unique()
+    print("Number of unique 'other_names' after filtering:", len(unique_other_names))
+
+    # Create a new mapping
+    mapping = pd.DataFrame({
+        'other_names': unique_other_names,
+        'improve_sample_id': range(int(maxval) + 1, int(maxval) + len(unique_other_names) + 1)
+    })
+
+    # Merge the mapping back into 'longtab'
+    longtab = pd.merge(longtab, mapping, on='other_names', how='left')
+
+    # Debugging: Check longtab after reassigning IDs
+    print("\nlongtab columns after reassigning 'improve_sample_id':", longtab.columns)
+    print("longtab head after reassigning IDs:")
+    print(longtab.head())
+
+    # Verify that all 'improve_sample_id's are assigned
+    missing_ids = longtab[longtab['improve_sample_id'].isnull()]
+    if not missing_ids.empty:
+        print("\nWarning: Some samples could not be assigned an 'improve_sample_id'.")
+        print(missing_ids)
+        # Handle missing IDs if necessary
+
     return longtab
-
 
 def main():
     """
@@ -286,8 +375,6 @@ def main():
     aligned = align_to_linkml_schema(output)
     print(aligned)
     aligned.to_csv("/tmp/hcmi_samples.csv",index=False)
-
-
  
 main()
 
