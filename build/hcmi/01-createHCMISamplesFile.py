@@ -45,7 +45,7 @@ def align_to_linkml_schema(input_df):
     }
 
     # Apply mapping
-    input_df['species'] = 'Homo Sapiens (Human)' ##i assume they're lal human? 
+    input_df['species'] = 'Homo sapiens (Human)' ##i assume they're lal human? 
     input_df['model_type'] = input_df['model_type'].map(mapping_dict)
     input_df.dropna(subset=['model_type'], inplace=True)
     input_df = input_df.sort_values(by='improve_sample_id')

@@ -43,13 +43,13 @@ manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
 ##first create samples for the original tumors
 tumorTable<-manifest|>
     dplyr::select(common_name='Sample')|>
-    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='tumor')|>
+    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Homo sapiens (Human)',model_type='tumor')|>
     tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
 ##then create samples for the PDX
 sampTable<-manifest|>
     dplyr::select(common_name='Sample',MicroTissueDrugFolder)|>
-    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='patient derived xenograft')|>
+    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Homo sapiens (Human)',model_type='patient derived xenograft')|>
     tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
 

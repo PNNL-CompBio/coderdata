@@ -134,7 +134,7 @@ def generate_samples_file(prev_samples_path):
     prot_samples["other_id_source"] = "beatAML"
     
     all_samples = pd.concat([prot_samples, full_samples])
-    all_samples['species'] = 'Homo Sapiens (Human)'
+    all_samples['species'] = 'Homo sapiens (Human)'
     if prev_samples_path == "":
         maxval = 0
     else:
