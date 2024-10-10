@@ -13,19 +13,38 @@ from glob import glob
 from packaging import version
     
 def main():
-    parser=argparse.ArgumentParser()
-    parser.add_argument('--docker',dest='docker',default=False,action='store_true')
-    parser.add_argument('--samples',dest='samples',default=False,action='store_true')
-    parser.add_argument('--omics',dest='omics',default=False,action='store_true')
-    parser.add_argument('--drugs',dest='drugs',default=False,action='store_true')
-    parser.add_argument('--exp',dest='exp',default=False,action='store_true')
-    parser.add_argument('--validate', action='store_true', help="Flag to trigger schema checker")
-    parser.add_argument('--figshare', action='store_true', help="Flag to trigger Figshare upload")
-    parser.add_argument('--pypi', action='store_true', help="Flag to trigger PyPI upload")
-    parser.add_argument('--all',dest='all',default=False,action='store_true')
-    parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true')
-    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,mpnst,cptac',help='Datasets to process. Defaults to all available, but if there are synapse issues, please remove beataml and mpnst')
-    parser.add_argument('--version', type=str, required=False, help='Version number for the package and data upload title.')
+    parser=argparse.ArgumentParser(
+        description="This script initializes all docker containers, builds datasets, validates them, and uploads to Figshare and PyPI.",
+        epilog="""Examples of usage:
+
+Build all datasets in a high memory environment, validate them, and upload to Figshare and PyPI:
+  python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.29
+
+Build only experiment files. This assumes preceding steps (docker images, samples, omics, and drugs) have already been completed:
+  python build/build_all.py --exp
+
+Validate all local files without building or uploading. These files must be located in ./local. Includes compression/decompression steps.
+  python build/build_all.py --validate
+
+Upload the latest data to Figshare and PyPI (ensure tokens are set in the local environment):
+  python build/build_all.py --figshare --pypi --version 0.1.30
+        """
+    )
+    parser.add_argument('--docker',dest='docker',default=False,action='store_true', help="Build all docker images.")
+    parser.add_argument('--samples',dest='samples',default=False,action='store_true', help="Build all sample files.")
+    parser.add_argument('--omics',dest='omics',default=False,action='store_true', help="Build all omics files.")
+    parser.add_argument('--drugs',dest='drugs',default=False,action='store_true', help="Build all drug files")
+    parser.add_argument('--exp',dest='exp',default=False,action='store_true', help="Build all experiment file.")
+    parser.add_argument('--validate', action='store_true', help="Run schema checker on all local files. Note this will be run, whether specified or not, if figshare or pypi arguments are included.")
+    parser.add_argument('--figshare', action='store_true', help="Upload all local data to Figshare. FIGSHARE_TOKEN must be set in local environment.")
+    parser.add_argument('--pypi', action='store_true', help="Update PYPI Package with latest Figshare data. PYPI_TOKEN must be set in local environment.")
+    parser.add_argument('--all',dest='all',default=False,action='store_true', help="Run all data build commands. This includes docker, samples, omics, drugs, exp arguments. This does not run the validate, figshare, or pypi commands.")
+    parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true',help = "If you have 32 or more CPUs, this option is recommended. It will run many code portions in parallel. If you don't have enough memory, this will cause a run failure.")
+    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,mpnst,cptac',help='Datasets to process. Defaults to all available.')
+    parser.add_argument('--version', type=str, required=False, help='Version number for the PyPI package and Figshare upload title (e.g., "0.1.29"). This is required for Figshare and PyPI upload. This must be a higher version than previously published versions.')
+    parser.add_argument('--github-username', type=str, required=False, help='GitHub username for the repository.')
+    parser.add_argument('--github-email', type=str, required=False, help='GitHub email for the repository.')
+    
     args = parser.parse_args()
                     
     # Simulation command for testing order of everything:
@@ -59,29 +78,74 @@ def main():
             print(filename+' retrieved')
         
     
-    def process_docker():
+    # def process_docker():
+    #     '''
+    #     Build all docker images using docker compose
+    #     All output and errors are logged at local/docker.log
+    #     '''
+    #     compose_file = 'build/docker/docker-compose.yml'
+    #     compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel']
+    #     log_file_path = 'local/docker.log'
+    #     env = os.environ.copy()
+    #     print(f"Docker-compose is building all images. View output in {log_file_path}.")
+    #     with open(log_file_path, 'w') as log_file:
+    #         # Execute the docker-compose command
+    #         res = subprocess.run(compose_command,  env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    #         # Log both stdout and stderr to the log file
+    #         log_file.write(res.stdout)
+    #         if res.returncode != 0:
+    #             log_file.write("Docker compose build failed.\n")
+    #             print(f"Docker compose build failed. See {log_file_path} for details.")
+    #             exit(1)
+    #         else:
+    #             log_file.write("Docker images built successfully.\n")
+    #             print(f"Docker images built successfully. Details logged in {log_file_path}")
+
+
+    def process_docker(datasets):
         '''
-        Build all docker images using docker compose
-        All output and errors are logged at local/docker.log
+        Build specific docker images using docker-compose based on the dataset argument.
+        All output and errors are logged at local/docker.log.
+        
+        Parameters:
+        - datasets: list of datasets to process (e.g., ['broad_sanger', 'hcmi', 'mpnst'])
         '''
         compose_file = 'build/docker/docker-compose.yml'
-        compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel']
+        
+        # Map datasets to corresponding Docker Containers
+        dataset_map = {
+            'broad_sanger': ['broad_sanger_exp', 'broad_sanger_omics'],
+            'hcmi': ['hcmi'],
+            'beataml': ['beataml'],
+            'mpnst': ['mpnst'],
+            'cptac': ['cptac'],
+            'genes': ['genes'],
+            'upload': ['upload']
+        }
+        
+        # Collect container names to build based on the datasets provided. Always build genes and upload.
+        datasets_to_build = ['genes', 'upload']
+        for dataset in datasets:
+            datasets_to_build.extend(dataset_map.get(dataset, []))
+        
+        # Build the docker-compose command, adding specific datasets
+        compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel'] + datasets_to_build
+        
         log_file_path = 'local/docker.log'
         env = os.environ.copy()
-        print(f"Docker-compose is building all images. View output in {log_file_path}.")
+        
+        print(f"Docker-compose is building images for {', '.join(datasets_to_build)}. View output in {log_file_path}.")
+        
         with open(log_file_path, 'w') as log_file:
-            # Execute the docker-compose command
-            res = subprocess.run(compose_command,  env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-            # Log both stdout and stderr to the log file
-            log_file.write(res.stdout)
-            if res.returncode != 0:
-                log_file.write("Docker compose build failed.\n")
-                print(f"Docker compose build failed. See {log_file_path} for details.")
-                exit(1)
-            else:
+            try:
+                # Execute the docker-compose command
+                res = subprocess.run(compose_command, env=env, stdout=log_file, stderr=log_file, text=True, check=True)
                 log_file.write("Docker images built successfully.\n")
-                print(f"Docker images built successfully. Details logged in {log_file_path}")
-
+                print(f"Docker images for {', '.join(datasets_to_build)} built successfully. Details logged in {log_file_path}.")
+            except subprocess.CalledProcessError as e:
+                log_file.write(f"Docker compose build failed with error: {e}\n")
+                print(f"Docker compose build failed. See {log_file_path} for details.")
+                raise
 
     def process_drugs(executor, datasets):
         '''
@@ -182,6 +246,8 @@ def main():
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
         if name == "validate":
             docker_run.extend(['upload'])
+        if 'GITHUB_TOKEN' in env and name == "GitHub":
+            docker_run.extend(['-e', f"GITHUB_TOKEN={env['GITHUB_TOKEN']}", 'upload'])
 
         # Full command to run including version update
         docker_run.extend(cmd_arr)
@@ -211,6 +277,24 @@ def main():
         os.remove(file_path)
             
     ######
+    ### Pre-Build Environment Token Check
+    #####
+
+    figshare_token = os.getenv('FIGSHARE_TOKEN')
+    pypi_token = os.getenv('PYPI_TOKEN')
+    synapse_auth_token = os.getenv('SYNAPSE_AUTH_TOKEN')
+    github_token = os.getenv('GITHUB_TOKEN')
+
+
+    # Error handling for required tokens
+    if args.figshare and not figshare_token:
+        raise ValueError("FIGSHARE_TOKEN environment variable is not set.")
+    if args.pypi and not pypi_token:
+        raise ValueError("PYPI_TOKEN environment variable is not set.")
+    if ('beataml' in args.datasets or 'mpnst' in args.datasets) and not synapse_auth_token:
+        raise ValueError("SYNAPSE_AUTH_TOKEN is required for accessing MPNST and beatAML datasets.")
+       
+    ######
     ### Begin Pipeline
     #####
     
@@ -224,7 +308,7 @@ def main():
     ### Build Docker Images. These are all built in Parallel. Nothing else can run until these are built.
     # Ouput is logged at local/docker.log
     if args.docker or args.all:
-        process_docker()
+        process_docker(datasets)
         print("Docker image generation completed")
         
 
@@ -267,7 +351,7 @@ def main():
             print("All experiments files completed")
 
     ######
-    ### Begin Upload
+    ### Begin Upload and/or validation
     #####
     
     
@@ -282,22 +366,17 @@ def main():
         if not os.path.exists(all_files_dir):
             os.makedirs(all_files_dir)
 
-        figshare_token = os.getenv('FIGSHARE_TOKEN')
-        pypi_token = os.getenv('PYPI_TOKEN')
-
-        # Ensure tokens are available
+        # Ensure pypi tokens are available
         if  args.pypi and not pypi_token:
             raise ValueError("Required tokens (PYPI) are not set in environment variables.")
         
-                # Ensure tokens are available
+        # Ensure figshare tokens are available
         if  args.figshare and not figshare_token:
             raise ValueError("Required tokens (FIGSHARE) are not set in environment variables.")
         
+        # Ensure version is specified
         if (args.figshare or args.pypi) and not args.version:
             raise ValueError("Version must be specified when pushing to pypi or figshare")
-        
-        if not os.path.exists(all_files_dir):
-            os.makedirs(all_files_dir)
 
         # Move relevant files to a designated directory
         for file in glob(os.path.join("local", '*.*')):
@@ -308,12 +387,12 @@ def main():
         for file in glob(os.path.join(all_files_dir, '*.gz')):
             decompress_file(file)
 
-        # Run schema checker
+        # Run schema checker - This will always run if uploading data.
         datasets_list = args.datasets.split(',')
         schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets_list
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
         
-        print("Validation complete. Proceeding with file compression/decromession adjustments")
+        print("Validation complete. Proceeding with file compression/decompression adjustments")
         
         # Compress or decompress files based on specific conditions after checking
         for file in glob(os.path.join(all_files_dir, '*')):
@@ -334,6 +413,22 @@ def main():
         if args.pypi and args.version and pypi_token:
             pypi_command = ['python3', 'scripts/push_to_pypi.py', '-y', '/tmp/figshare_latest.yml', '-d', 'coderdata/download/downloader.py', "-v", args.version]
             run_docker_upload_cmd(pypi_command, 'all_files_dir', 'PyPI', args.version)
+            
+            # Push changes to GitHub using Docker
+        if args.version and args.figshare and args.pypi and pypi_token and figshare_token and github_token and args.github_username and args.github_email:
+            git_command = [
+                'bash', '-c', (
+                    f'git config --global user.name "{args.github_username}" '
+                    f'&& git config --global user.email "{args.github_email}" '
+                    f'&& cp /tmp/figshare_latest.yml /usr/src/app/coderdata/docs/_data/figshare_latest.yml '
+                    f'&& git add docs/_data/figshare_latest.yml '
+                    f'&& git commit -m "Data Built and Uploaded. New Tag: {args.version}" '
+                    f'&& git tag {args.version} '
+                    f'&& git push https://{args.github_username}:{github_token}@github.com/PNNL-CompBio/coderdata.git main '
+                    f'&& git push https://{args.github_username}:{github_token}@github.com/PNNL-CompBio/coderdata.git --tags'
+                )
+            ]
+            run_docker_upload_cmd(git_command, 'all_files_dir', 'GitHub', args.version)
             
     
 if __name__ == '__main__':

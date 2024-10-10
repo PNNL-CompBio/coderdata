@@ -1,1 +1,1 @@
-python 01-createHCMISamplesFile.py --samples $1
+python 01-createHCMISamplesFile.py --prevSamples $1
