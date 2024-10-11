@@ -3,12 +3,152 @@ Collection of helper scripts to generate general statistics on the data
 contained in a CoderData Object.
 """
 
+
+from copy import deepcopy
+
+import numpy as np
+
 from coderdata import DatasetLoader
 import pandas as pd
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 import seaborn as sns
+
+
+def split_experiments_by_study(data: DatasetLoader) -> dict:
+    """
+    Splits the CoderData object into multiple smaller CoderData objects
+    according to the `study` recorded in the ``.experiments`` table in 
+    the CoderData object.
+
+    Parameters
+    ----------
+    data : DatasetLoader
+        The CoderData object containing the data set loaded into memory
+        via ``coderdata.DatasetLoader()``.
+
+    Returns
+    -------
+    dict
+        A dictionary dict[study, data] where keys `study` are the names 
+        of the study in the ``.experiments`` part of the imported 
+        CoderData object and values `data` are the filtered smaller
+        CoderData objects containing only data corresponding to the 
+        study. 
+    """
+
+    df_ret = {}
+    experiments = data.experiments
+    
+    # creating the groups based on 'study' to itterate over 
+    groups = experiments.groupby('study')
+    for name, group in groups:
+
+        # extracting improve sample and drug ids from the provided split
+        sample_ids = list(np.unique(group['improve_sample_id'].values))
+        drug_ids = list(np.unique(group['improve_drug_id'].values))
+        
+        # creating new CoderData objects that contain only data
+        # pertaining to the study defined by the previous grouping
+        df_ret[name] = _filter(
+            data=data, sample_ids=sample_ids, drug_ids=drug_ids, study=name
+            )
+    
+    return df_ret
+
+
+def _filter(
+        data: DatasetLoader,
+        sample_ids: list,
+        drug_ids: list,
+        study: str=None,
+        ) -> DatasetLoader:
+    """
+    Helper function to filter down the CoderData object(s) to create
+    independent more concise CoderData objects for further processing.
+    This can be either splitting a dataset according to the different 
+    drug response studies (e.g. the broad_sanger dataset) or if small 
+    subsets need to be extracted (e.g. training / testing splits for 
+    machine learning)
+
+    Parameters
+    ----------
+    data : DatasetLoader
+        Contains a full CoderData object imported/loaded via 
+        ``cd.DataLoader``
+    sample_ids : list
+        A list of improve_sample_id[s] that the CoderData object should
+        be filtered to
+    drug_ids : list
+        A list of improve_drug_id[s] that the CoderData object should 
+        be filtered to
+    study : str, default = None
+        The drug response study that the CoderData object should be 
+        filtered to. This argument is only important for filtering the
+        broad_sanger dataset if the splitting / filtering of the data 
+        set is based on the drug response study
+
+    Returns
+    -------
+    DatasetLoader
+        The filtered CoderData object
+    
+    Notes
+    -----
+
+    Different data types of the CoderData object are going to be 
+    filtered using either the improve_sample_id or the improve_drug_id.
+    
+    - cd.copynumber -> reduce based on ``improve_sample_id``
+    - cd.drugs -> reduce based on ``improve_drug_id``
+    - cd.experiments -> reduce based on ``study`` (only applicable if 
+      the dataset is broad_sanger)
+    - cd.mutations -> reduce based on ``improve_sample_id``
+    - cd.proteomics -> reduce based on ``improve_sample_id``
+    - cd.samples -> reduce based on ``improve_sample_id``
+    - cd.transcriptomics -> reduce based on ``improve_sample_id``
+    
+    """
+
+    # creating a deep copy of the CoderData object such that any 
+    # further operations on the object are not changing the original
+    # object / data
+    data_ret = deepcopy(data)
+
+    # filtering each individual data type down by only the improve 
+    # sample / drug ids that are present in the study
+    if not data_ret.copy_number.empty:
+        data_ret.copy_number = data_ret.copy_number[
+            data_ret.copy_number['improve_sample_id'].isin(sample_ids)
+        ]
+    if not data_ret.drugs.empty:
+        data_ret.drugs = data_ret.drugs[
+            data_ret.drugs['improve_drug_id'].isin(drug_ids)
+            ]
+    if not data_ret.mutations.empty:
+        data_ret.mutations = data_ret.mutations[
+            data_ret.mutations['improve_sample_id'].isin(sample_ids)
+            ]
+    if not data_ret.proteomics.empty:
+        data_ret.proteomics = data_ret.proteomics[
+            data_ret.proteomics['improve_sample_id'].isin(sample_ids)
+            ]
+    if not data_ret.samples.empty:
+        data_ret.samples = data_ret.samples[
+            data_ret.samples['improve_sample_id'].isin(sample_ids)
+            ]
+    if not data_ret.transcriptomics.empty:
+        data_ret.transcriptomics = data_ret.transcriptomics[
+            data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
+            ]
+    if not data_ret.experiments.empty:
+        data_ret.experiments = data_ret.experiments[
+            data_ret.experiments['study'] == study
+        ]
+    # TODO: do we also need to split the gene table?
+    
+    return data_ret
 
 def summarize_response_metric(data: DatasetLoader) -> pd.DataFrame:
     """
