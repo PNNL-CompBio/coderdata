@@ -154,7 +154,7 @@ source_python("pubchem_retrieval.py")
 update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=newdrugfile,ignore_chems=ignore_file_path)
 
 
-tab<-read.table(newdrugfile,sep='\t',header=T,quote="",comment.char="")
+tab<-read.table(newdrugfile,sep='\t',header=T,quote="")
 
 newdrugs<-tab|>
     subset(chem_name%in%tolower(alldrugs))
