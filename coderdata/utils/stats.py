@@ -29,6 +29,23 @@ def summarize_response_metric(data: DatasetLoader) -> pd.DataFrame:
     pandas.DataFrame
         A `pandas.DataFrame` containing basic statistics for each
         dose response metric.
+
+    Example
+    -------
+
+    The Example assumes that a dataset with the prefix 'beataml' has 
+    been downloaded previously. See also ``coderdata.download()``
+
+    >>> import coderdata as cd
+    >>> beataml = cd.DataLoader('beataml')
+    >>> summary_stats = summarize_response_metric(data=beataml)
+    >>> summary_stats
+                            count          mean           std
+    dose_response_metric                                                          
+    aac                   23378.0  3.028061e-01  1.821265e-01  ...  
+    auc                   23378.0  6.971939e-01  1.821265e-01  ...   
+    dss                   23378.0  3.218484e-01  5.733492e-01  ...   
+    ...                   ...      ...           ...           ...     
     """
     df_ret = (
         data.experiments # get experiments DF
@@ -74,6 +91,10 @@ def plot_response_metric(
         - title : str - sets the title of the axes
         - kde : bool - adds a kernel density estimate plot into the
         histogram
+
+    Returns
+    -------
+    None
 
     Example
     -------
