@@ -84,7 +84,7 @@ if (!is.na(olddrugfiles)) {
   # Read and combine old drug files
   olddrug_list <- lapply(unique(unlist(strsplit(olddrugfiles, split = ','))), function(x) {
     if (file.exists(x)) {
-      return(fread(x, header = TRUE, sep = '\t', quote = '', comment.char = ''))
+      return(fread(x, header = TRUE, sep = '\t', quote = ''))
     } else {
       warning(paste("Old drug file does not exist:", x))
       return(NULL)

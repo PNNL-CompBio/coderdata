@@ -28,7 +28,7 @@ buildDrugTable<-function(druglist,path_to_file='drugs.tsv.gz'){
 
   max_id=0
   if(file.exists(path_to_file)){
-      improve_drugs<<-read.table(path_to_file,sep='\t',header=T,quote='')
+      improve_drugs<<-read.table(path_to_file,sep='\t',header=T,comment.char = '',quote='')
 
       res = improve_drugs|>
           tidyr::separate(improve_drug_id,sep='_',into=c('imp','id'))
