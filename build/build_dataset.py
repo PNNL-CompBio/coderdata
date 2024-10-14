@@ -111,7 +111,7 @@ def process_drugs(executor, dataset, use_prev_dataset, should_continue):
     executor.submit(run_docker_cmd, [di, 'sh', 'build_drugs.sh', ','.join(dflist)], filename)
 
 
-def process_omics(executor, dataset, high_mem, should_continue):
+def process_omics(executor, dataset, should_continue):
     '''
     Build the omics files for the specified dataset.
     '''
@@ -158,7 +158,7 @@ def process_omics(executor, dataset, high_mem, should_continue):
     executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{dataset}_samples.csv'], filename)
 
 
-def process_experiments(executor, dataset, high_mem, should_continue):
+def process_experiments(executor, dataset, should_continue):
     '''
     Build the experiments files for the specified dataset.
     '''
@@ -236,7 +236,6 @@ def main():
     )
     parser.add_argument('--dataset', required=True, help='Name of the dataset to build')
     parser.add_argument('--use_prev_dataset', help='Prefix of the previous dataset for sample and drug ID assignment')
-    parser.add_argument('--high-mem', action='store_true', help='Use high memory mode for parallel processing')
     parser.add_argument('--validate', action='store_true', help='Run schema checker on the built files')
     parser.add_argument('--continue', dest='should_continue', action='store_true', help='Continue from where the build left off by skipping existing files')
 
@@ -265,8 +264,8 @@ def main():
     with ThreadPoolExecutor() as executor:
         
         # Build omics and experiments
-        omics_future = executor.submit(process_omics, executor, args.dataset, args.high_mem, args.should_continue)
-        experiments_future = executor.submit(process_experiments, executor, args.dataset, args.high_mem, args.should_continue)
+        omics_future = executor.submit(process_omics, executor, args.dataset, args.should_continue)
+        experiments_future = executor.submit(process_experiments, executor, args.dataset, args.should_continue)
 
         omics_future.result()
         experiments_future.result()

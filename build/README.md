@@ -48,6 +48,40 @@ python build/build_all.py --all --high_mem --validate --pypi --figshare --versio
 python build/build_all.py --exp
 ```
 
+## build_dataset.py script
+This script builds a single dataset for **debugging purposes only**. It can help determine if a dataset will build correctly in isolation. Note that the sample and drug identifiers generated may not align with those from other datasets, so this script is not suitable for building production datasets.
+
+It requires the following authorization tokens to be set in the local environment depending on the dataset:
+
+`SYNAPSE_AUTH_TOKEN`: Required for beataml and mpnst datasets. Follow the directions above to use gain access.
+
+Available arguments:
+- `--dataset`: Required. Name of the dataset to build.
+- `--use_prev_dataset`: Optional. Prefix of the previous dataset for sample and drug ID continuation. The previous dataset files must be in the "local" directory.
+- `--validate`: Optional. Runs the schema checker on the built files.
+- `--continue`: Optional. Continues from where the build left off by skipping existing files in "local" directory.
+Example usage:
+
+Build the broad_sanger dataset:
+```bash
+python build/build_dataset.py --dataset broad_sanger
+```
+Build the mpnst dataset continuing from broad_sanger sample and drug IDs:
+```bash
+python build/build_dataset.py --dataset mpnst --use_prev_dataset broad_sanger
+```
+Build the hcmi dataset and run validation:
+```bash
+python build/build_dataset.py --dataset hcmi --validate
+```
+Build the broad_sanger dataset but skip previously built files in "local" directory:
+```bash
+python build/build_dataset.py --dataset broad_sanger --continue
+```
+
+
+
+
 ## Data Source Reference List
 
 | Dataset | Data Source | Resource | Authors | AACR Reference Number |
