@@ -134,8 +134,11 @@ def generate_samples_file(prev_samples_path):
     prot_samples["other_id_source"] = "beatAML"
     
     all_samples = pd.concat([prot_samples, full_samples])
-    all_samples['species'] = 'Homo sapiens'
-    maxval = max(pd.read_csv(prev_samples_path).improve_sample_id)
+    all_samples['species'] = 'Homo sapiens (Human)'
+    if prev_samples_path == "":
+        maxval = 0
+    else:
+        maxval = max(pd.read_csv(prev_samples_path).improve_sample_id)
     mapping = {labId: i for i, labId in enumerate(all_samples['other_id'].unique(), start=(int(maxval)+1))}
     all_samples['improve_sample_id'] = all_samples['other_id'].map(mapping)
     all_samples.insert(1, 'improve_sample_id', all_samples.pop('improve_sample_id'))
@@ -282,8 +285,14 @@ def format_drug_map(drug_map_path):
     pd.DataFrame
         Formatted and cleaned drug mapping dataframe.
     """
-    drug_map = pd.read_csv(drug_map_path, sep = "\t")
-    drug_map = drug_map.drop_duplicates(subset='isoSMILES', keep='first')
+    if drug_map_path:
+        drug_map = pd.read_csv(drug_map_path, sep = "\t")
+        drug_map = drug_map.drop_duplicates(subset='isoSMILES', keep='first')
+    else:
+        drug_map = pd.DataFrame(columns=[
+            'improve_drug_id', 'chem_name', 'pubchem_id', 'canSMILES', 
+            'isoSMILES', 'InChIKey', 'formula', 'weight'
+        ])
     return drug_map
 
 #Drug Response
@@ -326,7 +335,12 @@ def add_improve_id(previous_df, new_df):
     pd.DataFrame
         New dataframe with 'improve_drug_id' added.
     """
-    max_id = max([int(val.replace('SMI_', '')) for val in previous_df['improve_drug_id'].tolist() if pd.notnull(val) and val.startswith('SMI_')])
+    if not previous_df.empty and 'improve_drug_id' in previous_df.columns:
+        id_list = [int(val.replace('SMI_', '')) for val in previous_df['improve_drug_id'].tolist() if pd.notnull(val) and val.startswith('SMI_')]
+        max_id = max(id_list) if id_list else 0  # Default to 0 if the list is empty
+    else:
+        max_id = 0  # Default value if the DataFrame is empty or doesn't have the column
+    # max_id = max([int(val.replace('SMI_', '')) for val in previous_df['improve_drug_id'].tolist() if pd.notnull(val) and val.startswith('SMI_')])
     # Identify isoSMILES in the new dataframe that don't exist in the old dataframe
     unique_new_smiles = set(new_df['isoSMILES']) - set(previous_df['isoSMILES'])
     # Identify rows in the new dataframe with isoSMILES that are unique and where improve_drug_id is NaN
@@ -552,10 +566,10 @@ if __name__ == "__main__":
     ##the next three arguments determine what we'll do
 
     parser.add_argument('-s', '--samples', action = 'store_true', help='Only generate samples, requires previous samples',default=False)
-    parser.add_argument('-p', '--prevSamples', type=str, help='Use this to provide previous sample file, will run sample file generation',default='')
+    parser.add_argument('-p', '--prevSamples', nargs='?',type=str, default='', const='', help='Use this to provide previous sample file, will run sample file generation')
     
     parser.add_argument('-d', '--drugs',action='store_true', default=False,help='Query drugs only, requires drug file')
-    parser.add_argument('-r', '--drugFile',type=str,help='Path to existing drugs.tsv file to query')
+    parser.add_argument('-r', '--drugFile',nargs='?',type=str, default='', const='',help='Path to existing drugs.tsv file to query')
     
     parser.add_argument('-o', '--omics',action='store_true',default=False,help='Set this flag to query omics, requires current samples')
     parser.add_argument('-c', '--curSamples', type=str, help='Add path if you want to generate data')
@@ -604,27 +618,23 @@ if __name__ == "__main__":
     supplimentary_file = '1-s2.0-S1535610822003129-mmc2.xlsx'
     download_from_github(supplementary_url, supplimentary_file)
     
-    #prev_samples_path = "hcmi_samples.csv"
-    #improve_map_file = "/tmp/beataml_samples.csv"
     
     if args.samples:
         if args.prevSamples is None or args.prevSamples=='':
-            print("Cannot run sample file generation without previous samples")
-            exit()
+            print("No Previous Samples file was found. Data will not align with other datasets. Use ONLY for testing purposes.")
         else:
-            print("Only running Samples File Generation")
-            prev_samples_path = args.prevSamples
-            #Generate Samples File
-            generate_samples_file(prev_samples_path)
+            print("Previous Samples File Provided. Running BeatAML Sample File Generation")
+        #Generate Samples File
+        generate_samples_file(args.prevSamples)
     if args.drugs:
         if args.drugFile is None or args.drugFile=='':
-            print("Cannot run drug matching without prior drug file")
-            exit()
+            print("Prior Drug File not provided. Data will not align with other datasets. Use ONLY for testing purposes.")
         else:
-            original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-            original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-            download_from_github(original_drug_url, original_drug_file)
-            generate_drug_list(args.drugFile, original_drug_file) ##this doesn't exist, need to add
+            print("Drug File Provided. Proceeding with build.")
+        original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
+        original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
+        download_from_github(original_drug_url, original_drug_file)
+        generate_drug_list(args.drugFile, original_drug_file) ##this doesn't exist, need to add
     if args.omics:
         if args.genes is None or args.curSamples is None:
             print('Cannot process omics without sample mapping and gene mapping files')

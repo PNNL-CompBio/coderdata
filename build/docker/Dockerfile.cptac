@@ -15,6 +15,10 @@ COPY build/cptac/requirements.txt .
 COPY build/cptac/*.py ./
 COPY build/cptac/*sh ./
 
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 

@@ -12,30 +12,75 @@ are added.
 
 This script initializes all docker containers, builds all datasets, validates them, and uploads them to figshare and pypi.
 
-It requires the following authorization tokens to be set in the local environment depending on the use case:  
-`SYNAPSE_AUTH_TOKEN`: Required for beataml and mpnst datasets. Join the [CoderData team](https://www.synapse.org/#!Team:3503472) on Synapse and generate an access token.
-`PYPI_TOKEN`: This token is required to upload to PyPI.
-`FIGSHARE_TOKEN`: This token is required to upload to Figshare.
+It requires the following authorization tokens to be set in the local environment depending on the use case:   
+`SYNAPSE_AUTH_TOKEN`: Required for beataml and mpnst datasets. Join the [CoderData team](https://www.synapse.org/#!Team:3503472) on Synapse and generate an access token.  
+`PYPI_TOKEN`: This token is required to upload to PyPI.  
+`FIGSHARE_TOKEN`: This token is required to upload to Figshare.  
+`GITHUB_TOKEN`: This token is required to upload to GitHub.  
 
-Available arguments:
+**Available arguments**:
 
 - `--docker`: Initializes and builds all docker containers.
 - `--samples`: Processes and builds the sample data files.
 - `--omics`: Processes and builds the omics data files.
 - `--drugs`: Processes and builds the drug data files.
 - `--exp`: Processes and builds the experiment data files.
-- `--all`: Executes all available processes above (docker, samples, omics, drugs, exp).
-- `--validate`: Validates the generated datasets using the schema check scripts.
-- `--figshare`: Uploads the datasets to Figshare.
-- `--pypi`: Uploads the package to PyPI.
-- `--high_mem`: Utilizes high memory mode for concurrent data processing.
+- `--all`: Executes all available processes above (docker, samples, omics, drugs, exp). This does not run the validate, figshare, or pypi commands.
+- `--validate`: Validates the generated datasets using the schema check scripts. This is automatically included if data upload occurs.
+- `--figshare`: Uploads the datasets to Figshare. FIGSHARE_TOKEN must be set in local environment.
+- `--pypi`: Uploads the package to PyPI. PYPI_TOKEN must be set in local environment.
+- `--high_mem`: Utilizes high memory mode for concurrent data processing. This has been successfully tested using 32 or more vCPUs. 
 - `--dataset`: Specifies the datasets to process (default='broad_sanger,hcmi,beataml,mpnst,cptac').
-- `--version`: Specifies the version number for the package and data upload title. This is required to upload to figshare and PyPI
+- `--version`: Specifies the version number for the PyPI package and Figshare upload title (e.g., "0.1.29"). This is required for figshare and PyPI upload steps. This must be a higher version than previously published versions.
+- `--github-username`: GitHub username matching the GITHUB_TOKEN. Required to push the new Tag to the GitHub Repository.
+- `--github-email`: GitHub email matching the GITHUB_TOKEN. Required to push the new Tag to the GitHub Repository.
 
-Example usage:
+**Example usage**:  
+- Build all datasets and upload to Figshare and PyPI and GitHub.  
+Required tokens for the following command: `SYNAPSE_AUTH_TOKEN`, `PYPI_TOKEN`, `FIGSHARE_TOKEN`, `GITHUB_TOKEN`.  
 ```bash
-python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.29
+python build/build_all.py --all --high_mem --validate --pypi --figshare --version 0.1.41 --github-username jjacobson95 --github-email jeremy.jacobson3402@gmail.com
 ```
+  
+- Build only the experiment files.  
+**Note**: Preceding steps will not automatically be run. This assumes that docker images, samples, omics, and drugs were all previously built. Ensure all required tokens are set.   
+```bash
+python build/build_all.py --exp
+```
+
+## build_dataset.py script
+This script builds a single dataset for **debugging purposes only**. It can help determine if a dataset will build correctly in isolation. Note that the sample and drug identifiers generated may not align with those from other datasets, so this script is not suitable for building production datasets.
+
+It requires the following authorization tokens to be set in the local environment depending on the dataset:
+
+`SYNAPSE_AUTH_TOKEN`: Required for beataml and mpnst datasets. Follow the directions above to use gain access.
+
+Available arguments:
+- `--dataset`: Required. Name of the dataset to build.
+- `--use_prev_dataset`: Optional. Prefix of the previous dataset for sample and drug ID continuation. The previous dataset files must be in the "local" directory.
+- `--validate`: Optional. Runs the schema checker on the built files.
+- `--continue`: Optional. Continues from where the build left off by skipping existing files in "local" directory.
+Example usage:
+
+Build the broad_sanger dataset:
+```bash
+python build/build_dataset.py --dataset broad_sanger
+```
+Build the mpnst dataset continuing from broad_sanger sample and drug IDs:
+```bash
+python build/build_dataset.py --dataset mpnst --use_prev_dataset broad_sanger
+```
+Build the hcmi dataset and run validation:
+```bash
+python build/build_dataset.py --dataset hcmi --validate
+```
+Build the broad_sanger dataset but skip previously built files in "local" directory:
+```bash
+python build/build_dataset.py --dataset broad_sanger --continue
+```
+
+
+
 
 ## Data Source Reference List
 
@@ -65,5 +110,4 @@ python build/build_all.py --all --high_mem --validate --pypi --figshare --versio
 | BeatAML | NCI Genomic Data Commons | Integrative analysis of drug response and clinical outcome in acute myeloid leukemia | Daniel Bottomly et al. | 22
 | BeatAML | NCI Proteomic Data Commons | Mapping the proteogenomic landscape enables prediction of drug response in acute myeloid leukemia | James Pino et al. | 23
 | MPNST | NF Data Portal | Chromosome 8 gain is associated with high-grade transformation in MPNST | David P Nusinow et al. | 24
-
 
