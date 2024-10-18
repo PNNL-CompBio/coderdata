@@ -30,7 +30,7 @@ def run_schema_checker(script_name):
 
 def main():
     parser = argparse.ArgumentParser(description="Run schema validations for specified datasets.")
-    parser.add_argument('-d', '--datasets', nargs='*', help='List of datasets to validate (e.g., beataml, cptac, ccle, hcmi)', default=None)
+    parser.add_argument('-d', '--datasets', nargs='*', help='List of datasets to validate (e.g., "beataml cptac ccle hcmi")', default=None)
     args = parser.parse_args()
 
     # Mapping from dataset names to script names
@@ -50,7 +50,7 @@ def main():
     }
 
     scripts_to_run = schema_mapping.values() if not args.datasets else [schema_mapping[dataset] for dataset in args.datasets if dataset in schema_mapping]
-
+    print(f"scripts_to_run: {scripts_to_run}")
     all_passed = True
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = {executor.submit(run_schema_checker, script): script for script in scripts_to_run}

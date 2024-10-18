@@ -2,7 +2,7 @@
 
 # Define two parallel arrays: one for target classes, another for file names
 target_classes=("Sample" "Transcriptomics" "Proteomics" "Mutations" "Copy Number" "Experiments" "Drug")
-files=("/tmp/FIMM_samples.csv" "/tmp/FIMM_transcriptomics.csv" "/tmp/FIMM_proteomics.csv" "/tmp/FIMM_mutations.csv" "/tmp/FIMM_copy_number.csv" "/tmp/FIMM_experiments.csv" "/tmp/FIMM_drugs.tsv")
+files=("/tmp/fimm_samples.csv" "/tmp/fimm_transcriptomics.csv" "/tmp/fimm_proteomics.csv" "/tmp/fimm_mutations.csv" "/tmp/fimm_copy_number.csv" "/tmp/fimm_experiments.tsv" "/tmp/fimm_drugs.tsv")
 
 # Initialize a flag to track validation status
 validation_failed=0
