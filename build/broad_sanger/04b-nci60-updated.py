@@ -1,5 +1,5 @@
 '''
-gets nci60 data from 10/2023 release
+gets nci60 data from 10/2024 release
 
 '''
 

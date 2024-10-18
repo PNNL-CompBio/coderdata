@@ -42,7 +42,7 @@ def hs_response_curve_original(x, einf, ec50, hs):
 
 HS_BOUNDS = ([0, 0, 0], [1, 12, 4]) 
 #HS_BOUNDS_NEG = ([0, -3,-1],[1,8,0]) ## made hill slope forced to be negative
-HS_BOUNDS_NEG = ([0, -11,-1],[1,10,0]) ## made hill slope forced to be negative  ##20241017 updated to make ec50 go lower
+HS_BOUNDS_NEG = ([0, -5,-1],[1,3,0]) ## made hill slope forced to be negative  ##20241017 updated to shift EC50 range
 def response_curve(x, einf, ec50, hs):
     """ transformed the original function with ec50 in -log10(M) instead of M
     """
