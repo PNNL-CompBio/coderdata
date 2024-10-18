@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 
+import os
+os.environ['MPLCONFIGDIR'] = '/app/tmp/matplotlib'
 import matplotlib
-# matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
 

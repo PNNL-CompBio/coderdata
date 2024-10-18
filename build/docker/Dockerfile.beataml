@@ -10,6 +10,10 @@ COPY build/utils/tpmFromCounts.py .
 COPY build/beatAML/*sh ./
 COPY build/beatAML/requirements.txt .
 
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
 RUN pip install --no-cache-dir -r requirements.txt
 VOLUME ['/tmp']
 # CMD python GetBeatAML.py --token ${SYNAPSE_TOKEN}

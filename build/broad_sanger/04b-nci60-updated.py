@@ -86,6 +86,7 @@ def main():
   #      }
   #  )
   #  newnames = newnames.unique()
+
     
   #  fixed = nulls[['AVERAGE_PTC','CONCENTRATION_UNIT','CONCENTRATION','CELL_NAME','EXPID','NSC','time','time_unit']].join(newnames,on='CELL_NAME',how='left')
   #  merged.columns = ['AVERAGE_PTC','CONCENTRATION_UNIT','CONCENTRATION','old_CELL_NAME','EXPID','NSC','time','time_unit','CELL_NAME']
