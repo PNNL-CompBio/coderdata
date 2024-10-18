@@ -123,7 +123,7 @@ getDoseRespData<-function(dset,studyName,improve_samples,drug.map){
     dplyr::full_join(respDat,by=c('doseNum','exp_id'))%>%
     left_join(full.map)%>%
     dplyr::select(Drug=improve_drug_id,improve_sample_id=improve_sample_id,DOSE=Dose,GROWTH=Response)%>%
-    #dplyr::mutate(DOSE=-log10(Dose/1000))###curve fitting code requires -log10(M), these are mM
+    #dplyr::mutate(DOSE=-log10(Dose/1000))###curve fitting code requires -log10(M), these are uM according to https://github.com/bhklab/PharmacoGx/blob/master/vignettes/CreatingPharmacoSet.Rmd
     #rename(GROWTH=RESPONSE)%>%
     mutate(source='pharmacoGX')%>%
       mutate(study=studyName)|>

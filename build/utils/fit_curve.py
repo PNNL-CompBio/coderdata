@@ -41,7 +41,8 @@ def hs_response_curve_original(x, einf, ec50, hs):
 
 
 HS_BOUNDS = ([0, 0, 0], [1, 12, 4]) 
-HS_BOUNDS_NEG = ([0, -3,-1],[1,8,0]) ## made hill slope forced to be negative
+#HS_BOUNDS_NEG = ([0, -3,-1],[1,8,0]) ## made hill slope forced to be negative
+HS_BOUNDS_NEG = ([0, -11,-1],[1,10,0]) ## made hill slope forced to be negative  ##20241017 updated to make ec50 go lower
 def response_curve(x, einf, ec50, hs):
     """ transformed the original function with ec50 in -log10(M) instead of M
     """
@@ -114,14 +115,14 @@ def fit_exp(df_exp, title=None, dmin=None, dmax=None, save=False):
 
     return metrics.to_frame(name='metrics').T
 
-def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
+
+def compute_fit_metrics(xdata, ydata, popt, pcov, d1 = -5, d2=3):#d1=4, d2=10):
     '''
-    xdata: dose data in log10(M)
-    ydata: range from 0 to 1
+    xdata: dose data in log10(    ydata: range from 0 to 1
     popt: fit curve metrics
     pcov: ??
-    d1: minimum fixed dose in log10(M)
-    d2: maximum fixed dose log10(M)
+    d1: minimum fixed dose in log10(M) ##updated to uM and  made range larger
+    d2: maximum fixed dose log10(M) ##updated to uM and made ranger larger
     '''
     if popt is None:
         cols = ['fit_auc','fit_ic50','fit_ec50','fit_ec50se','fit_r2','fit_einf','fit_hs','aac','auc','dss']#'auc ic50 ec50 ec50se R2fit rinf hs aac1 auc1 dss1'.split(' ')
@@ -144,6 +145,7 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10):
     int10x = compute_area(xmin, ic10x, *popt)
     ##old code - assumes a positive hill slope, otherwise doesn't seem to work.
     dss1 = (0.9 * (ic10x - xmin) - int10x) / (0.9 * (xmax - xmin)) if xmin < ic10x else 0
+    #this auc has fixed doses, so can be (in theory) standardized across datasets
     auc = (response_integral(d2, *popt) - response_integral(d1, *popt)) / (d2 - d1)
     ##added by sara, i'm not sure where the above came from
     ## orig definition from paper is here: https://static-content.springer.com/esm/art%3A10.1038%2Fsrep05193/MediaObjects/41598_2014_BFsrep05193_MOESM1_ESM.pdf
@@ -237,20 +239,32 @@ def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', help='input file')
+    parser.add_argument('--input', help='input file with the following columns:\
+    DOSE: dose of drug in uM,\
+    GROWTH: percentage of cells left,\
+    study: name of study to group measurements by,\
+    source: source of the data,\
+    improve_sample_id: improve_sample_id,\
+    Drug: improve_drug_id,\
+    time: time at which measurement was taken,\
+    time_unit: unit of time')
     parser.add_argument('--output', help='prefix of output file')
     parser.add_argument('--beataml', action='store_true', help='Include this if for BeatAML')
-
+    parser.add_argument('--debug',action='store_true',default=False)
+    
     args = parser.parse_args()
     print(args.input)
     df_all = pd.read_table(args.input)
+    if args.debug:
+        df_all = df_all.iloc[0:1000000]
+
     #drop nas
     df_all = df_all.dropna()
-    ##pharmacoGX data is micromolar, we need log transformed molar
-    df_all.DOSE = np.log10(df_all.DOSE*1000000)
+    ##pharmacoGX data is micromolar, we need log transformed data
+    df_all.DOSE = np.log10(df_all.DOSE)
     ##need data to be between 0 and 1, not 0 and 100
     df_all.GROWTH=df_all.GROWTH/100.00
-    
+    print(df_all.head)
     fname = args.output or 'combined_single_response_agg'
     process_df_part(df_all, fname, beataml=args.beataml)#, start=args.start, count=args.count)
     
