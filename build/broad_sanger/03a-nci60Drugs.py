@@ -54,10 +54,24 @@ def main():
         os.system('unzip doseresp.zip')
     dose_resp = pl.read_csv("DOSERESP.csv",quote_char='"',infer_schema_length=10000000,ignore_errors=True)
     pubchems = pubchems.filter(pl.col('NSC').is_in(dose_resp['NSC']))
+    smiles = smiles.filter(pl.col("NSC").is_in(dose_resp['NSC']))
     ##first retreive pubchem data
     if opts.test:
         arr = rand.sample(list(pubchems['CID']),100)
     else:
+        arr = set(pubchems['CID'])
+
+    ##first filter to see if there are structures/drugs in teh data already. i dont think this does much.
+    if os.path.exists(opts.output):
+        curdrugs = pl.read_csv(opts.output,separator='\t')
+       # cs = set(curdrugs['isoSMILES'])
+        smiles = smiles.filter(pl.col('SMILES').is_not_null())
+        upper=[a.upper() for a in smiles['SMILES']]
+        smiles= pl.DataFrame({'NSC':smiles['NSC'],'upper':upper})#smiles.with_columns(upper=upper)
+        ##reduce to smiels only in current drugs
+        ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['isoSMILES']))
+        ssmiles = ssmiles.filter(~pl.col('upper').is_in(curdrugs['canSMILES']))
+        pubchems = pubchems.filter(pl.col('NSC').is_in(ssmiles['NSC']))
         arr = set(pubchems['CID'])
         
     print("Querying pubchem from CIDs")
