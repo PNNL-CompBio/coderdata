@@ -227,6 +227,29 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
                             last_experiments_future.result() 
                         last_experiments_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
 
+
+    def process_misc(executor, datasets, high_mem):
+        '''
+        Run all misc scripts concurrently or one at a time.
+        '''
+        last_misc_future = None
+        #Currently this only applies to broad_sanger. Add others here if they need a final step.
+        if "broad_sanger" in datasets:
+            datasets = ["broad_sanger"]
+        else:
+            return
+        for da in datasets:
+            di = 'broad_sanger_omics' if da == 'broad_sanger' else da
+            #Run all at once:
+            if high_mem:
+                executor.submit(run_docker_cmd, [di, 'sh', 'build_misc.sh'], f'{da} misc')
+            #Run one at a time.
+            else:
+                if last_misc_future:
+                    last_misc_future.result() 
+                last_misc_future = executor.submit(run_docker_cmd,  [di, 'sh', 'build_misc.sh'], f'{da} misc')
+        
+
     def process_genes(executor):
         if not os.path.exists('/tmp/genes.csv'):
             executor.submit(run_docker_cmd,['genes','sh','build_genes.sh'],'gene file')
@@ -350,14 +373,32 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             exp_thread.result()
             print("All experiments files completed")
 
+
+    ### Final Step, some datasets may need an additional post build step. Add this here
+    # Currently only the cell line datasets need this. This seperates broad_sanger into all of its component datasets.
+    
+    with ThreadPoolExecutor() as executor:
+        if args.all:
+            misc_thread = executor.submit(process_misc, executor, datasets, args.high_mem)
+        if args.all:
+            misc_thread.result()
+            print("Final build step complete.")
+
+
     ######
     ### Begin Upload and/or validation
     #####
     
-    
     if args.pypi or args.figshare or args.validate:
         # FigShare File Prefixes:
-        prefixes = ['beataml', 'hcmi', 'cptac', 'mpnst', 'broad_sanger', 'genes', 'drugs']
+        prefixes = ['beataml', 'hcmi', 'cptac', 'mpnst', 'genes', 'drugs']
+        broad_sanger_datasets = ["ccle","ctrpv2","fimm","gdscv1","gdscv2","gcsi","prism","nci60"]
+        if "broad_sanger" in datasets:
+            prefixes.extend(broad_sanger_datasets)
+            datasets.extend(broad_sanger_datasets)
+            datasets.remove("broad_sanger")
+            prefixes.remove("broad_sanger")
+
         
         figshare_token = os.getenv('FIGSHARE_TOKEN')
         pypi_token = os.getenv('PYPI_TOKEN')
@@ -388,8 +429,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             decompress_file(file)
 
         # Run schema checker - This will always run if uploading data.
-        datasets_list = args.datasets.split(',')
-        schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets_list
+        schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
         
         print("Validation complete. Proceeding with file compression/decompression adjustments")

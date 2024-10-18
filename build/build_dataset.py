@@ -174,6 +174,31 @@ def process_experiments(executor, dataset, should_continue):
     filename = f'{dataset} experiments'
     executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{dataset}_samples.csv', f'/tmp/{dataset}_drugs.tsv'], filename)
 
+
+
+def process_misc(executor, datasets, high_mem):
+    '''
+    Run all misc scripts concurrently or one at a time.
+    '''
+    last_misc_future = None
+    #Currently this only applies to broad_sanger. Add others here if they need a final step.
+    if "broad_sanger" in datasets:
+        datasets = ["broad_sanger"]
+    else:
+        return
+    for da in datasets:
+        di = 'broad_sanger_omics' if da == 'broad_sanger' else da
+        #Run all at once:
+        if high_mem:
+            executor.submit(run_docker_cmd, [di, 'sh', 'build_misc.sh'], f'{da} misc')
+        #Run one at a time.
+        else:
+            if last_misc_future:
+                last_misc_future.result() 
+            last_misc_future = executor.submit(run_docker_cmd,  [di, 'sh', 'build_misc.sh'], f'{da} misc')
+    
+
+
 def decompress_file(file_path):
     """Decompress a gzip file and delete the original compressed file."""
     with gzip.open(file_path, 'rb') as f_in:
@@ -212,7 +237,15 @@ def run_schema_checker(dataset):
     '''
     # Prepare the directory with the built files
     prefixes = ['genes', dataset]
+    datasets = [dataset]
+    broad_sanger_datasets = ["ccle","ctrpv2","fimm","gdscv1","gdscv2","gcsi","prism","nci60"]
     all_files_dir = 'all_files_dir'
+    if "broad_sanger" == dataset:
+            prefixes.extend(broad_sanger_datasets)
+            datasets.extend(broad_sanger_datasets)
+            datasets.remove("broad_sanger")
+            prefixes.remove("broad_sanger")
+    
     if not os.path.exists(f'local/{all_files_dir}'):
         os.makedirs(f'local/{all_files_dir}')
 
@@ -227,7 +260,7 @@ def run_schema_checker(dataset):
             decompress_file(os.path.join('local', all_files_dir, file))
 
     # Run schema checker
-    schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets', dataset]
+    schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets', datasets]
     run_docker_validate_cmd(schema_check_command, all_files_dir, 'Validation')
 
 def main():
@@ -236,6 +269,7 @@ def main():
     )
     parser.add_argument('--dataset', required=True, help='Name of the dataset to build')
     parser.add_argument('--use_prev_dataset', help='Prefix of the previous dataset for sample and drug ID assignment')
+    parser.add_argument('--build', action='store_true', help='Run data build.')
     parser.add_argument('--validate', action='store_true', help='Run schema checker on the built files')
     parser.add_argument('--continue', dest='should_continue', action='store_true', help='Continue from where the build left off by skipping existing files')
 
@@ -247,31 +281,40 @@ def main():
     # Build Docker Image
     process_docker(args.dataset,args.validate)
 
-    # Use ThreadPoolExecutor for parallel execution
-    with ThreadPoolExecutor() as executor:
-        # Always build genes file
-        process_genes(executor)
+    if args.build:
+        # Use ThreadPoolExecutor for parallel execution
+        with ThreadPoolExecutor() as executor:
+            # Always build genes file
+            process_genes(executor)
 
-        # Build samples and drugs
-        samples_future = executor.submit(process_samples, executor, args.dataset, args.use_prev_dataset, args.should_continue)
-        drugs_future = executor.submit(process_drugs, executor, args.dataset, args.use_prev_dataset, args.should_continue)
+            # Build samples and drugs
+            samples_future = executor.submit(process_samples, executor, args.dataset, args.use_prev_dataset, args.should_continue)
+            drugs_future = executor.submit(process_drugs, executor, args.dataset, args.use_prev_dataset, args.should_continue)
 
-        samples_future.result()
-        drugs_future.result()
+            samples_future.result()
+            drugs_future.result()
+            
+        print("Samples and Drugs Files Completed.")
+
+        with ThreadPoolExecutor() as executor:
+            
+            # Build omics and experiments
+            omics_future = executor.submit(process_omics, executor, args.dataset, args.should_continue)
+            experiments_future = executor.submit(process_experiments, executor, args.dataset, args.should_continue)
+
+            omics_future.result()
+            experiments_future.result()
+
+        print("Experiments and Omics Files completed.")
         
-    print("Samples and Drugs Files Completed.")
-
-    with ThreadPoolExecutor() as executor:
-        
-        # Build omics and experiments
-        omics_future = executor.submit(process_omics, executor, args.dataset, args.should_continue)
-        experiments_future = executor.submit(process_experiments, executor, args.dataset, args.should_continue)
-
-        omics_future.result()
-        experiments_future.result()
-
-    print("Experiments and Omics Files completed.")
-
+        with ThreadPoolExecutor() as executor:
+            
+            if args.all:
+                misc_thread = executor.submit(process_misc, executor, args.dataset, args.high_mem)
+            if args.all:
+                misc_thread.result()
+                print("Final build step complete.")
+                
     if args.validate:
         run_schema_checker(args.dataset)
         print("Validation completed.")
