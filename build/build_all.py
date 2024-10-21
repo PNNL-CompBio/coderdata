@@ -239,6 +239,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
         else:
             return
         for da in datasets:
+            #Running the build_misc.sh in broad_sanger_omics
             di = 'broad_sanger_omics' if da == 'broad_sanger' else da
             #Run all at once:
             if high_mem:

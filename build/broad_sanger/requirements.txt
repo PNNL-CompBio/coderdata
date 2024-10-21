@@ -10,3 +10,4 @@ openpyxl
 polars
 mordredcommunity
 rdkit
+coderdata==0.1.40
