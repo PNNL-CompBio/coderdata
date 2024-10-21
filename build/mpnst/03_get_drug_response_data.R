@@ -85,7 +85,7 @@ getDrugDataByParent<-function(parid,sampleId){
         data <- fread(synGet(x)$path)|>
             filter(response_type=='percent viability')|>
             mutate(improve_sample_id=sampleId,
-                   DOSE=exp(dosage)/1000000, ##dosage is log(M), need to move to micromolar
+                   DOSE=(10^dosage)*1000000, ##dosage is log(M), need to move to micromolar
                    GROWTH=response, #/100,
                    source = "NF Data Portal",
                    #CELL = improve_sample_id,
