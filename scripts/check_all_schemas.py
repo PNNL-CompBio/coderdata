@@ -2,6 +2,7 @@ import subprocess
 import os
 import argparse
 import concurrent.futures
+import sys
 
 def run_schema_checker(script_name):
     """
@@ -65,8 +66,10 @@ def main():
 
     if all_passed:
         print("All schema validations passed successfully.")
+        sys.exit(0)
     else:
         print("Some schema validations failed.")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

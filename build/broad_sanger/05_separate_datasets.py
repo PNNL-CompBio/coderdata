@@ -1,9 +1,9 @@
-import coderdata as cd
-from coderdata import DatasetLoader
 import pandas as pd
 import numpy as np
 import os
 from copy import deepcopy
+import coderdata as cd
+from coderdata import DatasetLoader
 
 #from Yannick stats.py file in utils.
 def split_experiments_by_study(data: DatasetLoader) -> dict:
