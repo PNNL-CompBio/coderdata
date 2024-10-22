@@ -31,7 +31,7 @@ RUN /opt/venv/bin/pip install --upgrade pip
 
 # Set environment variables for reticulate
 ENV RETICULATE_PYTHON="/opt/venv/bin/python3"
-ENV PYTHONPATH="${PYTHONPATH}:/app"
+ENV PYTHONPATH=/app#"${PYTHONPATH}:/app"
 WORKDIR /app
 
 # Set MPLCONFIGDIR to a writable directory

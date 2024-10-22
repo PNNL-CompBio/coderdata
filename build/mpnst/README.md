@@ -12,7 +12,7 @@ directory. Currently using the test files as input.
    `mpnst_samples.csv` file. This pulls from the latest synapse
    project metadata table.
    ```
-   docker run -v $PWD:/tmp -e -e SYNAPSE_AUTH_TOKEN=$SYNAPSE_AUTH_TOKEN mpnst sh build_samples.sh /tmp/build/build_test/test_samples.csv
+   docker run -v $PWD:/tmp -e SYNAPSE_AUTH_TOKEN=$SYNAPSE_AUTH_TOKEN mpnst sh build_samples.sh /tmp/build/build_test/test_samples.csv
    ```
 
 3. Pull the data and map it to the samples. This uses the metadata
