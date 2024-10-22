@@ -76,7 +76,7 @@ def process_genes(executor):
     Build the genes file if it does not exist.
     '''
     if not os.path.exists('local/genes.csv'):
-        executor.submit(run_docker_cmd, ['genes', 'sh', 'build_genes.sh'], 'genes file')
+        executor.submit(run_docker_cmd, ['genes', 'bash', 'build_genes.sh'], 'genes file')
 
 def process_samples(executor, dataset, use_prev_dataset, should_continue):
     '''
@@ -90,7 +90,7 @@ def process_samples(executor, dataset, use_prev_dataset, should_continue):
     prev_samples_file = f'/tmp/{use_prev_dataset}_samples.csv' if use_prev_dataset else ''
     di = 'broad_sanger_omics' if dataset == 'broad_sanger' else dataset
     filename = f'{dataset} samples'
-    executor.submit(run_docker_cmd, [di, 'sh', 'build_samples.sh', prev_samples_file], filename)
+    executor.submit(run_docker_cmd, [di, 'bash', 'build_samples.sh', prev_samples_file], filename)
 
 def process_drugs(executor, dataset, use_prev_dataset, should_continue):
     '''
@@ -108,7 +108,7 @@ def process_drugs(executor, dataset, use_prev_dataset, should_continue):
     dflist = [prev_drugs_file] if use_prev_dataset else []
     di = 'broad_sanger_exp' if dataset == 'broad_sanger' else dataset
     filename = f'{dataset} drugs'
-    executor.submit(run_docker_cmd, [di, 'sh', 'build_drugs.sh', ','.join(dflist)], filename)
+    executor.submit(run_docker_cmd, [di, 'bash', 'build_drugs.sh', ','.join(dflist)], filename)
 
 
 def process_omics(executor, dataset, should_continue):
@@ -155,7 +155,7 @@ def process_omics(executor, dataset, should_continue):
 
     di = 'broad_sanger_omics' if dataset == 'broad_sanger' else dataset
     filename = f'{dataset} omics'
-    executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{dataset}_samples.csv'], filename)
+    executor.submit(run_docker_cmd, [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{dataset}_samples.csv'], filename)
 
 
 def process_experiments(executor, dataset, should_continue):
@@ -172,7 +172,7 @@ def process_experiments(executor, dataset, should_continue):
 
     di = 'broad_sanger_exp' if dataset == 'broad_sanger' else dataset
     filename = f'{dataset} experiments'
-    executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{dataset}_samples.csv', f'/tmp/{dataset}_drugs.tsv'], filename)
+    executor.submit(run_docker_cmd, [di, 'bash', 'build_exp.sh', f'/tmp/{dataset}_samples.csv', f'/tmp/{dataset}_drugs.tsv'], filename)
 
 
 
@@ -190,12 +190,12 @@ def process_misc(executor, datasets, high_mem):
         di = 'broad_sanger_omics' if da == 'broad_sanger' else da
         #Run all at once:
         if high_mem:
-            executor.submit(run_docker_cmd, [di, 'sh', 'build_misc.sh'], f'{da} misc')
+            executor.submit(run_docker_cmd, [di, 'bash', 'build_misc.sh'], f'{da} misc')
         #Run one at a time.
         else:
             if last_misc_future:
                 last_misc_future.result() 
-            last_misc_future = executor.submit(run_docker_cmd,  [di, 'sh', 'build_misc.sh'], f'{da} misc')
+            last_misc_future = executor.submit(run_docker_cmd,  [di, 'bash', 'build_misc.sh'], f'{da} misc')
     
 
 

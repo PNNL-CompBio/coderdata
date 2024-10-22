@@ -170,7 +170,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
                 #if not os.path.exists(f'local/{da}_drugs.tsv'):
                 if last_drug_future:
                     last_drug_future.result()  # Ensure the last drug process is completed before starting the next
-                last_drug_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_drugs.sh', ','.join(dflist)], f'{da} drugs')
+                last_drug_future = executor.submit(run_docker_cmd, [di, 'bash', 'build_drugs.sh', ','.join(dflist)], f'{da} drugs')
                 dflist.append(f'/tmp/{da}_drugs.tsv')
     
     def process_samples(executor, datasets):
@@ -190,7 +190,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
                 if not os.path.exists(f'local/{da}_samples.csv'):
                     if last_sample_future:
                         last_sample_future.result() 
-                    last_sample_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_samples.sh', sf], f'{da} samples')
+                    last_sample_future = executor.submit(run_docker_cmd, [di, 'bash', 'build_samples.sh', sf], f'{da} samples')
                     sf = f'/tmp/{da}_samples.csv'
                     
     def process_omics(executor, datasets,high_mem):
@@ -202,12 +202,12 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             di = 'broad_sanger_omics' if da == 'broad_sanger' else da
             #Run all at once:
             if high_mem:
-                executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
+                executor.submit(run_docker_cmd, [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
             #Run one at a time.
             else:
                 if last_omics_future:
                     last_omics_future.result() 
-                last_omics_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
+                last_omics_future = executor.submit(run_docker_cmd, [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
         
     def process_experiments(executor, datasets, high_mem):
         '''
@@ -220,12 +220,12 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
                 if not os.path.exists(f'local/{da}_experiments.tsv'):
                     #Run all at once
                     if high_mem:
-                        executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
+                        executor.submit(run_docker_cmd, [di, 'bash', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
                     #Run one at a time
                     else:
                         if last_experiments_future:
                             last_experiments_future.result() 
-                        last_experiments_future = executor.submit(run_docker_cmd, [di, 'sh', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
+                        last_experiments_future = executor.submit(run_docker_cmd, [di, 'bash', 'build_exp.sh', f'/tmp/{da}_samples.csv', f'/tmp/{da}_drugs.tsv'], f'{da} experiments')
 
 
     def process_misc(executor, datasets, high_mem):
@@ -243,17 +243,17 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             di = 'broad_sanger_omics' if da == 'broad_sanger' else da
             #Run all at once:
             if high_mem:
-                executor.submit(run_docker_cmd, [di, 'sh', 'build_misc.sh'], f'{da} misc')
+                executor.submit(run_docker_cmd, [di, 'bash', 'build_misc.sh'], f'{da} misc')
             #Run one at a time.
             else:
                 if last_misc_future:
                     last_misc_future.result() 
-                last_misc_future = executor.submit(run_docker_cmd,  [di, 'sh', 'build_misc.sh'], f'{da} misc')
+                last_misc_future = executor.submit(run_docker_cmd,  [di, 'bash', 'build_misc.sh'], f'{da} misc')
         
 
     def process_genes(executor):
         if not os.path.exists('/tmp/genes.csv'):
-            executor.submit(run_docker_cmd,['genes','sh','build_genes.sh'],'gene file')
+            executor.submit(run_docker_cmd,['genes','bash','build_genes.sh'],'gene file')
         
         
     def run_docker_upload_cmd(cmd_arr, all_files_dir, name, version):
