@@ -124,8 +124,15 @@ def main():
     melted.columns = ['canSMILES','pubchem_id','chem_name']
 
     if newdf.shape[0] > 0:
-        res = res.with_columns(pl.col("InChIKey").cast(pl.Utf8))
-        newdf = newdf.with_columns(pl.col("InChIKey").cast(pl.Utf8))
+        res = res.with_columns([
+            pl.col("InChIKey").cast(pl.Utf8),
+            pl.col("formula").cast(pl.Utf8)
+        ])
+        newdf = newdf.with_columns([
+            pl.col("InChIKey").cast(pl.Utf8),
+            pl.col("formula").cast(pl.Utf8)
+        ])
+    
         newdf = newdf.join(melted, on='canSMILES', how='inner').select(res.columns)
         res = pl.concat([res, newdf], how='vertical')
     res.write_csv(opts.output,separator='\t')
