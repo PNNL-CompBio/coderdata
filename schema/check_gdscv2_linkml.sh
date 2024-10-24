@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Define two parallel arrays: one for target classes, another for file names
-target_classes=("Sample" "Transcriptomics" "Proteomics" "Mutations" "Experiments" "Drug")
-files=("/tmp/mpnst_samples.csv" "/tmp/mpnst_transcriptomics.csv" "/tmp/mpnst_proteomics.csv" "/tmp/mpnst_mutations.csv" "/tmp/mpnst_experiments.tsv" "/tmp/mpnst_drugs.tsv")
+target_classes=("Sample" "Transcriptomics" "Proteomics" "Mutations" "Copy Number" "Experiments" "Drug")
+files=("/tmp/gdscv2_samples.csv" "/tmp/gdscv2_transcriptomics.csv" "/tmp/gdscv2_proteomics.csv" "/tmp/gdscv2_mutations.csv" "/tmp/gdscv2_copy_number.csv" "/tmp/gdscv2_experiments.tsv" "/tmp/gdscv2_drugs.tsv")
 
 # Initialize a flag to track validation status
 validation_failed=0

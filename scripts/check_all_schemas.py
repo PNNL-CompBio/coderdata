@@ -2,6 +2,7 @@ import subprocess
 import os
 import argparse
 import concurrent.futures
+import sys
 
 def run_schema_checker(script_name):
     """
@@ -30,20 +31,27 @@ def run_schema_checker(script_name):
 
 def main():
     parser = argparse.ArgumentParser(description="Run schema validations for specified datasets.")
-    parser.add_argument('-d', '--datasets', nargs='*', help='List of datasets to validate (e.g., beataml, cptac, depmap, hcmi)', default=None)
+    parser.add_argument('-d', '--datasets', nargs='*', help='List of datasets to validate (e.g., "beataml cptac ccle hcmi")', default=None)
     args = parser.parse_args()
 
     # Mapping from dataset names to script names
     schema_mapping = {
         'beataml': 'check_beataml_linkml.sh',
         'cptac': 'check_cptac_linkml.sh',
-        'depmap': 'check_depmap_linkml.sh',
         'hcmi': 'check_hcmi_linkml.sh',
-        'mpnst': 'check_mpnst_linkml.sh'
+        'mpnst': 'check_mpnst_linkml.sh',
+        'ccle': 'check_ccle_linkml.sh',
+        'ctrpv2': 'check_ctrpv2_linkml.sh',
+        'fimm': 'check_fimm_linkml.sh',
+        'gdscv1': 'check_gdscv1_linkml.sh',
+        'gdscv2': 'check_gdscv2_linkml.sh',
+        'gcsi': 'check_gcsi_linkml.sh',
+        'prism': 'check_prism_linkml.sh',
+        'nci60': 'check_nci60_linkml.sh'
     }
 
     scripts_to_run = schema_mapping.values() if not args.datasets else [schema_mapping[dataset] for dataset in args.datasets if dataset in schema_mapping]
-
+    print(f"scripts_to_run: {scripts_to_run}")
     all_passed = True
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = {executor.submit(run_schema_checker, script): script for script in scripts_to_run}
@@ -53,11 +61,15 @@ def main():
             if not result:
                 all_passed = False
                 print(f"Validation failed for {script_name}")
+            else:
+                print(f"Validation passed for {script_name}")
 
     if all_passed:
         print("All schema validations passed successfully.")
+        sys.exit(0)
     else:
         print("Some schema validations failed.")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
