@@ -126,11 +126,13 @@ def main():
     if newdf.shape[0] > 0:
         res = res.with_columns([
             pl.col("InChIKey").cast(pl.Utf8),
-            pl.col("formula").cast(pl.Utf8)
+            pl.col("formula").cast(pl.Utf8),
+            pl.col("weight").cast(pl.Utf8)
         ])
         newdf = newdf.with_columns([
             pl.col("InChIKey").cast(pl.Utf8),
-            pl.col("formula").cast(pl.Utf8)
+            pl.col("formula").cast(pl.Utf8),
+            pl.col("weight").cast(pl.Utf8)
         ])
     
         newdf = newdf.join(melted, on='canSMILES', how='inner').select(res.columns)
