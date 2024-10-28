@@ -176,7 +176,7 @@ def process_experiments(executor, dataset, should_continue):
 
 
 
-def process_misc(executor, datasets, high_mem):
+def process_misc(executor, datasets):
     '''
     Run all misc scripts concurrently or one at a time.
     '''
@@ -189,14 +189,10 @@ def process_misc(executor, datasets, high_mem):
     for da in datasets:
         di = 'broad_sanger_omics' if da == 'broad_sanger' else da
         #Run all at once:
-        if high_mem:
-            executor.submit(run_docker_cmd, [di, 'bash', 'build_misc.sh'], f'{da} misc')
-        #Run one at a time.
-        else:
-            if last_misc_future:
-                last_misc_future.result() 
-            last_misc_future = executor.submit(run_docker_cmd,  [di, 'bash', 'build_misc.sh'], f'{da} misc')
-    
+        if last_misc_future:
+            last_misc_future.result() 
+        last_misc_future = executor.submit(run_docker_cmd,  [di, 'bash', 'build_misc.sh'], f'{da} misc')
+
 
 
 def decompress_file(file_path):
@@ -310,7 +306,7 @@ def main():
         with ThreadPoolExecutor() as executor:
             
             if args.build:
-                misc_thread = executor.submit(process_misc, executor, args.dataset, args.high_mem)
+                misc_thread = executor.submit(process_misc, executor, args.dataset)
             if args.build:
                 misc_thread.result()
                 print("Final build step complete.")
