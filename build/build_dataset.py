@@ -309,9 +309,9 @@ def main():
         
         with ThreadPoolExecutor() as executor:
             
-            if args.all:
+            if args.build:
                 misc_thread = executor.submit(process_misc, executor, args.dataset, args.high_mem)
-            if args.all:
+            if args.build:
                 misc_thread.result()
                 print("Final build step complete.")
                 
