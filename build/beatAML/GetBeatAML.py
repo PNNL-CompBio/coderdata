@@ -445,12 +445,23 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
         mapped_df.rename(columns={"hgvsc": "mutation"}, inplace=True)
         mapped_df.rename(columns={"labId": "sample_id"}, inplace=True)
         mapped_df.rename(columns={"Entrez_Gene_Id": "entrez_id"}, inplace=True)
-        
-    elif data_type == "mutation":
-        df = df[['dbgap_sample_id','hgvsc', 'hgvsp', 'gene', 'variant_classification','t_vaf', 'refseq', 'symbol']]
-        mapped_df = df.merge(genes, left_on='symbol', right_on='gene_symbol', how='left').reindex(
-                        columns=['hgvsc', 'entrez_id', "dbgap_sample_id","variant_classification"])
 
+        # Define mapping dictionary
+        variant_mapping = {
+            'frameshift_variant': 'Frameshift_Variant',
+            'missense_variant': 'Missense_Mutation',
+            'stop_gained': 'Nonsense_Mutation',
+            'inframe_deletion': 'In_Frame_Del',
+            'protein_altering_variant': 'Protein_Altering_Variant',
+            'splice_acceptor_variant': 'Splice_Site',
+            'splice_donor_variant': 'Splice_Site',
+            'start_lost': 'Start_Codon_Del',
+            'inframe_insertion': 'In_Frame_Ins',
+            'stop_lost': 'Nonstop_Mutation'
+        }
+
+        # Map variant classifications
+        mapped_df['variant_classification'] = mapped_df['variant_classification'].map(variant_mapping)
 
     elif data_type == "proteomics":
         mapped_ids['sampleID'] = mapped_ids['sampleID'].str.split('_').apply(lambda x: x[2])
