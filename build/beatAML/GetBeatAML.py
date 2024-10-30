@@ -446,7 +446,6 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
         mapped_df.rename(columns={"labId": "sample_id"}, inplace=True)
         mapped_df.rename(columns={"Entrez_Gene_Id": "entrez_id"}, inplace=True)
 
-        # Define mapping dictionary
         variant_mapping = {
             'frameshift_variant': 'Frameshift_Variant',
             'missense_variant': 'Missense_Mutation',
@@ -460,7 +459,6 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
             'stop_lost': 'Nonstop_Mutation'
         }
 
-        # Map variant classifications
         mapped_df['variant_classification'] = mapped_df['variant_classification'].map(variant_mapping)
 
     elif data_type == "proteomics":
