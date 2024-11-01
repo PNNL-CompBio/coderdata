@@ -11,6 +11,7 @@ import shutil
 import gzip
 from glob import glob
 from packaging import version
+import sys
     
 def main():
     parser=argparse.ArgumentParser(
@@ -70,7 +71,8 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             
         cmd = docker_run+cmd_arr
         print(cmd)
-        res = subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        # res = subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        res = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
         if res.returncode !=0:
             print(res.stderr)
             exit(filename+' file failed')
@@ -276,9 +278,10 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
         # Full command to run including version update
         docker_run.extend(cmd_arr)
         print('Executing:', ' '.join(docker_run))
-        res = subprocess.run(docker_run, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # res = subprocess.run(docker_run, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res = subprocess.run(docker_run, stdout=sys.stdout, stderr=sys.stderr)
         if res.returncode != 0:
-            print(res.stderr.decode())
+            print(res.stderr)
             exit(f'{name} failed')
         else:
             print(f'{name} successful')
@@ -316,7 +319,8 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
     if args.pypi and not pypi_token:
         raise ValueError("PYPI_TOKEN environment variable is not set.")
     if ('beataml' in args.datasets or 'mpnst' in args.datasets) and not synapse_auth_token:
-        raise ValueError("SYNAPSE_AUTH_TOKEN is required for accessing MPNST and beatAML datasets.")
+        if args.docker or args.samples or args.omics or args.drugs or args.exp or args.all: # Token only required if building data, not upload or validate.
+            raise ValueError("SYNAPSE_AUTH_TOKEN is required for accessing MPNST and beatAML datasets.")
        
     ######
     ### Begin Pipeline
@@ -398,7 +402,6 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             prefixes.extend(broad_sanger_datasets)
             datasets.extend(broad_sanger_datasets)
             datasets.remove("broad_sanger")
-            prefixes.remove("broad_sanger")
 
         
         figshare_token = os.getenv('FIGSHARE_TOKEN')
@@ -430,7 +433,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             decompress_file(file)
 
         # Run schema checker - This will always run if uploading data.
-        schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets
+        schema_check_command = ['python3', 'new_schema_checker.py', '--datasets'] + datasets
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
         
         print("Validation complete. Proceeding with file compression/decompression adjustments")

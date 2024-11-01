@@ -6,6 +6,7 @@ RUN python -m pip install --upgrade pip setuptools wheel twine packaging pyyaml 
 
 RUN apt-get update && apt-get install -y git
 
-RUN git clone https://github.com/PNNL-CompBio/coderdata.git
-WORKDIR /usr/src/app/coderdata
-RUN git checkout split_broad_sanger
+
+COPY ./schema /usr/src/app/schema
+ADD scripts/check_all_schemas.py ./
+ADD scripts/new_schema_checker.py ./
