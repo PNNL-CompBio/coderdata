@@ -160,7 +160,7 @@ classes:
         description: Metric by which dose response value is measured
       dose_response_value:
         description: Value of metric
-        range: float
+        range: linkml:Any
   Perturbations:
     slots:
       - entrez_id
