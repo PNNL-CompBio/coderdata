@@ -8,6 +8,7 @@ from numpy.random import RandomState
 import pandas as pd
 
 from sklearn.model_selection import GroupShuffleSplit
+from sklearn.model_selection import ShuffleSplit
 
 from coderdata.load.loader import DatasetLoader
 
@@ -82,56 +83,94 @@ def train_test_validate(
             )
 
     df_full = data.experiments.copy()
+    # A wide (pivoted) table is more easy to work with in this instance.
+    # The pivot is done using all columns but the 'dose_respones_value'
+    # and 'dose_respones_metric' as index. df.pivot will generate a 
+    # MultiIndex which complicates things further down the line. To that
+    # end 'reset_index()' is used to remove the MultiIndex
+    df_full = df_full.pivot(
+        index = [
+            'source',
+            'improve_sample_id',
+            'improve_drug_id',
+            'study',
+            'time',
+            'time_unit'
+            ],
+        columns = 'dose_response_metric',
+        values = 'dose_response_value'
+    ).reset_index()
+
+    # Defining the split sizes. 
+    train_size = float(ratio[0]) / sum(ratio)
+    test_val_size = float(ratio[1] + ratio[2]) / sum(ratio)
+    test_size = float(ratio[1]) / (ratio[1] + ratio[2])
+    validate_size = 1 - train_size
+
+    # ShuffleSplit is a method/class implemented by scikit-learn that
+    # enables creating splits where the data is shuffled and then
+    # randomly distributed into train and test sets according to the 
+    # defined ratio.
+    # 
+    # n_splits defines how often a train/test split is generated.
+    # Individual splits (if more than 1 is generated) are not guaranteed
+    # to be disjoint i.e. test sets from individual splits can overlap.
+    # 
+    # ShuffleSplit will be used for non stratified mixed-set splitting 
+    # since there is no requirement for disjoint groups (i.e. drug / 
+    # sample ids). 
+    shs_1 = ShuffleSplit(
+        n_splits=1,
+        train_size=train_size,
+        test_size=test_val_size,
+        random_state=random_state
+    )
+    shs_2 = ShuffleSplit(
+        n_splits=1,
+        train_size=test_size,
+        test_size=validate_size,
+        random_state=random_state
+    )
+
+    # GroupShuffleSplit is an extension to ShuffleSplit that also
+    # factors in a group that is used to generate disjoint train and 
+    # test sets, e.g. in this particular case the drug or sample id to
+    # generate drug-blind or sample-blind train and test sets. 
+    # 
+    # GroupShuffleSplit will be used for non stratified drug-/sample-
+    # blind splitting, i.e. there is a requirement that instances from 
+    # one group (e.g. a specific drug) are only present in the training 
+    # set but not in the test set. 
+    gss_1 = GroupShuffleSplit(
+        n_splits=1,
+        train_size=train_size,
+        test_size=test_val_size,
+        random_state=random_state
+    )
+    gss_2 = GroupShuffleSplit(
+        n_splits=1,
+        train_size=test_size,
+        test_size=validate_size,
+        random_state=random_state
+    )
 
     if stratify_by is None:
-        # GroupShuffleSplit is a method/class implemented by 
-        # scikit-learn that enables creating splits that are grouped 
-        # over values of a defined column. Specifically this will 
-        # guarantee that samples/rows with a specific column value will 
-        # only appear in one of the two created splits.
-        #
-        # n defines how often a train/test split is generated not the 
-        # number of splits generated.
-        #
-        # For the first split we define train/"other" (other will be
-        # split into train and validate later) being split 80/20
-        train_size = float(ratio[0]) / sum(ratio)
-        test_size = float(ratio[1] + ratio[2]) / sum(ratio)
-        gss = GroupShuffleSplit(
-            n_splits=1,
-            train_size=train_size,
-            test_size=test_size,
-            random_state=random_state
-        )
-
         if split_type == 'mixed-set':
-            # For the mixed-set we first need to define a combined 
-            # drug and sample id, since there are multiple rows with 
-            # identical sample, drug id pairs but recording differnt 
-            # drug effect strength measures (e.g. ic50 and auc) 
-            df_full['sample_id_drug_id'] = (
-                df_full.improve_sample_id.astype(str)
-                + '-'
-                + df_full.improve_drug_id
-            )
-            # The split is grouped by the new column and genereated
-            # gss.split generates a list of length n with n different 
-            # train/test splits (see above). In our case we only 
-            # generate one split, but we still need the 'next' to access
-            # it. Row ids for items in train (idx2) and other (idx2) are
-            # extracted.
+            # Using ShuffleSplit to generate randomized train and
+            # 'other' set, since there is no need for grouping.
             idx1, idx2 = next(
-                gss.split(df_full, groups=df_full.sample_id_drug_id)
+                shs_1.split(df_full)
                 )
         elif split_type == 'drug-blind':
-            # same as above we just group only over the drug id
+            # Using GroupShuffleSplit to created disjoint train and
+            # 'other' sets by drug id
             idx1, idx2 = next(
-                gss.split(df_full, groups=df_full.improve_drug_id)
+                gss_1.split(df_full, groups=df_full.improve_drug_id)
                 )
         elif split_type == 'cancer-blind':
-            # same as above we just group only over the sample id
+            # same as above we just group over the sample id
             idx1, idx2 = next(
-                gss.split(df_full, groups=df_full.improve_sample_id)
+                gss_1.split(df_full, groups=df_full.improve_sample_id)
                 )
         else:
             raise Exception(f"Should be unreachable")
@@ -140,30 +179,20 @@ def train_test_validate(
         # train and other
         df_train = df_full.iloc[idx1]
         df_other = df_full.iloc[idx2]
-        
-        # generate now Splitter to split other into test and validate
-        train_size = float(ratio[1]) / (ratio[1] + ratio[2])
-        test_size = 1 - train_size
-        gss = GroupShuffleSplit(
-            n_splits=1,
-            train_size=train_size,
-            test_size=test_size,
-            random_state=random_state
-        )
 
         # follows same logic as previous splitting with the difference
         # that only "other" is sampled and split
         if split_type == 'mixed-set':
             idx1, idx2 = next(
-                gss.split(df_other, groups=df_other.sample_id_drug_id)
+                shs_2.split(df_other, groups=None)
                 )
         elif split_type == 'drug-blind':
             idx1, idx2 = next(
-                gss.split(df_other, groups=df_other.improve_drug_id)
+                gss_2.split(df_other, groups=df_other.improve_drug_id)
                 )
         elif split_type == 'cancer-blind':
             idx1, idx2 = next(
-                gss.split(df_other, groups=df_other.improve_sample_id)
+                gss_2.split(df_other, groups=df_other.improve_sample_id)
                 )
         else:
             raise Exception(f"Should be unreachable")
@@ -174,12 +203,6 @@ def train_test_validate(
         df_val = df_other.iloc[idx2]
     else:
         raise NotImplementedError("Stratification not yet implemented")  
-      
-    # dropping the previously generated combined index for mixed-type
-    # as it is no longer necessary and would otherwise appear in the 
-    # finalized CoderData objects that are to be returned
-    if split_type == 'mixed-set':
-        df_full.drop('sample_id_drug_id', axis='columns', inplace=True)
 
     # generating filtered CoderData objects that contain only the 
     # respective data for each split
@@ -206,6 +229,23 @@ def _filter(data: DatasetLoader, split: pd.DataFrame) -> DatasetLoader:
     # extracting improve sample and drug ids from the provided split
     sample_ids = np.unique(split['improve_sample_id'].values)
     drug_ids = np.unique(split['improve_drug_id'].values)
+
+    # melt the wide table to store a long table in the experiments 
+    # object of the returned CoderData object (to be consistent with the
+    # initial orginial experiments table)
+    split_long = pd.melt(
+        split,
+        id_vars=[
+            'source',
+            'improve_sample_id',
+            'improve_drug_id',
+            'study',
+            'time',
+            'time_unit'
+            ],
+        var_name='dose_response_metric',
+        value_name='dose_response_value'
+    )
     
     # creating a deep copy of the CoderData object such that any 
     # further operations on the object are not changing the original
@@ -229,7 +269,7 @@ def _filter(data: DatasetLoader, split: pd.DataFrame) -> DatasetLoader:
     data_ret.transcriptomics = data_ret.transcriptomics[
         data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
         ]
-    data_ret.experiments = split
+    data_ret.experiments = split_long
     
     return data_ret
 
