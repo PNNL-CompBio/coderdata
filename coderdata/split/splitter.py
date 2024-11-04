@@ -14,7 +14,7 @@ from coderdata.load.loader import DatasetLoader
 def train_test_validate(
         data: DatasetLoader,
         split_type: Literal[
-            'mixed-set', 'drug-blind', 'cancer-blind', 'disjoint'
+            'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
         random_state: (int | RandomState | None)=None,
         ) -> tuple[DatasetLoader, DatasetLoader, DatasetLoader]:
@@ -49,11 +49,6 @@ def train_test_validate(
         - *cancer-blind*: Splits according to cancer association. 
             Equivalent to drug-blind, except cancer types will be unique
             to splits.
-        - *disjoint-set*: Splits according to both drug and cancer
-            association. Makes sure that samples in train, test and
-            validate are fully disjoint according to drug and cancer 
-            association, i.e. both a given drug as well as cancer will 
-            be unique to one of the tree splits.
 
         Defaults to *mixed-set*.
     
@@ -78,7 +73,7 @@ def train_test_validate(
 
     # Type checking split_type
     if split_type not in [
-        'mixed-set', 'drug-blind', 'cancer-blind', 'disjoint'
+        'mixed-set', 'drug-blind', 'cancer-blind'
         ]:
         raise ValueError(
             f"{split_type} not an excepted input for 'split_type'"
@@ -171,8 +166,6 @@ def train_test_validate(
         # sampled indices
         df_test = df_other.iloc[idx1]
         df_val = df_other.iloc[idx2]
-    elif split_type == 'disjoint':
-        raise NotImplementedError('disjoint currently not implemented')
     else:
         raise Exception(
             f"`split_type` contains unexpected value '{split_type}'!"
