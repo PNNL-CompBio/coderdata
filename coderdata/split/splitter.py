@@ -16,6 +16,8 @@ def train_test_validate(
         split_type: Literal[
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
+        ratio: tuple[int, int, int]=(8,1,1),
+        stratify_by: (str | None)=None,
         random_state: (int | RandomState | None)=None,
         ) -> tuple[DatasetLoader, DatasetLoader, DatasetLoader]:
     """
@@ -81,7 +83,7 @@ def train_test_validate(
 
     df_full = data.experiments.copy()
 
-    if split_type in ['mixed-set', 'drug-blind', 'cancer-blind']:
+    if stratify_by is None:
         # GroupShuffleSplit is a method/class implemented by 
         # scikit-learn that enables creating splits that are grouped 
         # over values of a defined column. Specifically this will 
@@ -93,10 +95,12 @@ def train_test_validate(
         #
         # For the first split we define train/"other" (other will be
         # split into train and validate later) being split 80/20
+        train_size = float(ratio[0]) / sum(ratio)
+        test_size = float(ratio[1] + ratio[2]) / sum(ratio)
         gss = GroupShuffleSplit(
             n_splits=1,
-            train_size=0.8,
-            test_size=0.2,
+            train_size=train_size,
+            test_size=test_size,
             random_state=random_state
         )
 
@@ -138,10 +142,12 @@ def train_test_validate(
         df_other = df_full.iloc[idx2]
         
         # generate now Splitter to split other into test and validate
+        train_size = float(ratio[1]) / (ratio[1] + ratio[2])
+        test_size = 1 - train_size
         gss = GroupShuffleSplit(
             n_splits=1,
-            train_size=0.5,
-            test_size=0.5,
+            train_size=train_size,
+            test_size=test_size,
             random_state=random_state
         )
 
@@ -167,10 +173,8 @@ def train_test_validate(
         df_test = df_other.iloc[idx1]
         df_val = df_other.iloc[idx2]
     else:
-        raise Exception(
-            f"`split_type` contains unexpected value '{split_type}'!"
-            )
-    
+        raise NotImplementedError("Stratification not yet implemented")  
+      
     # dropping the previously generated combined index for mixed-type
     # as it is no longer necessary and would otherwise appear in the 
     # finalized CoderData objects that are to be returned
