@@ -4,6 +4,7 @@ import os
 from copy import deepcopy
 import coderdata as cd
 from coderdata import DatasetLoader
+import psutil
 
 #from Yannick stats.py file in utils.
 def split_experiments_by_study(data: DatasetLoader) -> dict:
@@ -30,9 +31,6 @@ def split_experiments_by_study(data: DatasetLoader) -> dict:
 
     df_ret = {}
     experiments = data.experiments
-    print(experiments)
-    print(experiments.source)
-    print(experiments.study)
     # creating the groups based on 'study' to itterate over 
     groups = experiments.groupby('study')
     for name, group in groups:
@@ -142,20 +140,23 @@ def _filter(
     return data_ret
 
 
+
+def print_memory_usage(message):
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info().rss / (1024 ** 2)  # Convert bytes to MB
+    print(f"{message}: {mem:.2f} MB")
+
+# Load the main dataset
 bs = cd.DatasetLoader("broad_sanger")
+print_memory_usage("After loading 'broad_sanger'")
+
 split = split_experiments_by_study(bs)
+print_memory_usage("After splitting experiments by study")
 
+# Delete 'bs' to free memory
+del bs
 
-datasets = {
-    "CCLE": split["CCLE"],
-    "CTRPv2": split["CTRPv2"],
-    "FIMM": split["FIMM"],
-    "GDSCv1": split["GDSCv1"],
-    "GDSCv2": split["GDSCv2"],
-    "NCI60": split["NCI60"],
-    "PRISM": split["PRISM"],
-    "gCSI": split["gCSI"]
-}
+datasets_to_process = ["CCLE", "CTRPv2", "PRISM", "GDSCv1", "GDSCv2", "FIMM", "gCSI", "NCI60"]
 
 dataset_sources = {
     "CCLE": ["Broad"],
@@ -168,54 +169,112 @@ dataset_sources = {
     "NCI60": ["Broad"]
 }
 
-# Define the datasets and omics_types to filter
-datasets_to_process = ["CCLE", "CTRPv2", "PRISM", "GDSCv1", "GDSCv2", "FIMM", "gCSI", "NCI60"]
 omics_datatypes = ["copy_number","mutations","proteomics","samples","transcriptomics"]
+tsv_data_types = ["drugs", "experiments"]
+output_datatypes = ["copy_number","mutations","proteomics","samples","transcriptomics","drugs","experiments"]
+output_dir = "/tmp"
+
 
 
 for dataset_name in datasets_to_process:
-    dataset = datasets[dataset_name]
+    print(f"Processing dataset: {dataset_name}")
+    dataset = split[dataset_name]
+    print_memory_usage(f"After loading dataset {dataset_name}")
     sources = dataset_sources[dataset_name]
-    
 
     # Filter each datatype in the dataset
     for datatype in omics_datatypes:
         data = getattr(dataset, datatype)
-        
+        if data.empty:
+            continue
+
         if 'source' in data.columns:
             filtered_data = data[data['source'].isin(sources)].copy()
             setattr(dataset, datatype, filtered_data)
         elif 'study' in data.columns:
-            # Some data may have 'study' instead of 'source'
             filtered_data = data[data['study'].isin(sources)].copy()
             setattr(dataset, datatype, filtered_data)
         else:
-            # If neither 'source' nor 'study' is present, keep the data as is.
             continue
-        
-        
-output_dir = "/tmp"
-tsv_data_types = ["drugs", "experiments"]
 
-output_datatypes = ["copy_number","mutations","proteomics","samples","transcriptomics","drugs","experiments"]
-for dataset_name in datasets_to_process:
-    dataset = datasets[dataset_name]
-    
+        print_memory_usage(f"After filtering {datatype} in {dataset_name}")
+
+    # Save and delete data to free memory
     for data_type in output_datatypes:
         data = getattr(dataset, data_type)
-        
-        # Determine the file extension and separator
+        if data.empty:
+            continue
+
         if data_type in tsv_data_types:
             file_extension = ".tsv"
             sep = '\t'
         else:
             file_extension = ".csv"
             sep = ','
-        
-        # Construct the filename
-        # Convert to lowercase
+
         filename = f"{dataset_name}_{data_type}{file_extension}".lower()
         filepath = os.path.join(output_dir, filename)
-        # Save the DataFrame to file
+
         data.to_csv(filepath, sep=sep, index=False)
         print(f"Saved {data_type} from {dataset_name} to {filepath}")
+        print_memory_usage(f"After saving {data_type} in {dataset_name}")
+
+        # Delete data to free memory
+        del data
+        setattr(dataset, data_type, None)
+        print_memory_usage(f"After deleting {data_type} in {dataset_name}")
+
+    # Delete the dataset to free memory
+    del dataset
+    del split[dataset_name]
+    print_memory_usage(f"After deleting dataset {dataset_name}")
+
+print("Processing complete.")
+
+
+# for dataset_name in datasets_to_process:
+#     dataset = datasets[dataset_name]
+#     sources = dataset_sources[dataset_name]
+    
+
+#     # Filter each datatype in the dataset
+#     for datatype in omics_datatypes:
+#         data = getattr(dataset, datatype)
+        
+#         if 'source' in data.columns:
+#             filtered_data = data[data['source'].isin(sources)].copy()
+#             setattr(dataset, datatype, filtered_data)
+#         elif 'study' in data.columns:
+#             # Some data may have 'study' instead of 'source'
+#             filtered_data = data[data['study'].isin(sources)].copy()
+#             setattr(dataset, datatype, filtered_data)
+#         else:
+#             # If neither 'source' nor 'study' is present, keep the data as is.
+#             continue
+        
+        
+# output_dir = "/tmp"
+# tsv_data_types = ["drugs", "experiments"]
+
+# output_datatypes = ["copy_number","mutations","proteomics","samples","transcriptomics","drugs","experiments"]
+# for dataset_name in datasets_to_process:
+#     dataset = datasets[dataset_name]
+    
+#     for data_type in output_datatypes:
+#         data = getattr(dataset, data_type)
+        
+#         # Determine the file extension and separator
+#         if data_type in tsv_data_types:
+#             file_extension = ".tsv"
+#             sep = '\t'
+#         else:
+#             file_extension = ".csv"
+#             sep = ','
+        
+#         # Construct the filename
+#         # Convert to lowercase
+#         filename = f"{dataset_name}_{data_type}{file_extension}".lower()
+#         filepath = os.path.join(output_dir, filename)
+#         # Save the DataFrame to file
+#         data.to_csv(filepath, sep=sep, index=False)
+#         print(f"Saved {data_type} from {dataset_name} to {filepath}")
