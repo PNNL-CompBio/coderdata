@@ -30,7 +30,9 @@ def split_experiments_by_study(data: DatasetLoader) -> dict:
 
     df_ret = {}
     experiments = data.experiments
-    
+    print(experiments)
+    print(experiments.source)
+    print(experiments.study)
     # creating the groups based on 'study' to itterate over 
     groups = experiments.groupby('study')
     for name, group in groups:
