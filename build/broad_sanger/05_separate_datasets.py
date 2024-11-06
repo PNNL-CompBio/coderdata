@@ -1,280 +1,83 @@
-import pandas as pd
-import numpy as np
-import os
-from copy import deepcopy
-import coderdata as cd
-from coderdata import DatasetLoader
-import psutil
-
-#from Yannick stats.py file in utils.
-def split_experiments_by_study(data: DatasetLoader) -> dict:
-    """
-    Splits the CoderData object into multiple smaller CoderData objects
-    according to the `study` recorded in the ``.experiments`` table in 
-    the CoderData object.
-
-    Parameters
-    ----------
-    data : DatasetLoader
-        The CoderData object containing the data set loaded into memory
-        via ``coderdata.DatasetLoader()``.
-
-    Returns
-    -------
-    dict
-        A dictionary dict[study, data] where keys `study` are the names 
-        of the study in the ``.experiments`` part of the imported 
-        CoderData object and values `data` are the filtered smaller
-        CoderData objects containing only data corresponding to the 
-        study. 
-    """
-
-    df_ret = {}
-    experiments = data.experiments
-    # creating the groups based on 'study' to itterate over 
-    groups = experiments.groupby('study')
-    for name, group in groups:
-
-        # extracting improve sample and drug ids from the provided split
-        sample_ids = list(np.unique(group['improve_sample_id'].values))
-        drug_ids = list(np.unique(group['improve_drug_id'].values))
-        
-        # creating new CoderData objects that contain only data
-        # pertaining to the study defined by the previous grouping
-        df_ret[name] = _filter(
-            data=data, sample_ids=sample_ids, drug_ids=drug_ids, study=name
-            )
-    
-    return df_ret
-
-
-def _filter(
-        data: DatasetLoader,
-        sample_ids: list,
-        drug_ids: list,
-        study: str=None,
-        ) -> DatasetLoader:
-    """
-    Helper function to filter down the CoderData object(s) to create
-    independent more concise CoderData objects for further processing.
-    This can be either splitting a dataset according to the different 
-    drug response studies (e.g. the broad_sanger dataset) or if small 
-    subsets need to be extracted (e.g. training / testing splits for 
-    machine learning)
-
-    Parameters
-    ----------
-    data : DatasetLoader
-        Contains a full CoderData object imported/loaded via 
-        ``cd.DataLoader``
-    sample_ids : list
-        A list of improve_sample_id[s] that the CoderData object should
-        be filtered to
-    drug_ids : list
-        A list of improve_drug_id[s] that the CoderData object should 
-        be filtered to
-    study : str, default = None
-        The drug response study that the CoderData object should be 
-        filtered to. This argument is only important for filtering the
-        broad_sanger dataset if the splitting / filtering of the data 
-        set is based on the drug response study
-
-    Returns
-    -------
-    DatasetLoader
-        The filtered CoderData object
-    
-    Notes
-    -----
-
-    Different data types of the CoderData object are going to be 
-    filtered using either the improve_sample_id or the improve_drug_id.
-    
-    - cd.copynumber -> reduce based on ``improve_sample_id``
-    - cd.drugs -> reduce based on ``improve_drug_id``
-    - cd.experiments -> reduce based on ``study`` (only applicable if 
-      the dataset is broad_sanger)
-    - cd.mutations -> reduce based on ``improve_sample_id``
-    - cd.proteomics -> reduce based on ``improve_sample_id``
-    - cd.samples -> reduce based on ``improve_sample_id``
-    - cd.transcriptomics -> reduce based on ``improve_sample_id``
-    
-    """
-
-    # creating a deep copy of the CoderData object such that any 
-    # further operations on the object are not changing the original
-    # object / data
-    data_ret = deepcopy(data)
-
-    # filtering each individual data type down by only the improve 
-    # sample / drug ids that are present in the study
-    if not data_ret.copy_number.empty:
-        data_ret.copy_number = data_ret.copy_number[
-            data_ret.copy_number['improve_sample_id'].isin(sample_ids)
-        ]
-    if not data_ret.drugs.empty:
-        data_ret.drugs = data_ret.drugs[
-            data_ret.drugs['improve_drug_id'].isin(drug_ids)
-            ]
-    if not data_ret.mutations.empty:
-        data_ret.mutations = data_ret.mutations[
-            data_ret.mutations['improve_sample_id'].isin(sample_ids)
-            ]
-    if not data_ret.proteomics.empty:
-        data_ret.proteomics = data_ret.proteomics[
-            data_ret.proteomics['improve_sample_id'].isin(sample_ids)
-            ]
-    if not data_ret.samples.empty:
-        data_ret.samples = data_ret.samples[
-            data_ret.samples['improve_sample_id'].isin(sample_ids)
-            ]
-    if not data_ret.transcriptomics.empty:
-        data_ret.transcriptomics = data_ret.transcriptomics[
-            data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
-            ]
-    if not data_ret.experiments.empty:
-        data_ret.experiments = data_ret.experiments[
-            data_ret.experiments['study'] == study
-        ]
-    
-    return data_ret
+import gc
+import polars as pl 
 
 
 
-def print_memory_usage(message):
-    process = psutil.Process(os.getpid())
-    mem = process.memory_info().rss / (1024 ** 2)  # Convert bytes to MB
-    print(f"{message}: {mem:.2f} MB")
+def main():
 
-# Load the main dataset
-bs = cd.DatasetLoader("broad_sanger")
-print_memory_usage("After loading 'broad_sanger'")
+    datasets_to_process = ["CCLE", "CTRPv2", "PRISM", "GDSCv1", "GDSCv2", "FIMM", "gCSI", "NCI60"]
+    omics_datatypes = ["transcriptomics","proteomics", "copy_number","mutations"] # csv 
+    samples_datatypes = ["samples"] #csv
 
-split = split_experiments_by_study(bs)
-print_memory_usage("After splitting experiments by study")
-
-# Delete 'bs' to free memory
-del bs
-
-datasets_to_process = ["CCLE", "CTRPv2", "PRISM", "GDSCv1", "GDSCv2", "FIMM", "gCSI", "NCI60"]
-
-dataset_sources = {
-    "CCLE": ["Broad"],
-    "CTRPv2": ["Broad"],
-    "PRISM": ["Broad"],
-    "GDSCv1": ["Sanger"],
-    "GDSCv2": ["Sanger"],
-    "FIMM": ["Broad"],
-    "gCSI": ["Broad"],  # gCSI generates its own omics data but it is comparable to CCLE. In future, retrive gCSI omics.
-    "NCI60": ["Broad"]
-}
-
-omics_datatypes = ["copy_number","mutations","proteomics","samples","transcriptomics"]
-tsv_data_types = ["drugs", "experiments"]
-output_datatypes = ["copy_number","mutations","proteomics","samples","transcriptomics","drugs","experiments"]
-output_dir = "/tmp"
+    drugs_datatypes = ["drugs", "drug_descriptors"] # tsv
 
 
+    dataset_sources = {
+        "CCLE": ["Broad"],
+        "CTRPv2": ["Broad"],
+        "PRISM": ["Broad"],
+        "GDSCv1": ["Sanger"],
+        "GDSCv2": ["Sanger"],
+        "FIMM": ["Broad"],
+        "gCSI": ["Broad"],  # gCSI generates its own omics data but it is comparable to CCLE. In future, retrive gCSI omics.
+        "NCI60": ["Broad"]
+    }
 
-for dataset_name in datasets_to_process:
-    print(f"Processing dataset: {dataset_name}")
-    dataset = split[dataset_name]
-    print_memory_usage(f"After loading dataset {dataset_name}")
-    sources = dataset_sources[dataset_name]
+    for dataset in datasets_to_process:
+        exp = pl.read_csv("broad_sanger_experiments.tsv", separator="\t") # Keeping memory down, so I will not be making copies.
+        exp = exp.filter(pl.col("study") == dataset)
 
-    # Filter each datatype in the dataset
-    for datatype in omics_datatypes:
-        data = getattr(dataset, datatype)
-        if data.empty:
-            continue
+        # Extract information to separate out datasets
+        exp_improve_sample_ids = exp["improve_sample_id"].unique().to_list()
+        exp_improve_drug_ids = exp["improve_drug_id"].unique().to_list()
 
-        if 'source' in data.columns:
-            filtered_data = data[data['source'].isin(sources)].copy()
-            setattr(dataset, datatype, filtered_data)
-        elif 'study' in data.columns:
-            filtered_data = data[data['study'].isin(sources)].copy()
-            setattr(dataset, datatype, filtered_data)
-        else:
-            continue
-
-        print_memory_usage(f"After filtering {datatype} in {dataset_name}")
-
-    # Save and delete data to free memory
-    for data_type in output_datatypes:
-        data = getattr(dataset, data_type)
-        if data.empty:
-            continue
-
-        if data_type in tsv_data_types:
-            file_extension = ".tsv"
-            sep = '\t'
-        else:
-            file_extension = ".csv"
-            sep = ','
-
-        filename = f"{dataset_name}_{data_type}{file_extension}".lower()
-        filepath = os.path.join(output_dir, filename)
-
-        data.to_csv(filepath, sep=sep, index=False)
-        print(f"Saved {data_type} from {dataset_name} to {filepath}")
-        print_memory_usage(f"After saving {data_type} in {dataset_name}")
-
-        # Delete data to free memory
-        del data
-        setattr(dataset, data_type, None)
-        print_memory_usage(f"After deleting {data_type} in {dataset_name}")
-
-    # Delete the dataset to free memory
-    del dataset
-    del split[dataset_name]
-    print_memory_usage(f"After deleting dataset {dataset_name}")
-
-print("Processing complete.")
+        # Write Filtered Experiments File to TSV. Then delete it from memory.
+        exp_filename = f"{dataset}_experiments.tsv"
+        exp.write_csv(exp_filename, separator="\t")
+        del exp
+        gc.collect()
 
 
-# for dataset_name in datasets_to_process:
-#     dataset = datasets[dataset_name]
-#     sources = dataset_sources[dataset_name]
-    
+        #Filter Samples files, write to file, delete from mem.
+        for samples in samples_datatypes:
+            samples_filename_in = f"broad_sanger_{samples}.csv"
+            samples_filename_out = f"{dataset}_{samples}.csv".lower()
+            samples_df = pl.read_csv(samples_filename_in)
+            samples_df = samples_df.filter(pl.col("improve_sample_id").is_in(exp_improve_sample_ids))
+            samples_df.write_csv(samples_filename_out) #csv
+            del samples_df
+            gc.collect()
 
-#     # Filter each datatype in the dataset
-#     for datatype in omics_datatypes:
-#         data = getattr(dataset, datatype)
-        
-#         if 'source' in data.columns:
-#             filtered_data = data[data['source'].isin(sources)].copy()
-#             setattr(dataset, datatype, filtered_data)
-#         elif 'study' in data.columns:
-#             # Some data may have 'study' instead of 'source'
-#             filtered_data = data[data['study'].isin(sources)].copy()
-#             setattr(dataset, datatype, filtered_data)
-#         else:
-#             # If neither 'source' nor 'study' is present, keep the data as is.
-#             continue
-        
-        
-# output_dir = "/tmp"
-# tsv_data_types = ["drugs", "experiments"]
+        #One by one, filter other Omics files, write to file, delete from mem.
+        for omics in omics_datatypes:
+            omics_filename_in = f"broad_sanger_{omics}.csv"
+            omics_filename_out = f"{dataset}_{omics}.csv".lower()
+            omics_df = pl.read_csv(omics_filename_in)
+            omics_df = omics_df.filter(pl.col("improve_sample_id").is_in(exp_improve_sample_ids))
+            omics_df = omics_df.filter(pl.col("source").is_in(dataset_sources[dataset]))
+            omics_df.write_csv(omics_filename_out) #csv
+            del omics_df
+            gc.collect()
 
-# output_datatypes = ["copy_number","mutations","proteomics","samples","transcriptomics","drugs","experiments"]
-# for dataset_name in datasets_to_process:
-#     dataset = datasets[dataset_name]
-    
-#     for data_type in output_datatypes:
-#         data = getattr(dataset, data_type)
-        
-#         # Determine the file extension and separator
-#         if data_type in tsv_data_types:
-#             file_extension = ".tsv"
-#             sep = '\t'
-#         else:
-#             file_extension = ".csv"
-#             sep = ','
-        
-#         # Construct the filename
-#         # Convert to lowercase
-#         filename = f"{dataset_name}_{data_type}{file_extension}".lower()
-#         filepath = os.path.join(output_dir, filename)
-#         # Save the DataFrame to file
-#         data.to_csv(filepath, sep=sep, index=False)
-#         print(f"Saved {data_type} from {dataset_name} to {filepath}")
+
+        #One by one, filter other Drugs files, write to file, delete from mem.
+        for drugs in drugs_datatypes:
+            drugs_filename_in = f"broad_sanger_{drugs}.tsv"
+            drugs_filename_out = f"{dataset}_{drugs}.tsv".lower()
+            if drugs == "drug_descriptors":
+                drugs_df = pl.read_csv(drugs_filename_in,separator="\t",
+                                       schema_overrides={"improve_drug_id": pl.String,
+                                                         "structural_descriptor": pl.String,
+                                                         "descriptor_value": pl.String}
+                                      )
+
+            else:
+                drugs_df = pl.read_csv(drugs_filename_in,separator="\t")
+
+            drugs_df = drugs_df.filter(pl.col("improve_drug_id").is_in(exp_improve_drug_ids))
+            drugs_df.write_csv(drugs_filename_out,separator="\t") #tsv
+            del drugs_df
+            gc.collect()
+            
+if __name__ == "__main__":
+    main()
