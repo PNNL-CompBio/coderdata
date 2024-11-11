@@ -76,6 +76,7 @@ classes:
     attributes:
       chem_name:
         description: Name of drug
+        range: linkml:Any
       canSMILES:
         description: Canonical SMILE string
       isoSMILES:
@@ -86,7 +87,7 @@ classes:
         description: Chemical formula
       weight:
         description: Molecular weight
-        range: float
+        range: linkml:Any
       pubchem_id:
         description: PubChem Identifier for this drug, can be many.
         range: int
@@ -98,7 +99,7 @@ classes:
       structural_descriptor:
         description: string name describing structural descriptor
       descriptor_value:
-        range: any
+        range: linkml:Any
         description: value representing descriptor value
   Transcriptomics:
     description:
