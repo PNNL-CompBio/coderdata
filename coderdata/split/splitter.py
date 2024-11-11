@@ -22,6 +22,7 @@ def train_test_validate(
         ratio: tuple[int, int, int]=(8,1,1),
         stratify_by: (str | None)=None,
         random_state: (int | RandomState | None)=None,
+        **kwargs: dict,
         ) -> tuple[DatasetLoader, DatasetLoader, DatasetLoader]:
     """
     Splits a `CoderData` object (see also
@@ -76,6 +77,12 @@ def train_test_validate(
 
     """
 
+    # reading in the potential keyword arguments that will be passed to
+    # _create_classes().
+    thresh = kwargs.get('thresh', None)
+    num_classes = kwargs.get('num_classes', 2)
+    quantiles = kwargs.get('quantiles', True)
+
     # Type checking split_type
     if split_type not in [
         'mixed-set', 'drug-blind', 'cancer-blind'
@@ -84,12 +91,13 @@ def train_test_validate(
             f"{split_type} not an excepted input for 'split_type'"
             )
 
-    df_full = data.experiments.copy()
+
     # A wide (pivoted) table is more easy to work with in this instance.
     # The pivot is done using all columns but the 'dose_respones_value'
     # and 'dose_respones_metric' as index. df.pivot will generate a 
     # MultiIndex which complicates things further down the line. To that
     # end 'reset_index()' is used to remove the MultiIndex
+    df_full = data.experiments.copy()
     df_full = df_full.pivot(
         index = [
             'source',
@@ -225,8 +233,9 @@ def train_test_validate(
         df_full = _create_classes(
             data=df_full,
             metric=stratify_by,
-            num_classes=2,
-            thresh=0.5,
+            num_classes=num_classes,
+            thresh=thresh,
+            quantiles=quantiles,
             )
         if split_type == 'mixed-set':
             # Using ShuffleSplit to generate randomized train and
@@ -316,7 +325,7 @@ def _filter(data: DatasetLoader, split: pd.DataFrame) -> DatasetLoader:
             'improve_drug_id',
             'study',
             'time',
-            'time_unit'
+            'time_unit',
             ],
         var_name='dose_response_metric',
         value_name='dose_response_value'
@@ -352,7 +361,8 @@ def _filter(data: DatasetLoader, split: pd.DataFrame) -> DatasetLoader:
 def _create_classes(
         data: pd.DataFrame,
         metric: str,
-        num_classes: int=3,
+        num_classes: int=2,
+        quantiles: bool=True,
         thresh: float=None,
         ) -> pd.DataFrame:
     """
@@ -372,11 +382,18 @@ def _create_classes(
         )
 
     if thresh is None:
-        data['split_class'] = pd.cut(
-            data[metric],
-            bins=num_classes,
-            labels=False
+        if quantiles:
+            data['split_class'] = pd.qcut(
+                data[metric],
+                q=num_classes,
+                labels=False,
             )
+        else:
+            data['split_class'] = pd.cut(
+                data[metric],
+                bins=num_classes,
+                labels=False
+                )
     elif num_classes == 2:
         data['split_class'] = pd.cut(
             data[metric],
