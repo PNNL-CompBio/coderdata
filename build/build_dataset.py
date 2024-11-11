@@ -256,7 +256,7 @@ def run_schema_checker(dataset):
             decompress_file(os.path.join('local', all_files_dir, file))
 
     # Run schema checker
-    schema_check_command = ['python3', 'scripts/check_all_schemas.py', '--datasets'] + datasets
+    schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
     run_docker_validate_cmd(schema_check_command, all_files_dir, 'Validation')
 
 def main():

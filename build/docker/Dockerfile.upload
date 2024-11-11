@@ -8,5 +8,4 @@ RUN apt-get update && apt-get install -y git
 
 
 COPY ./schema /usr/src/app/schema
-ADD scripts/check_all_schemas.py ./
-ADD scripts/new_schema_checker.py ./
+ADD scripts/check_schema.py ./
