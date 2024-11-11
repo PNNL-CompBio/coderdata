@@ -32,7 +32,7 @@ def main():
         exp_improve_drug_ids = exp["improve_drug_id"].unique().to_list()
 
         # Write Filtered Experiments File to TSV. Then delete it from memory.
-        exp_filename = f"{dataset}_experiments.tsv"
+        exp_filename = f"/tmp/{dataset}_experiments.tsv".lower()
         exp.write_csv(exp_filename, separator="\t")
         del exp
         gc.collect()
@@ -41,7 +41,7 @@ def main():
         #Filter Samples files, write to file, delete from mem.
         for samples in samples_datatypes:
             samples_filename_in = f"broad_sanger_{samples}.csv"
-            samples_filename_out = f"{dataset}_{samples}.csv".lower()
+            samples_filename_out = f"/tmp/{dataset}_{samples}.csv".lower()
             samples_df = pl.read_csv(samples_filename_in)
             samples_df = samples_df.filter(pl.col("improve_sample_id").is_in(exp_improve_sample_ids))
             samples_df.write_csv(samples_filename_out) #csv
@@ -51,7 +51,7 @@ def main():
         #One by one, filter other Omics files, write to file, delete from mem.
         for omics in omics_datatypes:
             omics_filename_in = f"broad_sanger_{omics}.csv"
-            omics_filename_out = f"{dataset}_{omics}.csv".lower()
+            omics_filename_out = f"/tmp/{dataset}_{omics}.csv".lower()
             omics_df = pl.read_csv(omics_filename_in)
             omics_df = omics_df.filter(pl.col("improve_sample_id").is_in(exp_improve_sample_ids))
             omics_df = omics_df.filter(pl.col("source").is_in(dataset_sources[dataset]))
@@ -63,12 +63,12 @@ def main():
         #One by one, filter other Drugs files, write to file, delete from mem.
         for drugs in drugs_datatypes:
             drugs_filename_in = f"broad_sanger_{drugs}.tsv"
-            drugs_filename_out = f"{dataset}_{drugs}.tsv".lower()
+            drugs_filename_out = f"/tmp/{dataset}_{drugs}.tsv".lower()
             if drugs == "drug_descriptors":
                 drugs_df = pl.read_csv(drugs_filename_in,separator="\t",
-                                       schema_overrides={"improve_drug_id": pl.String,
-                                                         "structural_descriptor": pl.String,
-                                                         "descriptor_value": pl.String}
+                                       dtypes={"improve_drug_id": pl.Utf8,
+                                                         "structural_descriptor": pl.Utf8,
+                                                         "descriptor_value": pl.Utf8}
                                       )
 
             else:
