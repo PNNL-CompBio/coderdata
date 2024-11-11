@@ -1,3 +1,7 @@
+"""
+Contains functions that help in generating training, testing and
+validation sets for CoderData Objects.
+"""
 
 from copy import deepcopy
 from typing import Literal
@@ -14,6 +18,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 
 from coderdata.load.loader import DatasetLoader
 
+
 def train_test_validate(
         data: DatasetLoader,
         split_type: Literal[
@@ -27,11 +32,16 @@ def train_test_validate(
     """
     Splits a `CoderData` object (see also
     `coderdata.load.loader.DatasetLoader`) into three subsets for 
-    training, testing and validating machine learning algorithms. The 
-    Size of the splits is fixed to 80:10:10 for train:test:validate. The
-    function allows for additional optional arguments, that define the 
-    type of split that is performed as well as a random seed to enable
-    the creation of reproducable splits.
+    training, testing and validating machine learning algorithms. 
+    
+    The size of the splits can be adjusted to be different from 80:10:10
+    (the default)for train:test:validate. The function also allows for 
+    additional optional arguments, that define the type of split that is
+    performed ('mixed-set', 'drug-blind', 'cancer-blind'), if the splits 
+    should be stratified (and which drug response metric to use), as
+    well as a random seed to enable the creation of reproducable splits.
+    Furhermore, a list of keyword arguments can be defined that will be 
+    passed to the stratification function if so desired.
 
     Parameters
     ----------
@@ -41,8 +51,9 @@ def train_test_validate(
         `coderdata.download.downloader.download_data_by_prefix`) or
         built locally via the `build_all` process. The object must first
         be loaded via `coderdata.load.loader.DatasetLoader`.
-    split_type : Literal['mixed-set', 'drug-blind', 'cancer-blind', \
-                'disjoint'], optional
+    split_type : {'mixed-set', 'drug-blind', 'cancer-blind'}, \
+        default='mixed-set'
+
         Defines the type of split that should be generated:
             
         - *mixed-set*: Splits randomly independent of drug / cancer 
@@ -55,15 +66,23 @@ def train_test_validate(
         - *cancer-blind*: Splits according to cancer association. 
             Equivalent to drug-blind, except cancer types will be unique
             to splits.
-
-        Defaults to *mixed-set*.
-    
-    random_state : int | RandomState | None, optional
+    ratio : tuple[int, int, int], default=(8,1,1)
+        Defines the size ratio of the resulting test, train and
+        validation sets. 
+    stratify_by : str | None, default=None
+        Defines if the training, testing and validation sets should be 
+        stratified. Any value other than None indicates stratification 
+        and defines which drug response value should be used as basis 
+        for the stratification. _None_ indicates that no stratfication
+        should be performed.
+    random_state : int | RandomState | None, defaul=None
         Defines a seed value for the randomization of the splits. Will
         get passed to internal functions. Providing the seed will enable
         reproducability of the generated splits.
-
-        Defaults to None
+    **kwargs
+        Additional keyword arguments that will be passed to the function
+        that generates classes for the stratification 
+        (see also ``_create_classes``).
     
     Returns
     -------
@@ -90,7 +109,6 @@ def train_test_validate(
         raise ValueError(
             f"{split_type} not an excepted input for 'split_type'"
             )
-
 
     # A wide (pivoted) table is more easy to work with in this instance.
     # The pivot is done using all columns but the 'dose_respones_value'
@@ -163,11 +181,13 @@ def train_test_validate(
         test_size=validate_size,
         random_state=random_state
     )
-    sgk = StratifiedGroupKFold(
-        n_splits=sum(ratio),
-        shuffle=True,
-        random_state=random_state
-    )
+
+    # StratifiedShuffleSplit is similar to ShuffleSplit with the added 
+    # functionality to also stratify the splits according to defined 
+    # class labels.
+    # 
+    # StratifiedShuffleSplit will be used for stratified mixed-set 
+    # train/test/validate sets.
 
     sss_1 = StratifiedShuffleSplit(
         n_splits=1,
@@ -182,6 +202,25 @@ def train_test_validate(
         random_state=random_state
     )
 
+    # StratifiedGroupKFold generates K folds that take the group into 
+    # account when generating folds, i.e. a group will only be present
+    # in one fold. It further tries to stratify the folds based on the 
+    # defined classes. 
+    # 
+    # StratifiedGroupKFold will be used for stratified drug-/sample-
+    # blind splitting. 
+    # 
+    # The way the K folds are utilized is to combine i, j, & k folds 
+    # (according to the defined ratio) into training, testing and 
+    # validation sets.
+    sgk = StratifiedGroupKFold(
+        n_splits=sum(ratio),
+        shuffle=True,
+        random_state=random_state
+    )
+
+    # The "actual" splitting logic using the defined Splitters as above
+    # follows here starting with the non-stratified splitting:
     if stratify_by is None:
         if split_type == 'mixed-set':
             # Using ShuffleSplit to generate randomized train and
@@ -229,7 +268,12 @@ def train_test_validate(
         # sampled indices
         df_test = df_other.iloc[idx1]
         df_val = df_other.iloc[idx2]
+    
+    # The following block contains the stratified splitting logic
     else:
+        # First the classes that are needed for the stratification are
+        # generated. `num_classes`, `thresh` and `quantiles` were 
+        # previously defined as possible keyword arguments.
         df_full = _create_classes(
             data=df_full,
             metric=stratify_by,
@@ -238,20 +282,23 @@ def train_test_validate(
             quantiles=quantiles,
             )
         if split_type == 'mixed-set':
-            # Using ShuffleSplit to generate randomized train and
-            # 'other' set, since there is no need for grouping.
+            # Using StratifiedShuffleSplit to generate randomized train 
+            # and 'other' set, since there is no need for grouping.
             idx_train, idx_other = next(
                 sss_1.split(X=df_full, y=df_full['split_class'])
             )
             df_train = df_full.iloc[idx_train]
             df_other = df_full.iloc[idx_other]
+            # Splitting 'other' further into test and validate
             idx_test, idx_val = next(
                 sss_2.split(X=df_other, y=df_other['split_class'])
                 )
             df_test = df_other.iloc[idx_test]
             df_val = df_other.iloc[idx_val]
+        
+        # using StratifiedGroupKSplit for the stratified drug-/sample-
+        # blind splits.
         elif split_type == 'drug-blind' or split_type == 'cancer-blind':
-            
             if split_type == 'drug-blind':
                 splitter = enumerate(
                     sgk.split(
@@ -268,11 +315,18 @@ def train_test_validate(
                         groups=df_full.improve_sample_id
                     )
                 )
-                
+
+            # StratifiedGroupKSplit is setup to generate K splits where
+            # K=sum(ratios) (e.g. 10 if ratio=8:1:1). To obtain three 
+            # sets (train/test/validate) the individual splits need to 
+            # be combined (e.g. k=[1:8] -> train, k=9 -> test, k=10 -> 
+            # validate). The code block below does that by combining
+            # all indices (row numbers) that go into individual sets and
+            # then extracting and adding those rows into the individual
+            # sets.
             idx_train = []
             idx_test = []
             idx_val = []
-
             for i, (idx1, idx2) in splitter:
                 if i < ratio[0]:
                     idx_train.extend(idx2)
@@ -302,13 +356,22 @@ def _filter(data: DatasetLoader, split: pd.DataFrame) -> DatasetLoader:
     Helper function to filter down the CoderData object(s) to create
     indipendent more concise CoderData objects for training, testing 
     and validation splits.
-    """
 
-    # cd.drugs -> reduce based on improve_drug_id
-    # cd.mutations -> reduce based on improve_sample_id
-    # cd.proteomics -> reduce based on improve_sample_id
-    # cd.samples -> reduce based on improve_sample_id
-    # cd.transcriptomics -> reduce based on improve_sample_id
+    Parameters
+    ----------
+    data : DatasetLoader
+        CoderData object containing the "full" dataset, e.g. the dataset
+        that splits are based on.
+    split : pandas.DataFrame
+        Contains a subset of rows from the data.experiments DataFrame 
+        that correspond to the generated split.
+
+    Returns
+    -------
+    DatasetLoader
+        A CoderData object that is a subset of ``data`` containing only
+        the data points that pertain to the information in ``split``. 
+    """
 
     # extracting improve sample and drug ids from the provided split
     sample_ids = np.unique(split['improve_sample_id'].values)
@@ -338,6 +401,16 @@ def _filter(data: DatasetLoader, split: pd.DataFrame) -> DatasetLoader:
 
     # filtering each individual data type down by only the improve 
     # sample / drug ids that are present in the split (extracted above)
+    #
+    # Datapoints in the individual datasets in the CoderData object are
+    # filtered by the following "rules":
+    #
+    # cd.drugs -> reduce based on improve_drug_id
+    # cd.mutations -> reduce based on improve_sample_id
+    # cd.proteomics -> reduce based on improve_sample_id
+    # cd.samples -> reduce based on improve_sample_id
+    # cd.transcriptomics -> reduce based on improve_sample_id
+    
     data_ret.drugs = data_ret.drugs[
         data_ret.drugs['improve_drug_id'].isin(drug_ids)
         ]
@@ -369,6 +442,43 @@ def _create_classes(
     Helper function that bins experiment data into a number of defined 
     classes for use with Stratified Splits.
 
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        The DataFrame containing drug response data (experiment) which 
+        is subject to binning / creating classes based on the
+        drug response metric
+    metric : str
+        The drug response metric upon which the class generation should
+        be based on. Needs to be in data['drug_response_metric'].
+    num_classes : int, default=2
+        Number of classes that should be generated. Defaults to 2.
+    quantiles : bool, default=True
+        Defines whether the individual bins should be based on quantiles
+        (or percentiles) instead of "evenly" spaced. If true then the
+        "bin" size will be chosen such that roughly the same number of 
+        data points fall into each class
+    thresh : float, default=None
+        Optional argument that defines a threshold other than the mean 
+        of the drug response metric if ``num_classes=2``. Can be used to 
+        generate "uneven" classes.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame that is the same as the input with additional column
+        that defines the established class association of each data
+        point.
+
+    Raises
+    ------
+    ValueError
+        If the chosen ``metric`` is not present in the
+        `drug_response_metric` column of ``data``.
+    ValueError
+        If ``num_classes`` < 2.
+    ValueError
+        If ``thresh`` is defined but ``num_classes`` > 2.
     """
     
     if metric not in data.columns:
@@ -408,8 +518,3 @@ def _create_classes(
         )
     
     return data
-
-
-def get_subset(df_full: pd.DataFrame, df_subset: pd.DataFrame):
-    idx = df_subset.index
-    return df_full.drop(idx, axis='index')
