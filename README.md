@@ -1,10 +1,6 @@
 ## Cancer Omics Drug Experiment Response Dataset 
 
-There is a recent explosion of deep learning algorithms that to tackle
-the computational problem of predicting drug treatment outcome from
-baseline molecular measurements. To support this,we have built a
-Python package that enables access to and facile usage of cancer drug
-sensitivity datsets for AI applications. 
+There is a recent explosion of deep learning algorithms that to tackle the computational problem of predicting drug treatment outcome from baseline molecular measurements. To support this,we have built a benchmark dataset that harmonizes diverse datasets to better assess algorithm performance.
 
 This package collects diverse sets of paired molecular datasets with corresponding drug sensitivity data. All data here is reprocessed and standardized so it can be easily used as a benchmark dataset for the 
 This repository leverages existing datasets to collect the data
@@ -16,70 +12,81 @@ existing models.
 ![Coderdata Motivation](coderdata_overview.jpg?raw=true "Motivation behind
 coderdata develompent")
 
-## Installation
-To install the CoderData Python package:
-```
-pip install coderdata
-```
 
-## Usage
-The Python package is designed to facilitate the training and
-validating of computational models that predict drug
-response. Currently the package supports the following commands:
+The goal of this repository is two-fold: First, it aims to collate and
+standardize the data for the broader community. This requires
+running a series of scripts to build and append to a standardized data
+model. Second, it has a series of scripts that pull from the data
+model to create model-specific data files that can be run by the data
+infrastructure. 
 
-1. `list`: Lists names of datasets to download. This depends on what
-   datasets have been in the main build. 
-2. `download`: Downloads the dataset by name. Case insensitive, but
-   should contain full name of dataset returned from the `list` command. 
-2. `load`: This return a `dataset` object that houses all the
-   data. This object has the following functions:
-   1. `train_test_validate`: Splits the object into 
-   2. `types`: Each datasaet has different types of data included in
-      it. For all possible data types see the
-      [schema](schema/README.md). These can include:
-      - transcriptomics
-      - mutations
-      - copy_numbers
-      - proteomics
-      - experiments
-      - combinations
-      - drugs
-      - genes
-      - samples
-   3. `format`: Format performs data type-specific formatting. First
-      argument is name of data type, next arguments are
-      data-type-specific, last argument is `use_polars` to return a
-      polars instead of a pandas data frame.
-      - transcriptomics: `ds.format('transcriptomics')` returns a
-        pandas or polars data frame with each row representing a gene
-        and each column representing a sample.
-      - mutations:
-        `ds.format('mutations',['Frame_Shift_Del','Frame_Shift_Ins','Missense_Muation','Start_Codon_SNP'])`
-        will return a binary  matrix with rows representing genes and
-        columns representing samples, and a `1` value if there there
-        is a mutation in given gene/sample that falls into the class
-        provided by the second argument. 
-      - copy_numbers: `ds.format('copy_number','copy_number')` returns a
-        pandas or polars data frame with each row representing a gene
-        and each column representing the average copy_number value for
-        each gene. If the second argument is `copy_call` the data
-        frame values are a discrete measurement of copy number
-        provided by the schema. 
-      - proteomics: `ds.format('proteomics')` returns a
-        pandas or polars data frame with each row representing a gene
-        and each column representing a sample.
-      - experiments: `ds.format('experiments', 'fit_auc')` returns a
-      matrix with drugs represented by rows and samples represneted by
-      columns the numeric values represent the measurement provided by
-      the second argument. 
-      - combinations: `ds.format('combinations')` returns ???
-      - drugs: Not sure what to return here - just table? how about descriptors?
-      - samples: just return table?
-   4. `save`: saves the object to a file. 
-
-## Additional documentation
+## Data access
 For the access to the latest version of CoderData, please visit our
 [documentation site](https://pnnl-compbio.github.io/coderdata/) which provides access to Figshare and
 instructions for using the Python package to download the data.
+
+## Data format
+All coderdata files are in text format - either comma delimited or tab
+delimited (depending on data type). Each dataset can be evaluated
+individually according to the CoderData schema that is maintained in [LinkML](schema/coderdata.yaml)
+and can be udpated via a commit to the repository. For more details,
+please see the [schema description](schema/README.md).
+
+## Building a local version
+
+The build process can be found in our [build
+directory](build/README.md). Here you can follow the instructions to
+build your own local copy of the data on your machine. 
+
+## Adding a new dataset
+
+We have standardized the build process so an additional dataset can be
+built locally or as part of the next version of coder. Here are the
+steps to follow:
+
+1. First visit the [build
+directory](build/README.md) and ensure you can build a local copy of
+CoderData. 
+
+2. Checkout this repository and  create a subdirectory of the
+[build directory](build) with your own build files. 
+
+3. Develop your scripts to build the data files according to our
+[LinkML Schema](schema/coderdata.yaml]). This will require collecting
+the following metadata:
+- entrez gene identifiers (or you can use the `genes.csv` file
+- sample information such as species and model system type
+- drug name that can be searched on PubChem
+
+You can validate each file by
+using the [linkML
+validator](https://linkml.io/linkml/data/validating-data) together
+with our schema file. 
+
+You can use the following scripts as part of your build process:
+- [build/utils/fit_curve.py](build/utils/fit_curve.py): This script
+  takes dose-response data and generates the dose-response statistics
+  required by CoderData/
+- [build/utils/pubchem_retrieval.py](build/utils/pubchem_retreival.py):
+  This script retreives structure and drug synonym information
+  required to populate the `Drug` table. 
+
+4. Wrap your scripts in standard shell scripts with the following names
+and arguments:
+
+| shell script     | arguments                | description         |
+|------------------|--------------------------|---------------------|
+| `build_samples.sh` | [latest_samples] | Latest version of samples generated by coderdata build |
+| `build_omics.sh` | [gene file] [samplefile] | This includes the `genes.csv` that was generated in the original build as well as the sample file generated above. |
+| `build_drugs.sh` | [drugfile1,drugfile2,...]       | This includes a comma-delimited list of all drugs files generated from previous build  |
+| `build_exp.sh`| [samplfile ] [drugfile] | sample file and drug file generated by previous scripts |
+
+5. Put the Docker container file inside the [Docker
+directory](./build/docker) with the name
+`Dockerfile.[datasetname]`. 
+
+6. Run `build_all.py` from the root directory, which should now add in
+your Dockerfile in the mix and call the scripts in your Docker
+container to build the files.
 
 
