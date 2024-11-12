@@ -122,9 +122,21 @@ def main():
     merged = pl.concat([mdf,namedf],how='horizontal').select(['SMILES','pubchem_id','nscid','lower_name'])
     melted = merged.melt(id_vars=['SMILES','pubchem_id'],value_vars=['nscid','lower_name']).select(['SMILES','pubchem_id','value']).unique()
     melted.columns = ['canSMILES','pubchem_id','chem_name']
-    if newdf.shape[0]>0:
-        newdf = newdf.join(melted,on='canSMILES',how='inner').select(res.columns)
-        res = pl.concat([res,newdf],how='vertical')
+
+    if newdf.shape[0] > 0:
+        res = res.with_columns([
+            pl.col("InChIKey").cast(pl.Utf8),
+            pl.col("formula").cast(pl.Utf8),
+            pl.col("weight").cast(pl.Utf8)
+        ])
+        newdf = newdf.with_columns([
+            pl.col("InChIKey").cast(pl.Utf8),
+            pl.col("formula").cast(pl.Utf8),
+            pl.col("weight").cast(pl.Utf8)
+        ])
+    
+        newdf = newdf.join(melted, on='canSMILES', how='inner').select(res.columns)
+        res = pl.concat([res, newdf], how='vertical')
     res.write_csv(opts.output,separator='\t')
     
 if __name__=='__main__':

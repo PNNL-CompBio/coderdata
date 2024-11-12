@@ -174,10 +174,8 @@ def retrieve_drug_info(compound_name):
         return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
     
     data = response.json()
-    #print(data)
     if "PropertyTable" in data:
         properties = data["PropertyTable"]["Properties"][0]
-        #print(properties)
         pubchem_id = properties.get('CID',np.nan)
         canSMILES = properties.get("CanonicalSMILES", np.nan)
         isoSMILES = properties.get("IsomericSMILES", np.nan)
@@ -259,9 +257,6 @@ def merge_drug_info(d_df,drug_map):
     pd.DataFrame
         The merged dataframe containing combined drug information.
     """
-    #print(drug_map)
-    #print(d_df.columns)
-    #print(d_df)
     print(d_df['isoSMILES'].dtype, drug_map['isoSMILES'].dtype)
     d_df['isoSMILES'] = d_df['isoSMILES'].astype(str)
     drug_map['isoSMILES'] = drug_map['isoSMILES'].astype(str)
@@ -337,10 +332,9 @@ def add_improve_id(previous_df, new_df):
     """
     if not previous_df.empty and 'improve_drug_id' in previous_df.columns:
         id_list = [int(val.replace('SMI_', '')) for val in previous_df['improve_drug_id'].tolist() if pd.notnull(val) and val.startswith('SMI_')]
-        max_id = max(id_list) if id_list else 0  # Default to 0 if the list is empty
+        max_id = max(id_list) if id_list else 0
     else:
-        max_id = 0  # Default value if the DataFrame is empty or doesn't have the column
-    # max_id = max([int(val.replace('SMI_', '')) for val in previous_df['improve_drug_id'].tolist() if pd.notnull(val) and val.startswith('SMI_')])
+        max_id = 0
     # Identify isoSMILES in the new dataframe that don't exist in the old dataframe
     unique_new_smiles = set(new_df['isoSMILES']) - set(previous_df['isoSMILES'])
     # Identify rows in the new dataframe with isoSMILES that are unique and where improve_drug_id is NaN
@@ -370,24 +364,9 @@ def map_exp_to_improve(exp_path):#df,improve_map_file):
     pd.DataFrame
         Mapped dataframe with 'improve_sample_id' added and 'sample_id' removed.
     """
-    mapped_df = pd.read_csv(exp_path,sep='\t')        # Map sample_id to improve_sample_id
-    #mapped_df = pd.merge(df, improve[['other_id', 'improve_sample_id']], left_on='sample_id', right_on='other_id', how='left')
-    #mapped_df.drop(columns=['sample_id', 'other_id'], inplace=True)
-    #mapped_df.insert(0, 'improve_sample_id', mapped_df.pop('improve_sample_id'))
+    mapped_df = pd.read_csv(exp_path,sep='\t')
     mapped_df['source'] = 'synapse'
     mapped_df['study'] = 'BeatAML'
-    #mapped_df= mapped_df.rename(columns={'Drug':'improve_sample_id',
-    #                                     'IC50':'ic50',
-    #                          'EC50':'ec50',
-    #                         'EC50se':'ec50se',
-    #                         'Einf':'einf',
-     #                        'HS':'hs',
-      #                       'AAC1':'aac1',
-       #                      'AUC1':'auc1',
-        #                     'DSS1':'dss1',
-         #                    'R2fit':'r2fit'
-          #                   }
-          #          )
     return mapped_df
 
 
@@ -445,12 +424,21 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
         mapped_df.rename(columns={"hgvsc": "mutation"}, inplace=True)
         mapped_df.rename(columns={"labId": "sample_id"}, inplace=True)
         mapped_df.rename(columns={"Entrez_Gene_Id": "entrez_id"}, inplace=True)
-        
-    elif data_type == "mutation":
-        df = df[['dbgap_sample_id','hgvsc', 'hgvsp', 'gene', 'variant_classification','t_vaf', 'refseq', 'symbol']]
-        mapped_df = df.merge(genes, left_on='symbol', right_on='gene_symbol', how='left').reindex(
-                        columns=['hgvsc', 'entrez_id', "dbgap_sample_id","variant_classification"])
 
+        variant_mapping = {
+            'frameshift_variant': 'Frameshift_Variant',
+            'missense_variant': 'Missense_Mutation',
+            'stop_gained': 'Nonsense_Mutation',
+            'inframe_deletion': 'In_Frame_Del',
+            'protein_altering_variant': 'Protein_Altering_Variant',
+            'splice_acceptor_variant': 'Splice_Site',
+            'splice_donor_variant': 'Splice_Site',
+            'start_lost': 'Start_Codon_Del',
+            'inframe_insertion': 'In_Frame_Ins',
+            'stop_lost': 'Nonstop_Mutation'
+        }
+
+        mapped_df['variant_classification'] = mapped_df['variant_classification'].map(variant_mapping)
 
     elif data_type == "proteomics":
         mapped_ids['sampleID'] = mapped_ids['sampleID'].str.split('_').apply(lambda x: x[2])
@@ -473,7 +461,6 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
             inplace=True
         )
         
-
     mapped_df = pd.merge(mapped_df, improve[['other_id', 'improve_sample_id']], 
                          left_on='sample_id', 
                          right_on='other_id',
@@ -482,7 +469,7 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
     mapped_df['source'] = 'synapse'
     mapped_df['study'] = 'BeatAML'
 
-    final_dataframe = mapped_df.dropna()#pd.dropna(mapped_df,0)
+    final_dataframe = mapped_df.dropna()
     return final_dataframe
 
 
@@ -659,8 +646,6 @@ if __name__ == "__main__":
             
             
             t_df = pd.read_csv('tpm_'+transcriptomics_file, sep = '\t')
-           # t_df.index = t_df.stable_id#display_label
-#            t_df = t_df.iloc[:, 4:]
             t_df = t_df.reset_index().rename(columns={'stable_id': 'Gene'})
             t_df = pd.melt(t_df, id_vars=['Gene'], var_name='sample_id', value_name='transcriptomics')
             print(improve_map_file)
@@ -724,7 +709,5 @@ if __name__ == "__main__":
             exp_res = map_exp_to_improve(drug_path)
             exp_res.to_csv("/tmp/beataml_experiments.tsv", index=False, sep='\t')
           
-            #drug_map_path = retrieve_figshare_data("https://figshare.com/ndownloader/files/43112314?private_link=0ea222d9bd461c756fb0")
-
 #        print("Finished Pipeline")
     
