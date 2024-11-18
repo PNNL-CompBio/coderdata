@@ -210,6 +210,32 @@ class Dataset:
     def full(self):
         del self._full
 
+    
+    # ----------------------------
+    # Class and Instance functions
+    # ----------------------------
+
+    def types(self) -> list:
+        data_types = [
+            'transcriptomics',
+            'proteomics',
+            'mutations',
+            'copy_number',
+            'samples',
+            'drugs',
+            'mirna',
+            'experiments',
+            'methylation',
+            'metabolomics',
+            'genes',
+            ]
+        data_types_present = []
+        for data_type in data_types:
+            if getattr(self, data_type) is not None:
+                data_types_present.append(data_type)
+        
+        return data_types_present
+
 
 # ---------------------------------------------------------------------
 # Functions that are Dataset related but not Class / Instance functions
