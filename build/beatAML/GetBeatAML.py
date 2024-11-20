@@ -9,25 +9,25 @@ import subprocess
 import argparse
 import time
 
-def download_from_github(raw_url, save_path):
-    """
-    Download a file from a raw GitHub URL and save to the specified path.
+# def download_from_github(raw_url, save_path):
+#     """
+#     Download a file from a raw GitHub URL and save to the specified path.
 
-    Parameters
-    ----------
-    raw_url : str
-        The raw GitHub URL pointing to the file to be downloaded.
-    save_path : str
-        The local path where the downloaded file will be saved.
+#     Parameters
+#     ----------
+#     raw_url : str
+#         The raw GitHub URL pointing to the file to be downloaded.
+#     save_path : str
+#         The local path where the downloaded file will be saved.
 
-    Returns
-    -------
-    None
-    """
-    response = requests.get(raw_url)
-    with open(save_path, 'wb') as f:
-        f.write(response.content)
-    return
+#     Returns
+#     -------
+#     None
+#     """
+#     response = requests.get(raw_url)
+#     with open(save_path, 'wb') as f:
+#         f.write(response.content)
+#     return
 
 def retrieve_figshare_data(url):
     """
@@ -178,14 +178,14 @@ def retrieve_drug_info(compound_name):
         properties = data["PropertyTable"]["Properties"][0]
         pubchem_id = properties.get('CID',np.nan)
         canSMILES = properties.get("CanonicalSMILES", np.nan)
-        isoSMILES = properties.get("IsomericSMILES", np.nan)
+        # isoSMILES = properties.get("IsomericSMILES", np.nan)
         InChIKey = properties.get("InChIKey", np.nan)
         formula = properties.get("MolecularFormula", np.nan)
         weight = properties.get("MolecularWeight", np.nan)
 
-        return pubchem_id, canSMILES, isoSMILES, InChIKey, formula, weight
+        return pubchem_id, canSMILES, InChIKey, formula, weight
     else:
-        return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+        return np.nan, np.nan, np.nan, np.nan, np.nan
     
 
 def update_dataframe_with_pubchem(d_df):
@@ -230,14 +230,14 @@ def update_dataframe_with_pubchem(d_df):
         if row['chem_name'] in data_dict and not all(pd.isna(val) for val in data_dict[row['chem_name']]):
             values = data_dict[row['chem_name']]
         else:
-            values = data_dict.get(row['other_name'], (np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
+            values = data_dict.get(row['other_name'], (np.nan, np.nan, np.nan, np.nan, np.nan))
 
         d_df.at[idx, 'pubchem_id'] = values[0]
         d_df.at[idx, "canSMILES"] = values[1]
-        d_df.at[idx, "isoSMILES"] = values[2]
-        d_df.at[idx, "InChIKey"] = values[3]
-        d_df.at[idx, "formula"] = values[4]
-        d_df.at[idx, "weight"] = values[5]
+        # d_df.at[idx, "isoSMILES"] = values[2]
+        d_df.at[idx, "InChIKey"] = values[2]
+        d_df.at[idx, "formula"] = values[3]
+        d_df.at[idx, "weight"] = values[4]
     
     return d_df
 
@@ -250,24 +250,24 @@ def merge_drug_info(d_df,drug_map):
     d_df : pd.DataFrame
         Main drug dataframe containing drug-related columns.
     drug_map : pd.DataFrame
-        Mapping dataframe containing drug information and the column 'isoSMILES'.
+        Mapping dataframe containing drug information and the column 'canSMILES'.
 
     Returns
     -------
     pd.DataFrame
         The merged dataframe containing combined drug information.
     """
-    print(d_df['isoSMILES'].dtype, drug_map['isoSMILES'].dtype)
-    d_df['isoSMILES'] = d_df['isoSMILES'].astype(str)
-    drug_map['isoSMILES'] = drug_map['isoSMILES'].astype(str)
-    result_df = d_df.merge(drug_map[['isoSMILES', 'improve_drug_id']], on='isoSMILES', how='left')
+    # print(d_df['isoSMILES'].dtype, drug_map['isoSMILES'].dtype)
+    d_df['canSMILES'] = d_df['canSMILES'].astype(str)
+    drug_map['canSMILES'] = drug_map['canSMILES'].astype(str)
+    result_df = d_df.merge(drug_map[['canSMILES', 'improve_drug_id']], on='canSMILES', how='left')
     return result_df
 
 def format_drug_map(drug_map_path):
     """
     Format and clean up the drug mapping file.
 
-    Reads a drug map file, removes duplicates based on the 'isoSMILES' column,
+    Reads a drug map file, removes duplicates based on the 'canSMILES' column,
     and returns the cleaned dataframe.
 
     Parameters
@@ -282,11 +282,11 @@ def format_drug_map(drug_map_path):
     """
     if drug_map_path:
         drug_map = pd.read_csv(drug_map_path, sep = "\t")
-        drug_map = drug_map.drop_duplicates(subset='isoSMILES', keep='first')
+        drug_map = drug_map.drop_duplicates(subset='canSMILES', keep='first')
     else:
         drug_map = pd.DataFrame(columns=[
-            'improve_drug_id', 'chem_name', 'pubchem_id', 'canSMILES', 
-            'isoSMILES', 'InChIKey', 'formula', 'weight'
+            'improve_drug_id', 'chem_name', 'pubchem_id',
+            'canSMILES', 'InChIKey', 'formula', 'weight'
         ])
     return drug_map
 
@@ -316,7 +316,7 @@ def format_drug_df(drug_path):
 
 def add_improve_id(previous_df, new_df):
     """
-    Add 'improve_drug_id' to the new dataframe based on unique 'isoSMILES' not present in the previous dataframe.
+    Add 'improve_drug_id' to the new dataframe based on unique 'canSMILES' not present in the previous dataframe.
 
     Parameters
     ----------
@@ -335,16 +335,16 @@ def add_improve_id(previous_df, new_df):
         max_id = max(id_list) if id_list else 0
     else:
         max_id = 0
-    # Identify isoSMILES in the new dataframe that don't exist in the old dataframe
-    unique_new_smiles = set(new_df['isoSMILES']) - set(previous_df['isoSMILES'])
-    # Identify rows in the new dataframe with isoSMILES that are unique and where improve_drug_id is NaN
-    mask = (new_df['isoSMILES'].isin(unique_new_smiles)) & (new_df['improve_drug_id'].isna())
+    # Identify canSMILES in the new dataframe that don't exist in the old dataframe
+    unique_new_smiles = set(new_df['canSMILES']) - set(previous_df['canSMILES'])
+    # Identify rows in the new dataframe with canSMILES that are unique and where improve_drug_id is NaN
+    mask = (new_df['canSMILES'].isin(unique_new_smiles)) & (new_df['improve_drug_id'].isna())
     id_map = {}
     for smiles in unique_new_smiles:
         max_id += 1
         id_map[smiles] = f"SMI_{max_id}"
-    # Apply the mapping to the new dataframe for rows with unique isoSMILES and NaN improve_drug_id
-    new_df.loc[mask, 'improve_drug_id'] = new_df['isoSMILES'].map(id_map)
+    # Apply the mapping to the new dataframe for rows with unique canSMILES and NaN improve_drug_id
+    new_df.loc[mask, 'improve_drug_id'] = new_df['canSMILES'].map(id_map)
     return new_df
 
 
@@ -541,7 +541,7 @@ def generate_drug_list(drug_map_path,drug_path):
     d_res = add_improve_id(drug_map, d_res)
     #Drug Data
     #print(d_res)
-    drug_res = d_res[["improve_drug_id","chem_name","pubchem_id","formula","weight","InChIKey","canSMILES","isoSMILES"]]
+    drug_res = d_res[["improve_drug_id","chem_name","pubchem_id","formula","weight","InChIKey","canSMILES"]]
     drug_res = drug_res.drop_duplicates()
     drug_res.to_csv("/tmp/beataml_drugs.tsv",sep="\t", index=False)
 
@@ -587,7 +587,12 @@ if __name__ == "__main__":
 #         'syn32533104', 
 #         'syn32529921', 
         'syn26642974',
-        'syn26427390'
+        'syn26427390',
+        'syn64126458',
+        'syn64126462',
+        'syn64126463',
+        'syn64126464',
+        'syn64126468'
     ]
     print("Downloading Files from Synapse")
     for entity_id in entity_ids:
@@ -597,13 +602,13 @@ if __name__ == "__main__":
     #gene_url = "https://figshare.com/ndownloader/files/40576109?private_link=525f7777039f4610ef47"
     #entrez_map_file = retrieve_figshare_data(gene_url)
 
-    additional_mapping_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_sample_mapping.xlsx"
+    # additional_mapping_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_sample_mapping.xlsx"
     sample_mapping_file = "beataml_waves1to4_sample_mapping.xlsx"
-    download_from_github(additional_mapping_url, sample_mapping_file)
+    # download_from_github(additional_mapping_url, sample_mapping_file)
 
-    supplementary_url = 'https://ars.els-cdn.com/content/image/1-s2.0-S1535610822003129-mmc2.xlsx'
+    # supplementary_url = 'https://ars.els-cdn.com/content/image/1-s2.0-S1535610822003129-mmc2.xlsx'
     supplimentary_file = '1-s2.0-S1535610822003129-mmc2.xlsx'
-    download_from_github(supplementary_url, supplimentary_file)
+    # download_from_github(supplementary_url, supplimentary_file)
     
     
     if args.samples:
@@ -619,9 +624,9 @@ if __name__ == "__main__":
         else:
             print("Drug File Provided. Proceeding with build.")
         original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-        original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-        download_from_github(original_drug_url, original_drug_file)
-        generate_drug_list(args.drugFile, original_drug_file) ##this doesn't exist, need to add
+        # original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
+        # download_from_github(original_drug_url, original_drug_file)
+        generate_drug_list(args.drugFile, original_drug_file) 
     if args.omics:
         if args.genes is None or args.curSamples is None:
             print('Cannot process omics without sample mapping and gene mapping files')
@@ -629,16 +634,16 @@ if __name__ == "__main__":
         else:
             improve_map_file = args.curSamples
             transcriptomics_file = "beataml_waves1to4_counts_dbgap.txt" #"beataml_waves1to4_norm_exp_dbgap.txt" ##this is the wrong file, these are the normalize values
-            transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_counts_dbgap.txt" #"https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"
-            download_from_github(transcriptomics_url, transcriptomics_file)
+            # transcriptomics_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_counts_dbgap.txt" #"https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_norm_exp_dbgap.txt"
+            # download_from_github(transcriptomics_url, transcriptomics_file)
             
             mutations_file = "beataml_wes_wv1to4_mutations_dbgap.txt"
-            mutations_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wes_wv1to4_mutations_dbgap.txt"
-            download_from_github(mutations_url, mutations_file)
+            # mutations_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wes_wv1to4_mutations_dbgap.txt"
+            # download_from_github(mutations_url, mutations_file)
             
             mutation_map_file = "beataml_waves1to4_sample_mapping.xlsx"
-            mutation_map_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_sample_mapping.xlsx"
-            download_from_github(mutation_map_url, mutation_map_file)
+            # mutation_map_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_waves1to4_sample_mapping.xlsx"
+            # download_from_github(mutation_map_url, mutation_map_file)
             # New Transcriptomics Data
             print("Starting Transcriptomics Data")
             ##first run conversion tool
@@ -680,9 +685,9 @@ if __name__ == "__main__":
             imp_samp_map = pd.read_csv(args.curSamples)
             imp_drug_map = pd.read_csv(args.drugFile,sep='\t')
             original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-            original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"    
+            # original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"    
             # Generate Raw Drugs File to use in Curve fitting algorithm
-            download_from_github(original_drug_url, original_drug_file)
+            # download_from_github(original_drug_url, original_drug_file)
              # Experiment Data
             updated_raw_drug_file = "beatAML_drug_raw.tsv"
             generate_raw_drug_file(original_drug_file,sample_mapping_file, updated_raw_drug_file,supplimentary_file)
