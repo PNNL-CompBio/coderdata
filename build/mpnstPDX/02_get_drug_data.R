@@ -101,7 +101,7 @@ ignore_file_path <- '/tmp/mpnstpdx_ignore_chems.txt'
 use_python("/opt/venv/bin/python3", required = TRUE)
 source_python("pubchem_retrieval.py")
 
-update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
+update_dataframe_and_write_tsv(unique_names=drugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
 
 
 tab<-read.table(newdrugfile,sep='\t',header=T,quote="",comment.char="")

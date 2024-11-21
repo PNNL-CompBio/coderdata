@@ -187,9 +187,9 @@ def AUC(time, volume, time_normalize=True):
     #print(time)
     if time_normalize:
         auc = auc/np.max(time)
-    return {"metric": "auc", "value": auc}
+    return {"metric": "auc", "value": auc, 'time':np.max(time)}
 
-def TGI(contr_volume, treat_volume):
+def TGI(contr_volume, treat_volume,time):
     """
     Computes the tumor growth inhibition (TGI) between two time-volume curves.
 
@@ -207,7 +207,8 @@ def TGI(contr_volume, treat_volume):
     # Simulated batch response class object
     rtx = {
         "metric": "TGI",
-        "value": tgi
+        "value": tgi,
+        'time': np.max(time)
     }
     return rtx
 
@@ -240,7 +241,7 @@ def ABC(contr_time=None, contr_volume=None, treat_time=None, treat_volume=None):
         tre = AUC(treat_time, treat_volume)
 
     abc = con['value'] - tre['value']
-    return {"metric": "abc", "value": abc}#, "control": con, "treatment": tre}
+    return {"metric": "abc", "value": abc,'time':np.max(treat_time)}#, "control": con, "treatment": tre}
 
 
 ###LMM CODE
@@ -292,13 +293,14 @@ def lmm(time, volume, treatment, drug_name):
         'interaction_coef_value': i_coef_value
     }
     
-    return {'metric': 'lmm','value': i_coef_value}
+    return {'metric': 'lmm','value': i_coef_value,'time':np.max(time)}
 
 def main():
     parser=ArgumentParser()
     ###read in file with model id, volume, time, condition
     parser.add_argument('curvefile')
     parser.add_argument('--drugfile')
+    parser.add_argument('--outprefix',default='/tmp/')
     
     args = parser.parse_args()
     
@@ -308,8 +310,24 @@ def main():
     singles, combos = get_drug_stats(tab)
 
     ##join with drug ids
+    expsing = singles.rename({'drug':'chem_name','metric':'drug_combination_metric','value':'drug_combination_value','sample':'improve_sample_id'},axis=1).merge(drugs,on='chem_name',how='left')[['improve_drug_id','improve_sample_id','drug_combination_metric','drug_combination_value']]
+    expsing = expsing.dropna()
+
+    combos[['drug1','drug2']]=combos.drug.str.split('+',expand=True)
+    combos = combos.rename({'metric':'drug_combination_metric','value':'drug_combination_value','sample':'improve_sample_id'},axis=1).dropna()
+
+    expcomb = combos.rename({'drug1':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_1'},axis=1)[['improve_drug_1','drug2','improve_sample_id','drug_combination_metric','drug_combination_value']]
+    expcomb = expcomb.rename({'drug2':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_2'},axis=1)[['improve_drug_1','improve_drug_2','improve_sample_id','drug_combination_metric','drug_combination_value']]
+
+    expcomb[['source']]='Synapse'
+    expcomb[['study']]='MPNST PDX in vivo'
+
+    expsing[['source']]='Synapse'
+    expsing[['study']]='MPNST PDX in vivo'
+    expsing.to_csv(args.outprefix+'_experiments.csv',index=False)
+    expcomb.to_csv(args.outprefix+'_combinations.csv',index=False)
     
-    ##stats.to_csv('pdx_exp.tsv',sep='\t',index=False)
+
     
 def get_drug_stats(df,control='control'):
     ##for each experiment, call group
@@ -341,7 +359,7 @@ def get_drug_stats(df,control='control'):
             treat_abc = ABC(ctl_time,ctl_volume,treat_time,treat_volume)
             #print(f"AUC: {treat_auc}")
             #print(f"ABC: {treat_abc}")
-            treat_abc.update({'sample':mod,'drug':d})
+            treat_abc.update({'sample':mod,'drug':d,'time_unit':'days'})
             if '+' in d:
                 combores.append(treat_abc)
             else:
@@ -349,16 +367,16 @@ def get_drug_stats(df,control='control'):
             #lmm
             comb = pd.concat([ctl_data,d_data])
             lmm_res = lmm(comb.time, comb.volume, comb.treatment,d)
-            lmm_res.update({'sample':mod,'drug':d})
+            lmm_res.update({'sample':mod,'drug':d,'time_unit':'days'})
             #print(f"LMM: {lmm_res}")
             if '+' in d:
-                combores.append(lm_res)
+                combores.append(lmm_res)
             else:
-                singleres.append(lm_res)
+                singleres.append(lmm_res)
 
             #get tgi for group
-            tg = TGI(ctl_volume,treat_volume)
-            tg.update({'sample':mod,'drug':d})
+            tg = TGI(ctl_volume,treat_volume,treat_time)
+            tg.update({'sample':mod,'drug':d,'time_unit':'days'})
             #print(tg)
             if '+' in d:
                 combores.append(tg)
@@ -368,13 +386,13 @@ def get_drug_stats(df,control='control'):
             
             #get mRECIST for group
             mr = mrecist(treat_time,treat_volume)
-            mr.update({'sample':mod,'drug':d})
+            mr.update({'sample':mod,'drug':d,'time_unit':'days'})
             if '+' in d:
                 combores.append(mr)
             else:
                 singleres.append(mr)
 
-    sing = pd.DataFrame.from_records(singlres)
+    sing = pd.DataFrame.from_records(singleres)
     comb = pd.DataFrame.from_records(combores)
     return sing,comb
 

@@ -187,13 +187,13 @@ classes:
       - source
       - study
     attributes:
-      drug_one_id:
+      drug_drug_2:
         description: improve_drug_id of first drug
-      drug_two_id:
+      improve_drug_2:
         description: imrrove_drug_id of second drug
-      combination_metric:
+      drug_combination_metric:
         description: metric calculated for synergy, or other metric of two drugs
-      combination_value:
+      drug_combination_value:
         description: value of metric for synergy or combination
 enums:
   ResponseMetric:

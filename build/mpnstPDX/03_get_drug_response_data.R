@@ -97,6 +97,7 @@ pdx_meta$parentId=unlist(lapply(pdx_meta$id,function(x) synGet(x)$parentId))
 oldfolders=c('syn22018363','syn22024460','syn22024428','syn22024429','syn22024437','syn22024438')
 
 old_meta<-subset(pdx_meta,parentId%in%oldfolders)
+
 old_data<-do.call(rbind,lapply(unique(old_meta$parentId),function(x){
     ids<-subset(old_meta,parentId==x)|>
         subset(!is.na(id))
@@ -121,7 +122,7 @@ old_data<-do.call(rbind,lapply(unique(old_meta$parentId),function(x){
        }))
 }))|>
   left_join(unique(select(old_meta,id=parentId,improve_sample_id)))|>
-  dplyr::select(experiment=id,model_id=improve_sample_id,specimen_id,treatment=chem_name,time=experimental_time_point,volume=assay_value)|>distinct()
+  dplyr::select(experiment=id,model_id=improve_sample_id,specimen_id,treatment=chem_name,time=experimental_time_point,time_unit=experimental_time_point_unit,volume=assay_value)|>distinct()
 
 
 
@@ -150,7 +151,7 @@ new_data<-do.call(rbind,lapply(unique(new_meta$id), function(x){
     #print(head(tab))
     return(tab)}))|>
     left_join(pdx_meta)|>
-    dplyr::select(experiment=id,model_id=improve_sample_id,specimen_id,treatment=chem_name,time=experimental_time_point,volume=assay_value)|>distinct()
+    dplyr::select(experiment=id,model_id=improve_sample_id,specimen_id,treatment=chem_name,time=experimental_time_point,time_unit=experimental_time_point_unit,volume=assay_value)|>distinct()
 
 ##maybe tweak the data frame a bit depending on curve fitting script
 pdx_data<-rbind(old_data,new_data)
@@ -161,7 +162,7 @@ pdx_data<-rbind(old_data,new_data)
 fwrite(pdx_data,'/tmp/curve_data.tsv',sep='\t')
 
 ##TODO: create new curve fitting script in python
-pycmd = '/opt/venv/bin/python fit_pdx_curve.py --input /tmp/curve_data.tsv --output /tmp/mpnstPDX_experiments.tsv'
+pycmd = '/opt/venv/bin/python calc_pdx_metrics.py --input /tmp/curve_data.tsv --outprefix /tmp/mpnstPDX'
 print('running curve fitting')
 #system(pycmd)
 
