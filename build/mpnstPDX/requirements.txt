@@ -1,5 +1,5 @@
 pyarrow
-pandas==2.1.1
+pandas
 matplotlib
 numpy==1.26.4
 argparse
@@ -9,3 +9,4 @@ scipy
 requests
 mordredcommunity
 rdkit
+statsmodels
