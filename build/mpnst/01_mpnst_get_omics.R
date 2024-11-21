@@ -34,6 +34,7 @@ samples_df <- fread(patients)|>
 
 pdx_samps<-subset(samples_df,model_type=='patient derived xenograft')
 tumor_samps<-subset(samples_df,model_type=='tumor')
+mt_samps<-subset(samples_df,model_type=='organoid')
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
@@ -45,12 +46,17 @@ manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
 ##they each get their own sample identifier
 pdx_data<-manifest|>dplyr::select(common_name,starts_with("PDX"))|>
     left_join(pdx_samps)|>
-    dplyr::select(improve_sample_id,RNASeq='PDX_RNASeq',Mutations='PDX_Somatic_Mutations',CopyNumber='PDX_CNV',Proteomics='PDX_Proteomics')
+    dplyr::select(improve_sample_id,common_name,model_type,RNASeq='PDX_RNASeq',Mutations='PDX_Somatic_Mutations',CopyNumber='PDX_CNV',Proteomics='PDX_Proteomics')
 
 tumor_data<- manifest|>dplyr::select(common_name,starts_with("Tumor"))|>
     left_join(tumor_samps)|>
-    dplyr::select(improve_sample_id,RNASeq='Tumor_RNASeq',Mutations='Tumor_Somatic_Mutations',CopyNumber='Tumor_CNV')|>
+    dplyr::select(improve_sample_id,common_name,model_type,RNASeq='Tumor_RNASeq',Mutations='Tumor_Somatic_Mutations',CopyNumber='Tumor_CNV')|>
     mutate(Proteomics='') ##we dont have tumor proteomics from these samples
+#print(tumor_data)
+
+mt_data<- manifest|>dplyr::select(common_name,starts_with("PDX"))|>
+    left_join(mt_samps)|>
+    dplyr::select(improve_sample_id,common_name,model_type, RNASeq='PDX_RNASeq',Mutations='PDX_Somatic_Mutations',CopyNumber='PDX_CNV',Proteomics='PDX_Proteomics')##we dont have mt data yet, so collecting PDX instead
 #print(tumor_data)
 
 
@@ -61,10 +67,10 @@ genes_df <- fread(genefile)
 
 
 ##added proteomics first
-proteomics<-do.call('rbind',lapply(setdiff(combined$Proteomics,c('',NA,"NA")),function(x){
+proteomics<-do.call('rbind',lapply(setdiff(mt_data$Proteomics,c('',NA,"NA")),function(x){
                                         # if(x!=""){
     #print(x)
-    sample<-subset(combined,Proteomics==x)
+    sample<-subset(mt_data,Proteomics==x)
     #print(sample)
     res<-fread(synGet(x)$path)|>
         #tidyr::separate(Name,into=c('other_id','vers'),sep='\\.')|>
@@ -88,10 +94,10 @@ fwrite(proteomics,'/tmp/mpnst_proteomics.csv.gz')
 
 #### FIRST WE GET RNASeq Data
 
-rnaseq<-do.call('rbind',lapply(setdiff(combined$RNASeq,c(NA,"NA")),function(x){
+rnaseq<-do.call('rbind',lapply(setdiff(mt_data$RNASeq,c(NA,"NA")),function(x){
                                         # if(x!=""){
     #print(x)
-    sample<-subset(combined,RNASeq==x)
+    sample<-subset(mt_data,RNASeq==x)
     #print(sample)
     res<-fread(synGet(x)$path)|>
         tidyr::separate(Name,into=c('other_id','vers'),sep='\\.')|>
@@ -114,11 +120,11 @@ fwrite(rnaseq,'/tmp/mpnst_transcriptomics.csv.gz')
 
 #####NEXT WE DO WES DATA
 print("Getting WES")
-wes<-do.call(rbind,lapply(setdiff(combined$`Mutations`,c(NA,"NA")),function(x){
+wes<-do.call(rbind,lapply(setdiff(mt_data$`Mutations`,c(NA,"NA")),function(x){
 
     x2=x#gsub('"','',gsub("[",'',gsub("]",'',x,fixed=T),fixed=T),fixed=T)
     print(x)
-    sample<-subset(combined,Mutations==x)
+    sample<-subset(mt_data,Mutations==x)
     print(sample$improve_sample_id)
     res<-NULL
     try(res<-fread(synGet(x2)$path)|>
@@ -141,11 +147,11 @@ fwrite(wes,'/tmp/mpnst_mutations.csv.gz')
 
 print(paste("getting CNV"))
 ##next let's do CNVs!
-cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,c(NA,"NA")),function(x){
+cnv<-do.call(rbind,lapply(setdiff(mt_data$CopyNumber,c(NA,"NA")),function(x){
 
     x2=x#gsub('"','',gsub("[",'',gsub("]",'',x,fixed=T),fixed=T),fixed=T)
     print(x)
-    sample<-subset(combined,CopyNumber==x)
+    sample<-subset(mt_data,CopyNumber==x)
     print(sample$improve_sample_id)
     res<-fread(synGet(x2)$path)
 

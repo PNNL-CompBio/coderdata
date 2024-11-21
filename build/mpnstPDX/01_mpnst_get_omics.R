@@ -54,17 +54,17 @@ tumor_data<- manifest|>dplyr::select(common_name,starts_with("Tumor"))|>
 #print(tumor_data)
 
 
-combined<-rbind(pdx_data,tumor_data)|>distinct()
+pdx_data<-rbind(pdx_data,tumor_data)|>distinct()
 
 # gene mapping table
 genes_df <- fread(genefile)
 
 
 ##added proteomics first
-proteomics<-do.call('rbind',lapply(setdiff(combined$Proteomics,c('',NA,"NA")),function(x){
+proteomics<-do.call('rbind',lapply(setdiff(pdx_data$Proteomics,c('',NA,"NA")),function(x){
                                         # if(x!=""){
     #print(x)
-    sample<-subset(combined,Proteomics==x)
+    sample<-subset(pdx_data,Proteomics==x)
     #print(sample)
     res<-fread(synGet(x)$path)|>
         #tidyr::separate(Name,into=c('other_id','vers'),sep='\\.')|>
@@ -88,10 +88,10 @@ fwrite(proteomics,'/tmp/mpnstPDX_proteomics.csv.gz')
 
 #### FIRST WE GET RNASeq Data
 
-rnaseq<-do.call('rbind',lapply(setdiff(combined$RNASeq,c(NA,"NA")),function(x){
+rnaseq<-do.call('rbind',lapply(setdiff(pdx_data$RNASeq,c(NA,"NA")),function(x){
                                         # if(x!=""){
     #print(x)
-    sample<-subset(combined,RNASeq==x)
+    sample<-subset(pdx_data,RNASeq==x)
     #print(sample)
     res<-fread(synGet(x)$path)|>
         tidyr::separate(Name,into=c('other_id','vers'),sep='\\.')|>
@@ -114,11 +114,11 @@ fwrite(rnaseq,'/tmp/mpnstPDX_transcriptomics.csv.gz')
 
 #####NEXT WE DO WES DATA
 print("Getting WES")
-wes<-do.call(rbind,lapply(setdiff(combined$`Mutations`,c(NA,"NA")),function(x){
+wes<-do.call(rbind,lapply(setdiff(pdx_data$`Mutations`,c(NA,"NA")),function(x){
 
     x2=x#gsub('"','',gsub("[",'',gsub("]",'',x,fixed=T),fixed=T),fixed=T)
     print(x)
-    sample<-subset(combined,Mutations==x)
+    sample<-subset(pdx_data,Mutations==x)
     print(sample$improve_sample_id)
     res<-NULL
     try(res<-fread(synGet(x2)$path)|>
@@ -141,11 +141,11 @@ fwrite(wes,'/tmp/mpnstPDX_mutations.csv.gz')
 
 print(paste("getting CNV"))
 ##next let's do CNVs!
-cnv<-do.call(rbind,lapply(setdiff(combined$CopyNumber,c(NA,"NA")),function(x){
+cnv<-do.call(rbind,lapply(setdiff(pdx_data$CopyNumber,c(NA,"NA")),function(x){
 
     x2=x#gsub('"','',gsub("[",'',gsub("]",'',x,fixed=T),fixed=T),fixed=T)
     print(x)
-    sample<-subset(combined,CopyNumber==x)
+    sample<-subset(pdx_data,CopyNumber==x)
     print(sample$improve_sample_id)
     res<-fread(synGet(x2)$path)
 
