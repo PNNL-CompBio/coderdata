@@ -39,9 +39,9 @@ ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
 # Add necessary files to the container
-ADD build/mpnstPDX/requirements.txt .
-ADD build/mpnstPDX/requirements.r .
-ADD build/mpnstPDX/* ./
+ADD build/mpnstpdx/requirements.txt .
+ADD build/mpnstpdx/requirements.r .
+ADD build/mpnstpdx/* ./
 ADD build/utils/* ./
 
 # installing python libraries

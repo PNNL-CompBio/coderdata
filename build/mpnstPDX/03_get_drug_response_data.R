@@ -162,7 +162,7 @@ pdx_data<-rbind(old_data,new_data)
 fwrite(pdx_data,'/tmp/curve_data.tsv',sep='\t')
 
 ##TODO: create new curve fitting script in python
-pycmd = '/opt/venv/bin/python calc_pdx_metrics.py --input /tmp/curve_data.tsv --outprefix /tmp/mpnstPDX'
+pycmd = '/opt/venv/bin/python calc_pdx_metrics.py --input /tmp/curve_data.tsv --outprefix /tmp/mpnstpdx'
 print('running curve fitting')
 #system(pycmd)
 

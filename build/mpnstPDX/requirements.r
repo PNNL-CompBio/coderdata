@@ -9,3 +9,5 @@ install.packages("synapser", repos = c("http://ran.synapse.org", "https://cloud.
 install.packages("R.utils")
 install.packages("stringr")
 install.packages("tidyr")
+install.packages('readr')
+install.packages("readxl")

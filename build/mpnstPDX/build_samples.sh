@@ -1,1 +1,1 @@
-cp $1 /tmp/mpnstPDX_samples.csv
+cp $1 /tmp/mpnstpdx_samples.csv

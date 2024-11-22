@@ -44,6 +44,7 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: mpnst:latest
+    
   mpnstpdx:
     build:
       context: ../../

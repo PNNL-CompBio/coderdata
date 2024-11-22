@@ -30,7 +30,7 @@ synLogin(authToken = PAT)
 # Read the sample mapping CSV and genes.csv
 samples_df <- fread(patients)|>
     dplyr::select(improve_sample_id,common_name,model_type)|>
-                                        distinct()#"mpnst/synapse_NF-MPNSTPDX_samples.csv")
+                                        distinct()#"mpnst/synapse_NF-MPNSTpdx_samples.csv")
 
 pdx_samps<-subset(samples_df,model_type=='patient derived xenograft')
 tumor_samps<-subset(samples_df,model_type=='tumor')
@@ -41,7 +41,7 @@ manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
                                                              dplyr::rename(common_name='Sample')
 
 
-##for now we only have tumor and PDX data
+##for now we only have tumor and pdx data
 ##they each get their own sample identifier
 pdx_data<-manifest|>dplyr::select(common_name,starts_with("PDX"))|>
     left_join(pdx_samps)|>
@@ -83,7 +83,7 @@ proteomics<-do.call('rbind',lapply(setdiff(pdx_data$Proteomics,c('',NA,"NA")),fu
                                         # }
 }))
 
-fwrite(proteomics,'/tmp/mpnstPDX_proteomics.csv.gz')
+fwrite(proteomics,'/tmp/mpnstpdx_proteomics.csv.gz')
 
 
 #### FIRST WE GET RNASeq Data
@@ -108,7 +108,7 @@ rnaseq<-do.call('rbind',lapply(setdiff(pdx_data$RNASeq,c(NA,"NA")),function(x){
                                         # }
 }))
 
-fwrite(rnaseq,'/tmp/mpnstPDX_transcriptomics.csv.gz')
+fwrite(rnaseq,'/tmp/mpnstpdx_transcriptomics.csv.gz')
 
 
 
@@ -136,7 +136,7 @@ wes<-do.call(rbind,lapply(setdiff(pdx_data$`Mutations`,c(NA,"NA")),function(x){
                                         # }
 }))
 
-fwrite(wes,'/tmp/mpnstPDX_mutations.csv.gz')
+fwrite(wes,'/tmp/mpnstpdx_mutations.csv.gz')
 
 
 print(paste("getting CNV"))
@@ -190,6 +190,6 @@ cnv<-do.call(rbind,lapply(setdiff(pdx_data$CopyNumber,c(NA,"NA")),function(x){
                                         # }
 }))
 
-fwrite(cnv,'/tmp/mpnstPDX_copy_number.csv.gz')
+fwrite(cnv,'/tmp/mpnstpdx_copy_number.csv.gz')
 
 ##TODO: get proteomics!!!
