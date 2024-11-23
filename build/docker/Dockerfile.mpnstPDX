@@ -1,0 +1,54 @@
+FROM r-base:4.3.2
+
+# Set environment to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update package list and install required packages
+RUN apt-get update && \
+    apt-get install -y build-essential wget curl libcurl4-openssl-dev libxml2-dev \
+    zlib1g-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev
+
+# Download and compile Python 3.10 with shared library support
+RUN wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz && \
+    tar -xf Python-3.10.12.tgz && \
+    cd Python-3.10.12 && \
+    ./configure --enable-optimizations --enable-shared && \
+    make -j$(nproc) && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-3.10.12.tgz Python-3.10.12
+
+# Set Python 3.10 as default
+RUN ln -s /usr/local/bin/python3.10 /usr/bin/python3 && \
+    ln -s /usr/local/bin/pip3.10 /usr/bin/pip3
+
+# Update library paths for Python shared library
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/python3.10.conf && ldconfig
+
+# Create a Python virtual environment
+RUN python3 -m venv /opt/venv
+RUN /opt/venv/bin/pip install --upgrade pip
+
+# Set environment variables for reticulate
+ENV RETICULATE_PYTHON="/opt/venv/bin/python3"
+ENV PYTHONPATH=/app#"${PYTHONPATH}:/app"
+WORKDIR /app
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+# Add necessary files to the container
+ADD build/mpnstpdx/requirements.txt .
+ADD build/mpnstpdx/requirements.r .
+ADD build/mpnstpdx/* ./
+ADD build/utils/* ./
+
+# installing python libraries
+RUN /opt/venv/bin/pip3 install -r requirements.txt
+
+# Install all R libraries from requirements.r
+RUN Rscript requirements.r
+
+# Set up volume for temporary storage
+VOLUME ["/tmp"]

@@ -41,6 +41,7 @@ def process_docker(dataset,validate):
         'hcmi': ['hcmi'],
         'beataml': ['beataml'],
         'mpnst': ['mpnst'],
+        'mpnstpdx': ['mpnstpdx'],
         'cptac': ['cptac'],
         'genes': ['genes'],
         'upload': ['upload']
@@ -121,7 +122,8 @@ def process_omics(executor, dataset, should_continue):
         'mpnst': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'broad_sanger': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'cptac': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
-        'hcmi': ['mutations', 'transcriptomics']
+        'hcmi': ['mutations', 'transcriptomics'],
+        'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics']
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])

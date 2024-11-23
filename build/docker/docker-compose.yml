@@ -44,7 +44,15 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: mpnst:latest
-
+    
+  mpnstpdx:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.mpnstpdx
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: mpnstpdx:latest
   cptac:
     build:
       context: ../../
