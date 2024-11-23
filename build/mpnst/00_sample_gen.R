@@ -42,8 +42,13 @@ sampTable<-manifest|>
     tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
 
+pdxmt<-manifest|>
+    dplyr::select(common_name='Sample',MicroTissueDrugFolder)|>
+    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='organoid')|>
+    tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
+
 ##third, generate a sample for the MTs if they were generated
-pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
+#pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
 pdxmt$model_type=rep('organoid',nrow(pdxmt))
 print(pdxmt)
 
