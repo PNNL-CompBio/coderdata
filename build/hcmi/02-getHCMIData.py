@@ -71,10 +71,11 @@ def ensure_gdc_client():
     if not is_tool(tool_name):
         print("Downloading gdc-client")
         urls = {
-            "Darwin": 'https://gdc.cancer.gov/files/public/file/gdc-client_v1.6.1_OSX_x64.zip',
-            "Windows": 'https://gdc.cancer.gov/files/public/file/gdc-client_v1.6.1_Windows_x64.zip',
-            "Linux": 'https://gdc.cancer.gov/files/public/file/gdc-client_v1.6.1_Ubuntu_x64.zip'
+            "Darwin": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_OSX_x64-py3.8-macos-14.zip',
+            "Windows": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Windows_x64-py3.8-windows-2019.zip',
+            "Linux": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Ubuntu_x64-py3.8-ubuntu-20.04.zip'
         }
+        
         download_tool(urls.get(platform.system()))
     else:
         print("gdc-client already installed")
