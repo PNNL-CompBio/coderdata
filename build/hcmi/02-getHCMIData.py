@@ -35,12 +35,23 @@ def download_tool(url):
     
     filename = wget.download(url)
     files_before = os.listdir()
-    shutil.unpack_archive(filename)
-    files_after = os.listdir()
-    new_file = str(next(iter((set(files_after) - set(files_before)))))
-    st = os.stat(new_file)
-    os.chmod(new_file, st.st_mode | stat.S_IEXEC)
-    return filename
+    # shutil.unpack_archive(filename)
+    
+    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
+    shutil.unpack_archive("gdc-client_2.3_Ubuntu_x64.zip") 
+    if not os.path.exists('gdc-client'):
+        raise FileNotFoundError("gdc-client executable not found after extraction.")
+    # Ensure 'gdc-client' is executable
+    st = os.stat('gdc-client')
+    os.chmod('gdc-client', st.st_mode | stat.S_IEXEC)
+    # Return the path to the executable
+    return './gdc-client'
+
+    # files_after = os.listdir()
+    # new_file = str(next(iter((set(files_after) - set(files_before)))))
+    # st = os.stat(new_file)
+    # os.chmod(new_file, st.st_mode | stat.S_IEXEC)
+    # return filename
 
 def is_tool(name):
     """
