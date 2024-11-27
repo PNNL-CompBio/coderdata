@@ -42,6 +42,7 @@ def process_docker(dataset,validate):
         'beataml': ['beataml'],
         'mpnst': ['mpnst'],
         'mpnstpdx': ['mpnstpdx'],
+        'pancpdo': ['pancpdo'],
         'cptac': ['cptac'],
         'genes': ['genes'],
         'upload': ['upload']
@@ -97,7 +98,7 @@ def process_drugs(executor, dataset, use_prev_dataset, should_continue):
     '''
     Build the drugs file for the specified dataset.
     '''
-    if dataset in ['cptac', 'hcmi']:
+    if dataset in ['cptac', 'hcmi','pancpdo']:
         return  # No drugs to process for these datasets
 
     drugs_file = f'local/{dataset}_drugs.tsv'
@@ -123,6 +124,7 @@ def process_omics(executor, dataset, should_continue):
         'broad_sanger': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'cptac': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'hcmi': ['mutations', 'transcriptomics'],
+        'pancpdo': ['mutations', 'transcriptomics'],
         'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics']
     }
 
@@ -164,7 +166,7 @@ def process_experiments(executor, dataset, should_continue):
     '''
     Build the experiments files for the specified dataset.
     '''
-    if dataset in ['cptac', 'hcmi']:
+    if dataset in ['cptac', 'hcmi','pancpdo']:
         return  # No experiments to process for these datasets
 
     experiments_file = f'local/{dataset}_experiments.tsv'
