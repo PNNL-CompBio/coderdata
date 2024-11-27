@@ -576,9 +576,9 @@ def write_dataframe_to_csv(dataframe, outname):
     None
     """
     if('gz' in outname):
-        dataframe.to_pandas().to_csv(outname,compression='gzip',index=False)
+        dataframe.to_pandas().drop_duplicates().to_csv(outname,compression='gzip',index=False)
     else:
-        dataframe.to_pandas().to_csv(outname,index=False)
+        dataframe.to_pandas().drop_duplicates().to_csv(outname,index=False)
     return
 
 def main():
@@ -682,6 +682,7 @@ def main():
     print("Aligning to Schema")
     final_data = align_to_schema(combined_data,args.type,7500,args.samples)
     gc.collect()
+
     combined_data = None
     
     print(f"final data:\n{final_data}")

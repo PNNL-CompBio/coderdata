@@ -124,7 +124,7 @@ def process_omics(executor, dataset, should_continue):
         'broad_sanger': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'cptac': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'hcmi': ['mutations', 'transcriptomics'],
-        'pancpdo': ['mutations', 'transcriptomics'],
+        'pancpdo': ['transcriptomics'],
         'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics']
     }
 
