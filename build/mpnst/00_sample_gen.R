@@ -7,14 +7,25 @@ library(dplyr)
 
 ##adding a command line argument
 args = commandArgs(trailingOnly=TRUE)
-if(length(args)!=2){
-    stop("Need a sample file and synapse token as argument. Rscript 00_sample_gen.R [samplefile] [synapse token]")
-
+if(length(args) > 1 ){
+    stop("Up to one argument is allowed. This is the filepath to the previously run samples file.")
 }
 
-orig_samples<-fread(args[1])
 
-synapser::synLogin(authToken=args[2])
+if (length(args) == 0 || is.na(args[1]) || args[1] == "" || !file.exists(args[1])) {
+    orig_samples <- ""
+} else {
+    orig_samples <- fread(args[1])
+}
+
+
+# Check if Synapse token is available from the environment
+synapse_token <- Sys.getenv("SYNAPSE_AUTH_TOKEN")
+if (synapse_token == "") {
+    stop("Error: SYNAPSE_AUTH_TOKEN environment variable is not set.")
+}
+
+synapser::synLogin(authToken=synapse_token)
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
                                                              as.data.frame()
 
@@ -32,23 +43,18 @@ manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
 ##first create samples for the original tumors
 tumorTable<-manifest|>
     dplyr::select(common_name='Sample')|>
-    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='tumor')|>
+    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Homo sapiens (Human)',model_type='tumor')|>
     tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
 ##then create samples for the PDX
 sampTable<-manifest|>
     dplyr::select(common_name='Sample',MicroTissueDrugFolder)|>
-    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='patient derived xenograft')|>
+    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Homo sapiens (Human)',model_type='patient derived xenograft')|>
     tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
-
-pdxmt<-manifest|>
-    dplyr::select(common_name='Sample',MicroTissueDrugFolder)|>
-    dplyr::mutate(other_id_source='NF Data Portal',other_names='',cancer_type="Malignant peripheral nerve sheath tumor",species='Human',model_type='organoid')|>
-    tidyr::unite(col='other_id',c('common_name','model_type'),sep=' ',remove=FALSE)
 
 ##third, generate a sample for the MTs if they were generated
-#pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
+pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
 pdxmt$model_type=rep('organoid',nrow(pdxmt))
 print(pdxmt)
 
@@ -58,7 +64,15 @@ main<-rbind(sampTable,pdxmt)|>
 
 #main <- fread("mpnst/NF_MPNST_samples.csv")
 #previous_aml <- fread(args[1])#"beatAML/beataml_samples.csv")
-max_id <- max(orig_samples$improve_sample_id)
+
+# If there is no previous samples file - start at 1, else, continue where the previous one left off.
+if (identical(orig_samples, "")) {
+    max_id <- 1  
+} else {
+    max_id <- max(orig_samples$improve_sample_id, na.rm = TRUE)
+}
+
+
 main$improve_sample_id <- seq(from = max_id + 1, length.out = nrow(main))
 
 #synapse_main <- fread("mpnst/synapse_NF-MPNST_samples.csv")

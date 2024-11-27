@@ -82,8 +82,9 @@ def main():
     cansmiles = [a for a in set(tab.canSMILES) if str(a)!='nan']
     #    isosmiles = list(set(tab.isoSMILES))
     morgs = smiles_to_fingerprint(cansmiles)
-
+#    print(morgs)
     ids = pd.DataFrame(tab[['improve_drug_id','canSMILES']]).drop_duplicates()
+#    print(ids)
     id_morg = ids.rename({"canSMILES":'smile'},axis=1).merge(morgs)[['improve_drug_id','structural_descriptor','descriptor_value']]
 
     mords = smiles_to_mordred(cansmiles,nproc=ncors)
