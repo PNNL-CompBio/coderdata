@@ -36,7 +36,6 @@ def download_tool(url):
     filename = wget.download(url)
     files_before = os.listdir()
     # shutil.unpack_archive(filename)
-    ##there are two files to unpack
     print('Unpacking platform-specific path')
     shutil.unpack_archive(os.path.basename(url))
     #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
@@ -47,8 +46,6 @@ def download_tool(url):
         'Windows':"gdc-client_2.3_Windows_x64.zip"
         }
     shutil.unpack_archive(fnames[platform.system()]) 
-    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
-#    shutil.unpack_archive("gdc-client_2.3_Ubuntu_x64.zip") 
     if not os.path.exists('gdc-client'):
         raise FileNotFoundError("gdc-client executable not found after extraction.")
     # Ensure 'gdc-client' is executable
@@ -89,17 +86,19 @@ def ensure_gdc_client():
     """
     
     tool_name = "gdc-client"
+    urls = {
+        "Darwin": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_OSX_x64-py3.8-macos-14.zip',
+        "Windows": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Windows_x64-py3.8-windows-2019.zip',
+        "Linux": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Ubuntu_x64-py3.8-ubuntu-20.04.zip'
+    }
+        
     if not is_tool(tool_name):
         print("Downloading gdc-client")
-        urls = {
-            "Darwin": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_OSX_x64-py3.8-macos-14.zip',
-            "Windows": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Windows_x64-py3.8-windows-2019.zip',
-            "Linux": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Ubuntu_x64-py3.8-ubuntu-20.04.zip'
-        }
-        
         download_tool(urls.get(platform.system()))
     else:
         print("gdc-client already installed")
+
+
 
 def extract_uuids_from_manifest(manifest_data):
     """
@@ -382,7 +381,7 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
             mapped_df = mapped_df.select(['gene_id', 'gene_name', 'gene_type', 'tpm_unstranded', 'entrez_id', 'file_id'])
             mapped_df = mapped_df.rename({'tpm_unstranded': 'transcriptomics'})
             mapped_df = mapped_df.with_columns([pl.lit('GDC').alias('source'),
-                                               pl.lit('HCMI').alias('study')])
+                                               pl.lit('pancpdo').alias('study')])
             
         elif data_type == "copy_number":
             joined_df = df.join(genes, left_on='gene_name', right_on='gene_symbol', how='left')
@@ -391,14 +390,14 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
             mapped_df = selected_df.with_columns([
                 copy_call_series.alias('copy_call'), 
                 pl.lit('GDC').alias('source'),
-                pl.lit('HCMI').alias('study')
+                pl.lit('pancpdo').alias('study')
             ])
             
         elif data_type == "mutations":
             mapped_df = df.rename({'Entrez_Gene_Id': 'entrez_id', 'HGVSc': 'mutation'})
             mapped_df = mapped_df.select(['entrez_id', 'mutation', 'Variant_Classification', 'file_id'])
             mapped_df = mapped_df.with_columns([pl.lit('GDC').alias('source'),
-                                               pl.lit('HCMI').alias('study')])
+                                               pl.lit('pancpdo').alias('study')])
             mapped_df = mapped_df.with_columns(mapped_df["entrez_id"].cast(str))
 
         final_dataframe = pl.concat([final_dataframe, mapped_df])
@@ -584,7 +583,7 @@ def write_dataframe_to_csv(dataframe, outname):
 
 def main():
     """
-    Automates the process of retrieving and processing HCMI (Human Cancer Models Initiative)
+    Automates the process of retrieving and processing pancpdo (Human Cancer Models Initiative)
     data from Genomic Data Commons Data Portal.
 
     This function handles the entire workflow of the data processing, including:

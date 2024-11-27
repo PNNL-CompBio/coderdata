@@ -1,0 +1,18 @@
+FROM python:3.9
+
+WORKDIR /usr/src/app
+
+COPY build/pancpdo/01-createPancPDOSamplesFile.py .
+COPY build/pancpdo/02-getPancPDOData.py .
+COPY build/pancpdo/full_manifest.txt .
+COPY build/pancpdo/requirements.txt .
+COPY build/pancpdo/*sh ./
+COPY build/pancpdo/pancpdo_cancer_types.csv ./
+
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+RUN pip install --no-cache-dir -r requirements.txt
+
