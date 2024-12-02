@@ -39,7 +39,7 @@ datasets:
     - target_class: Drug
       file: /tmp/mpnst_drugs.tsv
 
-  mpnst:
+  mpnstpdx:
     - target_class: Sample
       file: /tmp/mpnstpdx_samples.csv
     - target_class: Transcriptomics
