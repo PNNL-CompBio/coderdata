@@ -258,6 +258,19 @@ class Dataset:
     # Class and Instance functions
     # ----------------------------
 
+    def format(
+            self,
+            data_type: Literal[
+                'transcriptomics', 'mutations', 'copy_number', 'proteomics',
+                'experiments', 'combinations', 'drug_descriptor', 'drugs',
+                'genes', 'samples',
+                ],
+            use_polars: bool=False,
+            **kwargs: dict,
+            ):
+        return format(self, data_type=data_type, use_polars=use_polars, **kwargs)
+
+    
     def train_test_validate(
         self,
         split_type: Literal[
@@ -386,6 +399,42 @@ def load(
                     dataset = pickle.load(file=file)
                 return dataset
 
+
+
+def format(
+        data: Dataset,
+        data_type: Literal[
+            'transcriptomics', 'mutations', 'copy_number', 'proteomics',
+            'experiments', 'combinations', 'drug_descriptor', 'drugs',
+            'genes', 'samples',
+            ],
+        use_polars: bool=False,
+        **kwargs: dict,
+        ):
+
+    if data_type == "transcriptomics":
+        pass
+
+    elif data_type == "mutations":
+        pass
+    elif data_type == "copy_number":
+        pass
+    elif data_type == "proteomics":
+        pass
+    elif data_type == "experiments":
+        pass
+    elif data_type == "combinations":
+        pass
+    elif data_type == "drugs":
+        pass
+    elif data_type == "genes":
+        pass
+    elif data_type == "samples":
+        pass
+    else:
+        pass
+
+    return ret
 
 def train_test_validate(
         data: Dataset,
