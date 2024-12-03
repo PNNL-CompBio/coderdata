@@ -436,7 +436,19 @@ def format(
     elif data_type == "copy_number":
         pass
     elif data_type == "proteomics":
-        pass
+        if data.proteomics is None:
+            raise ValueError(
+                "'proteomics' attribute of Dataset cannot be 'None'"
+            )
+        
+        # TODO: currently assumes that the proteomics table is properly formatted
+        ret = pd.pivot_table(
+            data=data.proteomics,
+            values='proteomics',
+            index='entrez_id',
+            columns='improve_sample_id'
+            )
+
     elif data_type == "experiments":
         pass
     
