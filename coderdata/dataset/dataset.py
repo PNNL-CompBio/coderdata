@@ -313,8 +313,33 @@ class Dataset:
 # Functions that are Dataset related but not Class / Instance functions
 # ---------------------------------------------------------------------
 
-def load(name: str, directory: str|Path=Path.cwd()) -> Dataset:
-    
+def load(
+        name: str,
+        directory: str|Path=Path.cwd(),
+        from_pickle:bool=False
+        ) -> Dataset:
+    """
+    _summary_
+
+    Parameters
+    ----------
+    name : str
+        _description_
+    directory : str | Path, optional
+        _description_, by default Path.cwd()
+
+    Returns
+    -------
+    Dataset
+        _description_
+
+    Raises
+    ------
+    OSError
+        _description_
+    TypeError
+        _description_
+    """
     print("Processing Data...", file=sys.stderr)
 
     if type(directory) is not Path:
@@ -329,27 +354,37 @@ def load(name: str, directory: str|Path=Path.cwd()) -> Dataset:
                 f"Invalid path / directory defined: '{directory}'"
             )
 
-    accepted_file_endings = ('.csv', '.tsv', '.csv.gz', '.tsv.gz')
-    dataset = Dataset(name)
 
-    for child in directory.iterdir():
-        if child.name in ["genes.csv", "genes.csv.gz"]:
-            dataset.genes = _load_file(child)
-            print("Loaded genes dataset.", file=sys.stderr)
+    if not from_pickle:
+        dataset = Dataset(name)
+        accepted_file_endings = ('.csv', '.tsv', '.csv.gz', '.tsv.gz')
+        for child in directory.iterdir():
+            if child.name in ["genes.csv", "genes.csv.gz"]:
+                dataset.genes = _load_file(child)
+                print("Loaded genes dataset.", file=sys.stderr)
 
-        if (
-            child.name.startswith(name)
-            and child.name.endswith(accepted_file_endings)
-            ):
+            if (
+                child.name.startswith(name)
+                and child.name.endswith(accepted_file_endings)
+                ):
 
-            dataset_type = child.name[len(name)+1:].split('.')[0]
-            print(dataset_type)
-            if hasattr(dataset, dataset_type):
-                setattr(dataset, dataset_type, _load_file(child))
+                dataset_type = child.name[len(name)+1:].split('.')[0]
+                print(dataset_type)
+                if hasattr(dataset, dataset_type):
+                    setattr(dataset, dataset_type, _load_file(child))
 
-    return dataset
+        return dataset
 
-
+    else:
+        accepted_file_endings = ('.pkl', '.pickle')
+        for child in directory.iterdir():
+            if (
+                child.name.startswith(name)
+                and child.name.endswith(accepted_file_endings)
+                ):
+                with open(child, 'rb') as file:
+                    dataset = pickle.load(file=file)
+                return dataset
 
 
 def train_test_validate(
