@@ -413,7 +413,16 @@ def format(
         ):
 
     if data_type == "transcriptomics":
-        pass
+        if data.transcriptomics is None:
+            raise ValueError(
+                f"'{data_type}' attribute of Dataset cannot be 'None'"
+                )
+        ret = pd.pivot_table(
+            data=data.transcriptomics,
+            values='transcriptomics',
+            index='entrez_id',
+            columns='improve_sample_id'
+            )
 
     elif data_type == "mutations":
         if data.mutations is None:
