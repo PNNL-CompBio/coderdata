@@ -459,8 +459,51 @@ def format(
             )
 
     elif data_type == "experiments":
-        pass
-    
+        if data.experiments is None:
+            raise ValueError(
+                f"'{data_type}' attribute of Dataset cannot be 'None'"
+            )
+        shape = kwargs.get('shape', 'long')
+        legal_shapes = ['long', 'wide', 'matrix']
+        metrics = kwargs.get('metrics', ['fit_auc'])
+        if type(metrics) is not list:
+            metrics = [metrics]
+        if shape not in legal_shapes:
+            raise ValueError(
+                f"'shape' has to be one of '{legal_shapes}'"
+            )
+        tmp = data.experiments[
+            data.experiments['dose_response_metric'].isin(metrics)
+        ]
+        if shape == 'long':
+            ret = tmp
+        elif shape == 'wide':
+            ret = tmp.pivot(
+                index = [
+                    'source',
+                    'improve_sample_id',
+                    'improve_drug_id',
+                    'study',
+                    'time',
+                    'time_unit'
+                ],
+                columns = 'dose_response_metric',
+                values = 'dose_response_value'
+            ).reset_index().rename_axis(None, axis=1)
+        elif shape == 'matrix':
+            if len(metrics) > 1:
+                raise ValueError(
+                    f"'metrics' cannot contain more than 1 value if "
+                    f"shape=='{shape}'"
+                )
+            ret = pd.pivot_table(
+                data=tmp,
+                values='dose_response_value',
+                index='improve_drug_id',
+                columns='improve_sample_id'
+            )
+        return ret
+
     elif data_type == "combinations":
         raise NotImplementedError(
             f"'data_type' {data_type} is currently not implemented"
