@@ -4,6 +4,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
+import pickle
 import sys
 from typing import Literal
 
@@ -28,20 +29,27 @@ class Dataset:
 
     def __init__(
             self,
-            name: str,
+            name: str=None,
             transcriptomics: pd.DataFrame=None,
             proteomics: pd.DataFrame=None,
             mutations: pd.DataFrame=None,
             copy_number: pd.DataFrame=None,
             samples: pd.DataFrame=None,
             drugs: pd.DataFrame=None,
+            drug_descriptors: pd.DataFrame=None,
             mirna: pd.DataFrame=None,
             experiments: pd.DataFrame=None,
             methylation: pd.DataFrame=None,
             metabolomics: pd.DataFrame=None,
             genes: pd.DataFrame=None,
-            full: pd.DataFrame=None,
+            combinations: pd.DataFrame=None,
             ):
+        """
+        Load datasets of a specific type into predefined attributes of this class instance.
+
+        Each attribute will be a Pandas DataFrame corresponding to a file with the dataset prefix.
+        Attributes include transcriptomics, proteomics, mutations, etc.
+        """
         
         self.name = name
         self.transcriptomics = transcriptomics
@@ -50,12 +58,13 @@ class Dataset:
         self.copy_number = copy_number
         self.samples = samples
         self.drugs = drugs
+        self.drug_descriptors = drug_descriptors
         self.mirna = mirna
         self.experiments = experiments
         self.methylation = methylation
         self.metabolomics = metabolomics
         self.genes = genes
-        self.full = full
+        self.combinations = combinations
 
     
     #-----------------------------
@@ -155,6 +164,19 @@ class Dataset:
 
 
     @property
+    def drug_descriptors(self):
+        return self._drug_descriptors
+    
+    @drug_descriptors.setter
+    def drug_descriptors(self, value):
+        self._drug_descriptors = value
+
+    @drug_descriptors.deleter
+    def drug_descriptors(self):
+        del self._drug_descriptors
+
+
+    @property
     def mirna(self):
         return self._mirna
     
@@ -220,16 +242,16 @@ class Dataset:
 
 
     @property
-    def full(self):
-        return self._full
+    def combinations(self):
+        return self._combinations
     
-    @full.setter
-    def full(self, value):
-        self._full = value
+    @combinations.setter
+    def combinations(self, value):
+        self._combinations = value
 
-    @full.deleter
-    def full(self):
-        del self._full
+    @combinations.deleter
+    def combinations(self):
+        del self._combinations
 
     
     # ----------------------------
@@ -280,6 +302,11 @@ class Dataset:
         
         return data_types_present
     
+    def save(self, path: Path) -> None:
+
+        with open(path, 'wb') as f_path:
+            pickle.dump(self, file=f_path)
+
 
 
 # ---------------------------------------------------------------------
