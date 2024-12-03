@@ -439,16 +439,37 @@ def format(
         pass
     elif data_type == "experiments":
         pass
+    
     elif data_type == "combinations":
-        pass
+        raise NotImplementedError(
+            f"'data_type' {data_type} is currently not implemented"
+        )
+
     elif data_type == "drugs":
-        pass
+        if data.drugs is None:
+            raise ValueError(
+                "'drugs' attribute of Dataset cannot be 'None'"
+                )
+        ret = data.drugs
+    
     elif data_type == "genes":
-        pass
+        if data.genes is None:
+            raise ValueError(
+                "'genes' attribute of Dataset cannot be 'None'"
+                )
+        ret = data.genes
+    
     elif data_type == "samples":
-        pass
+        if data.samples is None:
+            raise ValueError(
+                "'samples' attribute of Dataset cannot be 'None'"
+                )
+        ret = data.samples
+    
     else:
-        pass
+        raise ValueError(
+            f"'data_type' contains unsupported value: '{data_type}'"
+            )
 
     return ret
 
