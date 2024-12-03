@@ -427,13 +427,13 @@ def format(
     elif data_type == "mutations":
         if data.mutations is None:
             raise ValueError(
-                "'mutations' attribute of Dataset cannot be 'None'"
+                f"'{data_type}' attribute of Dataset cannot be 'None'"
                 )
         mutation_type = kwargs.get('mutation_type', None)
         if mutation_type is None:
             raise ValueError(
                 "'mutation_type' must be defined if 'data_type'=='mutations'"
-                )
+            )
         tmp = data.mutations[
             data.mutations['variant_classification'] == mutation_type
             ]
@@ -447,7 +447,7 @@ def format(
     elif data_type == "proteomics":
         if data.proteomics is None:
             raise ValueError(
-                "'proteomics' attribute of Dataset cannot be 'None'"
+                f"'{data_type}' attribute of Dataset cannot be 'None'"
             )
         
         # TODO: currently assumes that the proteomics table is properly formatted
@@ -469,22 +469,22 @@ def format(
     elif data_type == "drugs":
         if data.drugs is None:
             raise ValueError(
-                "'drugs' attribute of Dataset cannot be 'None'"
-                )
+                f"'{data_type}' attribute of Dataset cannot be 'None'"
+            )
         ret = data.drugs
     
     elif data_type == "genes":
         if data.genes is None:
             raise ValueError(
-                "'genes' attribute of Dataset cannot be 'None'"
-                )
+                f"'{data_type}' attribute of Dataset cannot be 'None'"
+            )
         ret = data.genes
     
     elif data_type == "samples":
         if data.samples is None:
             raise ValueError(
-                "'samples' attribute of Dataset cannot be 'None'"
-                )
+                f"'{data_type}' attribute of Dataset cannot be 'None'"
+            )
         ret = data.samples
     
     else:
