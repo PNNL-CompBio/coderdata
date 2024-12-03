@@ -416,7 +416,23 @@ def format(
         pass
 
     elif data_type == "mutations":
-        pass
+        if data.mutations is None:
+            raise ValueError(
+                "'mutations' attribute of Dataset cannot be 'None'"
+                )
+        mutation_type = kwargs.get('mutation_type', None)
+        if mutation_type is None:
+            raise ValueError(
+                "'mutation_type' must be defined if 'data_type'=='mutations'"
+                )
+        tmp = data.mutations[
+            data.mutations['variant_classification'] == mutation_type
+            ]
+        ret = pd.crosstab(
+            index=tmp['entrez_id'],
+            columns=tmp['improve_sample_id']
+            )
+
     elif data_type == "copy_number":
         pass
     elif data_type == "proteomics":
