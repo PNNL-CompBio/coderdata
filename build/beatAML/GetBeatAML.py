@@ -468,6 +468,7 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
     mapped_df.insert(0, 'improve_sample_id', mapped_df.pop('improve_sample_id'))
     mapped_df['source'] = 'synapse'
     mapped_df['study'] = 'BeatAML'
+    mapped_df =mapped_df.drop_duplicates()
 
     final_dataframe = mapped_df.dropna()
     return final_dataframe
