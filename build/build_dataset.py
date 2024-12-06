@@ -41,6 +41,7 @@ def process_docker(dataset,validate):
         'hcmi': ['hcmi'],
         'beataml': ['beataml'],
         'mpnst': ['mpnst'],
+        'mpnstpdx': ['mpnstpdx'],
         'cptac': ['cptac'],
         'genes': ['genes'],
         'upload': ['upload']
@@ -121,7 +122,8 @@ def process_omics(executor, dataset, should_continue):
         'mpnst': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'broad_sanger': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'cptac': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
-        'hcmi': ['mutations', 'transcriptomics']
+        'hcmi': ['mutations', 'transcriptomics'],
+        'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics']
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])
@@ -216,7 +218,7 @@ def run_docker_validate_cmd(cmd_arr, all_files_dir, name):
     Wrapper for 'docker run' command used during validation and uploads.
     '''
     env = os.environ.copy()
-    docker_run = ['docker', 'run', '-v', f"{env['PWD']}/local/{all_files_dir}:/tmp"]
+    docker_run = ['docker', 'run', '-v', f"{env['PWD']}/local/{all_files_dir}:/tmp", '--platform=linux/amd64']
     docker_run.extend(['upload']) 
     docker_run.extend(cmd_arr)
     print('Executing:', ' '.join(docker_run))
@@ -256,7 +258,7 @@ def run_schema_checker(dataset):
             decompress_file(os.path.join('local', all_files_dir, file))
 
     # Run schema checker
-    schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
+    schema_check_command = ['python3', 'check_schema.py', '--datasets'] + datasets
     run_docker_validate_cmd(schema_check_command, all_files_dir, 'Validation')
 
 def main():

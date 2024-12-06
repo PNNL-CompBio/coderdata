@@ -107,10 +107,11 @@ def main():
     
     finaldf = pl.DataFrame(
         {
-            'source':['NCI60' for a in molar['improve_drug_id']], ##2024 build
+            'source':['NCI60_24' for a in molar['improve_drug_id']], ##2024 build
             'improve_sample_id':molar['improve_sample_id'],
             'Drug':molar['improve_drug_id'],
-            'study': molar['EXPID'],#['NCI60' for a in nonulls['improve_drug_id']],
+            # 'study': molar['EXPID'],#['NCI60' for a in nonulls['improve_drug_id']],
+            'study': "NCI60",
             'time':molar['time'],
             'time_unit':molar['time_unit'],
             'DOSE': [(10**a)*1000000 for a in molar['CONCENTRATION']], ##move from molar to uM to match pharmacoDB

@@ -1,4 +1,4 @@
-FROM r-base:4.3.3
+FROM r-base:4.3.2
 
 # Set environment to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -39,9 +39,9 @@ ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
 # Add necessary files to the container
-ADD build/mpnst/requirements.txt .
-ADD build/mpnst/requirements.r .
-ADD build/mpnst/* ./
+ADD build/mpnstpdx/requirements.txt .
+ADD build/mpnstpdx/requirements.r .
+ADD build/mpnstpdx/* ./
 ADD build/utils/* ./
 
 # installing python libraries

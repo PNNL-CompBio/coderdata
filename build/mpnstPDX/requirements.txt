@@ -1,0 +1,12 @@
+pyarrow
+pandas
+matplotlib
+numpy==1.26.4
+argparse
+tqdm
+scikit-learn
+scipy
+requests
+mordredcommunity
+rdkit
+statsmodels

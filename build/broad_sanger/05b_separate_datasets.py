@@ -4,7 +4,6 @@ import polars as pl
 
 
 def main():
-
     datasets_to_process = ["CCLE", "CTRPv2", "PRISM", "GDSCv1", "GDSCv2", "FIMM", "gCSI", "NCI60"]
     omics_datatypes = ["transcriptomics","proteomics", "copy_number","mutations"] # csv 
     samples_datatypes = ["samples"] #csv
