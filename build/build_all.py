@@ -10,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor
 import shutil
 import gzip
 from glob import glob
-from packaging import version
 import sys
     
 def main():
