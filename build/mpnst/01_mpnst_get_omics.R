@@ -46,21 +46,25 @@ manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
 ##they each get their own sample identifier
 pdx_data<-manifest|>dplyr::select(common_name,starts_with("PDX"))|>
     left_join(pdx_samps)|>
-    dplyr::select(improve_sample_id,common_name,model_type,RNASeq='PDX_RNASeq',Mutations='PDX_Somatic_Mutations',CopyNumber='PDX_CNV',Proteomics='PDX_Proteomics')
+    dplyr::select(improve_sample_id,common_name,model_type,RNASeq='PDX_RNASeq',Mutations='PDX_Somatic_Mutations',CopyNumber='PDX_CNV',Proteomics='PDX_Proteomics')|>
+        subset(!is.na(improve_sample_id)
 
 tumor_data<- manifest|>dplyr::select(common_name,starts_with("Tumor"))|>
     left_join(tumor_samps)|>
     dplyr::select(improve_sample_id,common_name,model_type,RNASeq='Tumor_RNASeq',Mutations='Tumor_Somatic_Mutations',CopyNumber='Tumor_CNV')|>
-    mutate(Proteomics='') ##we dont have tumor proteomics from these samples
+    mutate(Proteomics='')|>
+    subset(!is.na(improve_sample_id)
+           ##we dont have tumor proteomics from these samples
 #print(tumor_data)
 
 mt_data<- manifest|>dplyr::select(common_name,starts_with("PDX"))|>
     left_join(mt_samps)|>
-    dplyr::select(improve_sample_id,common_name,model_type, RNASeq='PDX_RNASeq',Mutations='PDX_Somatic_Mutations',CopyNumber='PDX_CNV',Proteomics='PDX_Proteomics')##we dont have mt data yet, so collecting PDX instead
+    dplyr::select(improve_sample_id,common_name,model_type, RNASeq='PDX_RNASeq',Mutations='PDX_Somatic_Mutations',CopyNumber='PDX_CNV',Proteomics='PDX_Proteomics')|>##we dont have mt data yet, so collecting PDX instead
+    subset(!is.na(improve_sample_id)
 #print(tumor_data)
 
 
-combined<-rbind(pdx_data,tumor_data)|>distinct()
+combined<-rbind(pdx_data,tumor_data,mt_data)|>distinct()
 
 # gene mapping table
 genes_df <- fread(genefile)

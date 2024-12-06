@@ -473,6 +473,7 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
     mapped_df['entrez_id'] = mapped_df['entrez_id'].astype(int)
     mapped_df['source'] = 'synapse'
     mapped_df['study'] = 'BeatAML'
+    mapped_df =mapped_df.drop_duplicates()
 
     final_dataframe = mapped_df.dropna()
     return final_dataframe
