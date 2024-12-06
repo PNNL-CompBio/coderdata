@@ -32,7 +32,7 @@ org_samps<-subset(samples_df,model_type=='organoid')
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
-                                                             as.data.frame()|>
+                                                             as.data.table()|>
                                                              dplyr::rename(common_name='Sample')
 
 

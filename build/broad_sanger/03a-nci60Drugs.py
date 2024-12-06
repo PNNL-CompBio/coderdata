@@ -39,7 +39,7 @@ def main():
     opts = parser.parse_args()
 
     ###primary DF
-    df = {'improve_drug_id':[],'chem_name':[],'canSMILES':[],'isoSMILES':[],\
+    df = {'improve_drug_id':[],'chem_name':[],'canSMILES':[],\
           'InChIKey':[],'formula':[],'weight':[],'pubchem_id':[]}
 
     print('Downloading NSC identifiers for nci60 data')
@@ -69,7 +69,7 @@ def main():
         upper=[a.upper() for a in smiles['SMILES']]
         smiles= pl.DataFrame({'NSC':smiles['NSC'],'upper':upper})#smiles.with_columns(upper=upper)
         ##reduce to smiels only in current drugs
-        ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['isoSMILES']))
+        # ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['isoSMILES']))
         ssmiles = ssmiles.filter(~pl.col('upper').is_in(curdrugs['canSMILES']))
         pubchems = pubchems.filter(pl.col('NSC').is_in(ssmiles['NSC']))
         arr = set(pubchems['CID'])
@@ -102,7 +102,7 @@ def main():
         {
             "improve_drug_id": ["SMI_"+str(a) for a in range(max_imp+1,max_imp+1+smicount,1)],
             'canSMILES': [a for a in set(mdf['SMILES'])],
-            'isoSMILES': [a for a in set(mdf['SMILES'])],
+            # 'isoSMILES': [a for a in set(mdf['SMILES'])],
             'InChIKey': [None for a in range(smicount)],
             'formula': [None for a in range(smicount)],
             'weight': [None for a in range(smicount)]

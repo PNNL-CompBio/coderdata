@@ -40,8 +40,9 @@ This process does not map sample identifers with previous data versions and is o
    `mpnst_samples.csv` file. This pulls from the latest synapse
    project metadata table.
    ```
+
    docker run -v "$PWD/local":/tmp -e SYNAPSE_AUTH_TOKEN=$SYNAPSE_AUTH_TOKEN mpnst bash build_samples.sh [Previous Samples file or Empty Quotes ("")]
-   ```
+
 
 4. Pull the data and map it to the samples. This uses the metadata
    table pulled above.

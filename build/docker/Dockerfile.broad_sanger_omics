@@ -34,7 +34,8 @@ ADD build/broad_sanger/build_samples.sh ./
 ADD build/broad_sanger/build_omics.sh ./
 ADD build/utils/* ./
 ADD build/broad_sanger/build_misc.sh ./
-ADD build/broad_sanger/05_separate_datasets.py ./
+ADD build/broad_sanger/05a_remove_problem_drugs.py ./
+ADD build/broad_sanger/05b_separate_datasets.py ./
 
 ADD build/broad_sanger/requirements.txt .
 ADD build/broad_sanger/omics_requirements.r .

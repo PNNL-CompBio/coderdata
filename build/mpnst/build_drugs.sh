@@ -1,7 +1,7 @@
 #!/bin/bash
-set -euo pipefail
+#set -euo pipefail
 
-trap 'echo "Error on or near line $LINENO while executing: $BASH_COMMAND"; exit 1' ERR
+#trap 'echo "Error on or near line $LINENO while executing: $BASH_COMMAND"; exit 1' ERR
 
 echo "Running 02_get_drug_data.R with /tmp/mpnst_drugs.tsv and $1."
 Rscript 02_get_drug_data.R /tmp/mpnst_drugs.tsv $1
