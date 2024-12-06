@@ -120,6 +120,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
             'hcmi': ['hcmi'],
             'beataml': ['beataml'],
             'mpnst': ['mpnst'],
+            'mpnst': ['mpnstpdx'],
             'cptac': ['cptac'],
             'genes': ['genes'],
             'upload': ['upload']
