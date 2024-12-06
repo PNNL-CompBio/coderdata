@@ -380,11 +380,15 @@ def main():
                     dat_files[dtype_key] = fdf2
                 else:
                     dat_files[dtype_key] = fdf.dropna()
+                
                 print(dtype_key)
 
         # Now concatenate all the cancers into a single file
         for dtype_key, df in dat_files.items():
             print('Saving ' + "cptac_" + dtype_key + '.csv.gz' + ' file')
+            print(df.to_string())
+            df['entrez_id'] = df['entrez_id'].fillna(0)
+            df['entrez_id'] = df['entrez_id'].astype(int)
             df.to_csv("/tmp/" + "cptac_" + dtype_key + '.csv.gz', sep=',', index=False, compression='gzip')
 
 if __name__ == '__main__':
