@@ -70,7 +70,7 @@ def main():
         smiles= pl.DataFrame({'NSC':smiles['NSC'],'upper':upper})#smiles.with_columns(upper=upper)
         ##reduce to smiels only in current drugs
         # ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['isoSMILES']))
-        ssmiles = ssmiles.filter(~pl.col('upper').is_in(curdrugs['canSMILES']))
+        ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['canSMILES']))
         pubchems = pubchems.filter(pl.col('NSC').is_in(ssmiles['NSC']))
         arr = set(pubchems['CID'])
         
