@@ -40,7 +40,7 @@ Upload the latest data to Figshare and PyPI (ensure tokens are set in the local 
     parser.add_argument('--pypi', action='store_true', help="Update PYPI Package with latest Figshare data. PYPI_TOKEN must be set in local environment.")
     parser.add_argument('--all',dest='all',default=False,action='store_true', help="Run all data build commands. This includes docker, samples, omics, drugs, exp arguments. This does not run the validate, figshare, or pypi commands.")
     parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true',help = "If you have 32 or more CPUs, this option is recommended. It will run many code portions in parallel. If you don't have enough memory, this will cause a run failure.")
-    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,cptac,mpnst,mpnstpdx,',help='Datasets to process. Defaults to all available.')
+    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,cptac,mpnst,mpnstpdx',help='Datasets to process. Defaults to all available.')
     parser.add_argument('--version', type=str, required=False, help='Version number for the PyPI package and Figshare upload title (e.g., "0.1.29"). This is required for Figshare and PyPI upload. This must be a higher version than previously published versions.')
     parser.add_argument('--github-username', type=str, required=False, help='GitHub username for the repository.')
     parser.add_argument('--github-email', type=str, required=False, help='GitHub email for the repository.')
