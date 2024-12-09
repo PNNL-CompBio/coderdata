@@ -467,10 +467,10 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
                          how='left')
     mapped_df.insert(0, 'improve_sample_id', mapped_df.pop('improve_sample_id'))
     
-    print(mapped_df.to_string())
-    mapped_df['improve_sample_id'] = mapped_df['improve_sample_id'].astype(int)
-    mapped_df['entrez_id'] = mapped_df['entrez_id'].fillna(0)
-    mapped_df['entrez_id'] = mapped_df['entrez_id'].astype(int)
+    # Replace NaNs, round values, and convert to integers for specified columns
+    columns_to_convert = ['improve_sample_id', 'entrez_id']
+    mapped_df[columns_to_convert] = mapped_df[columns_to_convert].fillna(0).round().astype('int32')
+    
     mapped_df['source'] = 'synapse'
     mapped_df['study'] = 'BeatAML'
     mapped_df =mapped_df.drop_duplicates()
