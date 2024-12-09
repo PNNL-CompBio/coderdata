@@ -522,6 +522,36 @@ def format(
             f"'data_type' {data_type} is currently not implemented"
         )
 
+    elif data_type == "drug_descriptor":
+        if data.drug_descriptors is None:
+            raise ValueError(
+                f"'{data_type}' attribute of Dataset cannot be 'None'"
+            )    
+        shape = kwargs.get('shape', 'long')
+        legal_shapes = ['long', 'wide']
+        if shape not in legal_shapes:
+            raise ValueError(
+                f"'shape' has to be one of '{legal_shapes}'"
+            )
+        type = kwargs.get('type', None)
+
+        if type is None:
+            tmp = data.drug_descriptors
+        else:
+            # TODO: potentially allow for list of columns to retain
+            tmp = data.drug_descriptors[
+                data.drug_descriptors['structural_descriptor'] == type
+                ]
+        if shape == 'long':
+            ret = tmp
+        else:
+            ret = tmp.pivot(
+                index = 'improve_drug_id',
+                columns = 'structural_descriptor',
+                values = 'descriptor_value'
+            )
+
+
     elif data_type == "drugs":
         if data.drugs is None:
             raise ValueError(
