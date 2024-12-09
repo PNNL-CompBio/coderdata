@@ -434,12 +434,16 @@ def format(
             raise ValueError(
                 "'mutation_type' must be defined if 'data_type'=='mutations'"
             )
-        tmp = data.mutations[
+        tmp = deepcopy(data.mutations[
             data.mutations['variant_classification'] == mutation_type
-            ]
-        ret = pd.crosstab(
-            index=tmp['entrez_id'],
-            columns=tmp['improve_sample_id']
+            ])
+        tmp['exists'] = 1
+        ret = pd.pivot_table(
+            data=tmp,
+            index='entrez_id',
+            columns='improve_sample_id',
+            values='exists',
+            fill_value=0,
             )
 
     elif data_type == "copy_number":
@@ -463,7 +467,6 @@ def format(
                 f"'{data_type}' attribute of Dataset cannot be 'None'"
             )
         
-        # TODO: currently assumes that the proteomics table is properly formatted
         ret = pd.pivot_table(
             data=data.proteomics,
             values='proteomics',
