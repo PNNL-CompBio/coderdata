@@ -443,7 +443,20 @@ def format(
             )
 
     elif data_type == "copy_number":
-        pass
+        if data.copy_number is None:
+            raise ValueError(
+                f"'{data_type}' attribute of Dataset cannot be 'None'"
+            )
+        
+        # TODO: add way to extract copy_call
+        ret = pd.pivot_table(
+            data=data.copy_number,
+            index='entrez_id',
+            columns='improve_sample_id',
+            values='copy_number',
+            aggfunc='mean',
+            )
+
     elif data_type == "proteomics":
         if data.proteomics is None:
             raise ValueError(
