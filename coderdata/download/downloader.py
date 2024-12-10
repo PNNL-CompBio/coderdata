@@ -1,8 +1,15 @@
 # coderdata/download/downloader.py
 
+from pathlib import Path
+from os import PathLike
+import os
 import requests
 
-def download_data_by_prefix(dataset_prefix=None):
+def download(
+        name: str=None,
+        local_path: PathLike=Path.cwd(),
+        exist_ok: bool=False
+        ):
     """
     Download the most recent version of files from a Figshare dataset, filtered by a specific prefix or all files.
 
