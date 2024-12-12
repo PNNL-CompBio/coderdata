@@ -1,3 +1,7 @@
+"""
+_summary_
+
+"""
 
 from __future__ import annotations
 
@@ -11,6 +15,7 @@ from typing import Literal
 import numpy as np
 from numpy.random import RandomState
 import pandas as pd
+# import polars as pl
 
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.model_selection import ShuffleSplit
@@ -26,6 +31,25 @@ class Split:
 
 
 class Dataset:
+
+    data_format_params = {
+        "samples": (
+            "improve_sample_id", "cancer_type", "model_type", "common_name",
+            "other_id", "other_names", "id_source", "species"
+            ),
+        "transcriptomics": (
+            "improve_sample_id", "entrez_id", "transcriptomics"
+            ),
+        "proteomics": ("improve_sample_id", "entrez_id", "proteomics"),
+        "mutations": ("improve_sample_id", "entrez_id", "mutation"),
+        "copy_number": ("improve_sample_id", "entrez_id", "copy_number"),
+        "methylation": ("improve_sample_id", "entrez_id", "methylation"),
+        "experiments": (
+            "improve_sample_id", "improve_drug_id", "dose_response_value"
+            ),
+        "drugs": ("improve_drug_id", "chem_name", "isoSMILES"),
+        "genes": ("entrez_id", "gene_symbol", "other_id")
+        }
 
     def __init__(
             self,
@@ -49,6 +73,35 @@ class Dataset:
 
         Each attribute will be a Pandas DataFrame corresponding to a file with the dataset prefix.
         Attributes include transcriptomics, proteomics, mutations, etc.
+
+        Parameters
+        ----------
+        name : str
+            The name of the dataset that is stored in the object
+        transcriptomics : pd.DataFrame, optional
+            _description_, by default None
+        proteomics : pd.DataFrame, optional
+            _description_, by default None
+        mutations : pd.DataFrame, optional
+            _description_, by default None
+        copy_number : pd.DataFrame, optional
+            _description_, by default None
+        samples : pd.DataFrame, optional
+            _description_, by default None
+        drugs : pd.DataFrame, optional
+            _description_, by default None
+        mirna : pd.DataFrame, optional
+            _description_, by default None
+        experiments : pd.DataFrame, optional
+            _description_, by default None
+        methylation : pd.DataFrame, optional
+            _description_, by default None
+        metabolomics : pd.DataFrame, optional
+            _description_, by default None
+        genes : pd.DataFrame, optional
+            _description_, by default None
+        full : pd.DataFrame, optional
+            _description_, by default None
         """
         
         self.name = name
@@ -70,6 +123,11 @@ class Dataset:
     #-----------------------------
     # getters / setters & deleters
     # ----------------------------
+
+
+    @property
+    def data_format_params(self):
+        return self._data_format_params
 
 
     @property
@@ -451,8 +509,8 @@ def format(
             raise ValueError(
                 f"'{data_type}' attribute of Dataset cannot be 'None'"
             )
+        copy_call = kwargs.get('copy_call', False)
         
-        # TODO: add way to extract copy_call
         ret = pd.pivot_table(
             data=data.copy_number,
             index='entrez_id',
@@ -460,6 +518,14 @@ def format(
             values='copy_number',
             aggfunc='mean',
             )
+        if copy_call:
+            ret = ret.apply(
+                pd.cut,
+                bins = [0, 0.5210507, 0.7311832, 1.214125, 1.422233, 2],
+                labels = ['deep del', 'het loss', 'diploid', 'gain', 'amp'],
+                include_lowest=True
+            )
+
 
     elif data_type == "proteomics":
         if data.proteomics is None:
@@ -918,6 +984,7 @@ def train_test_validate(
     data_val = _filter(data, df_val)
     
     return Split(data_train, data_test, data_val)
+
 
 
 def _load_file(file_path: Path) -> pd.DataFrame:
