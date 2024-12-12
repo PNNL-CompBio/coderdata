@@ -4,6 +4,7 @@ from pathlib import Path
 from os import PathLike
 import os
 import requests
+import warnings
 
 def download(
         name: str=None,
@@ -86,7 +87,7 @@ def download(
         with requests.get(file_url, stream=True) as r:
             r.raise_for_status()
             if file_name.exists() and not exist_ok:
-                os.warn(
+                warnings.warn(
                     f"{file_name} already exists. Use argument 'exist_ok=True'"
                     "to overwrite existing file."
                     )
