@@ -18,3 +18,4 @@ except ImportError:
     __version_tuple__ = (0, 1, 40)
 
 from .utils.utils import version
+from .utils.utils import list_datasets
