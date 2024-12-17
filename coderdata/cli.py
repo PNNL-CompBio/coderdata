@@ -1,5 +1,5 @@
 import argparse
-from .download.downloader import download_data_by_prefix
+from .download.downloader import download
 
 def main():
     parser = argparse.ArgumentParser(prog='coderdata')
@@ -9,7 +9,7 @@ def main():
     parser_download = subparsers.add_parser('download', help='Download datasets')
     parser_download.add_argument('--prefix', type=str, default=None,
                                  help='Prefix of the dataset to download (e.g., "hcmi"), "all", or leave empty for all files.')
-    parser_download.set_defaults(func=download_data_by_prefix)
+    parser_download.set_defaults(func=download)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):

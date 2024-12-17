@@ -1,6 +1,6 @@
 # tests/test_download_beataml.py
 
-from coderdata.download.downloader import download_data_by_prefix
+from coderdata.download.downloader import download
 from coderdata.load.loader import DatasetLoader
 import os
 import glob
@@ -9,7 +9,7 @@ import pandas as pd
 def test_download_data_beataml():
 
     #BeatAML
-    download_data_by_prefix('beataml')
+    download('beataml')
     
     beataml_drugs = glob.glob('beataml_drugs*')
     assert len(beataml_drugs) > 0, "File beataml_drugs  does not exist."

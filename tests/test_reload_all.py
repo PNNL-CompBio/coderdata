@@ -4,11 +4,11 @@
 import pandas as pd
 import os
 from coderdata.load.loader import DatasetLoader
-from coderdata.download import download_data_by_prefix
+from coderdata.download import download
 
 
 def test_reload_all_datasets():
-    download_data_by_prefix("hcmi")
+    download("hcmi")
     loader = DatasetLoader("hcmi")
     
     # Ensure the datasets are initially empty
