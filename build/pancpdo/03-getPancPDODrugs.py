@@ -1,13 +1,14 @@
 import pandas as pd
 import os
 import argparse
-
+import synapseclient
 
 
 
 ###figshare link:
 
 filelink='https://aacr.figshare.com/ndownloader/files/39996295'
+synid = 'syn64333325'
 ##get third tab and drugsa re listeda cross top
 
 
