@@ -602,14 +602,16 @@ def format(
             raise ValueError(
                 f"'shape' has to be one of '{legal_shapes}'"
             )
-        type = kwargs.get('type', None)
+        drug_descriptor_type = kwargs.get('drug_descriptor_type', None)
 
-        if type is None:
+        if drug_descriptor_type is None:
             tmp = data.drug_descriptors
         else:
             # TODO: potentially allow for list of columns to retain
             tmp = data.drug_descriptors[
-                data.drug_descriptors['structural_descriptor'] == type
+                data.drug_descriptors[
+                    'structural_descriptor'
+                    ] == drug_descriptor_type
                 ]
         if shape == 'long':
             ret = tmp
