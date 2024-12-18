@@ -474,15 +474,15 @@ def copy_num(arr):
 
         if math.isnan(a):
             return float('nan')
-        
-        a_val = math.log2(float(a)+0.000001) ###this should not be exponent, should be log!!! 2**float(a)
-        if a_val < 0.0: #0.5210507:
+
+        a_val = math.log2(float(a)+0.000001)
+        if a_val < 0.5210507:
             return 'deep del'
         elif a_val < 0.7311832:
             return 'het loss'
         elif a_val < 1.214125:
             return 'diploid'
-        elif a_val < 1.731183:
+        elif a_val < 1.422233:
             return 'gain'
         else:
             return 'amp'
