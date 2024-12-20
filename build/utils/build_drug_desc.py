@@ -64,6 +64,7 @@ def smiles_to_mordred(smiles,nproc=2):
     ##reformat here
     longtab = pd.melt(dd,id_vars='smile',value_vars=values)
     longtab = longtab.rename({'variable':'structural_descriptor','value':'descriptor_value'},axis=1)
+    
     return longtab
 
 def main():
@@ -82,16 +83,24 @@ def main():
     cansmiles = [a for a in set(tab.canSMILES) if str(a)!='nan']
     #    isosmiles = list(set(tab.isoSMILES))
     morgs = smiles_to_fingerprint(cansmiles)
-#    print(morgs)
+
     ids = pd.DataFrame(tab[['improve_drug_id','canSMILES']]).drop_duplicates()
-#    print(ids)
+
     id_morg = ids.rename({"canSMILES":'smile'},axis=1).merge(morgs)[['improve_drug_id','structural_descriptor','descriptor_value']]
 
     mords = smiles_to_mordred(cansmiles,nproc=ncors)
     
     id_mord = ids.rename({'canSMILES':'smile'},axis=1).merge(mords)[['improve_drug_id','structural_descriptor','descriptor_value']]
     
-    full = pd.concat([id_morg,id_mord],axis=0)                     
+    full = pd.concat([id_morg,id_mord],axis=0)    
+    
+    # Convert any values that contain the following strings to NA. I think this covers all of the cases, but add here if more are found.
+    strings_to_replace = ["min", "max", "invalid", "multiple", "missing"]
+    pattern = '|'.join(strings_to_replace)
+    full['descriptor_value'] = full['descriptor_value'].astype(str)
+    full.loc[full['descriptor_value'].str.contains(pattern, case=False, na=False), 'descriptor_value'] = "NaN"
+
+
     full.to_csv(args.outtable,sep='\t',index=False,compression='gzip')
 
 if __name__=='__main__':
