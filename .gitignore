@@ -18,3 +18,4 @@ tests/__pycache__
 dist
 build/lib
 build/local
+local/
