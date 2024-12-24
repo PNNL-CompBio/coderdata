@@ -12,3 +12,6 @@ pyarrow
 polars-lts-cpu==0.19.17 
 PyYAML
 numpy
+rdkit
+mordredcommunity
+
