@@ -6,6 +6,7 @@ COPY build/pancpdo/01-createPancPDOSamplesFile.py .
 COPY build/pancpdo/02-getPancPDOData.py .
 COPY build/pancpdo/03-getPancPDODrugs.py .
 COPY build/pancpdo/04-getPancPDOExperiments.py .
+COPY build/pancpdo/05-addPrecalcAUC.py .
 COPY build/pancpdo/full_manifest.txt .
 COPY build/pancpdo/requirements.txt .
 COPY build/pancpdo/*sh ./
