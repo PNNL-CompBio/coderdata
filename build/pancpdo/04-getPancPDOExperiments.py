@@ -5,7 +5,7 @@ import wget
 import argparse
 import synapseclient as sc
 import math
-
+import re
 
 def main():
     ##current AUC values are here: https://aacr.figshare.com/ndownloader/files/39996295 tabs 2 and 3
@@ -17,14 +17,17 @@ def main():
 
     args = parser.parse_args()
     newdata = get_data(args.pat)
-    newdata = newdata.rename(columns={'Organoid':'other_id','Drug':'chem_name','Dose':'DOSE','FracResponse':'GROWTH','Passage':'time'})
+    newdata = newdata.rename(columns={'Organoid':'other_id','Drug':'chem_name','Dose':'DOSE','PercResponse':'GROWTH','Passage':'time'})
+#    print(newdata)
     newdata = newdata[['other_id','chem_name','DOSE','GROWTH']]
     newdata[['time']]='120'
     newdata[['time_unit']]='hours'
     newdata[['study']]='pancpdo'
     newdata[['source']]='TiriacEtAl2018'
+    print('collected doses and response for '+str(len(set(newdata.chem_name)))+' drugs and '+str(len(set(newdata.other_id)))+' samples')
 #    'source', 'improve_sample_id', 'Drug', 'study','time','time_unit'
-    mappedresponse = map_drugs_to_samps(newddata,args.drugs,args,samples)
+    mappedresponse = map_to_drugs_samps(newdata,args.drugs,args.samples)
+    print('mapped doses and response for '+str(len(set(mappedresponse.Drug)))+' drugs and '+str(len(set(mappedresponse.improve_sample_id)))+' samples')
     mappedresponse.to_csv(args.output, sep='\t', index=False)
 
 def map_to_drugs_samps(dose_rep,drugfile,sampfile):
@@ -35,8 +38,10 @@ def map_to_drugs_samps(dose_rep,drugfile,sampfile):
     samps = pd.read_csv(sampfile)
 
     merged = dose_rep.merge(drugs).merge(samps)
-    merged = merged[['improve_sample_id','improve_drug_id','DOSE','GROWTH','time','time_unit','study','source']]
-    merged = merged.rename(columns={'improve_drug_id':'Drug'})
+
+    merged = merged.rename(columns={'improve_drug_id':'Drug'}) 
+    merged = merged[['improve_sample_id','Drug','DOSE','GROWTH','time','time_unit','study','source']].drop_duplicates()
+    print(merged)
     return merged
 
 def get_data(token):
@@ -72,10 +77,13 @@ def get_data(token):
 
     
     ##now melt the data into single columns
-    rtab = responses.melt(id_vars = responses.columns[0:4],value_vars=responses.columns[4:10], var_name='Drug',value_name='Response')
-    
+    rtab = responses.melt(id_vars = responses.columns[0:4],value_vars=responses.columns[4:20], var_name='Drug',value_name='Response')
+    print('Collected results from '+str(len(set(rtab.Drug)))+' drugs and '+str(len(set(rtab.Organoid)))+' organoids')
+    #print(set(rtab.Drug))
     ##rename the drugs
     rtab[['Drug','Rep']]=rtab['Drug'].str.lower().str.split('.',expand=True)
+    rtab.Drug=[re.sub('-','',a) for a in rtab.Drug]
+    #print(set(rtab.Drug))
     newrep=[]
     for r in rtab.Rep:
         if r is None:
@@ -94,12 +102,16 @@ def get_data(token):
     ##dosenum isa dummy value to use for merging since we need to repeat the concentrations over and over
     dosenum = [a for a in range(15)]
     rtab['Dosenum']=dosenum*int(rtab.shape[0]/15)
-               
+
+    #print(set(rtab.Drug))
     ##merge the concentrations
     concs = concs.dropna().melt(value_vars=concs.columns,var_name='Drug',value_name='Dose')
+    print(concs)
+    concs.Dose = [d*10.0**6.0 for d in concs.Dose] ## convert M to uM here
+    
     concs.Drug=concs.Drug.str.lower()
     concs['Dosenum'] = dosenum*int(concs.shape[0]/15)##creating dosenum here to merge
-
+    #print(set(concs.Drug))
     
     return rtab.merge(concs)
 

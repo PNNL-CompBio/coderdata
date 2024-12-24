@@ -98,7 +98,7 @@ def process_drugs(executor, dataset, use_prev_dataset, should_continue):
     '''
     Build the drugs file for the specified dataset.
     '''
-    if dataset in ['cptac', 'hcmi','pancpdo']:
+    if dataset in ['cptac', 'hcmi']:
         return  # No drugs to process for these datasets
 
     drugs_file = f'local/{dataset}_drugs.tsv'
@@ -166,7 +166,7 @@ def process_experiments(executor, dataset, should_continue):
     '''
     Build the experiments files for the specified dataset.
     '''
-    if dataset in ['cptac', 'hcmi','pancpdo']:
+    if dataset in ['cptac', 'hcmi']:
         return  # No experiments to process for these datasets
 
     experiments_file = f'local/{dataset}_experiments.tsv'

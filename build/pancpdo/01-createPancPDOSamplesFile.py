@@ -5,6 +5,28 @@ import argparse
 import numpy as np
 
 
+#this is table S1 - it has a mapping from patient number to organoid
+sample_mapping='https://aacr.silverchair-cdn.com/aacr/content_public/journal/cancerdiscovery/8/9/10.1158_2159-8290.cd-18-0349/5/21598290cd180349-sup-199398_2_supp_4775186_p95dln.xlsx?Expires=1738004990&Signature=yngaaKNaXfIPCr-xLS2bDjX49n9py8JC7NBwi3q7m7ARYnK573eZwavFYmJOZVanL555vUWAr5x5k9b7IKj4VWHtZ-dts7BDzHd14AZh15LbsorJh-r3gjPliF7v1PIoAcGnEXjma2~kosmoDmyK0EDWXQCOE48tAaG5hFtaWAMMAINRMeBNgtDYk937Npc3Wb0IcGAdlgD2TJd8KJW2jQmcRspY1hfYssiS3BcWzuJrP-DVJeb-1V7-BnVNL6cVCkr7zHhau50H6aVgMVzk33F0gjCphl4r90OIx9UwE59hyNHbN9rFeeW26kDQpgCQKCj98Ol6CNQfLDsb2Zc5dQ__&Key-Pair-Id=APKAIE5G5CRDK6RD3PGA'
+
+
+def get_organoid_samples(sample_tab):
+    '''
+    takes as input a processed list of samples from HCMI and appends it with the 'organoid' identifier from the papers table S1 described above
+    '''
+    map = pd.read_excel(sample_mapping, sheet_name='Patient-Derived Organoid Cohort', skiprows=1)
+    pmap = map[['Patient number','Organoid']]
+    pmap = pmap.rename(columns={'Patient number':'common_name','Organoid':'experimentId'})
+    
+    #join with sampletab
+    sample_tab.common_name=[str(a) for a in sample_tab.common_name]
+    pmap.common_name = [str(a) for a in pmap.common_name]
+    ocols=['common_name','other_names','model_type','cancer_type','improve_sample_id','species']
+    red_tab = sample_tab[ocols].merge(pmap)
+    
+    #then add in organoid number
+    newsamp = red_tab.melt(id_vars=ocols,value_vars='experimentId',var_name='other_id_source',value_name='other_id').drop_duplicates()
+    res = pd.concat([sample_tab,newsamp])
+    return res
 
 def align_to_linkml_schema(input_df):
     """
@@ -320,6 +342,7 @@ def main():
     output = filter_and_subset_data(df,maxval,args.map)
     aligned = align_to_linkml_schema(output)
     print(aligned)
+    aligned = get_organoid_samples(aligned)
     aligned.to_csv("/tmp/pancpdo_samples.csv",index=False)
  
 main()
