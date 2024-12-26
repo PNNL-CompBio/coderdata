@@ -12,6 +12,8 @@ table](https://www.synapse.org/Synapse:syn61894699/tables/)
 
 ## Omics data
 
+Omics data is spread across three synapse instances. 
+
 ## Drug information
 
 ## Experimental measurements
