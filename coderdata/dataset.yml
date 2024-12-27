@@ -1,3 +1,4 @@
+figshare: "https://api.figshare.com/v2/articles/26409316"
 version: "v0.1.4"
 datasets:
   beataml:
