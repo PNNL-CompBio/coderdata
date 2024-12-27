@@ -43,11 +43,11 @@ def list_datasets(raw: bool=False) -> dict | None:
         Returns a dict containing the information if ``raw==True``,
         otherwise prints information to stdout and returns `None`.
     """
-    with resources.open_text('coderdata', 'datasets.yml') as f:
-        datasets = yaml.load(f, Loader=yaml.FullLoader)
+    with resources.open_text('coderdata', 'dataset.yml') as f:
+        data_information = yaml.load(f, Loader=yaml.FullLoader)
     if raw:
-        return datasets
+        return data_information['datasets']
     else:
-        datasets = datasets['datasets']
-        for dataset in datasets:
-            print(f'{dataset}: "{datasets[dataset]['description']}"')
+        datasets = data_information['datasets']
+        for dataset in data_information:
+            print(f'{dataset}: "{data_information[dataset]['description']}"')
