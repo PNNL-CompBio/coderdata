@@ -19,9 +19,14 @@ def version() -> dict:
     dict
         Contains package and dataset build version.
     """
+    with resources.open_text('coderdata', 'dataset.yml') as f:
+        data_information = yaml.load(f, Loader=yaml.FullLoader)
     return {
         'package' : __version__,
-        'dataset' : f"{__version_tuple__[0]}.{__version_tuple__[1]}"
+        # getting the dataset version from 'dataset.yml'
+        'dataset' : data_information['version'],
+        # exprapolating the dataset version from the api version number
+        # 'dataset' : f"{__version_tuple__[0]}.{__version_tuple__[1]}"
         }
 
 
