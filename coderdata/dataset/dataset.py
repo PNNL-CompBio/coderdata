@@ -386,7 +386,7 @@ class Dataset:
 
 def load(
         name: str,
-        directory: str|Path=Path.cwd(),
+        local_path: str|Path=Path.cwd(),
         from_pickle:bool=False
         ) -> Dataset:
     """
@@ -411,28 +411,33 @@ def load(
     TypeError
         _description_
     """
-    print("Processing Data...", file=sys.stderr)
 
-    if type(directory) is not Path:
+    if type(local_path) is not Path:
         try:
-            directory = Path(directory)
-            if not directory.exists():
+            local_path = Path(local_path)
+            if not local_path.exists():
                 raise OSError(
-                    f"Given path / directory does not exist: '{directory}'"
+                    f"Given path / directory does not exist: '{local_path}'"
                 )
         except TypeError:
             raise TypeError(
-                f"Invalid path / directory defined: '{directory}'"
+                f"Invalid path / directory defined: '{local_path}'"
             )
 
 
     if not from_pickle:
         dataset = Dataset(name)
         accepted_file_endings = ('.csv', '.tsv', '.csv.gz', '.tsv.gz')
-        for child in directory.iterdir():
+        print(f"Importing raw data ...", file=sys.stderr)
+        for child in local_path.iterdir():
             if child.name in ["genes.csv", "genes.csv.gz"]:
+                print(
+                    f"Importing 'genes' from {child} ...",
+                    end=' ',
+                    file=sys.stderr
+                    )
                 dataset.genes = _load_file(child)
-                print("Loaded genes dataset.", file=sys.stderr)
+                print("DONE", file=sys.stderr)
 
             if (
                 child.name.startswith(name)
@@ -440,21 +445,28 @@ def load(
                 ):
 
                 dataset_type = child.name[len(name)+1:].split('.')[0]
-                print(dataset_type)
+                print(
+                    f"Importing '{dataset_type}' from {child} ...",
+                    end=' ',
+                    file=sys.stderr
+                    )
                 if hasattr(dataset, dataset_type):
                     setattr(dataset, dataset_type, _load_file(child))
-
+                    print("DONE", file=sys.stderr)
+        print(f"Importing raw data ... DONE", file=sys.stderr)
         return dataset
 
     else:
         accepted_file_endings = ('.pkl', '.pickle')
-        for child in directory.iterdir():
+        for child in local_path.iterdir():
             if (
                 child.name.startswith(name)
                 and child.name.endswith(accepted_file_endings)
                 ):
+                print(f"Importing pickled data ...", end=' ', file=sys.stderr)
                 with open(child, 'rb') as file:
                     dataset = pickle.load(file=file)
+                print("DONE", file=sys.stderr)
                 return dataset
 
 
@@ -1004,7 +1016,6 @@ def _load_file(file_path: Path) -> pd.DataFrame:
 
 
 def _determine_delimiter(file_path):
-    print(file_path.suffixes)
     if '.tsv' in file_path.suffixes:
         return '\t'
     else:
