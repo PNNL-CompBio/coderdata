@@ -2,7 +2,7 @@ FROM python:3.9
 
 WORKDIR /usr/src/app
 
-RUN python -m pip install --upgrade pip setuptools wheel twine packaging pyyaml requests linkml
+RUN python -m pip install --upgrade pip pyyaml requests linkml
 
 RUN apt-get update && apt-get install -y git
 
