@@ -8,11 +8,11 @@ import shutil
 from collections import defaultdict
 
 
-##### Load, make structure, save functions for improve_mapping.json
+##### Load, make structure, save functions for improve_sample_mapping.json
 
-def load_mapping(mapping_file='improve_mapping.json'):
+def load_mapping(mapping_file='improve_sample_mapping.json'):
     """
-    Loads an existing improve_mapping.json if available.
+    Loads an existing improve_sample_mapping.json if available.
     Otherwise returns an empty base structure with metadata and samples.
     """
     if os.path.exists(mapping_file):
@@ -26,17 +26,16 @@ def load_mapping(mapping_file='improve_mapping.json'):
             "samples": []
         }, False
 
-def save_mapping(mapping_data, mapping_file='improve_mapping.json'):
+def save_mapping(mapping_data):
     """Saves mapping data to disk as JSON."""
+    mapping_file='/tmp/improve_sample_mapping.json'
     with open(mapping_file, 'w') as f:
         json.dump(mapping_data, f, indent=2)
 
-def get_current_build_metadata(build_date, git_commit, description, version):
+def get_current_build_metadata(build_date, version):
     """Returns dict describing current build metadata."""
     return {
         "build_date": build_date,
-        "git_commit": git_commit,
-        "description": description,
         "version": version
     }
     
@@ -117,7 +116,7 @@ def generate_new_stable_id(samples_list):
         return "1"
 
 
-##### Assign stable ID based on improve_sample_id, triplet, and previous improve_mapping.json file
+##### Assign stable ID based on improve_sample_id, triplet, and previous improve_sample_mapping.json file
 
 
 def unify_samples(mapping_data, all_samples_rows, current_build_metadata):
@@ -125,7 +124,7 @@ def unify_samples(mapping_data, all_samples_rows, current_build_metadata):
     Assign stable IDs to samples based on triplet overlaps.
 
     Parameters:
-        mapping_data: existing mapping data loaded from improve_mapping.json
+        mapping_data: existing mapping data loaded from improve_sample_mapping.json
         all_samples_rows: list of row dicts from the new build's samples CSVs
         current_build_metadata: dict containing build_date, version, etc.
 
@@ -403,40 +402,36 @@ def rewrite_other_file(file_path, sample_id_mapping, datasets=None):
 def main():
     parser = argparse.ArgumentParser(description="""
 Use triplet overlaps to assign stable IDs across builds.
-In the first build, generate improve_mapping.json without rewriting files.
+In the first build, generate improve_sample_mapping.json without rewriting files.
 In subsequent builds, match samples via triplet overlaps, assign stable IDs, 
-update improve_mapping.json, and rewrite files by replacing improve_sample_id with stable_id.
+update improve_sample_mapping.json, and rewrite files by replacing improve_sample_id with stable_id.
 """)
     parser.add_argument('--build_date', default=None,
                         help='Build date in YYYY-MM-DD. Default=now.')
-    parser.add_argument('--git_commit', default='abcdef12345',
-                        help='Git commit hash.')
-    parser.add_argument('--description', default='New build with updated samples.',
-                        help='Build description.')
     parser.add_argument('--version', required=True,
                         help='Build version. Must be unique per build.')
-    parser.add_argument('--datasets', default='beataml,ccle',
+    parser.add_argument('--datasets', default='ccle,ctrpv2,fimm,gcsi,gdscv1,gdscv2,nci60,prism,hcmi,beataml,cptac,mpnst,mpnstpdx',
                         help='Comma-separated list of datasets, e.g., beataml,ccle')
     parser.add_argument('--local_dir', default='data',
                         help='Directory containing all CSV/TSV files.')
-    parser.add_argument('--other_files', default='transcriptomics,proteomics,mutations',
+    parser.add_argument('--other_files', default='transcriptomics,proteomics,mutations,copy_number,experiments',
                         help='Comma-separated list of other file types to rewrite, e.g., transcriptomics,proteomics')
     args = parser.parse_args()
 
     # Set build_date
     build_date = args.build_date or datetime.utcnow().strftime("%Y-%m-%d")
 
-    # Load or initialize improve_mapping.json
-    mapping_file = "improve_mapping.json"
+    # Load or initialize improve_sample_mapping.json
+    mapping_file = "improve_sample_mapping.json"
     mapping_data, had_prior = load_mapping(mapping_file)
 
     # Insert current build metadata
-    current_build_metadata = get_current_build_metadata(build_date, args.git_commit, args.description, args.version)
+    current_build_metadata = get_current_build_metadata(build_date, args.version)
     # Ensure that each build has a unique combination of build_date and version
     if not any(b["build_date"] == build_date and b["version"] == args.version for b in mapping_data["metadata"]["builds"]):
         mapping_data["metadata"]["builds"].append(current_build_metadata)
     else:
-        print(f"Build with date {build_date} and version {args.version} already exists in improve_mapping.json.")
+        print(f"Build with date {build_date} and version {args.version} already exists in improve_sample_mapping.json.")
         return
 
     # Prepare dataset and file type lists
@@ -455,7 +450,7 @@ update improve_mapping.json, and rewrite files by replacing improve_sample_id wi
     is_first_build = not had_prior and not mapping_data["samples"]
 
     if is_first_build:
-        print("First build detected. Initializing improve_mapping.json without rewriting files.")
+        print("First build detected. Initializing improve_sample_mapping.json without rewriting files.")
 
         # Assign stable_ids as improve_sample_id
         # Group samples by improve_sample_id to aggregate triplets
@@ -497,8 +492,8 @@ update improve_mapping.json, and rewrite files by replacing improve_sample_id wi
             key=lambda x: int(x["stable_id"]) if x["stable_id"].isdigit() else x["stable_id"]
         )
 
-        # Save improve_mapping.json
-        save_mapping(mapping_data, mapping_file)
+        # Save improve_sample_mapping.json
+        save_mapping(mapping_data)
         print(f"mapping.json created with {len(mapping_data['samples'])} samples.")
         print("No file rewriting needed for the first build.")
         return
@@ -515,8 +510,8 @@ update improve_mapping.json, and rewrite files by replacing improve_sample_id wi
         key=lambda x: int(x["stable_id"]) if x["stable_id"].isdigit() else x["stable_id"]
     )
 
-    # Save updated improve_mapping.json
-    save_mapping(mapping_data, mapping_file)
+    # Save updated improve_sample_mapping.json
+    save_mapping(mapping_data)
     print(f"mapping.json updated with {len(mapping_data['samples'])} samples.")
 
     # Rewrite samples files
@@ -540,7 +535,7 @@ update improve_mapping.json, and rewrite files by replacing improve_sample_id wi
                     rewrite_other_file(gz_other_file, sample_id_mapping, datasets=ds_list)
 
     print("All files have been rewritten with stable IDs.")
-    print("Stable IDs have been updated in improve_mapping.json.")
+    print("Stable IDs have been updated in improve_sample_mapping.json.")
 
 if __name__ == "__main__":
     main()

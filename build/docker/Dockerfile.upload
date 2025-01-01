@@ -2,10 +2,21 @@ FROM python:3.9
 
 WORKDIR /usr/src/app
 
-RUN python -m pip install --upgrade pip setuptools wheel twine packaging pyyaml requests linkml
+RUN python -m pip install --upgrade pip pyyaml requests linkml
 
 RUN apt-get update && apt-get install -y git
 
 
-COPY ./schema /usr/src/app/schema
-ADD scripts/check_schema.py ./
+RUN git clone https://github.com/PNNL-CompBio/coderdata.git
+WORKDIR /usr/src/app/coderdata
+
+# COPY ./schema /usr/src/app/schema
+# ADD scripts/check_schema.py ./
+
+# #Add id mapping script
+# ADD scripts/map_improve_sample_ids.py ./
+# ADD scripts/map_improve_drug_ids.py ./
+
+# #Add improve_mapping.json file. If file is not present this won't fail.
+# ADD build/* ./
+
