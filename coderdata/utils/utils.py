@@ -54,5 +54,5 @@ def list_datasets(raw: bool=False) -> dict | None:
         return data_information['datasets']
     else:
         datasets = data_information['datasets']
-        for dataset in data_information:
-            print(f'{dataset}: "{data_information[dataset]['description']}"')
+        for dataset in datasets:
+            print(f'{dataset}: {datasets[dataset]["description"]}')
