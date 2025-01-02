@@ -5,6 +5,8 @@ Collection of small utility and helper functions.
 from importlib import resources
 import yaml
 
+from typing import Union
+
 from .. import __version__
 from .. import __version_tuple__
 
@@ -30,7 +32,7 @@ def version() -> dict:
         }
 
 
-def list_datasets(raw: bool=False) -> dict | None:
+def list_datasets(raw: bool=False) -> Union[dict, None]:
     """
     Hepler function that returns a list of available datasets including 
     a short description and additional information available.

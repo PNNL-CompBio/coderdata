@@ -11,6 +11,8 @@ from pathlib import Path
 import pickle
 import sys
 from typing import Literal
+from typing import Optional
+from typing import Union
 
 import numpy as np
 from numpy.random import RandomState
@@ -335,8 +337,8 @@ class Dataset:
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
         ratio: tuple[int, int, int]=(8,1,1),
-        stratify_by: (str | None)=None,
-        random_state: (int | RandomState | None)=None,
+        stratify_by: Optional[str]=None,
+        random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict,
         ) -> Split:
 
@@ -386,7 +388,7 @@ class Dataset:
 
 def load(
         name: str,
-        local_path: str|Path=Path.cwd(),
+        local_path: Union[str,Path]=Path.cwd(),
         from_pickle:bool=False
         ) -> Dataset:
     """
@@ -669,8 +671,8 @@ def train_test_validate(
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
         ratio: tuple[int, int, int]=(8,1,1),
-        stratify_by: (str | None)=None,
-        random_state: (int | RandomState | None)=None,
+        stratify_by: Optional[str]=None,
+        random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict,
         ) -> Split:
     """
@@ -1015,7 +1017,7 @@ def _load_file(file_path: Path) -> pd.DataFrame:
             )
 
 
-def _determine_delimiter(file_path):
+def _determine_delimiter(file_path: Path) -> str:
     if '.tsv' in file_path.suffixes:
         return '\t'
     else:
