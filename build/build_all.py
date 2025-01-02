@@ -422,7 +422,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             decompress_file(file)
 
         # Run schema checker - This will always run if uploading data.
-        schema_check_command = ['python3', 'check_schema.py', '--datasets'] + datasets
+        schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
         
         print("Validation complete. Proceeding with file compression/decompression adjustments")
