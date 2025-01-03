@@ -32,7 +32,7 @@ important to understand how the package is built.
 The build process is managed in the [build
 directory](https://github.com/PNNL-CompBio/coderdata/tree/main/build)
 primarily by the [`build_all.py` script](https://github.com/PNNL-CompBio/coderdata/blob/main/build/build_all.py). This script calls the
-[`build_dataset.py` script])(https://github.com/PNNL-CompBio/coderdata/blob/main/build/build_dataset.py) for each dataset in CoderData in
+[`build_dataset.py` script](https://github.com/PNNL-CompBio/coderdata/blob/main/build/build_dataset.py) for each dataset in CoderData in
 order. Because our sample and drug identifiers are unique, we must
 finish the generation of one dataset before we move to the next. This
 process is depicted below. 
@@ -65,7 +65,7 @@ constraints:
 3. Create tables that mirror the schema described by the [LinkML YAML
    file](https://github.com/PNNL-CompBio/coderdata/blob/main/schema/coderdata.yaml).
    
-Files are generated in the following order as described above. 
+Files are generated in the following order as described below.
 
 
 ### Sample generation
