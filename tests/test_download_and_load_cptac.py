@@ -1,7 +1,7 @@
 
 # tests/test_download_cptac.py
 
-from coderdata.download.downloader import download_data_by_prefix
+from coderdata.download.downloader import download
 from coderdata.load.loader import DatasetLoader
 import os
 import glob
@@ -10,7 +10,7 @@ import pandas as pd
 def test_download_data_cptac():
 
     #CPTAC
-    download_data_by_prefix('cptac')
+    download('cptac')
     
     cptac_copy_number = glob.glob('cptac_copy_number*')
     assert len(cptac_copy_number) > 0, "File cptac_copy_number does not exist."

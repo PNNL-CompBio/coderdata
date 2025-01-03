@@ -17,89 +17,118 @@ import json
 import polars as pl
 import gc
 import hashlib
+from pathlib import Path
     
 def download_tool(url):
     """
-    Download, extract, and make a tool (GDC Client) executable from the provided URL.
+    Download, extract, and prepare the GDC client tool.
 
     Parameters
     ----------
     url : str
-        The URL from where the tool needs to be downloaded.
+        The URL to download the tool from.
 
     Returns
     -------
     str
-        Name of the downloaded file.
+        The path to the `gdc-client` executable.
     """
-    
+    # Download the file
+    print("Downloading tool...")
     filename = wget.download(url)
-    files_before = os.listdir()
-    # shutil.unpack_archive(filename)
-    ##there are two files to unpack
-    print('Unpacking platform-specific path')
-    shutil.unpack_archive(os.path.basename(url))
-    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
-    print('Unpacking secondary zip')
-    fnames={
-        'Darwin':"gdc-client_2.3_OSX_x64.zip",
-        'Linux':"gdc-client_2.3_Ubuntu_x64.zip",
-        'Windows':"gdc-client_2.3_Windows_x64.zip"
-        }
-    shutil.unpack_archive(fnames[platform.system()]) 
-    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
+##commented due to merge conflict
+#    files_before = os.listdir()
+#    # shutil.unpack_archive(filename)
+#    ##there are two files to unpack
+#    print('Unpacking platform-specific path')
+#    shutil.unpack_archive(os.path.basename(url))
+#    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
+#    print('Unpacking secondary zip')
+#    fnames={
+#        'Darwin':"gdc-client_2.3_OSX_x64.zip",
+#        'Linux':"gdc-client_2.3_Ubuntu_x64.zip",
+#        'Windows':"gdc-client_2.3_Windows_x64.zip"
+#        }
+#    shutil.unpack_archive(fnames[platform.system()]) 
+#    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
 #    shutil.unpack_archive("gdc-client_2.3_Ubuntu_x64.zip") 
-    if not os.path.exists('gdc-client'):
-        raise FileNotFoundError("gdc-client executable not found after extraction.")
-    # Ensure 'gdc-client' is executable
-    st = os.stat('gdc-client')
-    os.chmod('gdc-client', st.st_mode | stat.S_IEXEC)
-    # Return the path to the executable
-    return './gdc-client'
+#    if not os.path.exists('gdc-client'):
+#        raise FileNotFoundError("gdc-client executable not found after extraction.")
+#    # Ensure 'gdc-client' is executable
+#    st = os.stat('gdc-client')
+#    os.chmod('gdc-client', st.st_mode | stat.S_IEXEC)
+#    # Return the path to the executable
+#    return './gdc-client'
 
-    # files_after = os.listdir()
-    # new_file = str(next(iter((set(files_after) - set(files_before)))))
-    # st = os.stat(new_file)
-    # os.chmod(new_file, st.st_mode | stat.S_IEXEC)
-    # return filename
+    
+    # First extraction
+    print(f"\nExtracting {filename}...")
+    shutil.unpack_archive(filename)
+    os.remove(filename)
+
+    # Check for a nested zip file and extract again
+    extracted_files = [f for f in os.listdir() if os.path.isfile(f) and f.endswith(".zip")]
+    for zip_file in extracted_files:
+        print(f"Extracting nested archive: {zip_file}...")
+        shutil.unpack_archive(zip_file)
+        os.remove(zip_file)
+
+    gdc_client_path = None
+    for root, dirs, files in os.walk("."):
+        if "gdc-client" in files:
+            gdc_client_path = os.path.join(root, "gdc-client")
+            break
+
+    if not gdc_client_path:
+        raise FileNotFoundError("`gdc-client` executable not found after extraction.")
+
+    # Ensure `gdc-client` is executable
+    print(f"Making {gdc_client_path} executable...")
+    st = os.stat(gdc_client_path)
+    os.chmod(gdc_client_path, st.st_mode | stat.S_IEXEC)
+
+    return gdc_client_path
+
 
 def is_tool(name):
     """
-    Check if a specific tool is available on the system or in the current directory.
+    Check if a specific tool is available on the system.
 
     Parameters
     ----------
     name : str
-        The name of the tool to check.
+        The name of the tool.
 
     Returns
     -------
     bool
         True if the tool is found, otherwise False.
     """
-    
-    return which(name) is not None or name in os.listdir()
+    return shutil.which(name) is not None or name in os.listdir()
 
 def ensure_gdc_client():
     """
-    Ensure that the gdc-client is available on the system.
+    Ensure that the GDC client tool is available on the system.
     
-    If the gdc-client tool isn't found, this function will automatically
-    download the appropriate version based on the operating system.
+    If the tool isn't found, this function downloads and prepares it.
     """
-    
     tool_name = "gdc-client"
     if not is_tool(tool_name):
-        print("Downloading gdc-client")
+        print("GDC client not found. Downloading...")
         urls = {
-            "Darwin": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_OSX_x64-py3.8-macos-14.zip',
-            "Windows": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Windows_x64-py3.8-windows-2019.zip',
-            "Linux": 'https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Ubuntu_x64-py3.8-ubuntu-20.04.zip'
+            "Darwin": "https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_OSX_x64-py3.8-macos-14.zip",
+            "Windows": "https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Windows_x64-py3.8-windows-2019.zip",
+            "Linux": "https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Ubuntu_x64-py3.8-ubuntu-20.04.zip"
         }
-        
-        download_tool(urls.get(platform.system()))
+        os_type = platform.system()
+        url = urls.get(os_type)
+        if not url:
+            raise ValueError(f"Unsupported OS: {os_type}")
+        gdc_client_path = download_tool(url)
+        print(f"`gdc-client` downloaded and available at {gdc_client_path}")
     else:
-        print("gdc-client already installed")
+        print("`gdc-client` is already installed.")
+
 
 def extract_uuids_from_manifest(manifest_data):
     """
@@ -470,15 +499,15 @@ def copy_num(arr):
 
         if math.isnan(a):
             return float('nan')
-        
-        a_val = math.log2(float(a)+0.000001) ###this should not be exponent, should be log!!! 2**float(a)
-        if a_val < 0.0: #0.5210507:
+
+        a_val = math.log2(float(a)+0.000001)
+        if a_val < 0.5210507:
             return 'deep del'
         elif a_val < 0.7311832:
             return 'het loss'
         elif a_val < 1.214125:
             return 'diploid'
-        elif a_val < 1.731183:
+        elif a_val < 1.422233:
             return 'gain'
         else:
             return 'amp'

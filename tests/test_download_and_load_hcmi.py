@@ -1,6 +1,6 @@
 # tests/test_download_hcmi.py
 
-from coderdata.download.downloader import download_data_by_prefix
+from coderdata.download.downloader import download
 from coderdata.load.loader import DatasetLoader
 import os
 import glob
@@ -9,7 +9,7 @@ import pandas as pd
 def test_download_data_hcmi():
 
     #HCMI
-    download_data_by_prefix('hcmi')
+    download('hcmi')
     
     hcmi_mutations = glob.glob('hcmi_mutations*')
     assert len(hcmi_mutations) > 0, "File hcmi_mutations does not exist."
