@@ -144,8 +144,11 @@ our [standard drug lookup
   that retrieves drug structure and information by name or
    identifier. [This file of NCI60
    drugs](https://github.com/PNNL-CompBio/coderdata/blob/main/build/broad_sanger/03a-nci60Drugs.py)
-   is our most comprehensive script as it pulls over 50k drugs.
-2. Createa  `build_drugs.sh` script that takes as its first argument
+   is our most comprehensive script as it pulls over 50k drugs
+1a. In cases where the dose and response values are not available, you
+   can use the published AUC values instead, and use the
+   `published_auc` as the `drug_response_metric` value in the table. 
+2. Create a  `build_drugs.sh` script that takes as its first argument
 an existing drug file and calls the script created in step 1
 above. Once the drugs for a dataset are retrieved, we have a second utility
 script that [builds the drug descriptor table](https://github.com/PNNL-CompBio/coderdata/blob/cbf017326b83771c55f12317189f4b2dbd9d900a/schema/coderdata.yaml#L94). Add this to the
