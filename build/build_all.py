@@ -270,8 +270,6 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             docker_run.extend(['upload'])
         if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
-        if name == "validate":
-            docker_run.extend(['upload'])
         if name == "Map_Drugs" or name == "Map_Samples":
             docker_run.extend(['upload'])
         if 'GITHUB_TOKEN' in env and name == "GitHub":
@@ -404,60 +402,60 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     ######
     ### Begin Upload and/or validation
     #####
-    if args.figshare or args.validate or github_token:
-    # if args.figshare or args.validate:
+    # if args.figshare or args.validate or github_token:
+    if args.figshare or args.validate:
         # FigShare File Prefixes:
         
-        # prefixes = ['beataml', 'hcmi', 'cptac', 'mpnst', 'genes', 'drugs']
-        # broad_sanger_datasets = ["ccle","ctrpv2","fimm","gdscv1","gdscv2","gcsi","prism","nci60"]
-        # if "broad_sanger" in datasets:
-        #     prefixes.extend(broad_sanger_datasets)
-        #     datasets.extend(broad_sanger_datasets)
-        #     datasets.remove("broad_sanger")
+        prefixes = ['beataml', 'hcmi', 'cptac', 'mpnst', 'genes', 'drugs']
+        broad_sanger_datasets = ["ccle","ctrpv2","fimm","gdscv1","gdscv2","gcsi","prism","nci60"]
+        if "broad_sanger" in datasets:
+            prefixes.extend(broad_sanger_datasets)
+            datasets.extend(broad_sanger_datasets)
+            datasets.remove("broad_sanger")
 
-        # figshare_token = os.getenv('FIGSHARE_TOKEN')
+        figshare_token = os.getenv('FIGSHARE_TOKEN')
 
-        # all_files_dir = 'local/all_files_dir'
-        # if not os.path.exists(all_files_dir):
-        #     os.makedirs(all_files_dir)
+        all_files_dir = 'local/all_files_dir'
+        if not os.path.exists(all_files_dir):
+            os.makedirs(all_files_dir)
         
-        # # Ensure figshare tokens are available
-        # if  args.figshare and not figshare_token:
-        #     raise ValueError("Required tokens (FIGSHARE) are not set in environment variables.")
+        # Ensure figshare tokens are available
+        if  args.figshare and not figshare_token:
+            raise ValueError("Required tokens (FIGSHARE) are not set in environment variables.")
         
-        # # Ensure version is specified
-        # if args.figshare and not args.version:
-        #     raise ValueError("Version must be specified when pushing to figshare")
+        # Ensure version is specified
+        if args.figshare and not args.version:
+            raise ValueError("Version must be specified when pushing to figshare")
 
-        # # Move relevant files to a designated directory
-        # for file in glob(os.path.join("local", '*.*')):
-        #     if any(file.startswith(os.path.join("local", prefix)) for prefix in prefixes):
-        #         shutil.move(file, os.path.join(all_files_dir, os.path.basename(file)))
+        # Move relevant files to a designated directory
+        for file in glob(os.path.join("local", '*.*')):
+            if any(file.startswith(os.path.join("local", prefix)) for prefix in prefixes):
+                shutil.move(file, os.path.join(all_files_dir, os.path.basename(file)))
 
-        # # Decompress all compressed files in the directory for schema checking
-        # for file in glob(os.path.join(all_files_dir, '*.gz')):
-        #     decompress_file(file)
+        # Decompress all compressed files in the directory for schema checking
+        for file in glob(os.path.join(all_files_dir, '*.gz')):
+            decompress_file(file)
 
-        # # Run schema checker - This will always run if uploading data.
-        # schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
-        # run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
+        # Run schema checker - This will always run if uploading data.
+        schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
+        run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
         
-        # print("Validation complete. Proceeding with file compression/decompression adjustments")
+        print("Validation complete. Proceeding with file compression/decompression adjustments")
         
-        # # Compress or decompress files based on specific conditions after checking
-        # for file in glob(os.path.join(all_files_dir, '*')):
-        #     is_compressed = file.endswith('.gz')
-        #     if ('samples' in file or 'figshare' in file) and is_compressed:
-        #         decompress_file(file)
-        #     elif not ('samples' in file or 'figshare' in file) and not is_compressed:
-        #         compress_file(file)
+        # Compress or decompress files based on specific conditions after checking
+        for file in glob(os.path.join(all_files_dir, '*')):
+            is_compressed = file.endswith('.gz')
+            if ('samples' in file or 'figshare' in file) and is_compressed:
+                decompress_file(file)
+            elif not ('samples' in file or 'figshare' in file) and not is_compressed:
+                compress_file(file)
 
-        # print("File compression and decompression adjustments are complete.")
+        print("File compression and decompression adjustments are complete.")
     
-        # # Upload to Figshare using Docker
-        # if args.figshare and args.version and figshare_token:
-        #     figshare_command = ['python3', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--publish']
-        #     run_docker_upload_cmd(figshare_command, 'all_files_dir', 'Figshare', args.version)
+        # Upload to Figshare using Docker
+        if args.figshare and args.version and figshare_token:
+            figshare_command = ['python3', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--publish']
+            run_docker_upload_cmd(figshare_command, 'all_files_dir', 'Figshare', args.version)
 
             
             # Push changes to GitHub using Docker
