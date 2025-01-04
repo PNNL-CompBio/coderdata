@@ -310,83 +310,82 @@ def main():
     singles, combos = get_drug_stats(tab)
 
     ##join with drug ids
-    expsing = singles.rename({'drug':'chem_name','metric':'drug_combination_metric','value':'drug_combination_value','sample':'improve_sample_id'},axis=1).merge(drugs,on='chem_name',how='left')[['improve_drug_id','improve_sample_id','drug_combination_metric','drug_combination_value']]
+    expsing = singles.rename({'drug':'chem_name','metric':'dose_response_metric','value':'dose_response_value','sample':'improve_sample_id'},axis=1).merge(drugs,on='chem_name',how='left')[['improve_drug_id','improve_sample_id','time_unit','time','dose_response_metric','dose_response_value']]
     expsing = expsing.dropna()
+    
+    # source	improve_sample_id	improve_drug_id	study	time	time_unit	dose_response_metric	dose_response_value
 
     combos[['drug1','drug2']]=combos.drug.str.split('+',expand=True)
     combos = combos.rename({'metric':'drug_combination_metric','value':'drug_combination_value','sample':'improve_sample_id'},axis=1).dropna()
 
-    expcomb = combos.rename({'drug1':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_1'},axis=1)[['improve_drug_1','drug2','improve_sample_id','drug_combination_metric','drug_combination_value']]
-    expcomb = expcomb.rename({'drug2':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_2'},axis=1)[['improve_drug_1','improve_drug_2','improve_sample_id','drug_combination_metric','drug_combination_value']]
+    expcomb = combos.rename({'drug1':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_1'},axis=1)[['improve_drug_1','drug2','improve_sample_id','time_unit','time','drug_combination_metric','drug_combination_value']]
+    expcomb = expcomb.rename({'drug2':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_2'},axis=1)[['improve_drug_1','improve_drug_2','improve_sample_id','time_unit','time','drug_combination_metric','drug_combination_value']]
 
     expcomb[['source']]='Synapse'
     expcomb[['study']]='MPNST PDX in vivo'
 
     expsing[['source']]='Synapse'
     expsing[['study']]='MPNST PDX in vivo'
-    expsing.to_csv(args.outprefix+'_experiments.csv',index=False)
-    expcomb.to_csv(args.outprefix+'_combinations.csv',index=False)
+    expsing.to_csv(args.outprefix+'_experiments.tsv',index=False, sep="\t")
+    expcomb.to_csv(args.outprefix+'_combinations.tsv',index=False, sep="\t")
     
 
     
-def get_drug_stats(df,control='control'):
+def get_drug_stats(df, control='control'):
     ##for each experiment, call group
-    cols = ['experiment','model_id']
+    cols = ['experiment', 'model_id']
     groups = df.groupby(cols)
     singleres = []
     combores = []
     
-    for name,group in tqdm(groups):
-        #each group contains multiple treatments anda  control
-        drugs = set(group.treatment)-set([control])
+    for name, group in tqdm(groups):
+        # Each group contains multiple treatments and a control
+        drugs = set(group.treatment) - set([control])
         print(name[0])
         print(drugs)
         mod = list(set(group.model_id))[0]
- #       print(set(group.model_id))
-        ctl_data = group[group.treatment==control]
+
+        ctl_data = group[group.treatment == control]
         ctl_time = np.array(ctl_data.time)
         ctl_volume = np.array(ctl_data.volume)
 
-        ctl_auc = AUC(ctl_time,ctl_volume)
+        ctl_auc = AUC(ctl_time, ctl_volume)
         for d in drugs:
             print(d)
-            d_data = group[group.treatment==d]
+            d_data = group[group.treatment == d]
             treat_time = np.array(d_data.time)
             treat_volume = np.array(d_data.volume)
 
-            #get abc for group
-            treat_auc = AUC(treat_time,treat_volume)
-            treat_abc = ABC(ctl_time,ctl_volume,treat_time,treat_volume)
-            #print(f"AUC: {treat_auc}")
-            #print(f"ABC: {treat_abc}")
-            treat_abc.update({'sample':mod,'drug':d,'time_unit':'days'})
+            # Get ABC for group
+            treat_auc = AUC(treat_time, treat_volume)
+            treat_abc = ABC(ctl_time, ctl_volume, treat_time, treat_volume)
+            print(f"treat_time:, {treat_time}")
+            treat_abc.update({'sample': mod, 'drug': d, 'time': np.max(treat_time), 'time_unit': 'days'})
             if '+' in d:
                 combores.append(treat_abc)
             else:
                 singleres.append(treat_abc)
-            #lmm
-            comb = pd.concat([ctl_data,d_data])
-            lmm_res = lmm(comb.time, comb.volume, comb.treatment,d)
-            lmm_res.update({'sample':mod,'drug':d,'time_unit':'days'})
-            #print(f"LMM: {lmm_res}")
+
+            #llm
+            comb = pd.concat([ctl_data, d_data])
+            lmm_res = lmm(comb.time, comb.volume, comb.treatment, d)
+            lmm_res.update({'sample': mod, 'drug': d, 'time': np.max(treat_time), 'time_unit': 'days'})
             if '+' in d:
                 combores.append(lmm_res)
             else:
                 singleres.append(lmm_res)
 
-            #get tgi for group
-            tg = TGI(ctl_volume,treat_volume,treat_time)
-            tg.update({'sample':mod,'drug':d,'time_unit':'days'})
-            #print(tg)
+            # Get TGI for group
+            tg = TGI(ctl_volume, treat_volume, treat_time)
+            tg.update({'sample': mod, 'drug': d, 'time': np.max(treat_time), 'time_unit': 'days'})
             if '+' in d:
                 combores.append(tg)
             else:
                 singleres.append(tg)
 
-            
-            #get mRECIST for group
-            mr = mrecist(treat_time,treat_volume)
-            mr.update({'sample':mod,'drug':d,'time_unit':'days'})
+            # Get mRECIST for group
+            mr = mrecist(treat_time, treat_volume)
+            mr.update({'sample': mod, 'drug': d, 'time': np.max(treat_time), 'time_unit': 'days'})
             if '+' in d:
                 combores.append(mr)
             else:
@@ -394,7 +393,7 @@ def get_drug_stats(df,control='control'):
 
     sing = pd.DataFrame.from_records(singleres)
     comb = pd.DataFrame.from_records(combores)
-    return sing,comb
+    return sing, comb
 
 if __name__=='__main__':
     main()

@@ -1,6 +1,6 @@
 # tests/test_download_depmap.py
 
-from coderdata.download.downloader import download_data_by_prefix
+from coderdata.download.downloader import download
 from coderdata.load.loader import DatasetLoader
 import os
 import glob
@@ -9,7 +9,7 @@ import pandas as pd
 def test_download_data_depmap():
 
     #depmap
-    download_data_by_prefix('depmap')
+    download('depmap')
     
     depmap_samples = glob.glob('depmap_samples*')
     assert len(depmap_samples) > 0, "File depmap_samples does not exist."
