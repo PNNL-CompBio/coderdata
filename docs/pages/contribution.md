@@ -22,7 +22,7 @@ detail. These will be triaged by the CoderData team as they are received.
 
 The rest of this document is focused on how to contribute to and
 augment CoderData, either for use by the community or your own
-purpopses. 
+purposes. 
 
 ### CoderData build process
 
@@ -31,9 +31,9 @@ important to understand how the package is built.
 
 The build process is managed in the [build
 directory](https://github.com/PNNL-CompBio/coderdata/tree/main/build)
-primarily by the [`build_all.py` script](https://github.com/PNNL-CompBio/coderdata/blob/main/build/build_all.py). This script calls the
-[`build_dataset.py` script](https://github.com/PNNL-CompBio/coderdata/blob/main/build/build_dataset.py) for each dataset in CoderData in
-order. Because our sample and drug identifiers are unique, we must
+primarily by the [`build_all.py` script](https://github.com/PNNL-CompBio/coderdata/blob/main/build/build_all.py). The
+[`build_dataset.py` script](https://github.com/PNNL-CompBio/coderdata/blob/main/build/build_dataset.py) is used for testing the development of each dataset in CoderData.  
+Because our sample and drug identifiers are unique, we must
 finish the generation of one dataset before we move to the next. This
 process is depicted below. 
 
@@ -75,7 +75,7 @@ sample identifies and store them in a `[dataset_name]_samples.csv`
 file. We recommend following these steps:
 
 1. Build a python script that pulls the sample identifier information
-   from a stable repository and generates Improve identiefiers for
+   from a stable repository and generates Improve identifiers for
    each sample while also ensuring that no sample identifiers are
    clashing with prior samples. Examples can be found [here](https://github.com/PNNL-CompBio/coderdata/blob/main/build/mpnst/00_sample_gen.R) and [here](https://github.com/PNNL-CompBio/coderdata/blob/main/build/broad_sanger/01-broadSangerSamples.R). If
    you are using the Genomic Data Commons, you can leverage our
@@ -95,7 +95,7 @@ a few caveats.
 1. Build a python script that maps the omics data and gene data to the
    standardized identifiers and aligns them to the schema. 
    pulls the sample identifier information
-   from a stable repository and generates Improve identiefiers for
+   from a stable repository and generates Improve identifiers for
    each sample while also ensuring that no sample identifiers are
    clashing with prior samples. Examples can be found here and here. If
    you are using the Genomic Data Commons, you can leverage our
@@ -117,16 +117,16 @@ mutation should be mapped to a specific schema of variations.  The
 list of allowed variations can be found [in our linkML
 file](https://github.com/PNNL-CompBio/coderdata/blob/8000968dc5f19fbb986a700862c5035a0230b656/schema/coderdata.yaml#L247). 
 - *Transcriptomic data:* Transcript data is mapped to the same gene
-  identifiers and sample sbut is convered to transcripts per million,
+  identifiers and samples but is convered to transcripts per million,
   or TPM. 
 - *Copy number data:*  Copy number is assumed to be a value
-  represneting the number of copies of that gene in a particular
-  sample. 2 is assumed to be diploid. 
+  representing the number of copies of that gene in a particular
+  sample. A value of 2 is assumed to be diploid. 
 - *Proteomic data:* Proteomic measurements are generally log ratio
   values of the abundance measurements normalized to an internal
   control. 
   
-The resulting files are then stored as [dataset_name]_[datatype].csv. 
+The resulting files are then stored as `[dataset_name]_[datatype].csv`. 
 
 ### Drug data generation
 
@@ -154,7 +154,7 @@ above. Once the drugs for a dataset are retrieved, we have a second utility
 script that [builds the drug descriptor table](https://github.com/PNNL-CompBio/coderdata/blob/cbf017326b83771c55f12317189f4b2dbd9d900a/schema/coderdata.yaml#L94). Add this to the
 shell script to generate the drug descriptor file.
 3. Test the `build_drugs.sh` script with the [test drugs
-   file] (TBD). 
+   file](https://github.com/PNNL-CompBio/coderdata/blob/main/build/build_test/test_drugs.tsv).  
 4. Validate the files generated with the [linkML validation tool](https://linkml.io/linkml/cli/validate.html) and our
    [schema file](https://github.com/PNNL-CompBio/coderdata/blob/main/schema/coderdata.yaml). 
 
