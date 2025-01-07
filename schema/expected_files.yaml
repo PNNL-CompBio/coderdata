@@ -12,6 +12,8 @@ datasets:
       file: /tmp/beataml_experiments.tsv
     - target_class: Drug
       file: /tmp/beataml_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/beataml_drug_descriptors.tsv
 
   hcmi:
     - target_class: Sample
@@ -38,6 +40,8 @@ datasets:
       file: /tmp/mpnst_experiments.tsv
     - target_class: Drug
       file: /tmp/mpnst_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/mpnst_drug_descriptors.tsv
 
   mpnstpdx:
     - target_class: Sample
@@ -54,6 +58,8 @@ datasets:
       file: /tmp/mpnstpdx_experiments.tsv
     - target_class: Drug
       file: /tmp/mpnstpdx_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/mpnstpdx_drug_descriptors.tsv
 
   cptac:
     - target_class: Sample
@@ -82,6 +88,8 @@ datasets:
       file: /tmp/ccle_experiments.tsv
     - target_class: Drug
       file: /tmp/ccle_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/ccle_drug_descriptors.tsv
 
   ctrpv2:
     - target_class: Sample
@@ -98,6 +106,8 @@ datasets:
       file: /tmp/ctrpv2_experiments.tsv
     - target_class: Drug
       file: /tmp/ctrpv2_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/ctrpv2_drug_descriptors.tsv
 
   depmap:
     - target_class: Sample
@@ -114,6 +124,8 @@ datasets:
       file: /tmp/depmap_experiments.csv
     - target_class: Drug
       file: /tmp/depmap_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/depmap_drug_descriptors.tsv
 
   fimm:
     - target_class: Sample
@@ -130,6 +142,8 @@ datasets:
       file: /tmp/fimm_experiments.tsv
     - target_class: Drug
       file: /tmp/fimm_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/fimm_drug_descriptors.tsv
 
   gcsi:
     - target_class: Sample
@@ -146,6 +160,8 @@ datasets:
       file: /tmp/gcsi_experiments.tsv
     - target_class: Drug
       file: /tmp/gcsi_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/gcsi_drug_descriptors.tsv
 
   gdscv1:
     - target_class: Sample
@@ -162,6 +178,8 @@ datasets:
       file: /tmp/gdscv1_experiments.tsv
     - target_class: Drug
       file: /tmp/gdscv1_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/gdscv1_drug_descriptors.tsv
 
   gdscv2:
     - target_class: Sample
@@ -178,6 +196,8 @@ datasets:
       file: /tmp/gdscv2_experiments.tsv
     - target_class: Drug
       file: /tmp/gdscv2_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/gdscv2_drug_descriptors.tsv
 
   nci60:
     - target_class: Sample
@@ -194,6 +214,8 @@ datasets:
       file: /tmp/nci60_experiments.tsv
     - target_class: Drug
       file: /tmp/nci60_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/nci60_drug_descriptors.tsv
 
   prism:
     - target_class: Sample
@@ -210,3 +232,17 @@ datasets:
       file: /tmp/prism_experiments.tsv
     - target_class: Drug
       file: /tmp/prism_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/prism_drug_descriptors.tsv
+
+ pancpdo:
+    - target_class: Sample
+      file: /tmp/pancpdo_samples.csv
+    - target_class: Transcriptomics
+      file: /tmp/pancpdo_transcriptomics.csv
+    - target_class: Experiments
+      file: /tmp/pancpdo_experiments.tsv
+    - target_class: Drug
+      file: /tmp/pancpdo_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/pancpdo_drug_descriptors.tsv

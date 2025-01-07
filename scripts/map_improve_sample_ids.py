@@ -7,9 +7,7 @@ import gzip
 import shutil
 from collections import defaultdict
 
-
 ##### Load, make structure, save functions for improve_sample_mapping.json
-
 def load_mapping(mapping_file='improve_sample_mapping.json'):
     """
     Loads an existing improve_sample_mapping.json if available.
@@ -28,7 +26,7 @@ def load_mapping(mapping_file='improve_sample_mapping.json'):
 
 def save_mapping(mapping_data):
     """Saves mapping data to disk as JSON."""
-    mapping_file='/tmp/improve_sample_mapping.json'
+    mapping_file='improve_sample_mapping.json'
     with open(mapping_file, 'w') as f:
         json.dump(mapping_data, f, indent=2)
 
@@ -38,10 +36,8 @@ def get_current_build_metadata(build_date, version):
         "build_date": build_date,
         "version": version
     }
-    
 
 #### (De)Compression Functions
-
 def decompress_gz_if_needed(file_path):
     """
     If file_path ends with .gz, decompress into a temp file and return that path,
@@ -71,13 +67,12 @@ def recompress_if_needed(original_path, decompressed_path, was_gz):
         except Exception as e:
             print(f"Error recompressing {decompressed_path} to {original_path}: {e}")
 
-
 ##### Read {dataset}_samples.csv files
 
-
-def read_samples_csv(file_path):
+def read_samples_csv(file_path, dataset):
     """
-    Reads a {dataset}_samples.csv or .csv.gz and returns a list of row dicts.
+    Reads a {dataset}_samples.csv or .csv.gz and returns a list of row dicts,
+    adding the dataset name to each row.
     """
     if not os.path.exists(file_path):
         gz_path = file_path + '.gz'
@@ -86,145 +81,120 @@ def read_samples_csv(file_path):
         else:
             print(f"File not found: {file_path} or {gz_path}")
             return []
-
     file_path, was_gz = decompress_gz_if_needed(file_path)
     if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
         recompress_if_needed(file_path, file_path, was_gz)
         print(f"Empty or missing file after decompression: {file_path}")
         return []
-
     rows = []
     print(f"Reading samples file: {file_path}")
     with open(file_path,'r',newline='',encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
+            row['dataset'] = dataset  # Add the dataset name to each row
             rows.append(row)
-
     recompress_if_needed(file_path, file_path, was_gz)
     return rows
 
-
 ##### Create New stable ID (improve_sample_id)
 
-
-def generate_new_stable_id(samples_list):
+def generate_new_stable_id(assigned_stable_ids):
     """Generate new stable ID by finding the max existing stable_id and adding 1."""
-    existing_ids = [int(sample["stable_id"]) for sample in samples_list if sample["stable_id"].isdigit()]
+    existing_ids = [int(sid) for sid in assigned_stable_ids if sid.isdigit()]
     if existing_ids:
         return str(max(existing_ids) + 1)
     else:
         return "1"
 
-
-##### Assign stable ID based on improve_sample_id, triplet, and previous improve_sample_mapping.json file
-
+##### Assign stable ID based on improve_sample_id, quadruplet, and previous improve_sample_mapping.json file
 
 def unify_samples(mapping_data, all_samples_rows, current_build_metadata):
     """
-    Assign stable IDs to samples based on triplet overlaps.
-
+    Assign stable IDs to samples based on quadruplet overlaps.
     Parameters:
         mapping_data: existing mapping data loaded from improve_sample_mapping.json
         all_samples_rows: list of row dicts from the new build's samples CSVs
         current_build_metadata: dict containing build_date, version, etc.
-
     Returns:
-        triplet_to_stable_id: dict mapping triplet tuples to stable_id
-        sample_id_mapping: dict mapping new build's improve_sample_id to stable_id
+        quadruplet_to_stable_id: dict mapping quadruplet tuples to stable_id
+        sample_id_mapping: dict mapping new build's improve_sample_id (with dataset) to stable_id
     """
-
     samples_list = mapping_data["samples"]
-
     # List of builds sorted by date and version
     builds = sorted(mapping_data["metadata"]["builds"], key=lambda x: (x["build_date"], x["version"]))
-
-    # Build triplet_to_stable_id mapping from existing samples
-    triplet_to_stable_id = {}
+    # Build quadruplet_to_stable_id mapping from existing samples
+    quadruplet_to_stable_id = {}
     for sample in samples_list:
         stable_id = sample["stable_id"]
-        for triplet in sample.get("triples", []):
-            trip = (triplet["other_id"], triplet["other_id_source"], triplet["model_type"])
-            triplet_to_stable_id[trip] = stable_id
-
-    # Determine the next stable_id
-    next_stable_id = generate_new_stable_id(samples_list)
-
-    # Group new samples by improve_sample_id
-    new_samples_grouped = defaultdict(set)  # improve_sample_id -> set of triplet tuples
+        for quadruplet in sample.get("quadruples", []):
+            quad = (quadruplet["other_id"], quadruplet["other_id_source"], quadruplet["model_type"], quadruplet.get("other_names", "").strip())
+            quadruplet_to_stable_id[quad] = stable_id
+    # Initialize assigned stable_ids with existing stable_ids
+    assigned_stable_ids = set(sample["stable_id"] for sample in samples_list)
+    # Group new samples by (dataset, improve_sample_id)
+    new_samples_grouped = defaultdict(set)  # (dataset, improve_sample_id) -> set of quadruplet tuples
     for row in all_samples_rows:
         improve_sample_id = row.get("improve_sample_id", "").strip()
+        dataset = row.get("dataset", "").strip()
         if not improve_sample_id:
             continue  # skip rows without improve_sample_id
-        triplet = (
+        quadruplet = (
             row.get("other_id", "").strip(),
             row.get("other_id_source", "").strip(),
-            row.get("model_type", "").strip()
+            row.get("model_type", "").strip(),
+            row.get("other_names", "").strip()
         )
-        new_samples_grouped[improve_sample_id].add(triplet)
-
-    # Mapping from new build's improve_sample_id to stable_id
+        new_samples_grouped[(dataset, improve_sample_id)].add(quadruplet)
+    # Mapping from new build's (dataset, improve_sample_id) to stable_id
     sample_id_mapping = {}
-
     # Set to track which stable_ids are present in current build
     present_stable_ids = set()
-
-    # Set to track used stable_ids
-    used_stable_ids = set(sample["stable_id"] for sample in samples_list)
-
     # Process each improve_sample_id
-    for improve_id, triplets in new_samples_grouped.items():
-        # Check if any triplet overlaps with existing samples
+    for (dataset, improve_id), quadruplets in new_samples_grouped.items():
+        # Check if any quadruplet overlaps with existing samples
         matched_stable_id = None
-        for triplet in triplets:
-            if triplet in triplet_to_stable_id:
-                matched_stable_id = triplet_to_stable_id[triplet]
+        for quadruplet in quadruplets:
+            if quadruplet in quadruplet_to_stable_id:
+                matched_stable_id = quadruplet_to_stable_id[quadruplet]
                 break  # assume one match is enough
-
         if matched_stable_id:
-            # Check if improve_id is already the stable_id for this sample
-            if improve_id == matched_stable_id:
-                # Assign stable_id as improve_id
-                stable_id = improve_id
-            else:
-                # Assign existing stable_id
-                stable_id = matched_stable_id
-            sample_id_mapping[improve_id] = stable_id
+            stable_id = matched_stable_id
+            sample_id_mapping[(dataset, improve_id)] = stable_id
             present_stable_ids.add(stable_id)
-
-            # Update the sample's triplet list with any new triplets
+            # Update the sample's quadruplet list with any new quadruplets
             for sample in samples_list:
                 if sample["stable_id"] == stable_id:
-                    existing_triplets = set(
-                        (t["other_id"], t["other_id_source"], t["model_type"]) for t in sample.get("triples", [])
+                    existing_quadruplets = set(
+                        (q["other_id"], q["other_id_source"], q["model_type"], q.get("other_names", "").strip())
+                        for q in sample.get("quadruples", [])
                     )
-                    new_unique_triplets = triplets - existing_triplets
-                    for triplet in new_unique_triplets:
-                        sample["triples"].append({
-                            "other_id": triplet[0],
-                            "other_id_source": triplet[1],
-                            "model_type": triplet[2]
+                    new_unique_quadruplets = quadruplets - existing_quadruplets
+                    for quadruplet in new_unique_quadruplets:
+                        sample["quadruples"].append({
+                            "other_id": quadruplet[0],
+                            "other_id_source": quadruplet[1],
+                            "model_type": quadruplet[2],
+                            "other_names": quadruplet[3]
                         })
-                        triplet_to_stable_id[triplet] = stable_id  # update triplet mapping
+                        quadruplet_to_stable_id[quadruplet] = stable_id  # update quadruplet mapping
                     break
         else:
-            # No overlapping triplet found
+            # No overlapping quadruplet found
             # Try to assign improve_sample_id as stable_id if available
-            if improve_id not in used_stable_ids:
+            if improve_id not in assigned_stable_ids:
                 stable_id = improve_id
             else:
                 # Assign a new unique stable_id
-                stable_id = next_stable_id
-                next_stable_id = str(int(next_stable_id) + 1)
-            sample_id_mapping[improve_id] = stable_id
+                stable_id = generate_new_stable_id(assigned_stable_ids)
+            sample_id_mapping[(dataset, improve_id)] = stable_id
             present_stable_ids.add(stable_id)
-            used_stable_ids.add(stable_id)
-
+            assigned_stable_ids.add(stable_id)
             # Create a new sample record
             new_sample = {
                 "stable_id": stable_id,
-                "triples": [
-                    {"other_id": triplet[0], "other_id_source": triplet[1], "model_type": triplet[2]}
-                    for triplet in triplets
+                "quadruples": [
+                    {"other_id": quadruplet[0], "other_id_source": quadruplet[1], "model_type": quadruplet[2], "other_names": quadruplet[3]}
+                    for quadruplet in quadruplets
                 ],
                 "build_statuses": []
             }
@@ -245,10 +215,9 @@ def unify_samples(mapping_data, all_samples_rows, current_build_metadata):
             })
             samples_list.append(new_sample)
             print(f"Initialized new sample '{stable_id}' with status 'present' for build '{current_build_metadata['version']}'.")
-            # Update triplet_to_stable_id
-            for triplet in triplets:
-                triplet_to_stable_id[triplet] = stable_id
-
+            # Update quadruplet_to_stable_id
+            for quadruplet in quadruplets:
+                quadruplet_to_stable_id[quadruplet] = stable_id
     # Now, iterate over all existing samples to update build_statuses
     for sample in samples_list:
         stable_id = sample["stable_id"]
@@ -270,15 +239,13 @@ def unify_samples(mapping_data, all_samples_rows, current_build_metadata):
                 "version": current_build_metadata["version"],
                 "status": status
             })
-            print(f"Appended status '{status}' for sample '{stable_id}' in build '{current_build_metadata['version']}'.")
-
-    return triplet_to_stable_id, sample_id_mapping
-
+            # Uncomment the following line if you want to see the update messages
+            # print(f"Appended status '{status}' for sample '{stable_id}' in build '{current_build_metadata['version']}'.")
+    return quadruplet_to_stable_id, sample_id_mapping
 
 #### Rewrite samples files based on newly assigned (Stable) IDs
 
-
-def rewrite_samples_file(file_path, sample_id_mapping, datasets=None):
+def rewrite_samples_file(file_path, sample_id_mapping, datasets=None, dataset=None):
     """
     Rewrites {dataset}_samples.csv or {dataset}_samples.csv.gz:
       - Replace improve_sample_id with stable_id based on sample_id_mapping
@@ -286,14 +253,15 @@ def rewrite_samples_file(file_path, sample_id_mapping, datasets=None):
     """
     if datasets and not any(ds in os.path.basename(file_path) for ds in datasets):
         return
-
+    if dataset is None:
+        print(f"Dataset not specified for {file_path}. Skipping.")
+        return
     print(f"Rewriting samples file: {file_path}")
     file_path, was_gz = decompress_gz_if_needed(file_path)
     if not os.path.exists(file_path):
         recompress_if_needed(file_path, file_path, was_gz)
         print(f"File not found or empty after decompression: {file_path}")
         return
-
     with open(file_path,'r',newline='',encoding='utf-8') as f:
         reader = csv.reader(f)
         rows = list(reader)
@@ -312,7 +280,6 @@ def rewrite_samples_file(file_path, sample_id_mapping, datasets=None):
             recompress_if_needed(file_path, file_path, was_gz)
             print(f"'improve_sample_id' column index error in {file_path}")
             return
-
     tmp = file_path + ".tmp"
     with open(file_path,'r',newline='',encoding='utf-8') as fin, \
          open(tmp,'w',newline='',encoding='utf-8') as fout:
@@ -320,26 +287,24 @@ def rewrite_samples_file(file_path, sample_id_mapping, datasets=None):
         writer = csv.writer(fout)
         hdr = next(reader)
         writer.writerow(hdr)
-
         for row in reader:
             if len(row) <= idx_id:
                 writer.writerow(row)
                 continue
             original_id = row[idx_id].strip()
-            if original_id in sample_id_mapping:
-                new_id = sample_id_mapping[original_id]
-                print(f"Replacing improve_sample_id '{original_id}' with stable_id '{new_id}' in {file_path}")
+            mapping_key = (dataset, original_id)
+            if mapping_key in sample_id_mapping:
+                new_id = sample_id_mapping[mapping_key]
+                if new_id != original_id:
+                    print(f"Replacing improve_sample_id '{original_id}' with stable_id '{new_id}' in {file_path}")
                 row[idx_id] = new_id
             writer.writerow(row)
-
     os.replace(tmp, file_path)
     recompress_if_needed(file_path, file_path, was_gz)
 
-
 #### Rewrite all other files based on Stable IDs.
 
-
-def rewrite_other_file(file_path, sample_id_mapping, datasets=None):
+def rewrite_other_file(file_path, sample_id_mapping, datasets=None, dataset=None):
     """
     Rewrites other files (e.g., transcriptomics, proteomics):
       - Replace improve_sample_id with stable_id based on sample_id_mapping
@@ -347,14 +312,15 @@ def rewrite_other_file(file_path, sample_id_mapping, datasets=None):
     """
     if datasets and not any(ds in os.path.basename(file_path) for ds in datasets):
         return
-
+    if dataset is None:
+        print(f"Dataset not specified for {file_path}. Skipping.")
+        return
     print(f"Rewriting other file: {file_path}")
     file_path, was_gz = decompress_gz_if_needed(file_path)
     if not os.path.exists(file_path):
         recompress_if_needed(file_path, file_path, was_gz)
         print(f"File not found or empty after decompression: {file_path}")
         return
-
     with open(file_path,'r',newline='',encoding='utf-8') as f:
         reader = csv.reader(f)
         rows = list(reader)
@@ -373,7 +339,6 @@ def rewrite_other_file(file_path, sample_id_mapping, datasets=None):
             recompress_if_needed(file_path, file_path, was_gz)
             print(f"'improve_sample_id' column index error in {file_path}")
             return
-
     tmp = file_path + ".tmp"
     with open(file_path,'r',newline='',encoding='utf-8') as fin, \
          open(tmp,'w',newline='',encoding='utf-8') as fout:
@@ -381,29 +346,28 @@ def rewrite_other_file(file_path, sample_id_mapping, datasets=None):
         writer = csv.writer(fout)
         hdr = next(reader)
         writer.writerow(hdr)
-
         for row in reader:
             if len(row) <= idx_id:
                 writer.writerow(row)
                 continue
             original_id = row[idx_id].strip()
-            if original_id in sample_id_mapping:
-                new_id = sample_id_mapping[original_id]
-                print(f"Replacing improve_sample_id '{original_id}' with stable_id '{new_id}' in {file_path}")
+            mapping_key = (dataset, original_id)
+            if mapping_key in sample_id_mapping:
+                new_id = sample_id_mapping[mapping_key]
+                if new_id != original_id:
+                    print(f"Replacing improve_sample_id '{original_id}' with stable_id '{new_id}' in {file_path}")
                 row[idx_id] = new_id
             writer.writerow(row)
-
     os.replace(tmp, file_path)
     recompress_if_needed(file_path, file_path, was_gz)
-
 
 #### Call everything in Main
 
 def main():
     parser = argparse.ArgumentParser(description="""
-Use triplet overlaps to assign stable IDs across builds.
-In the first build, generate improve_sample_mapping.json without rewriting files.
-In subsequent builds, match samples via triplet overlaps, assign stable IDs, 
+Use quadruplet overlaps to assign stable IDs across builds.
+Generate improve_sample_mapping.json.
+Match samples via quadruplet overlaps, assign stable IDs,
 update improve_sample_mapping.json, and rewrite files by replacing improve_sample_id with stable_id.
 """)
     parser.add_argument('--build_date', default=None,
@@ -417,14 +381,11 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
     parser.add_argument('--other_files', default='transcriptomics,proteomics,mutations,copy_number,experiments',
                         help='Comma-separated list of other file types to rewrite, e.g., transcriptomics,proteomics')
     args = parser.parse_args()
-
     # Set build_date
     build_date = args.build_date or datetime.utcnow().strftime("%Y-%m-%d")
-
     # Load or initialize improve_sample_mapping.json
     mapping_file = "improve_sample_mapping.json"
     mapping_data, had_prior = load_mapping(mapping_file)
-
     # Insert current build metadata
     current_build_metadata = get_current_build_metadata(build_date, args.version)
     # Ensure that each build has a unique combination of build_date and version
@@ -433,95 +394,49 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
     else:
         print(f"Build with date {build_date} and version {args.version} already exists in improve_sample_mapping.json.")
         return
-
     # Prepare dataset and file type lists
     ds_list = [d.strip() for d in args.datasets.split(',')]
     other_file_types = [x.strip() for x in args.other_files.split(',')]
     local_dir = args.local_dir
-
     # Gather all sample rows from each dataset
     all_samples_rows = []
     for ds in ds_list:
         samp_path = os.path.join(local_dir, f"{ds}_samples.csv")
-        rows = read_samples_csv(samp_path)
+        rows = read_samples_csv(samp_path, ds)
         all_samples_rows.extend(rows)
-
-    # Check if this is the first build
-    is_first_build = not had_prior and not mapping_data["samples"]
-
-    if is_first_build:
-        print("First build detected. Initializing improve_sample_mapping.json without rewriting files.")
-
-        # Assign stable_ids as improve_sample_id
-        # Group samples by improve_sample_id to aggregate triplets
-        new_samples_grouped = defaultdict(set)  # improve_sample_id -> set of triplet tuples
-        for row in all_samples_rows:
-            improve_sample_id = row.get("improve_sample_id", "").strip()
-            if not improve_sample_id:
-                continue  # skip rows without improve_sample_id
-            triplet = (
-                row.get("other_id", "").strip(),
-                row.get("other_id_source", "").strip(),
-                row.get("model_type", "").strip()
-            )
-            new_samples_grouped[improve_sample_id].add(triplet)
-
-        # Assign stable_ids and build_statuses
-        for improve_id, triplets in new_samples_grouped.items():
-            # Create a new sample record
-            new_sample = {
-                "stable_id": improve_id,
-                "triples": [
-                    {"other_id": triplet[0], "other_id_source": triplet[1], "model_type": triplet[2]}
-                    for triplet in triplets
-                ],
-                "build_statuses": [
-                    {
-                        "build_date": current_build_metadata["build_date"],
-                        "version": current_build_metadata["version"],
-                        "status": "present"
-                    }
-                ]
-            }
-            mapping_data["samples"].append(new_sample)
-            print(f"Initialized sample '{improve_id}' with status 'present' for build '{current_build_metadata['version']}'.")
-
-        # Sort samples by stable_id ascending
-        mapping_data["samples"] = sorted(
-            mapping_data["samples"],
-            key=lambda x: int(x["stable_id"]) if x["stable_id"].isdigit() else x["stable_id"]
-        )
-
-        # Save improve_sample_mapping.json
-        save_mapping(mapping_data)
-        print(f"mapping.json created with {len(mapping_data['samples'])} samples.")
-        print("No file rewriting needed for the first build.")
-        return
-
-    # For subsequent builds, perform unification and rewriting
-    print("Subsequent build detected. Unifying samples and rewriting files.")
-
+    # Process samples to assign stable IDs
+    print("Processing samples to assign stable IDs using quadruplets.")
     # Unify samples and get mappings
-    triplet_to_stable_id, sample_id_mapping = unify_samples(mapping_data, all_samples_rows, current_build_metadata)
-
+    quadruplet_to_stable_id, sample_id_mapping = unify_samples(mapping_data, all_samples_rows, current_build_metadata)
     # Sort samples by stable_id ascending
     mapping_data["samples"] = sorted(
         mapping_data["samples"],
         key=lambda x: int(x["stable_id"]) if x["stable_id"].isdigit() else x["stable_id"]
     )
-
-    # Save updated improve_sample_mapping.json
+    # Save improve_sample_mapping.json
     save_mapping(mapping_data)
-    print(f"mapping.json updated with {len(mapping_data['samples'])} samples.")
-
+    print(f"improve_sample_mapping.json updated with {len(mapping_data['samples'])} samples.")
+    # Determine if any improve_sample_ids were modified
+    ids_modified = any(
+        (mapping_key[1] != sample_id_mapping[mapping_key])
+        for mapping_key in sample_id_mapping
+    )
+    if not ids_modified:
+        if not had_prior:
+            print("First build detected. No IDs modified. No file rewriting needed.")
+            return
+        else:
+            print("No improve_sample_id modifications detected. No file rewriting needed.")
+            return
+    # Proceed to rewrite files
+    print("Rewriting files with updated stable IDs.")
     # Rewrite samples files
     for ds in ds_list:
         samp_path = os.path.join(local_dir, f"{ds}_samples.csv")
-        rewrite_samples_file(samp_path, sample_id_mapping, datasets=ds_list)
+        rewrite_samples_file(samp_path, sample_id_mapping, datasets=ds_list, dataset=ds)
         samp_gz_path = samp_path + '.gz'
         if os.path.exists(samp_gz_path):
-            rewrite_samples_file(samp_gz_path, sample_id_mapping, datasets=ds_list)
-
+            rewrite_samples_file(samp_gz_path, sample_id_mapping, datasets=ds_list, dataset=ds)
     # Rewrite other files
     for ds in ds_list:
         for ftype in other_file_types:
@@ -529,11 +444,10 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
             for ext in ['.csv', '.tsv']:
                 other_file = os.path.join(local_dir, f"{ds}_{ftype}{ext}")
                 if os.path.exists(other_file):
-                    rewrite_other_file(other_file, sample_id_mapping, datasets=ds_list)
+                    rewrite_other_file(other_file, sample_id_mapping, datasets=ds_list, dataset=ds)
                 gz_other_file = other_file + '.gz'
                 if os.path.exists(gz_other_file):
-                    rewrite_other_file(gz_other_file, sample_id_mapping, datasets=ds_list)
-
+                    rewrite_other_file(gz_other_file, sample_id_mapping, datasets=ds_list, dataset=ds)
     print("All files have been rewritten with stable IDs.")
     print("Stable IDs have been updated in improve_sample_mapping.json.")
 
