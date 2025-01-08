@@ -9,7 +9,7 @@ import shutil
 from collections import defaultdict
 
 ##### Load, make structure, save functions for improve_drug_mapping.json
-def load_mapping(mapping_file='improve_drug_mapping.json'):
+def load_mapping(mapping_file='build/improve_drug_mapping.json'):
     """
     Loads an existing improve_drug_mapping.json if available.
     Otherwise returns an empty base structure with metadata and drugs.
@@ -25,8 +25,9 @@ def load_mapping(mapping_file='improve_drug_mapping.json'):
             "drugs": []
         }, False
 
-def save_mapping(mapping_data, mapping_file):
+def save_mapping(mapping_data):
     """Saves mapping data to disk as JSON."""
+    mapping_file='tmp/improve_drug_mapping.json'
     with open(mapping_file, 'w') as f:
         json.dump(mapping_data, f, indent=2)
 
