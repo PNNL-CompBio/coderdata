@@ -24,8 +24,9 @@ def load_mapping(mapping_file='improve_sample_mapping.json'):
             "samples": []
         }, False
 
-def save_mapping(mapping_data,mapping_file):
+def save_mapping(mapping_data):
     """Saves mapping data to disk as JSON."""
+    mapping_file = "/tmp/improve_sample_mapping.json"
     with open(mapping_file, 'w') as f:
         json.dump(mapping_data, f, indent=2)
 
@@ -383,7 +384,7 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
     # Set build_date
     build_date = args.build_date or datetime.utcnow().strftime("%Y-%m-%d")
     # Load or initialize improve_sample_mapping.json
-    mapping_file = "improve_sample_mapping.json"
+    mapping_file = "build/improve_sample_mapping.json"
     mapping_data, had_prior = load_mapping(mapping_file)
     # Insert current build metadata
     current_build_metadata = get_current_build_metadata(build_date, args.version)
@@ -413,7 +414,7 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
         key=lambda x: int(x["stable_id"]) if x["stable_id"].isdigit() else x["stable_id"]
     )
     # Save improve_sample_mapping.json
-    save_mapping(mapping_data,mapping_file)
+    save_mapping(mapping_data)
     print(f"improve_sample_mapping.json updated with {len(mapping_data['samples'])} samples.")
     # Determine if any improve_sample_ids were modified
     ids_modified = any(
