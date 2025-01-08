@@ -76,6 +76,9 @@ def check_folder(path: Union[str, PathLike, Path]) -> Path:
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
     
     
