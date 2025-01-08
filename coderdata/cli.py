@@ -63,9 +63,28 @@ def main():
 
 def info(args):
     if args.LIST:
-        print(list_datasets())
+        print(
+            '\n'
+            'Available datasets\n'
+            '------------------\n'
+        )
+        list_datasets()
+        print(
+            '\n'
+            '------------------\n\n'
+            'To download individual datasets run "coderdata download -name '
+            'DATASET_NAME" where "DATASET_NAME" is for example "beataml".'
+        )
     elif args.VERSION:
-        print(version())
+        version_numbers = version()
+        print(
+            *(
+                f"package version: {version_numbers['package']}",
+                f"dataset version: {version_numbers['dataset']}"
+            ),
+            sep='\n',
+            file=sys.stdout,
+        ) 
 
 
 def download(args):
