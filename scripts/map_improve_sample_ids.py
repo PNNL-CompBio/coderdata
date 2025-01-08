@@ -26,7 +26,7 @@ def load_mapping(mapping_file='improve_sample_mapping.json'):
 
 def save_mapping(mapping_data):
     """Saves mapping data to disk as JSON."""
-    mapping_file='improve_sample_mapping.json'
+    mapping_file='tmp/improve_sample_mapping.json'
     with open(mapping_file, 'w') as f:
         json.dump(mapping_data, f, indent=2)
 
