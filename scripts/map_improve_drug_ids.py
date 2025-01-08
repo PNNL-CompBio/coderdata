@@ -285,7 +285,7 @@ Unify via canSMILES, update stable IDs, and rewrite files.
     drug_id_mapping = unify_drugs(mapping_data, all_drugs_rows, dataset_priority)
     # Sort final "drugs" by numeric portion if SMI_#, or lexically
     mapping_data["drugs"].sort(key=lambda d: parse_smi_num(d["stable_id"]))
-    save_mapping(mapping_data, mapping_file)
+    save_mapping(mapping_data)
     print(f"Updated {mapping_file} with {len(mapping_data['drugs'])} drugs.")
     # Proceed to rewrite files
     print("Rewriting files with updated stable IDs.")
