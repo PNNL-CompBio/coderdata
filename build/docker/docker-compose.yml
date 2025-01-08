@@ -26,6 +26,14 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: hcmi:latest
+  pancpdo:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.pancpdo
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: pancpdo:latest
 
   beataml:
     build:

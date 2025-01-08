@@ -18,5 +18,5 @@ tests/__pycache__
 dist
 build/lib
 build/local
-
 coderdata/_version.py
+local/
