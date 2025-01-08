@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Union
 import sys
 from .download.downloader import download as download_datasets
+from .utils import version
+from .utils import list_datasets
 
 def main():
     parser = argparse.ArgumentParser(prog='coderdata')
@@ -37,11 +39,34 @@ def main():
         help='Allow dataset files to be overwritten if they already exist.'
     )
     parser_download.set_defaults(func=download)
+    
+    grp = parser.add_mutually_exclusive_group()
+    grp.add_argument(
+        '-l', '--list',
+        dest="LIST",
+        action='store_true',
+        help="Prints list of available datasets and exits program."
+    )
+    grp.add_argument(
+        '-v', '--version',
+        dest="VERSION",
+        action='store_true',
+        help="Prints the versions of the coderdata API and dataset and exits the program"
+    )
+    parser.set_defaults(func=info)
+
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(0)
     args = parser.parse_args()
     args.func(args)
+
+def info(args):
+    if args.LIST:
+        print(list_datasets())
+    elif args.VERSION:
+        print(version())
+
 
 def download(args):
     download_datasets(
