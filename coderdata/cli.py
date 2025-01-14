@@ -112,7 +112,7 @@ def info(args):
         print(
             '\n'
             '------------------\n\n'
-            'To download individual datasets run "coderdata download -name '
+            'To download individual datasets run "coderdata download --name '
             'DATASET_NAME" where "DATASET_NAME" is for example "beataml".'
         )
     
