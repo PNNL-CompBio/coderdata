@@ -10,7 +10,7 @@ import warnings
 import yaml
 
 def download(
-        name: str=None,
+        name: str='all',
         local_path: PathLike=Path.cwd(),
         exist_ok: bool=False
         ):
