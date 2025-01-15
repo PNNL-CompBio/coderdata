@@ -333,19 +333,15 @@ def rewrite_other_file(file_path, sample_id_mapping, datasets=None, dataset=None
         print(f"Dataset not specified for {file_path}. Skipping.")
         return
 
-    # Figure out the underlying extension (ignoring .gz) to determine delimiter
     actual_ext = _get_file_extension_ignore_gz(file_path)
     if actual_ext == '.tsv':
         delim = '\t'
     else:
-        # Default to comma for .csv or unknown extensions
         delim = ','
 
     print(f"Rewriting other file: {file_path}")
-    # Decompress if needed (returns unzipped path plus a flag indicating if it was gzipped)
     file_path, was_gz = decompress_gz_if_needed(file_path)
     if not os.path.exists(file_path):
-        # If decompressed file doesn’t exist or is empty, re-compress (if needed) and skip
         recompress_if_needed(file_path, file_path, was_gz)
         print(f"File not found or empty after decompression: {file_path}")
         return
