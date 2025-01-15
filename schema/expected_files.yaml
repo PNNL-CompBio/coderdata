@@ -235,7 +235,7 @@ datasets:
     - target_class: Drug Descriptor
       file: /tmp/prism_drug_descriptors.tsv
 
- pancpdo:
+  pancpdo:
     - target_class: Sample
       file: /tmp/pancpdo_samples.csv
     - target_class: Transcriptomics
