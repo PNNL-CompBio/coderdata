@@ -462,7 +462,7 @@ so their TSV files are properly rewritten.
 
         # 3) Sort final "drugs" by numeric portion  If not a SMI_number, reassign to 999999999999.
         mapping_data["drugs"].sort(key=lambda d: parse_smi_num(d["stable_id"]) or 999999999999)
-        save_mapping(mapping_data, mapping_file)
+        save_mapping(mapping_data)
         print(f"Updated {mapping_file} with {len(mapping_data['drugs'])} drugs.")
 
         # 4) Rewrite the main drug TSV
