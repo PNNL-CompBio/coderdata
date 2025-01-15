@@ -27,8 +27,9 @@ def load_mapping(mapping_file='improve_drug_mapping.json'):
             "drugs": []
         }, False
 
-def save_mapping(mapping_data, mapping_file='improve_drug_mapping.json'):
+def save_mapping(mapping_data):
     """Saves mapping data to disk as JSON."""
+    mapping_file='tmp/improve_drug_mapping.json'
     with open(mapping_file, 'w') as f:
         json.dump(mapping_data, f, indent=2)
     print(f"Saved mapping data to {mapping_file}.")
@@ -381,7 +382,7 @@ so their TSV files are properly rewritten.
     # Set build_date
     build_date = args.build_date or datetime.utcnow().strftime("%Y-%m-%d")
     # Mapping file path
-    mapping_file = 'improve_drug_mapping.json'
+    mapping_file = 'build/improve_drug_mapping.json'
 
     # Load or initialize improve_drug_mapping.json
     mapping_data, had_prior = load_mapping(mapping_file)
@@ -425,7 +426,7 @@ so their TSV files are properly rewritten.
 
         # Sort final "drugs" by numeric portion if SMI_#, or lexically
         mapping_data["drugs"].sort(key=lambda d: parse_smi_num(d["stable_id"]) or 999999999)
-        save_mapping(mapping_data, mapping_file)
+        save_mapping(mapping_data)
         print(f"Updated {mapping_file} with {len(mapping_data['drugs'])} drugs.")
 
         # Rewrite files
