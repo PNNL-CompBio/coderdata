@@ -304,35 +304,66 @@ def rewrite_samples_file(file_path, sample_id_mapping, datasets=None, dataset=No
 
 #### Rewrite all other files based on Stable IDs.
 
+def _get_file_extension_ignore_gz(file_path):
+    """
+    Extract the underlying extension, ignoring a trailing .gz if present.
+    For example:
+      - "data.csv.gz" -> ".csv"
+      - "data.tsv.gz" -> ".tsv"
+      - "data.csv"    -> ".csv"
+      - "data.tsv"    -> ".tsv"
+    """
+    file_path_lower = file_path.lower()
+    if file_path_lower.endswith('.gz'):
+        file_path_lower = file_path_lower[:-3]  # strip .gz
+    _, ext = os.path.splitext(file_path_lower)
+    return ext
+
 def rewrite_other_file(file_path, sample_id_mapping, datasets=None, dataset=None):
     """
     Rewrites other files (e.g., transcriptomics, proteomics):
-      - Replace improve_sample_id with stable_id based on sample_id_mapping
-      - If the file is part of the specified datasets
+      - Replace 'improve_sample_id' with stable_id based on sample_id_mapping
+      - Skips if the file is not in the specified datasets
+      - Handles CSV, TSV, and gzipped versions of these files
     """
+    # Determine whether to process this file
     if datasets and not any(ds in os.path.basename(file_path) for ds in datasets):
         return
     if dataset is None:
         print(f"Dataset not specified for {file_path}. Skipping.")
         return
+
+    # Figure out the underlying extension (ignoring .gz) to determine delimiter
+    actual_ext = _get_file_extension_ignore_gz(file_path)
+    if actual_ext == '.tsv':
+        delim = '\t'
+    else:
+        # Default to comma for .csv or unknown extensions
+        delim = ','
+
     print(f"Rewriting other file: {file_path}")
+    # Decompress if needed (returns unzipped path plus a flag indicating if it was gzipped)
     file_path, was_gz = decompress_gz_if_needed(file_path)
     if not os.path.exists(file_path):
+        # If decompressed file doesn’t exist or is empty, re-compress (if needed) and skip
         recompress_if_needed(file_path, file_path, was_gz)
         print(f"File not found or empty after decompression: {file_path}")
         return
-    with open(file_path,'r',newline='',encoding='utf-8') as f:
-        reader = csv.reader(f)
+
+    with open(file_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.reader(f, delimiter=delim)
         rows = list(reader)
         if not rows:
             recompress_if_needed(file_path, file_path, was_gz)
             print(f"Empty file: {file_path}")
             return
+
         header = rows[0]
         if "improve_sample_id" not in header:
             recompress_if_needed(file_path, file_path, was_gz)
             print(f"'improve_sample_id' column not found in {file_path}")
             return
+
         try:
             idx_id = header.index("improve_sample_id")
         except ValueError:
@@ -340,16 +371,18 @@ def rewrite_other_file(file_path, sample_id_mapping, datasets=None, dataset=None
             print(f"'improve_sample_id' column index error in {file_path}")
             return
     tmp = file_path + ".tmp"
-    with open(file_path,'r',newline='',encoding='utf-8') as fin, \
-         open(tmp,'w',newline='',encoding='utf-8') as fout:
-        reader = csv.reader(fin)
-        writer = csv.writer(fout)
+    
+    with open(file_path, 'r', newline='', encoding='utf-8') as fin, \
+         open(tmp, 'w', newline='', encoding='utf-8') as fout:
+        reader = csv.reader(fin, delimiter=delim)
+        writer = csv.writer(fout, delimiter=delim)
         hdr = next(reader)
         writer.writerow(hdr)
         for row in reader:
             if len(row) <= idx_id:
                 writer.writerow(row)
                 continue
+
             original_id = row[idx_id].strip()
             mapping_key = (dataset, original_id)
             if mapping_key in sample_id_mapping:
@@ -357,11 +390,20 @@ def rewrite_other_file(file_path, sample_id_mapping, datasets=None, dataset=None
                 if new_id != original_id:
                     print(f"Replacing improve_sample_id '{original_id}' with stable_id '{new_id}' in {file_path}")
                 row[idx_id] = new_id
+
             writer.writerow(row)
+
+    # Replace original file with updated file
     os.replace(tmp, file_path)
+    # Recompress if needed
     recompress_if_needed(file_path, file_path, was_gz)
 
+
+
+
 #### Call everything in Main
+
+
 
 def main():
     parser = argparse.ArgumentParser(description="""
