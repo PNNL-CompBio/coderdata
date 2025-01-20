@@ -153,6 +153,35 @@ def process_datasets(args):
 
     for data_set in data_sets_info.keys():
         if data_sets[data_set].experiments is not None:
+
+            # getting "<DATASET>_all.txt"
+            drug_response_rows = (
+                data_sets['mpnst']
+                .experiments[
+                    ['improve_sample_id', 'improve_drug_id', "time", "study"]
+                    ]
+                .drop_duplicates()
+                )
+            drug_response_rows.rename(
+                    columns={'improve_drug_id': 'improve_chem_id'},
+                    inplace=True,
+                    )
+            row_nums = pd.merge(
+                response_data,
+                drug_response_rows,
+                how='inner',
+                on=['improve_sample_id', 'improve_chem_id', "time", "study"]
+                )
+            outfile_path = splits_folder.joinpath(f"{data_set}_all.txt")
+            row_nums.to_csv(
+                path_or_buf=outfile_path,
+                columns=['index'],
+                index=False,
+                header=False
+                )
+
+            # generation of the actual splits
+
             splits = {}
             for i in range(0, args.NUM_SPLITS):
                 splits[i] = data_sets[data_set].train_test_validate(
@@ -248,9 +277,6 @@ def process_datasets(args):
                     header=False
                     )
                 
-
-    # look up the row ids for all data items of each data source to 
-    # create "<STUDY>_all.txt in /splits"
 
 
     # join the "meta data tables" like copynumber etc.
