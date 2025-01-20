@@ -136,6 +136,13 @@ def process_datasets(args):
         columns={'improve_drug_id': 'improve_chem_id'},
         inplace=True,
         )
+    # exporting the drug response data to 'y_data/response.tsv'
+    outfile_path = args.WORKDIR.joinpath("data_out", "y_data", "response.tsv")
+    response_data.to_csv(
+        path_or_buf=outfile_path,
+        index=False,
+        sep='\t',
+        )
     # temporary addition of "index column" to serve as a reference for
     # the extraction of split files
     response_data['index'] = response_data.index
