@@ -373,8 +373,41 @@ def process_datasets(args):
     # create copynumber master table
     #-------------------------------------------------------------------
 
+    merged_copy_number = merge_master_tables(args, data_sets=data_sets, data_type='copy_number')
 
+    merged_copy_number = pd.merge(
+        merged_copy_number,
+        data_gene_names[[
+            'entrez_id',
+            'ensemble_gene_id',
+            'gene_symbol'
+        ]],
+        how='left',
+        on='entrez_id',
+    )
 
+    merged_copy_number.insert(
+        1,
+        'ensemble_gene_id',
+        merged_copy_number.pop('ensemble_gene_id')
+    )
+    merged_copy_number.insert(
+        1,
+        'gene_symbol',
+        merged_copy_number.pop('gene_symbol')
+    )
+
+    # writing the expression datatable to '/x_data/*_copy_number.tsv'
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "cancer_copy_number.tsv"
+    )
+    merged_copy_number.transpose().to_csv(
+        path_or_buf=outfile_path,
+        sep='\t',
+        header=False
+    )
     # join the "meta data tables" like copynumber etc.
 
 
