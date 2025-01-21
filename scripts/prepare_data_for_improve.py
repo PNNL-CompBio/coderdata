@@ -323,6 +323,7 @@ def process_datasets(args):
 
     merged_transcriptomics = merge_master_tables(
         args=args,
+        data_sets=data_sets,
         data_type='transcriptomics'
         )
     
@@ -358,7 +359,7 @@ def process_datasets(args):
     # writing the expression datatable to '/x_data/*_expression.tsv'
     outfile_path = args.WORKDIR.joinpath(
         "data_out",
-        "y_data",
+        "x_data",
         "cancer_gene_expression.tsv"
     )
     merged_transcriptomics.transpose().to_csv(
@@ -377,7 +378,7 @@ def process_datasets(args):
     # join the "meta data tables" like copynumber etc.
 
 
-def merge_master_tables(args, data_type: str='transcriptomics'):
+def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
     """
     Helper function to merge several DataTables into one master table
 
@@ -394,22 +395,14 @@ def merge_master_tables(args, data_type: str='transcriptomics'):
         _description_
     """
 
-    local_path = args.WORKDIR.joinpath('data_in_tmp')
-    
-    # getting the info which datasets are available
-    data_sets_info = cd.list_datasets(raw=True)
-    
-    # loading all available datasets into a dict where the dataset name
-    # is the key
-    data_sets = {}
-    for data_set in data_sets_info.keys():
-        data_sets[data_set] = cd.load(name=data_set, local_path=local_path)
-    
     # creating a list that contains all DataFrames to be merged
     dfs_to_merge = []
     for data_set in data_sets:
         if data_sets[data_set].experiments is not None:
-            if data_type in ['transcriptomics', 'copy_number']:
+            if (
+                data_type in ['transcriptomics', 'copy_number'] and 
+                getattr(data_sets[data_set], data_type, None) is not None
+            ):
                 dfs_to_merge.append(
                     data_sets[data_set].format(data_type=data_type)
                     )
