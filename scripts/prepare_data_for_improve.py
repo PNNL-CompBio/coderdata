@@ -1,5 +1,6 @@
 
 import argparse
+import functools as ft
 from os import PathLike
 from pathlib import Path
 from pathlib import PurePath
@@ -62,6 +63,11 @@ def main():
         '-n', '--num_splits', dest='NUM_SPLITS',
         type=int,
         default=10
+    )
+    p_process_datasets.add_argument(
+        '-g', '--gene_table', dest='GENE_TABLE',
+        type=str,
+        required=True
     )
 
     p_all = command_parsers.add_parser(
@@ -189,6 +195,8 @@ def process_datasets(args):
 
             # generation of the actual splits
 
+            # TODO: potentially clean this up with a function that is
+
             splits = {}
             for i in range(0, args.NUM_SPLITS):
                 splits[i] = data_sets[data_set].train_test_validate(
@@ -283,10 +291,145 @@ def process_datasets(args):
                     index=False,
                     header=False
                     )
-                
+
+    #-------------------------------------------------------------------
+    # getting common / reference gene symbols
+    #-------------------------------------------------------------------
+
+    # TODO: potentially add mapping to the genes table in coderdata
+    # currently we do not make use of the 'genes' DataFrame in a Dataset
+    # object. The gene symbol information comes directly from HGNC.
+    # There are instances where the entrez_id that is recoreded in the
+    # expression / transcriptome is not in HGNC. Those currenly result
+    # in NaNs for the gene symbol
+
+    data_gene_names = pd.read_table(
+        filepath_or_buffer=args.GENE_TABLE,
+        )
+    data_gene_names.rename(
+            columns={
+                'NCBI Gene ID': 'entrez_id',
+                'Ensembl gene ID': 'ensemble_gene_id',
+                'Approved symbol': 'gene_symbol'
+                },
+            inplace=True,
+            )
+    data_gene_names.dropna(axis=0, subset='entrez_id', inplace=True)
+    data_gene_names['entrez_id'] = data_gene_names['entrez_id'].astype(int)      
+
+    #-------------------------------------------------------------------
+    # create gene expression master table
+    #-------------------------------------------------------------------
+
+    merged_transcriptomics = merge_master_tables(
+        args=args,
+        data_type='transcriptomics'
+        )
+    
+    # TODO: Potentially cast 'NaN's to 0
+
+    # merging ensemble gene id & gene symbol into the transcriptomics 
+    # data
+    merged_transcriptomics = pd.merge(
+        merged_transcriptomics,
+        data_gene_names[[
+            'entrez_id',
+            'ensemble_gene_id',
+            'gene_symbol'
+        ]],
+        how='left',
+        on='entrez_id',
+    )
+
+    # moving ensemble_id & gene_symbol columns to the front of the table
+    # such that when transposing the DataFrame they are row 3 and 2
+    # respectively
+    merged_transcriptomics.insert(
+        1,
+        'ensemble_gene_id',
+        merged_transcriptomics.pop('ensemble_gene_id')
+    )
+    merged_transcriptomics.insert(
+        1,
+        'gene_symbol',
+        merged_transcriptomics.pop('gene_symbol')
+    )
+
+    # writing the expression datatable to '/x_data/*_expression.tsv'
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "y_data",
+        "cancer_gene_expression.tsv"
+    )
+    merged_transcriptomics.transpose().to_csv(
+        path_or_buf=outfile_path,
+        sep='\t',
+        header=False
+    )
+
+
+    #-------------------------------------------------------------------
+    # create copynumber master table
+    #-------------------------------------------------------------------
+
 
 
     # join the "meta data tables" like copynumber etc.
+
+
+def merge_master_tables(args, data_type: str='transcriptomics'):
+    """
+    Helper function to merge several DataTables into one master table
+
+    Parameters
+    ----------
+    args : _type_
+        _description_
+    data_type : str, optional
+        _description_, by default 'transcriptomics'
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+
+    local_path = args.WORKDIR.joinpath('data_in_tmp')
+    
+    # getting the info which datasets are available
+    data_sets_info = cd.list_datasets(raw=True)
+    
+    # loading all available datasets into a dict where the dataset name
+    # is the key
+    data_sets = {}
+    for data_set in data_sets_info.keys():
+        data_sets[data_set] = cd.load(name=data_set, local_path=local_path)
+    
+    # creating a list that contains all DataFrames to be merged
+    dfs_to_merge = []
+    for data_set in data_sets:
+        if data_sets[data_set].experiments is not None:
+            if data_type in ['transcriptomics', 'copy_number']:
+                dfs_to_merge.append(
+                    data_sets[data_set].format(data_type=data_type)
+                    )
+
+    merged_data = ft.reduce(
+        lambda left_df, right_df: pd.merge(
+            left_df,
+            right_df,
+            on='entrez_id',
+            how='outer',
+        ),
+        dfs_to_merge,
+    )
+
+    # temporary fix to values that should be int but currently aren't 
+    # in the coderdata dataset storage
+    if not merged_data.index.dtype == int:
+        merged_data.index = merged_data.index.astype(int)
+
+    return merged_data
 
 
 def download_datasets(args):
