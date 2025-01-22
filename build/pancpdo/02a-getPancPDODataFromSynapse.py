@@ -39,10 +39,50 @@ def parseCNVFile(fpath, sampid, genes):
     newdat = newdat[['improve_sample_id','entrez_id','copy_number','source','study']]
     newdat['copy_call'] = [get_copy_call(a) for a in newdat['copy_number']]
     return newdat
-        
-    
+
+
+mutmap = {'CODON_CHANGE_PLUS_CODON_DELETION':'In_Frame_Del', ##this isn't a great mapping
+          'CODON_CHANGE_PLUS_CODON_INSERTION':'In_Frame_Ins', ##this isn't a great mapping
+          'CODON_DELETION':'In_Frame_Del',
+          'CODON_INSERTION':'In_Frame_Ins',
+          'DOWNSTREAM':"3'Flank",
+          'FRAME_SHIFT':'Frameshift_Variant',
+          'FRAME_SHIFT+SPLICE_SITE_ACCEPTOR+SPLICE_SITE_REGION+INTRON':'Frameshift_Variant',
+          'FRAME_SHIFT+SPLICE_SITE_REGION':'Frameshift_Variant',
+          'INTERGENIC':'IGR',
+          'INTRON':'Intron',
+          'NON_SYNONYMOUS_CODING':'Missense_Mutation',
+          'NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION':'Missense_Mutation',
+          'SPLICE_SITE_ACCEPTOR+INTRON':'Splice_Site',
+          'SPLICE_SITE_DONOR+INTRON':'Splice_Site',
+          'SPLICE_SITE_REGION+INTRON':'Splice_Site',
+          'SPLICE_SITE_REGION+NON_CODING_EXON_VARIANT':'Splice_Site',
+          'SPLICE_SITE_REGION+SYNONYMOUS_CODING':'Silent',
+          'START_GAINED+UTR_5_PRIME':'Start_Codon_Ins',
+          'STOP_GAINED':'Stop_Codon_Ins',
+          'STOP_GAINED+CODON_CHANGE_PLUS_CODON_INSERTION':'Stop_Codon_Ins',
+          'SYNONYMOUS_CODING':'Silent',
+          'UPSTREAM':"5'Flank",
+          'UTR_3_PRIME':"3'UTR",
+          'UTR_5_PRIME':"5'UTR"
+          }
+
 def parseMutFile(fpath, sampid,genes):
-    mutfile = pd.read_csv(fpath,sep='\t')
+    '''
+    move mutations to following headers:
+     entrez_id, improve_sample_id, source, study, mutation, variant_classification
+    '''
+    mutfile = pd.read_csv(fpath,sep='\t')[['SNPEFF_GENE_NAME','SNPEFF_EFFECT','SNPEFF_CDS_CHANGE']]
+    mutfile = mutfile.dropna(subset='SNPEFF_CDS_CHANGE')
+    mutfile.columns  = ['gene_symbol','SNPEFF_EFFECT','mutation']
+    fullfile = pd.merge(mutfile,pd.DataFrame({'SNPEFF_EFFECT':mutmap.keys(),'variant_classification':mutmap.values()}))
+    fullfile = pd.merge(fullfile,genes)
+    fullfile['improve_sample_id'] = sampid
+    fullfile['source']='TiriacEtAl'
+    fullfile['study']='pancpdo'
+    fullfile = fullfile[['improve_sample_id','entrez_id','source','study','mutation','variant_classification']]
+    fullfile = fullfile.dropna().drop_duplicates()
+    return fullfile
 
 def main():
     parser = argparse.ArgumentParser(description = 'Script that collects WES and CNV data from Synapse for Coderdata')
@@ -83,12 +123,24 @@ def main():
         newcnv.to_csv('/tmp/pancpdo_copy_number.csv.gz',compression='gzip',index=False)
             
     if args.mutation:
-        wes = sc.tableQuery('select * from syn64608378 where parentId==syn64608263').asDataFrame()
+        wes = sc.tableQuery("select * from syn64608378 where parentId='syn64608263'").asDataFrame()
         alldats = []
         ##go through and get every mutation file
         for index,row in wes.iterrows():
+            sname = row['name'].split('--')[0]
             sid = row.id
-            sname = row['name']
-        
+            print(sid,sname)
+            if sname in set(samps.other_id):
+                sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
+            else:
+                print('Missing sample id for '+sname)
+                continue
+            path = sc.get(sid).path
+            sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
+            res = parseMutFile(path,sampid, genes)
+            alldats.append(res)
+        newmut = pd.concat(alldats)
+        newmut.to_csv("/tmp/pancpdo_mutations.csv.gz",compression='gzip',index=False)
+            
 if __name__=='__main__':
     main()
