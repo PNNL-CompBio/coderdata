@@ -1,13 +1,16 @@
 # coderdata/download/downloader.py
 
+from importlib import resources
 from pathlib import Path
 from os import PathLike
 import os
 import requests
 import warnings
 
+import yaml
+
 def download(
-        name: str=None,
+        name: str='all',
         local_path: PathLike=Path.cwd(),
         exist_ok: bool=False
         ):
@@ -44,7 +47,9 @@ def download(
     if not local_path.exists():
         Path.mkdir(local_path)
     # Get the dataset details
-    url = "https://api.figshare.com/v2/articles/25033697"
+    with resources.open_text('coderdata', 'dataset.yml') as f:
+        data_information = yaml.load(f, Loader=yaml.FullLoader)
+    url = data_information['figshare']
     
     response = requests.get(url)
     if response.status_code != 200:

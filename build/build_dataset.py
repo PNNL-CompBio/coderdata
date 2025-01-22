@@ -42,6 +42,7 @@ def process_docker(dataset,validate):
         'beataml': ['beataml'],
         'mpnst': ['mpnst'],
         'mpnstpdx': ['mpnstpdx'],
+        'pancpdo': ['pancpdo'],
         'cptac': ['cptac'],
         'genes': ['genes'],
         'upload': ['upload']
@@ -123,6 +124,7 @@ def process_omics(executor, dataset, should_continue):
         'broad_sanger': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'cptac': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'hcmi': ['mutations', 'transcriptomics'],
+        'pancpdo': ['transcriptomics'],
         'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics']
     }
 
