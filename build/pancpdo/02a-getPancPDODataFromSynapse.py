@@ -101,6 +101,7 @@ def main():
 
     sc = synapseclient.login(args.token)
 
+    missingsamples = []
     if args.copy:
         ##query synapse view for files
         cnvs = sc.tableQuery("select * from syn64608378 where parentId='syn64608163'").asDataFrame()
@@ -115,6 +116,7 @@ def main():
                 sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
             else:
                 print('Missing sample id for '+sname)
+                missingsamples.append('copy,'+sname)
                 continue
             sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
             res = parseCNVFile(path,sampid, genes)
@@ -134,6 +136,7 @@ def main():
                 sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
             else:
                 print('Missing sample id for '+sname)
+                missingsamples.append('mutation,'+sname)
                 continue
             path = sc.get(sid).path
             sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
@@ -141,6 +144,6 @@ def main():
             alldats.append(res)
         newmut = pd.concat(alldats)
         newmut.to_csv("/tmp/pancpdo_mutations.csv.gz",compression='gzip',index=False)
-            
+    missingsamples.to_csv('missing.csv')
 if __name__=='__main__':
     main()
