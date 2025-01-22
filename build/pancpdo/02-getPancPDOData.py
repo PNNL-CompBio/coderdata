@@ -683,6 +683,12 @@ def main():
     final_data = align_to_schema(combined_data,args.type,7500,args.samples)
     gc.collect()
 
+    ##what if we shrink samples to only include the values that have transcriptional data
+    #this fails
+    #newsamps = pd.read_csv(args.samples)
+    #newsamps = newsamps[newsamps.improve_sample_id.isin(final_data.improve_sample_id)]
+    #newsamps.to_csv(args.samples)
+
     combined_data = None
     
     print(f"final data:\n{final_data}")

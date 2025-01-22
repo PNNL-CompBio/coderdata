@@ -1,0 +1,94 @@
+import pandas as pd
+import synapseclient
+import argparse
+import math
+
+
+def get_copy_call(a):
+    """
+    Helper Function - Determine copy call for a value.
+    """
+
+    if a is None:
+        return float('nan')
+    
+    if math.isnan(a):
+        return float('nan')
+    
+    a_val = a##math.log2(float(a)+0.000001) ###this should not be exponent, should be log!!! 2**float(a)
+    if a_val < 0.0: #0.5210507:
+        return 'deep del'
+    elif a_val < 0.7311832:
+        return 'het loss'
+    elif a_val < 1.214125:
+        return 'diploid'
+    elif a_val < 1.731183:
+        return 'gain'
+    else:
+        return 'amp'
+    
+    return pl.Series([get_copy_call(a) for a in arr])
+
+def parseCNVFile(fpath, sampid, genes):
+    log2data = pd.read_csv(fpath, sep='\t', header=None)
+    log2data.columns = ['gene_symbol','copy_number','Region','Type','Pos']
+    log2data['improve_sample_id']=sampid
+    newdat =  pd.merge(log2data,genes)[['improve_sample_id','entrez_id','copy_number']].drop_duplicates()
+    newdat['study']='pancpdo'
+    newdat['source']='TiriacEtal'
+    newdat = newdat[['improve_sample_id','entrez_id','copy_number','source','study']]
+    newdat['copy_call'] = [get_copy_call(a) for a in newdat['copy_number']]
+    return newdat
+        
+    
+def parseMutFile(fpath, sampid,genes):
+    mutfile = pd.read_csv(fpath,sep='\t')
+
+def main():
+    parser = argparse.ArgumentParser(description = 'Script that collects WES and CNV data from Synapse for Coderdata')
+    parser.add_argument('-s', '--samples', help='Path to sample file',default=None)
+    parser.add_argument('-g', '--genes', help='Path to genes file', default = None)
+    parser.add_argument('-c', '--copy', help='Flag to capture copy number data', action='store_true', default=False)
+    parser.add_argument('-m', '--mutation', help='Flag to capture mutation data', action='store_true', default=False)
+    parser.add_argument('-t', '--token', help='Synapse token')
+
+    args = parser.parse_args()
+    if args.samples is None or args.genes is None:
+        print('We need at least a genes and samples file to continue')
+        exit()
+    samps = pd.read_csv(args.samples)
+    genes = pd.read_csv(args.genes)
+
+    sc = synapseclient.login(args.token)
+
+    if args.copy:
+        ##query synapse view for files
+        cnvs = sc.tableQuery("select * from syn64608378 where parentId='syn64608163'").asDataFrame()
+        alldats = []
+        ##go through table and get every file
+        for index,row in cnvs.iterrows():
+            sid = row.id
+            sname = row['name'].split('--')[0]
+            print(sid,sname)
+            path = sc.get(sid).path
+            if sname in set(samps.other_id):
+                sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
+            else:
+                print('Missing sample id for '+sname)
+                continue
+            sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
+            res = parseCNVFile(path,sampid, genes)
+            alldats.append(res)
+        newcnv = pd.concat(alldats)
+        newcnv.to_csv('/tmp/pancpdo_copy_number.csv.gz',compression='gzip',index=False)
+            
+    if args.mutation:
+        wes = sc.tableQuery('select * from syn64608378 where parentId==syn64608263').asDataFrame()
+        alldats = []
+        ##go through and get every mutation file
+        for index,row in wes.iterrows():
+            sid = row.id
+            sname = row['name']
+        
+if __name__=='__main__':
+    main()
