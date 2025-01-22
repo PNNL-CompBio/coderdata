@@ -55,7 +55,7 @@ def process_docker(dataset,validate):
         
     datasets_to_build.extend(dataset_map.get(dataset, []))
 
-    compose_command = ['docker-compose', '-f', compose_file, 'build'] + datasets_to_build
+    compose_command = ['docker','compose', '-f', compose_file, 'build'] + datasets_to_build
 
     log_file_path = 'local/docker.log'
     env = os.environ.copy()
@@ -258,7 +258,7 @@ def run_schema_checker(dataset):
             decompress_file(os.path.join('local', all_files_dir, file))
 
     # Run schema checker
-    schema_check_command = ['python3', 'check_schema.py', '--datasets'] + datasets
+    schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
     run_docker_validate_cmd(schema_check_command, all_files_dir, 'Validation')
 
 def main():
