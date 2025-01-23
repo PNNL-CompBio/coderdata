@@ -183,7 +183,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
         # Initialize retry variables
         retries = 0
-        max_retries = 5
+        max_retries = 1
 
         # Function to get downloaded file IDs
         def get_downloaded_ids(manifest_loc):

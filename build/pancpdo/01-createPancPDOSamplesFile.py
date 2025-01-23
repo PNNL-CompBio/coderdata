@@ -270,18 +270,26 @@ def filter_and_subset_data(df, maxval, mapfile):
     # Convert 'other_names' to string to ensure consistency
     longtab['other_names'] = longtab['other_names'].astype(str)
 
+    #print(longtab)
     # Reassign 'improve_sample_id's at the end
     unique_other_names = longtab['other_names'].unique()
     print("Number of unique 'other_names' after filtering:", len(unique_other_names))
 
+    ##UPDATE: assign them to common_names instead!
+    unique_common_names = longtab['common_name'].unique()
+    print("Number of unique 'common_names' after filtering:", len(unique_common_names))        
     # Create a new mapping
+    #mapping = pd.DataFrame({
+    #    'other_names': unique_other_names,
+    #    'improve_sample_id': range(int(maxval) + 1, int(maxval) + len(unique_other_names) + 1)
+        #})
     mapping = pd.DataFrame({
-        'other_names': unique_other_names,
-        'improve_sample_id': range(int(maxval) + 1, int(maxval) + len(unique_other_names) + 1)
-    })
+        'common_name':unique_common_names,
+        'improve_sample_id': range(int(maxval) +1, int(maxval) + len(unique_common_names)+1)
+        })
 
     # Merge the mapping back into 'longtab'
-    longtab = pd.merge(longtab, mapping, on='other_names', how='left')
+    longtab = pd.merge(longtab, mapping, on='common_name', how='left')
 
     # Debugging: Check longtab after reassigning IDs
     print("\nlongtab columns after reassigning 'improve_sample_id':", longtab.columns)

@@ -100,7 +100,13 @@ def main():
     genes = pd.read_csv(args.genes)
 
     sc = synapseclient.login(args.token)
-
+    ##to double check identifiers, we use transcriptomics data since that determines what samples were sequenced
+    trans = pd.read_csv('/tmp/pancpdo_transcriptomics.csv.gz')
+    tsamps = samps[samps.improve_sample_id.isin(trans.improve_sample_id)]
+    print(samps.shape)
+    print(tsamps.shape)
+    
+          
     missingsamples = []
     if args.copy:
         ##query synapse view for files
@@ -112,11 +118,17 @@ def main():
             sname = row['name'].split('--')[0]
             print(sid,sname)
             path = sc.get(sid).path
-            if sname in set(samps.other_id):
+            if sname in set(tsamps.other_id):
+                print(sname+' in transcriptomics, using that id')
+                sampid = tsamps.loc[tsamps.other_id==sname]['improve_sample_id'].values[0]
+                missingsamples.append('copy,trans,'+sname)
+            elif sname in set(samps.other_id):
+                print(sname+' in samples but not transcriptomics, using other id')
                 sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
+                missingsamples.append("copy,notrans,"+sname)
             else:
-                print('Missing sample id for '+sname)
-                missingsamples.append('copy,'+sname)
+                print('Missing sample id for '+sname,' skipping for now')
+                missingsamples.append('copy,missed,'+sname)
                 continue
             sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
             res = parseCNVFile(path,sampid, genes)
@@ -132,8 +144,14 @@ def main():
             sname = row['name'].split('--')[0]
             sid = row.id
             print(sid,sname)
-            if sname in set(samps.other_id):
+            if sname in set(tsamps.other_id):
+                print(sname+' in transcriptomics, using that id')
+                sampid = tsamps.loc[tsamps.other_id==sname]['improve_sample_id'].values[0]
+                missingsamples.append('mutation,trans,'+sname)
+            elif sname in set(samps.other_id):
+                print(sname+' in samples but not transcriptomics, using other id')
                 sampid = samps.loc[samps.other_id==sname]['improve_sample_id'].values[0]
+                missingsamples.append('mutation,notrans,'+sname)
             else:
                 print('Missing sample id for '+sname)
                 missingsamples.append('mutation,'+sname)
@@ -144,6 +162,6 @@ def main():
             alldats.append(res)
         newmut = pd.concat(alldats)
         newmut.to_csv("/tmp/pancpdo_mutations.csv.gz",compression='gzip',index=False)
-    missingsamples.to_csv('missing.csv')
+    pd.DataFrame(missingsamples).to_csv('missing.csv',index=False,quoting=None,header=False)
 if __name__=='__main__':
     main()
