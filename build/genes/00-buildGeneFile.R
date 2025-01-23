@@ -51,7 +51,7 @@ full.df<-rbind(joined.df,edf,tdf)|>
     distinct()
 
 #save to file and version
-write.table(joined.df,'/tmp/genes.csv',sep=',',row.names=F,quote=T)
+write.table(full.df,'/tmp/genes.csv',sep=',',row.names=F,quote=T)
 
 ##store this file somewhere!
 
