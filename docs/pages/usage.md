@@ -13,9 +13,10 @@ It offers functionalities to download datasets, load them into Python environmen
 
 ## Installation
 `coderdata` requires `python>=3.9` to be installed. The installed version can be checked via
-```shell
-$ python --version
-Python 3.13.1
+<div class="code-block">
+  <p>$ python --version</p>
+  <p>Python 3.13.1</p>
+</div>
 ```
 If a Python version older that 3.9 is installed please referr to the instruction at [python.org](https://www.python.org/about/gettingstarted/#installing) on how to install / update Python.
 
@@ -36,19 +37,20 @@ The primary way to interact with coderdata is through the `coderdata` API. Addit
 
 ### CLI
 Invoking `coderdata` from the command line will by default print a help / usage message and exit (see below):
-```sh
-$ coderdata
-usage: coderdata [-h] [-l | -v] {download} ...
+<div class="code-block">
+<p>$ coderdata</p>
+<p>usage: coderdata [-h] [-l | -v] {download} ...</p>
+<p></p>
+<p>options:</p>
+<p>  -h, --help     show this help message and exit</p>
+<p>  -l, --list     prints list of available datasets and exits program.</p>
+<p>  -v, --version  prints the versions of the coderdata API and dataset and exits the program</p>
+<p></p>
+<p>commands:</p>
+<p>  {download}</p>
+<p>    download     subroutine to download datasets. See "coderdata download -h" for more options.</p>
+</div>
 
-options:
-  -h, --help     show this help message and exit
-  -l, --list     prints list of available datasets and exits program.
-  -v, --version  prints the versions of the coderdata API and dataset and exits the program
-
-commands:
-  {download}
-    download     subroutine to download datasets. See "coderdata download -h" for more options.
-```
 
 The primary use case of the CLI is to retrieve dataset from the repository. This can be done by invoking the `download` routine of `coderdata`. Without defining a specific dataset the whole repository will be downloaded:
 ```sh
