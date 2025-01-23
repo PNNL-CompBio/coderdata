@@ -17,20 +17,20 @@ It offers functionalities to download datasets, load them into Python environmen
   <p>$ python --version</p>
   <p>Python 3.13.1</p>
 </div>
-```
+
 If a Python version older that 3.9 is installed please referr to the instruction at [python.org](https://www.python.org/about/gettingstarted/#installing) on how to install / update Python.
 
 The preferred way to install `coderdata` is via `pip`. Executing the command below will install the most recent published version of `coderdata` including all required dependencies.
-```shell
-$ pip install coderdata
-```
+<div class="code-block">
+  <p>$ pip install coderdata</p>
+</div>
 
 To check if the package has been sucessfully installed open an interactive python termial and import the package. See an example of what to expect below.
-```python
->>> import coderdata as cd
->>> cd.__version__
-'0.1.40'
-```
+<div class="code-block">
+  <p>\>\>\> import coderdata as cd</p>
+  <p>\>\>\> cd.__version__</p>
+  <p>'0.1.40'</p>
+</div>
 
 ## Usage
 The primary way to interact with coderdata is through the `coderdata` API. Additionally a command line interface with limited functionality (primarily to download data) is also available.
@@ -38,17 +38,17 @@ The primary way to interact with coderdata is through the `coderdata` API. Addit
 ### CLI
 Invoking `coderdata` from the command line will by default print a help / usage message and exit (see below):
 <div class="code-block">
-<p>$ coderdata</p>
-<p>usage: coderdata [-h] [-l | -v] {download} ...</p>
-<p></p>
-<p>options:</p>
-<p>  -h, --help     show this help message and exit</p>
-<p>  -l, --list     prints list of available datasets and exits program.</p>
-<p>  -v, --version  prints the versions of the coderdata API and dataset and exits the program</p>
-<p></p>
-<p>commands:</p>
-<p>  {download}</p>
-<p>    download     subroutine to download datasets. See "coderdata download -h" for more options.</p>
+  <p>$ coderdata</p>
+  <p>usage: coderdata [-h] [-l | -v] {download} ...</p>
+  <p></p>
+  <p>options:</p>
+  <p>  -h, --help     show this help message and exit</p>
+  <p>  -l, --list     prints list of available datasets and exits program.</p>
+  <p>  -v, --version  prints the versions of the coderdata API and dataset and exits the program</p>
+  <p></p>
+  <p>commands:</p>
+  <p>  {download}</p>
+  <p>    download     subroutine to download datasets. See "coderdata download -h" for more options.</p>
 </div>
 
 
