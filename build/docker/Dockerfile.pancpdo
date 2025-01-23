@@ -19,4 +19,5 @@ ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
 RUN pip install --no-cache-dir -r requirements.txt
+
 VOLUME ['/tmp']

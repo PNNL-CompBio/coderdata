@@ -99,8 +99,12 @@ def main():
     samps = pd.read_csv(args.samples)
     genes = pd.read_csv(args.genes)
 
-    sc = synapseclient.login(args.token)
+    print("Logging into synapse")
+    sc = synapseclient.Synapse()
+    sc.login(authToken=args.token)
+    
     ##to double check identifiers, we use transcriptomics data since that determines what samples were sequenced
+    #update this step isn't needed anymore
     trans = pd.read_csv('/tmp/pancpdo_transcriptomics.csv.gz')
     tsamps = samps[samps.improve_sample_id.isin(trans.improve_sample_id)]
     print(samps.shape)
@@ -162,6 +166,6 @@ def main():
             alldats.append(res)
         newmut = pd.concat(alldats)
         newmut.to_csv("/tmp/pancpdo_mutations.csv.gz",compression='gzip',index=False)
-    pd.DataFrame(missingsamples).to_csv('missing.csv',index=False,quoting=None,header=False)
+    #pd.DataFrame(missingsamples).to_csv('missing.csv',index=False,quoting=None,header=False)
 if __name__=='__main__':
     main()
