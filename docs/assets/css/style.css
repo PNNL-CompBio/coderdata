@@ -143,6 +143,7 @@ body {
 code.highlighter-rouge{
     background: white;
     border: 1px solid #ccc;
+    padding: 2.5px;
 
 }
 
@@ -151,7 +152,8 @@ div.highlighter-rouge {
     background-color: white; 
     width: 60%;
     border: 1px solid #ccc; 
-    padding: 2.5px; 
+    padding: 2.5px;
+    overflow-x: auto; 
     
 }
 
