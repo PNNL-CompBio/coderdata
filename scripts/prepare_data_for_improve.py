@@ -157,6 +157,141 @@ def process_datasets(args):
     # creation of splits
     #-------------------------------------------------------------------
 
+
+    # TODO: potentially change vars to be read from `args`
+    split_data_sets(
+        args=args,
+        data_sets=data_sets,
+        data_sets_info=data_sets_info,
+        response_data=response_data
+        )
+
+    #-------------------------------------------------------------------
+    # getting common / reference gene symbols
+    #-------------------------------------------------------------------
+
+    # TODO: potentially add mapping to the genes table in coderdata
+    # currently we do not make use of the 'genes' DataFrame in a Dataset
+    # object. The gene symbol information comes directly from HGNC.
+    # There are instances where the entrez_id that is recoreded in the
+    # expression / transcriptome is not in HGNC. Those currenly result
+    # in NaNs for the gene symbol
+
+    data_gene_names = pd.read_table(
+        filepath_or_buffer=args.GENE_TABLE,
+        )
+    data_gene_names.rename(
+            columns={
+                'NCBI Gene ID': 'entrez_id',
+                'Ensembl gene ID': 'ensemble_gene_id',
+                'Approved symbol': 'gene_symbol'
+                },
+            inplace=True,
+            )
+    data_gene_names.dropna(axis=0, subset='entrez_id', inplace=True)
+    data_gene_names['entrez_id'] = data_gene_names['entrez_id'].astype(int)      
+
+    #-------------------------------------------------------------------
+    # create gene expression master table
+    #-------------------------------------------------------------------
+
+    merged_transcriptomics = merge_master_tables(
+        args=args,
+        data_sets=data_sets,
+        data_type='transcriptomics'
+        )
+    
+    # TODO: Potentially cast 'NaN's to 0
+
+    # merging ensemble gene id & gene symbol into the transcriptomics 
+    # data
+    merged_transcriptomics = pd.merge(
+        merged_transcriptomics,
+        data_gene_names[[
+            'entrez_id',
+            'ensemble_gene_id',
+            'gene_symbol'
+        ]],
+        how='left',
+        on='entrez_id',
+    )
+
+    # moving ensemble_id & gene_symbol columns to the front of the table
+    # such that when transposing the DataFrame they are row 3 and 2
+    # respectively
+    merged_transcriptomics.insert(
+        1,
+        'ensemble_gene_id',
+        merged_transcriptomics.pop('ensemble_gene_id')
+    )
+    merged_transcriptomics.insert(
+        1,
+        'gene_symbol',
+        merged_transcriptomics.pop('gene_symbol')
+    )
+
+    # writing the expression datatable to '/x_data/*_expression.tsv'
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "cancer_gene_expression.tsv"
+    )
+    merged_transcriptomics.transpose().to_csv(
+        path_or_buf=outfile_path,
+        sep='\t',
+        header=False
+    )
+
+
+    #-------------------------------------------------------------------
+    # create copynumber master table
+    #-------------------------------------------------------------------
+
+    merged_copy_number = merge_master_tables(args, data_sets=data_sets, data_type='copy_number')
+
+    merged_copy_number = pd.merge(
+        merged_copy_number,
+        data_gene_names[[
+            'entrez_id',
+            'ensemble_gene_id',
+            'gene_symbol'
+        ]],
+        how='left',
+        on='entrez_id',
+    )
+
+    merged_copy_number.insert(
+        1,
+        'ensemble_gene_id',
+        merged_copy_number.pop('ensemble_gene_id')
+    )
+    merged_copy_number.insert(
+        1,
+        'gene_symbol',
+        merged_copy_number.pop('gene_symbol')
+    )
+
+    # writing the expression datatable to '/x_data/*_copy_number.tsv'
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "cancer_copy_number.tsv"
+    )
+    merged_copy_number.transpose().to_csv(
+        path_or_buf=outfile_path,
+        sep='\t',
+        header=False
+    )
+    # join the "meta data tables" like copynumber etc.
+
+
+def split_data_sets(
+        args: dict,
+        data_sets: dict,
+        data_sets_info: dict,
+        response_data: pd.DataFrame
+        ):
+
     splits_folder = args.WORKDIR.joinpath('data_out', 'splits')
     split_type = args.SPLIT_TYPE
     # TODO: potentially change vars to be read from `args`
@@ -291,124 +426,6 @@ def process_datasets(args):
                     index=False,
                     header=False
                     )
-
-    #-------------------------------------------------------------------
-    # getting common / reference gene symbols
-    #-------------------------------------------------------------------
-
-    # TODO: potentially add mapping to the genes table in coderdata
-    # currently we do not make use of the 'genes' DataFrame in a Dataset
-    # object. The gene symbol information comes directly from HGNC.
-    # There are instances where the entrez_id that is recoreded in the
-    # expression / transcriptome is not in HGNC. Those currenly result
-    # in NaNs for the gene symbol
-
-    data_gene_names = pd.read_table(
-        filepath_or_buffer=args.GENE_TABLE,
-        )
-    data_gene_names.rename(
-            columns={
-                'NCBI Gene ID': 'entrez_id',
-                'Ensembl gene ID': 'ensemble_gene_id',
-                'Approved symbol': 'gene_symbol'
-                },
-            inplace=True,
-            )
-    data_gene_names.dropna(axis=0, subset='entrez_id', inplace=True)
-    data_gene_names['entrez_id'] = data_gene_names['entrez_id'].astype(int)      
-
-    #-------------------------------------------------------------------
-    # create gene expression master table
-    #-------------------------------------------------------------------
-
-    merged_transcriptomics = merge_master_tables(
-        args=args,
-        data_sets=data_sets,
-        data_type='transcriptomics'
-        )
-    
-    # TODO: Potentially cast 'NaN's to 0
-
-    # merging ensemble gene id & gene symbol into the transcriptomics 
-    # data
-    merged_transcriptomics = pd.merge(
-        merged_transcriptomics,
-        data_gene_names[[
-            'entrez_id',
-            'ensemble_gene_id',
-            'gene_symbol'
-        ]],
-        how='left',
-        on='entrez_id',
-    )
-
-    # moving ensemble_id & gene_symbol columns to the front of the table
-    # such that when transposing the DataFrame they are row 3 and 2
-    # respectively
-    merged_transcriptomics.insert(
-        1,
-        'ensemble_gene_id',
-        merged_transcriptomics.pop('ensemble_gene_id')
-    )
-    merged_transcriptomics.insert(
-        1,
-        'gene_symbol',
-        merged_transcriptomics.pop('gene_symbol')
-    )
-
-    # writing the expression datatable to '/x_data/*_expression.tsv'
-    outfile_path = args.WORKDIR.joinpath(
-        "data_out",
-        "x_data",
-        "cancer_gene_expression.tsv"
-    )
-    merged_transcriptomics.transpose().to_csv(
-        path_or_buf=outfile_path,
-        sep='\t',
-        header=False
-    )
-
-
-    #-------------------------------------------------------------------
-    # create copynumber master table
-    #-------------------------------------------------------------------
-
-    merged_copy_number = merge_master_tables(args, data_sets=data_sets, data_type='copy_number')
-
-    merged_copy_number = pd.merge(
-        merged_copy_number,
-        data_gene_names[[
-            'entrez_id',
-            'ensemble_gene_id',
-            'gene_symbol'
-        ]],
-        how='left',
-        on='entrez_id',
-    )
-
-    merged_copy_number.insert(
-        1,
-        'ensemble_gene_id',
-        merged_copy_number.pop('ensemble_gene_id')
-    )
-    merged_copy_number.insert(
-        1,
-        'gene_symbol',
-        merged_copy_number.pop('gene_symbol')
-    )
-
-    # writing the expression datatable to '/x_data/*_copy_number.tsv'
-    outfile_path = args.WORKDIR.joinpath(
-        "data_out",
-        "x_data",
-        "cancer_copy_number.tsv"
-    )
-    merged_copy_number.transpose().to_csv(
-        path_or_buf=outfile_path,
-        sep='\t',
-        header=False
-    )
-    # join the "meta data tables" like copynumber etc.
 
 
 def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
