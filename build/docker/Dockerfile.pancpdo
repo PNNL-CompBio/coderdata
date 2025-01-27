@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 
 COPY build/pancpdo/01-createPancPDOSamplesFile.py .
 COPY build/pancpdo/02-getPancPDOData.py .
+COPY build/pancpdo/02a-getPancPDODataFromSynapse.py .
 COPY build/pancpdo/03-getPancPDODrugs.py .
 COPY build/pancpdo/04-getPancPDOExperiments.py .
 COPY build/pancpdo/05-addPrecalcAUC.py .
@@ -18,4 +19,5 @@ ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
 RUN pip install --no-cache-dir -r requirements.txt
+
 VOLUME ['/tmp']

@@ -95,15 +95,22 @@ def get_data(token):
 
     ##renormalize values to max
     ##IMPORTANT: this is how we normalize without DMSO. We need to consider how we're doing this for EACH ORGANOID
-    ##currently we take the max value of each orgnaoid/replicate. 
-    rtab["MaxRep"] = rtab.groupby(['Drug','Organoid','Rep']).Response.transform('max')
-    rtab['PercResponse'] = (rtab.Response/rtab.MaxRep)*100.00
+    ##currently we take the max value of each orgnaoid/replicate.
+    ##UPDATE: see belo
+#    rtab["MaxRep"] = rtab.groupby(['Drug','Organoid','Rep']).Response.transform('max')
+#    rtab['PercResponse'] = (rtab.Response/rtab.MaxRep)*100.00
 
 
     ##dosenum isa dummy value to use for merging since we need to repeat the concentrations over and over
     dosenum = [a for a in range(15)]
     rtab['Dosenum']=dosenum*int(rtab.shape[0]/15)
 
+    ##The last dose (dosenum ==14) is the control value per Herve. we now must normalize to that
+
+    dmso_vals = rtab[rtab.Dosenum==14][['Organoid','Drug','Rep','Response']].rename({'Response':'DMSO'},axis=1)
+    full_res = rtab.merge(dmso_vals,on=['Organoid','Drug','Rep'])
+    full_res['PercResponse'] = 100*(full_res.Response/full_res.DMSO)
+    
     #print(set(rtab.Drug))
     ##merge the concentrations
     concs = concs.dropna().melt(value_vars=concs.columns,var_name='Drug',value_name='Dose')
@@ -114,7 +121,7 @@ def get_data(token):
     concs['Dosenum'] = dosenum*int(concs.shape[0]/15)##creating dosenum here to merge
     #print(set(concs.Drug))
     
-    return rtab.merge(concs)
+    return full_res.merge(concs)
 
 if __name__=='__main__':
     main()
