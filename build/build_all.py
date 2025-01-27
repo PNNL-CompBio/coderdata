@@ -39,7 +39,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     parser.add_argument('--figshare', action='store_true', help="Upload all local data to Figshare. FIGSHARE_TOKEN must be set in local environment.")
     parser.add_argument('--all',dest='all',default=False,action='store_true', help="Run all data build commands. This includes docker, samples, omics, drugs, exp arguments. This does not run the validate or figshare commands")
     parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true',help = "If you have 32 or more CPUs, this option is recommended. It will run many code portions in parallel. If you don't have enough memory, this will cause a run failure.")
-    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,cptac,mpnst,mpnstpdx',help='Datasets to process. Defaults to all available.')
+    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,hcmi,beataml,cptac,mpnst,mpnstpdx,pancpdo',help='Datasets to process. Defaults to all available.')
     parser.add_argument('--version', type=str, required=False, help='Version number for the Figshare upload title (e.g., "0.1.29"). This is required for Figshare upload. This must be a higher version than previously published versions.')
     parser.add_argument('--github-username', type=str, required=False, help='GitHub username for the repository.')
     parser.add_argument('--github-email', type=str, required=False, help='GitHub email for the repository.')
@@ -119,6 +119,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             'beataml': ['beataml'],
             'mpnst': ['mpnst'],
             'mpnstpdx': ['mpnstpdx'],
+            'pancpdo': ['pancpdo'],
             'cptac': ['cptac'],
             'genes': ['genes'],
             'upload': ['upload']
