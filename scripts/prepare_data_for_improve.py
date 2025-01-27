@@ -1,6 +1,7 @@
 
 import argparse
 import functools as ft
+import logging
 from os import PathLike
 from pathlib import Path
 from pathlib import PurePath
@@ -9,6 +10,8 @@ import sys
 
 import coderdata as cd
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 def main():
 
@@ -32,6 +35,13 @@ def main():
         dest='OVERWRITE',
         action='store_true',
         )
+    p_shared_args.add_argument(
+        '-v', '--verbose',
+        dest='LOGLEVEL',
+        choices=['warn', 'info', 'debug'],
+        default='warn',
+        help='defines verbosity level of logging'
+    )
 
     p_setup_workflow = command_parsers.add_parser(
         "setup",
@@ -86,6 +96,19 @@ def main():
         sys.exit(e)
     except ValueError as e:
         sys.exit(e)
+    if args.LOGLEVEL == 'info':
+        loglevel = logging.INFO
+    elif args.LOGLEVEL == 'debug':
+        loglevel = logging.DEBUG
+    else:
+        loglevel = logging.WARNING
+
+    logging.basicConfig(
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        level=loglevel
+        )
     args.func(args)
 
 
@@ -104,18 +127,22 @@ def process_datasets(args):
     
     # loading all available datasets into a dict where the dataset name
     # is the key
+    logger.info("importing datasets...")
     data_sets = {}
     for data_set in data_sets_info.keys():
         data_sets[data_set] = cd.load(name=data_set, local_path=local_path)
-
+    logger.info("importing datasets... done")
 
     #-------------------------------------------------------------------
     # concatting all experiments / responses to create response.tsv
     #-------------------------------------------------------------------
+    logger.info("creating 'response.tsv' ...")
     experiments = []
+    logger.debug("creating list of datasets that contain experiment info ...")
     for data_set in data_sets_info.keys():
         # not all Datasets have experiments / drug response data
         if data_sets[data_set].experiments is not None:
+            logger.debug(f"experiment data found for {data_set}")
             # formatting existing response data to wide
             experiment = data_sets[data_set].format(
                 data_type='experiments',
@@ -133,8 +160,11 @@ def process_datasets(args):
                 ],
             )
             experiments.append(experiment)
-    
+        else:
+            logger.debug(f"NO experiment data for {data_set}")
+
     # concatenating existing response data and "clean up"
+    logger.debug("concatenating experiment data ...")
     response_data = pd.concat(experiments, axis=0, ignore_index=True)
     # TODO: potentially more columns must be renamed
     # (e.g. fit_auc to auc). If so this would happen here
@@ -149,6 +179,7 @@ def process_datasets(args):
         index=False,
         sep='\t',
         )
+    logger.info(f"drug response data written to '{outfile_path}'")
     # temporary addition of "index column" to serve as a reference for
     # the extraction of split files
     response_data['index'] = response_data.index
@@ -294,14 +325,13 @@ def split_data_sets(
 
     splits_folder = args.WORKDIR.joinpath('data_out', 'splits')
     split_type = args.SPLIT_TYPE
-    # TODO: potentially change vars to be read from `args`
     ratio = (8,1,1)
     stratify_by = None
     random_state = None
 
     for data_set in data_sets_info.keys():
         if data_sets[data_set].experiments is not None:
-
+            logger.info(f'creating splits for {data_set} ...')
             # getting "<DATASET>_all.txt"
             drug_response_rows = (
                 data_sets['mpnst']
@@ -334,6 +364,9 @@ def split_data_sets(
 
             splits = {}
             for i in range(0, args.NUM_SPLITS):
+                logger.debug(
+                    f"split #{i} of {args.NUM_SPLITS} for {data_set} ..."
+                    )
                 splits[i] = data_sets[data_set].train_test_validate(
                     split_type=split_type,
                     ratio=ratio,
@@ -359,15 +392,23 @@ def split_data_sets(
                     response_data,
                     train_keys,
                     how='inner',
-                    on=['improve_sample_id', 'improve_chem_id', "time", "study"],
+                    on=[
+                        'improve_sample_id',
+                        'improve_chem_id',
+                        "time",
+                        "study"
+                        ],
                     )
-                outfile_path = splits_folder.joinpath(f"{data_set}_split_{i}_train.txt")
+                outfile_path = splits_folder.joinpath(
+                    f"{data_set}_split_{i}_train.txt"
+                    )
                 row_nums.to_csv(
                     path_or_buf=outfile_path,
                     columns=['index'],
                     index=False,
                     header=False
                     )
+                logger.debug(f"training split written to {outfile_path}")
                 
                 test_keys = (
                     splits[i]
@@ -397,6 +438,7 @@ def split_data_sets(
                     index=False,
                     header=False
                     )
+                logger.debug(f"testing split written to {outfile_path}")
                 
                 val_keys = (
                     splits[i]
@@ -426,6 +468,8 @@ def split_data_sets(
                     index=False,
                     header=False
                     )
+                logger.debug(f"validation split written to {outfile_path}")
+        logger.info(f"all splits for {data_set} generated")
 
 
 def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
