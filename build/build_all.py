@@ -11,6 +11,7 @@ import shutil
 import gzip
 from glob import glob
 import sys
+import requests
     
 def main():
     parser=argparse.ArgumentParser(
@@ -131,7 +132,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             datasets_to_build.extend(dataset_map.get(dataset, []))
         
         # Build the docker-compose command, adding specific datasets
-        compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel'] + datasets_to_build
+        compose_command = ['docker', 'compose', '-f', compose_file, 'build', '--parallel'] + datasets_to_build
         
         log_file_path = 'local/docker.log'
         env = os.environ.copy()
@@ -266,9 +267,11 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         docker_run = ['docker', 'run', '--rm', '-v', f"{env['PWD']}/local/{all_files_dir}:/tmp", '-e', f"VERSION={version}"]
 
         # Add Appropriate Environment Variables
+        if name == "validate":
+            docker_run.extend(['upload'])
         if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
-        if name == "validate":
+        if name == "Map_Drugs" or name == "Map_Samples":
             docker_run.extend(['upload'])
         if 'GITHUB_TOKEN' in env and name == "GitHub":
             docker_run.extend(['-e', f"GITHUB_TOKEN={env['GITHUB_TOKEN']}", 'upload'])
@@ -300,6 +303,18 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             with gzip.open(compressed_file_path, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
         os.remove(file_path)
+        
+    def get_latest_commit_hash(owner, repo, branch='main'):
+        """
+        Returns the SHA of the latest commit on the specified branch.
+        """
+        url = f"https://api.github.com/repos/{owner}/{repo}/commits/{branch}"
+        response = requests.get(url)
+        response.raise_for_status()
+        
+        # The commit data is in JSON format; the 'sha' field is the full commit hash.
+        commit_data = response.json()
+        return commit_data['sha']
             
     ######
     ### Pre-Build Environment Token Check
@@ -388,9 +403,10 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     ######
     ### Begin Upload and/or validation
     #####
-    
-    if args.figshare or args.validate:
+    if args.figshare or args.validate or github_token:
+    # if args.figshare or args.validate:
         # FigShare File Prefixes:
+        
         prefixes = ['beataml', 'hcmi', 'cptac', 'mpnst', 'genes', 'drugs']
         broad_sanger_datasets = ["ccle","ctrpv2","fimm","gdscv1","gdscv2","gcsi","prism","nci60"]
         if "broad_sanger" in datasets:
@@ -398,7 +414,6 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             datasets.extend(broad_sanger_datasets)
             datasets.remove("broad_sanger")
 
-        
         figshare_token = os.getenv('FIGSHARE_TOKEN')
 
         all_files_dir = 'local/all_files_dir'
@@ -422,6 +437,13 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         for file in glob(os.path.join(all_files_dir, '*.gz')):
             decompress_file(file)
 
+        ### These should be done before schema checking.
+        sample_mapping_command = ['python3', 'scripts/map_improve_sample_ids.py', '--local_dir', "/tmp", '--version', args.version]
+        run_docker_upload_cmd(sample_mapping_command, 'all_files_dir', 'Map_Samples', args.version)
+        
+        drug_mapping_command = ['python3', 'scripts/map_improve_drug_ids.py', '--local_dir', "/tmp", '--version', args.version]
+        run_docker_upload_cmd(drug_mapping_command, 'all_files_dir', 'Map_Drugs', args.version)
+
         # Run schema checker - This will always run if uploading data.
         schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
@@ -438,28 +460,47 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
 
         print("File compression and decompression adjustments are complete.")
     
-    # Upload to Figshare using Docker
+        ### Upload to Figshare using Docker
         if args.figshare and args.version and figshare_token:
-            figshare_command = ['python3', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--publish']
+            figshare_command = ['python3', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--version', args.version, '--publish']
             run_docker_upload_cmd(figshare_command, 'all_files_dir', 'Figshare', args.version)
 
+            ### Push changes to GitHub using Docker
+            # if args.version and args.figshare and figshare_token and github_token and args.github_username and args.github_email:
             
-            # Push changes to GitHub using Docker
-        if args.version and args.figshare and figshare_token and github_token and args.github_username and args.github_email:
-            git_command = [
-                'bash', '-c', (
-                    f'git config --global user.name "{args.github_username}" '
-                    f'&& git config --global user.email "{args.github_email}" '
-                    f'&& cp /tmp/figshare_latest.yml /usr/src/app/coderdata/docs/_data/figshare_latest.yml '
-                    f'&& git add docs/_data/figshare_latest.yml '
-                    f'&& git commit -m "Data Built and Uploaded. New Tag: {args.version}" '
-                    f'&& git tag {args.version} '
-                    f'&& git push https://{args.github_username}:{github_token}@github.com/PNNL-CompBio/coderdata.git main '
-                    f'&& git push https://{args.github_username}:{github_token}@github.com/PNNL-CompBio/coderdata.git --tags'
-                )
-            ]
-            run_docker_upload_cmd(git_command, 'all_files_dir', 'GitHub', args.version)
+            # You can only upload to Github after Figshare upload is completed - otherwise figshare_latest.yml and dataset.yml won't be available.
+            if args.version and github_token and args.github_username and args.github_email:
+
+                git_command = [
+                    'bash', '-c', (
+                        f'git config --global user.name "{args.github_username}" '
+                        f'&& git config --global user.email "{args.github_email}" '
+                        
+                        # Checkout a new branch
+                        f'&& git checkout -b testing-auto-build-pr-{args.version} '
+                        
+                        # Copy and add the necessary files
+                        f'&& cp /tmp/improve_sample_mapping.json.gz /usr/src/app/coderdata/build/improve_sample_mapping.json.gz '
+                        f'&& cp /tmp/improve_drug_mapping.json.gz /usr/src/app/coderdata/build/improve_drug_mapping.json.gz '
+                        f'&& gunzip /usr/src/app/coderdata/build/*.gz '
+                        f'&& git add -f build/improve_sample_mapping.json build/improve_drug_mapping.json '
+                        f'&& cp /tmp/figshare_latest.yml /usr/src/app/coderdata/docs/_data/figshare_latest.yml '
+                        f'&& cp /tmp/dataset.yml /usr/src/app/coderdata/coderdata/dataset.yml '
+                        f'&& git add -f docs/_data/figshare_latest.yml coderdata/dataset.yml'
+                        
+                        # Tag and push
+                        f'&& git commit -m "Data Built and Uploaded. New Tag: {args.version}" '
+                        f'&& git tag {args.version} '
+                        f'&& git push https://{args.github_username}:{github_token}@github.com/PNNL-CompBio/coderdata.git testing-auto-build-pr-{args.version} '
+                        
+                        # Create a PR using GitHub CLI
+                        f'&& gh pr create --title "Testing Auto PR instead of auto Merge {args.version}" '
+                        f'--body "This PR was automatically generated by the build process." '
+                        f'--base main --head testing-auto-build-pr-{args.version}'
+                    )
+                ]
             
-    
+                run_docker_upload_cmd(git_command, 'all_files_dir', 'GitHub', args.version)
+            
 if __name__ == '__main__':
     main()
