@@ -282,10 +282,18 @@ def process_datasets(args):
 
 
     #-------------------------------------------------------------------
-    # create copynumber master table
+    # create copynumber master table & discretized table
     #-------------------------------------------------------------------
 
     merged_copy_number = merge_master_tables(args, data_sets=data_sets, data_type='copy_number')
+    merged_copy_number.fillna(1, inplace=True)
+
+    discretized_copy_number = merged_copy_number.apply(
+        pd.cut,
+        bins = [0, 0.5210507, 0.7311832, 1.214125, 1.422233, 2],
+        labels = [-2, -1, 0, 1, 2],
+        include_lowest=True
+    )
 
     merged_copy_number = pd.merge(
         merged_copy_number,
@@ -316,7 +324,43 @@ def process_datasets(args):
         "cancer_copy_number.tsv"
     )
     (merged_copy_number
-        .fillna(1)
+        .transpose()
+        .to_csv(
+            path_or_buf=outfile_path,
+            sep='\t',
+            header=False
+            )
+        )
+    
+    discretized_copy_number = pd.merge(
+        discretized_copy_number,
+        data_gene_names[[
+            'entrez_id',
+            'ensemble_gene_id',
+            'gene_symbol'
+        ]],
+        how='left',
+        on='entrez_id',
+    )
+
+    discretized_copy_number.insert(
+        1,
+        'ensemble_gene_id',
+        discretized_copy_number.pop('ensemble_gene_id')
+    )
+    discretized_copy_number.insert(
+        1,
+        'gene_symbol',
+        discretized_copy_number.pop('gene_symbol')
+    )
+
+    # writing the expression datatable to '/x_data/*_copy_number.tsv'
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "cancer_discretized_copy_number.tsv.tsv"
+    )
+    (discretized_copy_number
         .transpose()
         .to_csv(
             path_or_buf=outfile_path,
