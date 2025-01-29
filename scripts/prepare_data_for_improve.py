@@ -1,6 +1,6 @@
 
 import argparse
-import functools as ft
+from copy import deepcopy
 import logging
 from os import PathLike
 from pathlib import Path
@@ -267,11 +267,18 @@ def process_datasets(args):
         "x_data",
         "cancer_gene_expression.tsv"
     )
-    merged_transcriptomics.transpose().to_csv(
-        path_or_buf=outfile_path,
-        sep='\t',
-        header=False
-    )
+    # some ML algorithms need full matrices as input.
+    # This back fills NAs with 0s - the assumend "neutral" value for 
+    # gene expression data 
+    (merged_transcriptomics
+        .fillna(0)
+        .transpose()
+        .to_csv(
+            path_or_buf=outfile_path,
+            sep='\t',
+            header=False
+            )
+        )
 
 
     #-------------------------------------------------------------------
@@ -308,13 +315,19 @@ def process_datasets(args):
         "x_data",
         "cancer_copy_number.tsv"
     )
-    merged_copy_number.transpose().to_csv(
-        path_or_buf=outfile_path,
-        sep='\t',
-        header=False
-    )
+    (merged_copy_number
+        .fillna(1)
+        .transpose()
+        .to_csv(
+            path_or_buf=outfile_path,
+            sep='\t',
+            header=False
+            )
+        )
     # join the "meta data tables" like copynumber etc.
 
+
+    
 
 def split_data_sets(
         args: dict,
@@ -501,21 +514,35 @@ def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
                     data_sets[data_set].format(data_type=data_type)
                     )
 
-    merged_data = ft.reduce(
-        lambda left_df, right_df: pd.merge(
-            left_df,
-            right_df,
-            on='entrez_id',
-            how='outer',
-        ),
-        dfs_to_merge,
-    )
+    merged_data = None
+    for df in dfs_to_merge:
+        if merged_data is None:
+            # filling the return DF with a copy of the "first" DF
+            merged_data = deepcopy(df)
+        else:
+            # merging routine
+            # pandas.merge always creates C_x & C_y if column C is in
+            # both the right and left DF. By defining the suffixes 
+            # we can just delete the 'y' column since C_x == C_y in our
+            # data
+            merged_data = merged_data.merge(
+                df,
+                on='entrez_id',
+                suffixes=('', '__rm'),
+                how='outer'
+                )
+            merged_data.columns = merged_data.columns.astype(str)
+            # the "C_y" removal routine
+            merged_data = (
+                merged_data
+                .loc[:, ~merged_data.columns.str.contains('__rm')]
+            )
 
-    # temporary fix to values that should be int but currently aren't 
-    # in the coderdata dataset storage
+    # Casting col and row indices back to int
+    merged_data.columns.astype(int)
     if not merged_data.index.dtype == int:
         merged_data.index = merged_data.index.astype(int)
-
+    
     return merged_data
 
 
