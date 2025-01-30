@@ -74,11 +74,6 @@ def main():
         type=int,
         default=10
     )
-    p_process_datasets.add_argument(
-        '-g', '--gene_table', dest='GENE_TABLE',
-        type=str,
-        required=True
-    )
 
     p_all = command_parsers.add_parser(
         "all",
@@ -208,18 +203,21 @@ def process_datasets(args):
     # expression / transcriptome is not in HGNC. Those currenly result
     # in NaNs for the gene symbol
 
-    data_gene_names = pd.read_table(
-        filepath_or_buffer=args.GENE_TABLE,
-        )
+    data_gene_names = list(data_sets.values())[0].genes
+    data_gene_names = (
+        data_gene_names[data_gene_names['other_id_source'] == 'ensembl_gene']
+        .drop_duplicates(
+            subset=['entrez_id', 'gene_symbol'],
+            keep='first')
+    )
     data_gene_names.rename(
-            columns={
-                'NCBI Gene ID': 'entrez_id',
-                'Ensembl gene ID': 'ensemble_gene_id',
-                'Approved symbol': 'gene_symbol'
-                },
-            inplace=True,
-            )
-    data_gene_names.dropna(axis=0, subset='entrez_id', inplace=True)
+        columns={'other_id' : 'ensembl_gene_id'},
+        inplace=True
+        )
+    data_gene_names.drop(
+        columns=['other_id_source'], inplace=True
+        )
+
     data_gene_names['entrez_id'] = data_gene_names['entrez_id'].astype(int)      
 
     #-------------------------------------------------------------------
@@ -240,7 +238,7 @@ def process_datasets(args):
         merged_transcriptomics,
         data_gene_names[[
             'entrez_id',
-            'ensemble_gene_id',
+            'ensembl_gene_id',
             'gene_symbol'
         ]],
         how='left',
@@ -252,8 +250,8 @@ def process_datasets(args):
     # respectively
     merged_transcriptomics.insert(
         1,
-        'ensemble_gene_id',
-        merged_transcriptomics.pop('ensemble_gene_id')
+        'ensembl_gene_id',
+        merged_transcriptomics.pop('ensembl_gene_id')
     )
     merged_transcriptomics.insert(
         1,
@@ -299,7 +297,7 @@ def process_datasets(args):
         merged_copy_number,
         data_gene_names[[
             'entrez_id',
-            'ensemble_gene_id',
+            'ensembl_gene_id',
             'gene_symbol'
         ]],
         how='left',
@@ -308,8 +306,8 @@ def process_datasets(args):
 
     merged_copy_number.insert(
         1,
-        'ensemble_gene_id',
-        merged_copy_number.pop('ensemble_gene_id')
+        'ensembl_gene_id',
+        merged_copy_number.pop('ensembl_gene_id')
     )
     merged_copy_number.insert(
         1,
@@ -336,7 +334,7 @@ def process_datasets(args):
         discretized_copy_number,
         data_gene_names[[
             'entrez_id',
-            'ensemble_gene_id',
+            'ensembl_gene_id',
             'gene_symbol'
         ]],
         how='left',
@@ -345,8 +343,8 @@ def process_datasets(args):
 
     discretized_copy_number.insert(
         1,
-        'ensemble_gene_id',
-        discretized_copy_number.pop('ensemble_gene_id')
+        'ensembl_gene_id',
+        discretized_copy_number.pop('ensembl_gene_id')
     )
     discretized_copy_number.insert(
         1,
@@ -421,8 +419,8 @@ def split_data_sets(
 
             splits = {}
             for i in range(0, args.NUM_SPLITS):
-                logger.debug(
-                    f"split #{i} of {args.NUM_SPLITS} for {data_set} ..."
+                logger.info(
+                    f"split #{i+1} of {args.NUM_SPLITS} for {data_set} ..."
                     )
                 splits[i] = data_sets[data_set].train_test_validate(
                     split_type=split_type,
