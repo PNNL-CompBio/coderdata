@@ -936,13 +936,16 @@ def train_test_validate(
                 sss_1.split(X=df_full, y=df_full['split_class'])
             )
             df_train = df_full.iloc[idx_train]
+            df_train = df_train.drop(labels=['split_class'], axis=1)
             df_other = df_full.iloc[idx_other]
             # Splitting 'other' further into test and validate
             idx_test, idx_val = next(
                 sss_2.split(X=df_other, y=df_other['split_class'])
                 )
             df_test = df_other.iloc[idx_test]
+            df_test = df_test.drop(labels=['split_class'], axis=1)
             df_val = df_other.iloc[idx_val]
+            df_val = df_val.drop(labels=['split_class'], axis=1)
         
         # using StratifiedGroupKSplit for the stratified drug-/sample-
         # blind splits.
