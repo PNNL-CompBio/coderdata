@@ -110,6 +110,7 @@ def main():
 def full_workflow(args):
     setup_workflow(args)
     download_datasets(args)
+    process_datasets(args)
 
 
 def process_datasets(args):
