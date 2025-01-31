@@ -494,7 +494,7 @@ def format(
             values='transcriptomics',
             index='entrez_id',
             columns='improve_sample_id'
-            )
+            ).transpose()
 
     elif data_type == "mutations":
         if data.mutations is None:
@@ -516,7 +516,7 @@ def format(
             columns='improve_sample_id',
             values='exists',
             fill_value=0,
-            )
+            ).transpose()
 
     elif data_type == "copy_number":
         if data.copy_number is None:
@@ -531,7 +531,7 @@ def format(
             columns='improve_sample_id',
             values='copy_number',
             aggfunc='mean',
-            )
+            ).transpose()
         if copy_call:
             ret = ret.apply(
                 pd.cut,
@@ -552,7 +552,7 @@ def format(
             values='proteomics',
             index='entrez_id',
             columns='improve_sample_id'
-            )
+            ).transpose()
 
     elif data_type == "experiments":
         if data.experiments is None:
