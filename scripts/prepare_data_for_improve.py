@@ -553,7 +553,7 @@ def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
                 getattr(data_sets[data_set], data_type, None) is not None
             ):
                 dfs_to_merge.append(
-                    data_sets[data_set].format(data_type=data_type)
+                    data_sets[data_set].format(data_type=data_type).transpose()
                     )
 
     merged_data = None
