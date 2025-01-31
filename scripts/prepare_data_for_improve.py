@@ -357,7 +357,7 @@ def process_datasets(args):
     outfile_path = args.WORKDIR.joinpath(
         "data_out",
         "x_data",
-        "cancer_discretized_copy_number.tsv.tsv"
+        "cancer_discretized_copy_number.tsv"
     )
     (discretized_copy_number
         .transpose()
@@ -367,10 +367,37 @@ def process_datasets(args):
             header=False
             )
         )
-    # join the "meta data tables" like copynumber etc.
-
-
     
+    #-------------------------------------------------------------------
+    # create SMILES table
+    #-------------------------------------------------------------------
+
+    dfs_to_merge = {}
+    for data_set in data_sets:
+        if (data_sets[data_set].experiments is not None 
+            and data_sets[data_set].drugs is not None
+        ):
+            dfs_to_merge[data_set] = deepcopy(data_sets[data_set].drugs)
+
+    concat_drugs = pd.concat(dfs_to_merge.values())
+    out_df = concat_drugs[['improve_drug_id','canSMILES']].drop_duplicates()
+    out_df.rename(
+        columns={'improve_drug_id': 'improve_chem_id'},
+        inplace=True,
+        )
+
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "drug_SMILES.tsv"
+    )
+    out_df.to_csv(
+        path_or_buf=outfile_path,
+        sep='\t',
+        index=False,
+    )
+
+
 
 def split_data_sets(
         args: dict,
