@@ -68,7 +68,7 @@ def download(
             file 
             for file 
             in data['files'] 
-            if file['name'].startswith(name)
+            if file['name'].startswith(name) or 'genes' in file['name']
             ]
     else:
         filtered_files = data['files']
