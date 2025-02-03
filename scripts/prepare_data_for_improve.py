@@ -75,6 +75,14 @@ def main():
         type=int,
         default=10
     )
+    p_process_datasets.add_argument(
+        '-r', '--random_seeds', dest='RANDOM_SEEDS',
+        type=_random_seed_list,
+        default=None,
+        help="Defines a list of random seeds. Must be comma separated "
+             "integers. Must be same length as <NUM_SPLITS>. If omitted will "
+             "default to randomized seeds."
+    )
 
     p_all = command_parsers.add_parser(
         "all",
@@ -116,6 +124,12 @@ def full_workflow(args):
 
 def process_datasets(args):
     
+    if args.RANDOM_SEEDS is not None and len(args.RANDOM_SEEDS) != args.NUM_SPLITS:
+        sys.exit(
+            "<RANDOM_SEEDS> must contain same number of random seed values as "
+            "<NUM_SPLITS>."
+        )
+
     
     local_path = args.WORKDIR.joinpath('data_in_tmp')
     
@@ -481,7 +495,10 @@ def split_data_sets(
     split_type = args.SPLIT_TYPE
     ratio = (8,1,1)
     stratify_by = None
-    random_state = None
+    if args.RANDOM_SEEDS is not None:
+        random_seeds = args.RANDOM_SEEDS
+    else:
+        random_seeds = [None] * args.NUM_SPLITS
 
     for data_set in data_sets_info.keys():
         if data_sets[data_set].experiments is not None:
@@ -525,7 +542,7 @@ def split_data_sets(
                     split_type=split_type,
                     ratio=ratio,
                     stratify_by=stratify_by,
-                    random_state=random_state
+                    random_state=random_seeds[i]
                     )
                 train_keys = (
                     splits[i]
@@ -767,6 +784,17 @@ def _check_folder(path: Union[str, PathLike, Path]) -> Path:
             )
     
     return abs_path
+
+def _random_seed_list(list: str) -> list:
+
+    if not isinstance(list, str):
+        raise TypeError(
+            f"'random_seed' must be of type str. Supplied argument is of type "
+            f"{type(list)}."
+        )
+    list_ = list.split(',')
+    return [int(item) for item in list_]
+
 
 if __name__ == '__main__':
     try: main()
