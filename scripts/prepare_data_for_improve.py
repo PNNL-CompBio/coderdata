@@ -1,6 +1,7 @@
 
 import argparse
 from copy import deepcopy
+import functools as ft
 import logging
 from os import PathLike
 from pathlib import Path
@@ -398,6 +399,74 @@ def process_datasets(args):
     )
 
 
+    #-------------------------------------------------------------------
+    # create mutation count table
+    #-------------------------------------------------------------------
+
+    # combining all mutation data
+    dfs_to_merge = {}
+    for data_set in data_sets:
+        if data_sets[data_set].experiments is not None and data_sets[data_set].mutations is not None:
+            dfs_to_merge[data_set] = data_sets[data_set].mutations
+            dfs_to_merge[data_set]['dataset_origin'] = data_set
+    merged_mutations = ft.reduce(
+        lambda left_df, right_df: pd.merge(
+            left_df[['entrez_id', 'improve_sample_id', 'mutation', 'dataset_origin']],
+            right_df[['entrez_id', 'improve_sample_id', 'mutation', 'dataset_origin']],
+            on=['entrez_id', 'improve_sample_id', 'mutation', 'dataset_origin'],
+            how='outer'),
+            dfs_to_merge.values())
+    
+    # retrieving unique mutations (the above creates multiplicates)
+    unique_mutations = merged_mutations[['entrez_id', 'improve_sample_id', 'mutation']].drop_duplicates()
+    
+    # counting the mutations per entrez_id/improve_sample_id pair and
+    # aggregating it into a pivot table (also filling NAs with 0s)
+    mutation_counts = pd.pivot_table(unique_mutations, values='mutation', index='entrez_id', columns='improve_sample_id',
+                          aggfunc='count')
+    mutation_counts.fillna(0, inplace=True)
+
+    # merging in the gene_symbol and ensembl_gene_id
+    mutation_counts = pd.merge(       
+        mutation_counts,
+        data_gene_names[[
+            'entrez_id',
+            'ensembl_gene_id',
+            'gene_symbol'
+        ]],
+        how='left',
+        on='entrez_id',
+    )
+
+    # rearranging the colums such that entrez_id, gene_symbol and
+    # ensenbl_gene_id are the first three rows after transposing the
+    # table
+    mutation_counts.insert(
+        1,
+        'ensembl_gene_id',
+        mutation_counts.pop('ensembl_gene_id')
+    )
+    mutation_counts.insert(
+        1,
+        'gene_symbol',
+        mutation_counts.pop('gene_symbol')
+    )
+
+    # removing some rows where we don't have a 'gene_symbol' for the 
+    # entrez id
+    mutation_counts = mutation_counts[mutation_counts['gene_symbol'].notna()]
+
+    # writing the dataframe to the mutation counts mastertable 
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "cancer_mutation_count.tsv"
+    )
+    mutation_counts.T.to_csv(
+        path_or_buf=outfile_path,
+        sep='\t',        
+        header=False
+    )
 
 def split_data_sets(
         args: dict,
