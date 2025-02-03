@@ -252,14 +252,16 @@ def process_datasets(args):
     # respectively
     merged_transcriptomics.insert(
         1,
-        'ensembl_gene_id',
-        merged_transcriptomics.pop('ensembl_gene_id')
-    )
-    merged_transcriptomics.insert(
-        1,
         'gene_symbol',
         merged_transcriptomics.pop('gene_symbol')
     )
+    merged_transcriptomics.insert(
+        0,
+        'ensembl_gene_id',
+        merged_transcriptomics.pop('ensembl_gene_id')
+    )
+
+    merged_transcriptomics = merged_transcriptomics[merged_transcriptomics['entrez_id'] != 0]
 
     # writing the expression datatable to '/x_data/*_expression.tsv'
     outfile_path = args.WORKDIR.joinpath(
