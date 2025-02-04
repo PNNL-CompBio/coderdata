@@ -183,6 +183,7 @@ def process_datasets(args):
         columns={'improve_drug_id': 'improve_chem_id'},
         inplace=True,
         )
+    response_data['improve_sample_id'] = "SAMPLE_ID_" + response_data['improve_sample_id'].astype(int).astype(str)
     # exporting the drug response data to 'y_data/response.tsv'
     outfile_path = args.WORKDIR.joinpath("data_out", "y_data", "response.tsv")
     response_data.to_csv(
@@ -200,7 +201,6 @@ def process_datasets(args):
     #-------------------------------------------------------------------
 
 
-    # TODO: potentially change vars to be read from `args`
     split_data_sets(
         args=args,
         data_sets=data_sets,
@@ -433,8 +433,10 @@ def process_datasets(args):
             how='outer'),
             dfs_to_merge.values())
     
-    # retrieving unique mutations (the above creates multiplicates)
+    # retrieving unique mutations (the above creates multiplicates) & 
+    # adding a prefix to the improve_sample_id
     unique_mutations = merged_mutations[['entrez_id', 'improve_sample_id', 'mutation']].drop_duplicates()
+    unique_mutations['improve_sample_id'] = 'SAMPLE_ID_' + unique_mutations['improve_sample_id'].astype(str)
     
     # counting the mutations per entrez_id/improve_sample_id pair and
     # aggregating it into a pivot table (also filling NAs with 0s)
@@ -505,7 +507,7 @@ def split_data_sets(
             logger.info(f'creating splits for {data_set} ...')
             # getting "<DATASET>_all.txt"
             drug_response_rows = (
-                data_sets['mpnst']
+                data_sets[data_set]
                 .experiments[
                     ['improve_sample_id', 'improve_drug_id', "time", "study"]
                     ]
@@ -515,6 +517,7 @@ def split_data_sets(
                     columns={'improve_drug_id': 'improve_chem_id'},
                     inplace=True,
                     )
+            drug_response_rows['improve_sample_id'] = "SAMPLE_ID_" + drug_response_rows['improve_sample_id'].astype(int).astype(str)
             row_nums = pd.merge(
                 response_data,
                 drug_response_rows,
@@ -559,6 +562,7 @@ def split_data_sets(
                     columns={'improve_drug_id': 'improve_chem_id'},
                     inplace=True,
                 )
+                train_keys['improve_sample_id'] = "SAMPLE_ID_" + train_keys['improve_sample_id'].astype(int).astype(str)
                 row_nums = pd.merge(
                     response_data,
                     train_keys,
@@ -596,6 +600,7 @@ def split_data_sets(
                     columns={'improve_drug_id': 'improve_chem_id'},
                     inplace=True,
                 )
+                test_keys['improve_sample_id'] = "SAMPLE_ID_" + test_keys['improve_sample_id'].astype(int).astype(str)
                 row_nums = pd.merge(
                     response_data,
                     test_keys,
@@ -626,6 +631,7 @@ def split_data_sets(
                     columns={'improve_drug_id': 'improve_chem_id'},
                     inplace=True,
                 )
+                val_keys['improve_sample_id'] = "SAMPLE_ID_" + val_keys['improve_sample_id'].astype(int).astype(str)
                 row_nums = pd.merge(
                     response_data,
                     val_keys,
@@ -669,7 +675,10 @@ def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
                 getattr(data_sets[data_set], data_type, None) is not None
             ):
                 dfs_to_merge.append(
-                    data_sets[data_set].format(data_type=data_type).transpose()
+                    data_sets[data_set]
+                    .format(data_type=data_type)
+                    .transpose()
+                    .add_prefix('SAMPLE_ID_', axis=1)
                     )
 
     merged_data = None
@@ -697,7 +706,7 @@ def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
             )
 
     # Casting col and row indices back to int
-    merged_data.columns.astype(int)
+    # merged_data.columns.astype(int)
     if not merged_data.index.dtype == int:
         merged_data.index = merged_data.index.astype(int)
     
