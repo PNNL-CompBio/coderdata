@@ -402,6 +402,7 @@ def process_datasets(args):
         columns={'improve_drug_id': 'improve_chem_id'},
         inplace=True,
         )
+    out_df = out_df.dropna(how='any',axis=0)
 
     outfile_path = args.WORKDIR.joinpath(
         "data_out",
