@@ -3,6 +3,7 @@ import argparse
 from copy import deepcopy
 import functools as ft
 import logging
+import numpy as np
 from os import PathLike
 from pathlib import Path
 from pathlib import PurePath
@@ -82,6 +83,13 @@ def main():
         help="Defines a list of random seeds. Must be comma separated "
              "integers. Must be same length as <NUM_SPLITS>. If omitted will "
              "default to randomized seeds."
+    )
+    p_process_datasets.add_argument(
+        '-e', '--exclude_improve_drug_id', dest='EXCL_DRUGS_LIST',
+        type=_improve_drug_id_list,
+        default=None,
+        help='define a list of improve_drug_id/improve_chem_id[s] that '
+             'should be excluded from the reference datasets.'
     )
 
     p_all = command_parsers.add_parser(
@@ -183,7 +191,7 @@ def process_datasets(args):
         columns={'improve_drug_id': 'improve_chem_id'},
         inplace=True,
         )
-    response_data['improve_sample_id'] = "SAMPLE_ID_" + response_data['improve_sample_id'].astype(int).astype(str)
+    response_data['improve_sample_id'] = "SAMPLE-ID-" + response_data['improve_sample_id'].astype(int).astype(str)
     # exporting the drug response data to 'y_data/response.tsv'
     outfile_path = args.WORKDIR.joinpath("data_out", "y_data", "response.tsv")
     response_data.to_csv(
@@ -201,12 +209,12 @@ def process_datasets(args):
     #-------------------------------------------------------------------
 
 
-    split_data_sets(
-        args=args,
-        data_sets=data_sets,
-        data_sets_info=data_sets_info,
-        response_data=response_data
-        )
+    # split_data_sets(
+    #     args=args,
+    #     data_sets=data_sets,
+    #     data_sets_info=data_sets_info,
+    #     response_data=response_data
+    #     )
 
     #-------------------------------------------------------------------
     # getting common / reference gene symbols
@@ -276,6 +284,9 @@ def process_datasets(args):
     )
 
     merged_transcriptomics = merged_transcriptomics[merged_transcriptomics['entrez_id'] != 0]
+    merged_transcriptomics = merged_transcriptomics.fillna(0).T.reset_index()
+    for i in range(0,3):
+        merged_transcriptomics.iloc[i,0] = np.nan
 
     # writing the expression datatable to '/x_data/*_expression.tsv'
     outfile_path = args.WORKDIR.joinpath(
@@ -287,12 +298,11 @@ def process_datasets(args):
     # This back fills NAs with 0s - the assumend "neutral" value for 
     # gene expression data 
     (merged_transcriptomics
-        .fillna(0)
-        .transpose()
         .to_csv(
             path_or_buf=outfile_path,
             sep='\t',
-            header=False
+            header=False,
+            index=False
             )
         )
 
@@ -332,6 +342,9 @@ def process_datasets(args):
         'gene_symbol',
         merged_copy_number.pop('gene_symbol')
     )
+    merged_copy_number = merged_copy_number.T.reset_index()
+    for i in range(0,3):
+        merged_copy_number.iloc[i,0] = np.nan
 
     # writing the expression datatable to '/x_data/*_copy_number.tsv'
     outfile_path = args.WORKDIR.joinpath(
@@ -340,11 +353,11 @@ def process_datasets(args):
         "cancer_copy_number.tsv"
     )
     (merged_copy_number
-        .transpose()
         .to_csv(
             path_or_buf=outfile_path,
             sep='\t',
-            header=False
+            header=False,
+            index=False
             )
         )
     
@@ -369,6 +382,9 @@ def process_datasets(args):
         'gene_symbol',
         discretized_copy_number.pop('gene_symbol')
     )
+    discretized_copy_number = discretized_copy_number.T.reset_index()
+    for i in range(0,3):
+        discretized_copy_number.iloc[i,0] = np.nan
 
     # writing the expression datatable to '/x_data/*_copy_number.tsv'
     outfile_path = args.WORKDIR.joinpath(
@@ -377,11 +393,11 @@ def process_datasets(args):
         "cancer_discretized_copy_number.tsv"
     )
     (discretized_copy_number
-        .transpose()
         .to_csv(
             path_or_buf=outfile_path,
             sep='\t',
-            header=False
+            header=False,
+            index=False
             )
         )
     
@@ -398,6 +414,13 @@ def process_datasets(args):
 
     concat_drugs = pd.concat(dfs_to_merge.values())
     out_df = concat_drugs[['improve_drug_id','canSMILES']].drop_duplicates()
+
+    if args.EXCL_DRUGS_LIST is not None:
+        logger.info(
+            f"Removing all chemical compunds with ids: '{args.EXCL_DRUGS_LIST}'"
+        )
+        out_df = out_df[~out_df['improve_drug_id'].isin(args.EXCL_DRUGS_LIST)]
+
     out_df.rename(
         columns={'improve_drug_id': 'improve_chem_id'},
         inplace=True,
@@ -437,7 +460,7 @@ def process_datasets(args):
     # retrieving unique mutations (the above creates multiplicates) & 
     # adding a prefix to the improve_sample_id
     unique_mutations = merged_mutations[['entrez_id', 'improve_sample_id', 'mutation']].drop_duplicates()
-    unique_mutations['improve_sample_id'] = 'SAMPLE_ID_' + unique_mutations['improve_sample_id'].astype(str)
+    unique_mutations['improve_sample_id'] = 'SAMPLE-ID-' + unique_mutations['improve_sample_id'].astype(str)
     
     # counting the mutations per entrez_id/improve_sample_id pair and
     # aggregating it into a pivot table (also filling NAs with 0s)
@@ -474,6 +497,9 @@ def process_datasets(args):
     # removing some rows where we don't have a 'gene_symbol' for the 
     # entrez id
     mutation_counts = mutation_counts[mutation_counts['gene_symbol'].notna()]
+    mutation_counts = mutation_counts.T.reset_index()
+    for i in range(0,3):
+        mutation_counts.iloc[i,0] = np.nan
 
     # writing the dataframe to the mutation counts mastertable 
     outfile_path = args.WORKDIR.joinpath(
@@ -481,10 +507,11 @@ def process_datasets(args):
         "x_data",
         "cancer_mutation_count.tsv"
     )
-    mutation_counts.T.to_csv(
+    mutation_counts.to_csv(
         path_or_buf=outfile_path,
         sep='\t',        
-        header=False
+        header=False,
+        index=False
     )
 
 def split_data_sets(
@@ -518,7 +545,7 @@ def split_data_sets(
                     columns={'improve_drug_id': 'improve_chem_id'},
                     inplace=True,
                     )
-            drug_response_rows['improve_sample_id'] = "SAMPLE_ID_" + drug_response_rows['improve_sample_id'].astype(int).astype(str)
+            drug_response_rows['improve_sample_id'] = "SAMPLE-ID-" + drug_response_rows['improve_sample_id'].astype(int).astype(str)
             row_nums = pd.merge(
                 response_data,
                 drug_response_rows,
@@ -563,7 +590,7 @@ def split_data_sets(
                     columns={'improve_drug_id': 'improve_chem_id'},
                     inplace=True,
                 )
-                train_keys['improve_sample_id'] = "SAMPLE_ID_" + train_keys['improve_sample_id'].astype(int).astype(str)
+                train_keys['improve_sample_id'] = "SAMPLE-ID-" + train_keys['improve_sample_id'].astype(int).astype(str)
                 row_nums = pd.merge(
                     response_data,
                     train_keys,
@@ -601,7 +628,7 @@ def split_data_sets(
                     columns={'improve_drug_id': 'improve_chem_id'},
                     inplace=True,
                 )
-                test_keys['improve_sample_id'] = "SAMPLE_ID_" + test_keys['improve_sample_id'].astype(int).astype(str)
+                test_keys['improve_sample_id'] = "SAMPLE-ID-" + test_keys['improve_sample_id'].astype(int).astype(str)
                 row_nums = pd.merge(
                     response_data,
                     test_keys,
@@ -632,7 +659,7 @@ def split_data_sets(
                     columns={'improve_drug_id': 'improve_chem_id'},
                     inplace=True,
                 )
-                val_keys['improve_sample_id'] = "SAMPLE_ID_" + val_keys['improve_sample_id'].astype(int).astype(str)
+                val_keys['improve_sample_id'] = "SAMPLE-ID-" + val_keys['improve_sample_id'].astype(int).astype(str)
                 row_nums = pd.merge(
                     response_data,
                     val_keys,
@@ -679,7 +706,7 @@ def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
                     data_sets[data_set]
                     .format(data_type=data_type)
                     .transpose()
-                    .add_prefix('SAMPLE_ID_', axis=1)
+                    .add_prefix('SAMPLE-ID-', axis=1)
                     )
 
     merged_data = None
@@ -804,6 +831,15 @@ def _random_seed_list(list: str) -> list:
         )
     list_ = list.split(',')
     return [int(item) for item in list_]
+
+def _improve_drug_id_list(list: str) -> list:
+    if not isinstance(list, str):
+        raise TypeError(
+            f"'exclude_improve_drug_id' must be of type str. Supplied argument "
+            f"is of type {type(list)}."
+        )
+    list_ = list.split(',')
+    return list_
 
 
 if __name__ == '__main__':
