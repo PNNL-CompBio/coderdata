@@ -209,12 +209,12 @@ def process_datasets(args):
     #-------------------------------------------------------------------
 
 
-    # split_data_sets(
-    #     args=args,
-    #     data_sets=data_sets,
-    #     data_sets_info=data_sets_info,
-    #     response_data=response_data
-    #     )
+    split_data_sets(
+        args=args,
+        data_sets=data_sets,
+        data_sets_info=data_sets_info,
+        response_data=response_data
+        )
 
     #-------------------------------------------------------------------
     # getting common / reference gene symbols
