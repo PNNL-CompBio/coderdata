@@ -357,6 +357,31 @@ class Dataset:
         )
 
         return split
+
+
+    def split_train_test_validate(
+        self,
+        split_type: Literal[
+            'mixed-set', 'drug-blind', 'cancer-blind'
+            ]='mixed-set',
+        ratio: tuple[int, int, int]=(8,1,1),
+        stratify_by: Optional[str]=None,
+        random_state: Optional[Union[int,RandomState]]=None,
+        **kwargs: dict,
+        ) -> Split:
+
+        split = split_train_test_validate(
+            data=self,
+            split_type=split_type,
+            ratio=ratio,
+            stratify_by=stratify_by,
+            random_state=random_state,
+            **kwargs
+        )
+
+        return split 
+
+
     def train_test_validate(
         self,
         split_type: Literal[
@@ -368,7 +393,7 @@ class Dataset:
         **kwargs: dict,
         ) -> Split:
 
-        split = train_test_validate(
+        split = split_train_test_validate(
             data=self,
             split_type=split_type,
             ratio=ratio,
@@ -715,6 +740,53 @@ def split_train_other(
         train.experiments = train.experiments[train.experiments['dose_response_metric'] != 'split_class']
         other.experiments = other.experiments[other.experiments['dose_response_metric'] != 'split_class']
     return TwoWaySplit(train=train, other=other)
+
+
+def split_train_test_validate(
+        data: Dataset,
+        split_type: Literal[
+            'mixed-set', 'drug-blind', 'cancer-blind'
+            ]='mixed-set',
+        ratio: tuple[int, int, int]=(8,1,1),
+        stratify_by: Optional[str]=None,
+        random_state: Optional[Union[int,RandomState]]=None,
+        **kwargs: dict,
+        ) -> Split:
+
+    # Type checking split_type
+    if split_type not in [
+        'mixed-set', 'drug-blind', 'cancer-blind'
+        ]:
+        raise ValueError(
+            f"{split_type} not an excepted input for 'split_type'"
+            )
+    
+    train, other = _split_two_way(
+        data=data,
+        split_type=split_type,
+        ratio=[ratio[0], ratio[1] + ratio[2]],
+        stratify_by=stratify_by,
+        random_state=random_state,
+        kwargs=kwargs,
+        )
+    
+    test, val = _split_two_way(
+        data=other,
+        split_type=split_type,
+        ratio=[ratio[1], ratio[2]],
+        stratify_by=stratify_by,
+        random_state=random_state,
+        kwargs=kwargs,
+    )
+
+    if stratify_by is not None:
+        train.experiments = train.experiments[train.experiments['dose_response_metric'] != 'split_class']
+        test.experiments = test.experiments[test.experiments['dose_response_metric'] != 'split_class']
+        val.experiments = val.experiments[val.experiments['dose_response_metric'] != 'split_class']
+
+    return Split(train=train, test=test, validate=val)
+
+
 def train_test_validate(
         data: Dataset,
         split_type: Literal[
@@ -794,266 +866,14 @@ def train_test_validate(
 
     """
 
-    # reading in the potential keyword arguments that will be passed to
-    # _create_classes().
-    thresh = kwargs.get('thresh', None)
-    num_classes = kwargs.get('num_classes', 2)
-    quantiles = kwargs.get('quantiles', True)
-
-    # Type checking split_type
-    if split_type not in [
-        'mixed-set', 'drug-blind', 'cancer-blind'
-        ]:
-        raise ValueError(
-            f"{split_type} not an excepted input for 'split_type'"
-            )
-
-    # A wide (pivoted) table is more easy to work with in this instance.
-    # The pivot is done using all columns but the 'dose_respones_value'
-    # and 'dose_respones_metric' as index. df.pivot will generate a 
-    # MultiIndex which complicates things further down the line. To that
-    # end 'reset_index()' is used to remove the MultiIndex
-    df_full = data.experiments.copy()
-    df_full = df_full.pivot(
-        index = [
-            'source',
-            'improve_sample_id',
-            'improve_drug_id',
-            'study',
-            'time',
-            'time_unit'
-            ],
-        columns = 'dose_response_metric',
-        values = 'dose_response_value'
-    ).reset_index()
-
-    # Defining the split sizes. 
-    train_size = float(ratio[0]) / sum(ratio)
-    test_val_size = float(ratio[1] + ratio[2]) / sum(ratio)
-    test_size = float(ratio[1]) / (ratio[1] + ratio[2])
-    validate_size = 1 - test_size
-
-    # ShuffleSplit is a method/class implemented by scikit-learn that
-    # enables creating splits where the data is shuffled and then
-    # randomly distributed into train and test sets according to the 
-    # defined ratio.
-    # 
-    # n_splits defines how often a train/test split is generated.
-    # Individual splits (if more than 1 is generated) are not guaranteed
-    # to be disjoint i.e. test sets from individual splits can overlap.
-    # 
-    # ShuffleSplit will be used for non stratified mixed-set splitting 
-    # since there is no requirement for disjoint groups (i.e. drug / 
-    # sample ids). 
-    shs_1 = ShuffleSplit(
-        n_splits=1,
-        train_size=train_size,
-        test_size=test_val_size,
-        random_state=random_state
-    )
-    shs_2 = ShuffleSplit(
-        n_splits=1,
-        train_size=test_size,
-        test_size=validate_size,
-        random_state=random_state
-    )
-
-    # GroupShuffleSplit is an extension to ShuffleSplit that also
-    # factors in a group that is used to generate disjoint train and 
-    # test sets, e.g. in this particular case the drug or sample id to
-    # generate drug-blind or sample-blind train and test sets. 
-    # 
-    # GroupShuffleSplit will be used for non stratified drug-/sample-
-    # blind splitting, i.e. there is a requirement that instances from 
-    # one group (e.g. a specific drug) are only present in the training 
-    # set but not in the test set. 
-    gss_1 = GroupShuffleSplit(
-        n_splits=1,
-        train_size=train_size,
-        test_size=test_val_size,
-        random_state=random_state
-    )
-    gss_2 = GroupShuffleSplit(
-        n_splits=1,
-        train_size=test_size,
-        test_size=validate_size,
-        random_state=random_state
-    )
-
-    # StratifiedShuffleSplit is similar to ShuffleSplit with the added 
-    # functionality to also stratify the splits according to defined 
-    # class labels.
-    # 
-    # StratifiedShuffleSplit will be used for stratified mixed-set 
-    # train/test/validate sets.
-
-    sss_1 = StratifiedShuffleSplit(
-        n_splits=1,
-        train_size=train_size,
-        test_size=test_val_size,
-        random_state=random_state
-    )
-    sss_2 = StratifiedShuffleSplit(
-        n_splits=1,
-        train_size=test_size,
-        test_size=validate_size,
-        random_state=random_state
-    )
-
-    # StratifiedGroupKFold generates K folds that take the group into 
-    # account when generating folds, i.e. a group will only be present
-    # in one fold. It further tries to stratify the folds based on the 
-    # defined classes. 
-    # 
-    # StratifiedGroupKFold will be used for stratified drug-/sample-
-    # blind splitting. 
-    # 
-    # The way the K folds are utilized is to combine i, j, & k folds 
-    # (according to the defined ratio) into training, testing and 
-    # validation sets.
-    sgk = StratifiedGroupKFold(
-        n_splits=sum(ratio),
-        shuffle=True,
-        random_state=random_state
-    )
-
-    # The "actual" splitting logic using the defined Splitters as above
-    # follows here starting with the non-stratified splitting:
-    if stratify_by is None:
-        if split_type == 'mixed-set':
-            # Using ShuffleSplit to generate randomized train and
-            # 'other' set, since there is no need for grouping.
-            idx1, idx2 = next(
-                shs_1.split(df_full)
-                )
-        elif split_type == 'drug-blind':
-            # Using GroupShuffleSplit to created disjoint train and
-            # 'other' sets by drug id
-            idx1, idx2 = next(
-                gss_1.split(df_full, groups=df_full.improve_drug_id)
-                )
-        elif split_type == 'cancer-blind':
-            # same as above we just group over the sample id
-            idx1, idx2 = next(
-                gss_1.split(df_full, groups=df_full.improve_sample_id)
-                )
-        else:
-            raise Exception(f"Should be unreachable")
-
-        # generate new DFs containing the subset of items extracted for
-        # train and other
-        df_train = df_full.iloc[idx1]
-        df_other = df_full.iloc[idx2]
-
-        # follows same logic as previous splitting with the difference
-        # that only "other" is sampled and split
-        if split_type == 'mixed-set':
-            idx1, idx2 = next(
-                shs_2.split(df_other, groups=None)
-                )
-        elif split_type == 'drug-blind':
-            idx1, idx2 = next(
-                gss_2.split(df_other, groups=df_other.improve_drug_id)
-                )
-        elif split_type == 'cancer-blind':
-            idx1, idx2 = next(
-                gss_2.split(df_other, groups=df_other.improve_sample_id)
-                )
-        else:
-            raise Exception(f"Should be unreachable")
-        
-        # extract itmes for test and validate from other based on the 
-        # sampled indices
-        df_test = df_other.iloc[idx1]
-        df_val = df_other.iloc[idx2]
-    
-    # The following block contains the stratified splitting logic
-    else:
-        # First the classes that are needed for the stratification are
-        # generated. `num_classes`, `thresh` and `quantiles` were 
-        # previously defined as possible keyword arguments.
-        df_full = _create_classes(
-            data=df_full,
-            metric=stratify_by,
-            num_classes=num_classes,
-            thresh=thresh,
-            quantiles=quantiles,
-            )
-        if split_type == 'mixed-set':
-            # Using StratifiedShuffleSplit to generate randomized train 
-            # and 'other' set, since there is no need for grouping.
-            idx_train, idx_other = next(
-                sss_1.split(X=df_full, y=df_full['split_class'])
-            )
-            df_train = df_full.iloc[idx_train]
-            df_train = df_train.drop(labels=['split_class'], axis=1)
-            df_other = df_full.iloc[idx_other]
-            # Splitting 'other' further into test and validate
-            idx_test, idx_val = next(
-                sss_2.split(X=df_other, y=df_other['split_class'])
-                )
-            df_test = df_other.iloc[idx_test]
-            df_test = df_test.drop(labels=['split_class'], axis=1)
-            df_val = df_other.iloc[idx_val]
-            df_val = df_val.drop(labels=['split_class'], axis=1)
-        
-        # using StratifiedGroupKSplit for the stratified drug-/sample-
-        # blind splits.
-        elif split_type == 'drug-blind' or split_type == 'cancer-blind':
-            if split_type == 'drug-blind':
-                splitter = enumerate(
-                    sgk.split(
-                        X=df_full,
-                        y=df_full['split_class'],
-                        groups=df_full.improve_drug_id
-                    )
-                )
-            elif split_type == 'cancer-blind':
-                splitter = enumerate(
-                    sgk.split(
-                        X=df_full,
-                        y=df_full['split_class'],
-                        groups=df_full.improve_sample_id
-                    )
-                )
-
-            # StratifiedGroupKSplit is setup to generate K splits where
-            # K=sum(ratios) (e.g. 10 if ratio=8:1:1). To obtain three 
-            # sets (train/test/validate) the individual splits need to 
-            # be combined (e.g. k=[1:8] -> train, k=9 -> test, k=10 -> 
-            # validate). The code block below does that by combining
-            # all indices (row numbers) that go into individual sets and
-            # then extracting and adding those rows into the individual
-            # sets.
-            idx_train = []
-            idx_test = []
-            idx_val = []
-            for i, (idx1, idx2) in splitter:
-                if i < ratio[0]:
-                    idx_train.extend(idx2)
-                elif i >= ratio[0] and i < (ratio[0] + ratio[1]):
-                    idx_test.extend(idx2)
-                elif (
-                        i >= (ratio[0] + ratio[1])
-                        and i < (ratio[0] + ratio[1] + ratio[2])
-                     ):
-                    idx_val.extend(idx2)
-            df_full.drop(labels=['split_class'], axis=1, inplace=True)
-            df_train = df_full.iloc[idx_train]
-            df_test = df_full.iloc[idx_test]
-            df_val = df_full.iloc[idx_val]
-        else:
-            raise Exception(f"Should be unreachable")
-
-
-    # generating filtered CoderData objects that contain only the 
-    # respective data for each split
-    data_train = _filter(data, df_train)
-    data_test = _filter(data, df_test)
-    data_val = _filter(data, df_val)
-    
-    return Split(data_train, data_test, data_val)
-
+    return split_train_test_validate(        
+        data=data,
+        split_type=split_type,
+        ratio=ratio,
+        stratify_by=stratify_by,
+        random_state=random_state,
+        kwargs=kwargs,
+        )
 
 
 def _load_file(file_path: Path) -> pd.DataFrame:
