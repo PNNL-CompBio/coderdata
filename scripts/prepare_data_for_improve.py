@@ -440,6 +440,41 @@ def process_datasets(args):
 
 
     #-------------------------------------------------------------------
+    # create drug_info table
+    #-------------------------------------------------------------------
+
+    dfs_to_merge = {}
+    for data_set in data_sets:
+        if (data_sets[data_set].experiments is not None 
+            and data_sets[data_set].drugs is not None
+        ):
+            dfs_to_merge[data_set] = deepcopy(data_sets[data_set].drugs)
+
+    concat_drugs = pd.concat(dfs_to_merge.values())
+    out_df = deepcopy(concat_drugs)
+    out_df['SMILES'] = concat_drugs['canSMILES']
+    out_df['DrugID'] = concat_drugs['improve_drug_id']
+    out_df['CAS_ID'] = None
+    out_df.drop(['formula', 'weight', 'InChIKey'], axis=1, inplace=True)
+    out_df = out_df[['DrugID', 'SMILES', 'canSMILES', 'chem_name', 'pubchem_id', 'CAS_ID', 'improve_drug_id']]
+    out_df = out_df.rename(columns={'chem_name': 'NAME', 'pubchem_id': 'PUBCHEM_ID', 'improve_drug_id':'improve_chem_id'})
+    out_df['PUBCHEM_ID'] = out_df['PUBCHEM_ID'].fillna(0)
+    out_df['PUBCHEM_ID'] = pd.to_numeric(out_df['PUBCHEM_ID'], errors='coerce', downcast='integer')
+    out_df['PUBCHEM_ID'] = out_df['PUBCHEM_ID'].replace(0, None)
+
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "drug_info.tsv"
+    )
+    out_df.to_csv(
+        path_or_buf=outfile_path,
+        sep='\t',
+        index=False,
+    )
+
+
+    #-------------------------------------------------------------------
     # create mordred table
     #-------------------------------------------------------------------
 
