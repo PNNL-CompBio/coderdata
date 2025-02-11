@@ -209,12 +209,12 @@ def process_datasets(args):
     #-------------------------------------------------------------------
 
 
-    split_data_sets(
-        args=args,
-        data_sets=data_sets,
-        data_sets_info=data_sets_info,
-        response_data=response_data
-        )
+    # split_data_sets(
+    #     args=args,
+    #     data_sets=data_sets,
+    #     data_sets_info=data_sets_info,
+    #     response_data=response_data
+    #     )
 
     #-------------------------------------------------------------------
     # getting common / reference gene symbols
@@ -440,6 +440,48 @@ def process_datasets(args):
 
 
     #-------------------------------------------------------------------
+    # create mordred table
+    #-------------------------------------------------------------------
+
+    dfs_to_merge = {}
+    for data_set in data_sets:
+        if (data_sets[data_set].experiments is not None 
+            and data_sets[data_set].drug_descriptors is not None
+        ):
+            df_tmp = data_sets[data_set].format(data_type='drug_descriptor', shape='wide')
+            df_tmp = df_tmp.drop(columns=['morgan fingerprint']).add_prefix('mordred.')
+            dfs_to_merge[data_set] = df_tmp
+
+    concat_drugs = pd.concat(dfs_to_merge.values())
+    concat_drugs = concat_drugs.replace({'False': '0', 'True': '1'})
+    cols = concat_drugs.columns
+    concat_drugs[cols] = concat_drugs[cols].apply(pd.to_numeric, errors='coerce')
+    out_df = concat_drugs.reset_index()
+    out_df = out_df.fillna(0).round(4).drop_duplicates(subset=['improve_drug_id'], keep='first')
+
+    if args.EXCL_DRUGS_LIST is not None:
+        logger.info(
+            f"Removing all chemical compunds with ids: '{args.EXCL_DRUGS_LIST}'"
+        )
+        out_df = out_df[~out_df['improve_drug_id'].isin(args.EXCL_DRUGS_LIST)]
+
+    out_df.rename(
+        columns={'improve_drug_id': 'improve_chem_id'},
+        inplace=True,
+        )
+
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "drug_mordred.tsv"
+    )
+    out_df.to_csv(
+        path_or_buf=outfile_path,
+        sep='\t',
+        index=False,
+    )
+
+    #-------------------------------------------------------------------
     # create mutation count table
     #-------------------------------------------------------------------
 
@@ -513,6 +555,7 @@ def process_datasets(args):
         header=False,
         index=False
     )
+
 
 def split_data_sets(
         args: dict,
