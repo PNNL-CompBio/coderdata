@@ -209,12 +209,12 @@ def process_datasets(args):
     #-------------------------------------------------------------------
 
 
-    # split_data_sets(
-    #     args=args,
-    #     data_sets=data_sets,
-    #     data_sets_info=data_sets_info,
-    #     response_data=response_data
-    #     )
+    split_data_sets(
+        args=args,
+        data_sets=data_sets,
+        data_sets_info=data_sets_info,
+        response_data=response_data
+        )
 
     #-------------------------------------------------------------------
     # getting common / reference gene symbols
@@ -474,6 +474,41 @@ def process_datasets(args):
         "data_out",
         "x_data",
         "drug_mordred.tsv"
+    )
+    out_df.to_csv(
+        path_or_buf=outfile_path,
+        sep='\t',
+        index=False,
+    )
+
+
+    #-------------------------------------------------------------------
+    # create morgan table
+    #-------------------------------------------------------------------
+
+    dfs_to_merge = {}
+    for data_set in data_sets:
+        if (data_sets[data_set].experiments is not None 
+            and data_sets[data_set].drug_descriptors is not None
+        ):
+            df_tmp = data_sets[data_set].format(data_type='drug_descriptor', shape='wide')
+            df_tmp = df_tmp['morgan fingerprint']
+            dfs_to_merge[data_set] = df_tmp
+    
+    concat_drugs = pd.concat(dfs_to_merge.values())
+    out_df = concat_drugs.reset_index()
+    out_df = out_df.drop_duplicates(subset=['improve_drug_id'], keep='first')
+    out_df = pd.concat((out_df, out_df['morgan fingerprint'].astype(str).apply(lambda x: pd.Series(list(x))).astype(int).add_prefix('ecfp4.')), axis=1)
+    out_df = out_df.drop(['morgan fingerprint'], axis=1)
+    out_df.rename(
+        columns={'improve_drug_id': 'improve_chem_id'},
+        inplace=True,
+        )
+
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "drug_ecfp4_nbits1024.tsv"
     )
     out_df.to_csv(
         path_or_buf=outfile_path,
