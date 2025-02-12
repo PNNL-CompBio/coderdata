@@ -80,7 +80,8 @@ The `train.py` script is used for training, validating, and optionally self-test
 
 ### Command-Line Options for `train.py`
 
-- **`--dataset`**: Dataset to use for training. Options include: `ccle`, `prism`, `beataml`, `mpnst`, `gdscv1`, `gdscv2`, `gcsi`, `ctrpv2`, `fimm`, `nci60`.  
+- **`--dataset`**: Dataset to use for training.  
+  *Options*: `ccle`, `prism`, `beataml`, `mpnst`, `gdscv1`, `gdscv2`, `gcsi`, `ctrpv2`, `fimm`, `nci60`  
   *Default*: `ccle`
 
 - **`--epochs`**: Number of training epochs.  
@@ -97,12 +98,19 @@ The `train.py` script is used for training, validating, and optionally self-test
 - **`--output`**: Path to the file where results will be appended.  
   *Default*: `results/results.txt`
 
+- **`--split_type`**: Methodology to split the data with the coderdata train_test_validate function.  
+  *Options*: `mixed-set`, `cancer-blind`, and `drug-blind`  
+  *Default*: `mixed-set`
+
+- **`--seed`**: Set a seed for the train_test_validate split function.
+  *Default*: 42
+
 #### Example
 
-To train a model using the GNN encoder on the `ccle` dataset for 100 epochs while preparing for external testing, run:
+To train a model using the `gnn` encoder on the `ccle` dataset for 100 epochs while preparing for external testing, run:
 
 ```bash
-python train.py --dataset ccle --epochs 100 --encoder gnn --test_type external --output external_results.txt
+python train.py --dataset ccle --epochs 100 --encoder gnn --test_type external --split_type mixed-set --seed 42 --output external_results.txt
 ```
 
 ## Testing with `test.py`
@@ -116,7 +124,8 @@ The `test.py` script is used to evaluate a previously trained model on an extern
 
 ### Command-Line Options for `test.py`
 
-- **`--dataset`**: External test dataset to use. Options include: `ccle`, `prism`, `beataml`, `mpnst`, `gdscv1`, `gdscv2`, `gcsi`, `ctrpv2`, `fimm`, `nci60`.  
+- **`--dataset`**: External test dataset to use.  
+  **Options**: `ccle`, `prism`, `beataml`, `mpnst`, `gdscv1`, `gdscv2`, `gcsi`, `ctrpv2`, `fimm`, `nci60`  
   *Required*
 
 - **`--encoder`**: Encoder/model type used.  
