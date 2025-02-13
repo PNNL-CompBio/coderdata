@@ -1,12 +1,32 @@
 ### Benchmarking Models
 
 
-This repository contains scripts and utilities for benchmarking deep learning models with drug response prediction. The models were developed by the [CDRP](https://github.com/PNNL-CompBio/cdrp) Repository maintainers. We borrow the following scripts from them data_utils.py, gnn_utils.py, deeptta_rna_model.py, transformer.py, and the shared_input resources.
+This repository contains scripts and utilities for benchmarking deep learning models with drug response prediction.  
+  
+The models were developed by the [CDRP](https://github.com/PNNL-CompBio/cdrp) Repository maintainers and we borrow the following scripts from them: [data_utils.py](https://github.com/PNNL-CompBio/cdrp/blob/main/mpnst/data_utils.py), [gnn_utils.py](https://github.com/PNNL-CompBio/cdrp/blob/main/mpnst/gnn_utils.py), [deeptta_rna_model.py](https://github.com/PNNL-CompBio/cdrp/blob/main/mpnst/deeptta_rna_model.py), [transformer.py](https://github.com/PNNL-CompBio/cdrp/blob/main/mpnst/transformer.py), and the shared_input resources come from [DeepTTA](https://academic.oup.com/bib/article/23/3/bbac100/6554594).
 
 This directory integrates key components from [CoderData](https://pypi.org/project/coderdata/) for data loading, handling, and splitting. The benchmarks are designed to compare different model architectures and data splits.
 
+### Model Types
 
-Goals:
+This repository supports four types of models for drug response prediction:
+
+- **Transformer**:  
+  Uses self-attention mechanisms to process input sequences. This model is particularly effective at capturing long-range dependencies and complex interactions among features, making it suitable for sequence-based data.
+
+- **GNN (Graph Neural Network)**:  
+  Leverages graph convolutional layers to process graph-structured data. This model is ideal for representing molecular structures of drugs, capturing local connectivity and structural properties within the molecule.
+
+- **MorganFP (Morgan Fingerprint)**:  
+  Utilizes Morgan Fingerprints to represent chemical structures. Morgan fingerprints transform a drug molecule into a fixed-length numerical or binary vector that summarizes its substructures.
+
+- **Descriptor**:  
+  Utilizes a set of drug descriptors that summarize various chemical properties. The current implementation subsets these descriptors to include only those starting with "n" (e.g., `n_acids`, `n_bases`, etc.). Our current set should be modified to a more thought-out group - the current set is just to demonstrate the model.
+
+
+
+
+### Repository Goals:
 1. **Balanced Splits**: Evaluate the role of balanced splits in self and cross-dataset performance.
 2. **Cross-System Prediction**: Assess the feasibility of training on cell lines and testing on ex vivo systems.
 3. **Omics Comparison**: Compare proteomics to transcriptomics as predictors of drug response.
@@ -60,7 +80,8 @@ The `train.py` script is used for training, validating, and optionally self-test
 
 ### Command-Line Options for `train.py`
 
-- **`--dataset`**: Dataset to use for training. Options include: `ccle`, `prism`, `beataml`, `mpnst`, `gdscv1`, `gdscv2`, `gcsi`, `ctrpv2`, `fimm`, `nci60`.  
+- **`--dataset`**: Dataset to use for training.  
+  *Options*: `ccle`, `prism`, `beataml`, `mpnst`, `gdscv1`, `gdscv2`, `gcsi`, `ctrpv2`, `fimm`, `nci60`  
   *Default*: `ccle`
 
 - **`--epochs`**: Number of training epochs.  
@@ -77,12 +98,19 @@ The `train.py` script is used for training, validating, and optionally self-test
 - **`--output`**: Path to the file where results will be appended.  
   *Default*: `results/results.txt`
 
+- **`--split_type`**: Methodology to split the data with the coderdata train_test_validate function.  
+  *Options*: `mixed-set`, `cancer-blind`, and `drug-blind`  
+  *Default*: `mixed-set`
+
+- **`--seed`**: Set a seed for the train_test_validate split function.
+  *Default*: 42
+
 #### Example
 
-To train a model using the GNN encoder on the `ccle` dataset for 100 epochs while preparing for external testing, run:
+To train a model using the `gnn` encoder on the `ccle` dataset for 100 epochs while preparing for external testing, run:
 
 ```bash
-python train.py --dataset ccle --epochs 100 --encoder gnn --test_type external --output external_results.txt
+python train.py --dataset ccle --epochs 100 --encoder gnn --test_type external --split_type mixed-set --seed 42 --output external_results.txt
 ```
 
 ## Testing with `test.py`
@@ -96,7 +124,8 @@ The `test.py` script is used to evaluate a previously trained model on an extern
 
 ### Command-Line Options for `test.py`
 
-- **`--dataset`**: External test dataset to use. Options include: `ccle`, `prism`, `beataml`, `mpnst`, `gdscv1`, `gdscv2`, `gcsi`, `ctrpv2`, `fimm`, `nci60`.  
+- **`--dataset`**: External test dataset to use.  
+  **Options**: `ccle`, `prism`, `beataml`, `mpnst`, `gdscv1`, `gdscv2`, `gcsi`, `ctrpv2`, `fimm`, `nci60`  
   *Required*
 
 - **`--encoder`**: Encoder/model type used.  
