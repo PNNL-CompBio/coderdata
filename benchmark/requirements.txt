@@ -1,30 +1,26 @@
 
 
 # Data handling and scientific computing
-pandas>=1.1.0
-numpy>=1.18.0
-scikit-learn>=0.22.0
-scipy>=1.5.0
+pandas
+numpy
+scikit-learn
+scipy
 
 # Visualization
-matplotlib>=3.1.0
-tqdm>=4.50.0
+matplotlib
+tqdm
 
 # Deep Learning Framework
-torch>=1.7.0
+torch
 
 # PyTorch Geometric and its dependencies
-torch-geometric>=2.0.0
+torch-geometric
 
 # RDKit for cheminformatics
-# Note: RDKit is available via pip as "rdkit-pypi".
-# If you encounter installation issues, consider installing RDKit via conda:
-#    conda install -c rdkit rdkit
-rdkit-pypi>=2021.03.1
+rdkit-pypi
 
 # Subword NMT for BPE tokenization
-subword-nmt>=0.3.0
+subword-nmt
 
 # CoderData for dataset handling and downloading
-coderdata>=0.1.0
-
+coderdata
