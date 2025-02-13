@@ -83,7 +83,7 @@ def main():
         "--seed",
         type=int,
         default=42,
-        help="Random seed to use."
+        help="Select a random seed to use for the split function."
     )
     
     args = parser.parse_args()
