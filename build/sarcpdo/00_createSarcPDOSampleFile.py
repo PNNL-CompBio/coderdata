@@ -27,7 +27,10 @@ def download_and_format_genetic_samples(synLoginObject):
     genetic_samples['other_id_source'] = 'Synapse'
     # append "_Tumor" to be more similar to RNAseq other_id's 
     genetic_samples['other_id'] =  genetic_samples['common_name'].astype(str) + '_Tumor'
+    # change underscores before '2' to be dash for within dataset consistency
     genetic_samples['other_id'] = genetic_samples['other_id'].str.replace("_2", "-2")
+    genetic_samples['common_name'] = genetic_samples['common_name'].str.replace("_2", "-2")
+
     # assign all model types to tumor - is this correct?
     genetic_samples['model_type'] = 'tumor'
     # make empty column
@@ -81,7 +84,12 @@ def download_and_format_rna_samples(synLoginObject):
     modeltypeDF.loc[modeltypeDF[0] =="Thawed", [0]] = modeltypeDF[1] 
     modeltypeDF[0] = modeltypeDF[0].str.lower()
     rna_samples['model_type'] = modeltypeDF[0]
-    
+    # add rows by hand for SARC0139_1 that are missing from sample sheet but present in rnaseq data
+    addrow1 = {'other_id' : 'SARC0139_1_Tumor', 'common_name':'SARC0139_1', 'other_id_source' : 'Synapse', 'other_names':'', "cancer_type" : "Leiomyosarcoma", 'species':"Homo sapiens(Human)", 'model_type':'tumor'}
+    addrow2 = {'other_id' : 'SARC0139_1_Organoid', 'common_name':'SARC0139_1', 'other_id_source' : 'Synapse', 'other_names':'', "cancer_type" : "Leiomyosarcoma", 'species':"Homo sapiens(Human)", 'model_type':'organoid'}
+    rna_samples.loc[len(rna_samples)] = addrow1
+    rna_samples.loc[len(rna_samples)] = addrow2
+
     return rna_samples
 
     #def generate_samples_file(prev_samples_path):
@@ -106,16 +114,20 @@ if __name__ == "__main__":
     synObject = synapseclient.login(authToken=PAT)
 
     rnaTable = download_and_format_rna_samples(synObject)
+    print(rnaTable.shape)
     geneticTable = download_and_format_genetic_samples(synObject)
-    print()
+    print(geneticTable.shape)
     merged = rnaTable.merge(geneticTable, how='outer')
-    
+    print(merged.shape)
+    # change dash to underscore to align with omics data
+    #merged['other_id'] = merged['other_id'].str.replace("-2", "_2")
+
     prev_max_improve_id = max(pd.read_csv(args.prevSamples).improve_sample_id)
     merged['improve_sample_id'] = range(prev_max_improve_id+1, prev_max_improve_id+merged.shape[0]+1) 
 
-    merged.to_csv('~/Downloads/sarcpdo_samples.csv', index=False)
+    merged.to_csv('/tmp/sarcpdo_samples.csv', index=False)
 
         # validate with: linkml validate -s coderdata/schema/coderdata.yaml ~/Downloads/sarcpdo_samples.csv
 
-
+    # test script : python3 00_createSarcPDOSampleFile.py -t $SYNAPSE_AUTH_TOKEN -p '~/Downloads/mpnstpdx_samples.csv'
 
