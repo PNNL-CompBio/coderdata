@@ -208,10 +208,12 @@ A full list of parameters for the individual data types can be found below:
 
 ##### Creating training / testing and validation splits with `coderdata`
 
-Using the `Dataset.train_test_validate()` function the dataset can be split into trining, testing and validation sets. The function will return a `Split` object (a python `@dataclass`) that contains three `Dataset` objects that can be adressed and retrieved by subscripting with eiter `Split.train`, `Split.test` or `Split.validate`. 
+`coderdata` provides two functions to generate dataset splits. `Dataset.split_train_other()` for a "two-way" split (useful if no validation in machine learning needs to be done) and `Dataset.split_train_test_validate()` for a "three-way" split. Both functions return `@dataclass` objects, that contain either `.train` & `.other` (`.split_train_other()`) or `.train`, `.test` and `.validate` (`.split_train_test_validate()`) attributes which reference `Dataset` objects. 
+
+Example uses of `.split_train_test_validate()` follow below. Note that both splitting functions share the same arguments with only `ratio` differing in so far that `.split_train_test_validate()` expects a touple with 3 elements whereas `.split_train_other` expects a 2 element tuple.
 
 ```python
->>> split = beataml.train_test_validate()
+>>> split = beataml.split_train_test_validate()
 >>> split.train.experiments.shape
 (187020, 8)
 >>> split.test.experiments.shape
@@ -227,7 +229,7 @@ By default the returned splits will be `mixed-set` (drugs and cancer samples can
 - `drug-blind`: Splits according to drug association. Any sample associated with a drug will be unique to one of the splits. For example samples with association to drug A will only be present in the train split, but never in test or validate.
 - `cancer-blind`: Splits according to cancer association. Equivalent to drug-blind, except cancer types will be unique to splits.
 
-`ratio` can be used to adjust the split ratios using a 3 item tuple containing integers. For example `ratio=(5:3:2)` would result in a split where train, test and validate contain roughly 50%, 30% and 20% of the original data respectively.
+`ratio` can be used to adjust the split ratios using a 3 item tuple containing integers (2 items for `.split_train_other`). For example `ratio=(5:3:2)` would result in a split where train, test and validate contain roughly 50%, 30% and 20% of the original data respectively.
 
 `random_state` defines a seed values for the random number generator. Defining a `random_state` will guarantee reproducability as two runs with the same `random_state` will result in the same splits.
 
@@ -235,7 +237,7 @@ By default the returned splits will be `mixed-set` (drugs and cancer samples can
 
 An example call to create a 70/20/10 drug-blind split that is stratified by `fit_auc` could look like this:
 ```python
->>> split = beataml.train_test_validate(
+>>> split = beataml.split_train_test_validate(
 ...     split_type='drug-blind',
 ...     ratio=[7,2,1],
 ...     random_state=42,
