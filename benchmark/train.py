@@ -420,7 +420,7 @@ def main():
         train_loss = loss_all / len(train_loader) if len(train_loader) > 0 else 0
         history["train_loss"].append(train_loss)
         
-        val_rmse, _,_,_, _, _, _ = test_fn(validate_loader, model, device)
+        val_rmse, _, _, _, _, _, _ = test_fn(validate_loader, model, device)
         history["val_loss"].append(val_rmse)
         print("Determining if early stop should occur")
         early_stopping(val_rmse, model)
