@@ -13,11 +13,39 @@ from urllib import request
 
 ##drug files
 smi_strings='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_smiles.csv?version=1&modificationDate=1710381820000&api=v2&download=true'
-pc_ids='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_sid_cid.csv?version=2&modificationDate=1712766341112&api=v2&download=true'
-chemnames='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemcal_name.csv?version=1&modificationDate=1710382716000&api=v2&download=true'
-cas='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=1&modificationDate=1710381783000&api=v2&download=true'
-conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=11&modificationDate=1712351454136&api=v2'
+#oct 2024
+smi_strings = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_smiles.csv?version=3&modificationDate=1727924130457&api=v2&download=true'
 
+#jan 2025
+smi_strings ='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_smiles.csv?version=5&modificationDate=1735932227387&api=v2'
+
+pc_ids='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_sid_cid.csv?version=2&modificationDate=1712766341112&api=v2&download=true'
+pc_ids = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_sid_cid.csv?version=4&modificationDate=1727924129121&api=v2&download=true'
+
+#jan 2025
+pc_ids = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_sid_cid.csv?version=5&modificationDate=1735931099618&api=v2'
+
+
+chemnames = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemcal_name.csv?version=1&modificationDate=1710382716000&api=v2&download=true'
+#oct 2024
+chemnames = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemical_name.csv?version=1&modificationDate=1727924127004&api=v2'
+
+#jan 2025
+chemnames = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemical_names.csv?version=1&modificationDate=1735931084378&api=v2'
+
+#oct 2024
+cas='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=1&modificationDate=1710381783000&api=v2&download=true'
+#oct 2024
+cas = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=3&modificationDate=1727924126194&api=v2&download=true'
+
+#jan 2025
+cas = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=4&modificationDate=1735931080720&api=v2'
+
+conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=11&modificationDate=1712351454136&api=v2'
+##OCT 2024
+conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=13&modificationDate=1727922354561&api=v2'
+#jan 2025
+conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=14&modificationDate=1735932462303&api=v2'
 
 def main():    
     parser = argparse.ArgumentParser()
@@ -26,7 +54,7 @@ def main():
     opts = parser.parse_args()
 
     ###primary DF
-    df = {'improve_drug_id':[],'chem_name':[],'canSMILES':[],'isoSMILES':[],\
+    df = {'improve_drug_id':[],'chem_name':[],'canSMILES':[],\
           'InChIKey':[],'formula':[],'weight':[],'pubchem_id':[]}
 
     print('Downloading NSC identifiers for nci60 data')
@@ -39,12 +67,26 @@ def main():
     if not os.path.exists('DOSERESP.csv'):
         resp = request.urlretrieve(conc_data,'doseresp.zip')
         os.system('unzip doseresp.zip')
-    dose_resp = pl.read_csv("DOSERESP.csv",quote_char='"',infer_schema_length=10000000)
+    dose_resp = pl.read_csv("DOSERESP.csv",quote_char='"',infer_schema_length=10000000,ignore_errors=True)
     pubchems = pubchems.filter(pl.col('NSC').is_in(dose_resp['NSC']))
+    smiles = smiles.filter(pl.col("NSC").is_in(dose_resp['NSC']))
     ##first retreive pubchem data
     if opts.test:
         arr = rand.sample(list(pubchems['CID']),100)
     else:
+        arr = set(pubchems['CID'])
+
+    ##first filter to see if there are structures/drugs in teh data already. i dont think this does much.
+    if os.path.exists(opts.output):
+        curdrugs = pl.read_csv(opts.output,separator='\t')
+       # cs = set(curdrugs['isoSMILES'])
+        smiles = smiles.filter(pl.col('SMILES').is_not_null())
+        upper=[a.upper() for a in smiles['SMILES']]
+        smiles= pl.DataFrame({'NSC':smiles['NSC'],'upper':upper})#smiles.with_columns(upper=upper)
+        ##reduce to smiels only in current drugs
+        # ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['isoSMILES']))
+        ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['canSMILES']))
+        pubchems = pubchems.filter(pl.col('NSC').is_in(ssmiles['NSC']))
         arr = set(pubchems['CID'])
         
     print("Querying pubchem from CIDs")
@@ -75,7 +117,7 @@ def main():
         {
             "improve_drug_id": ["SMI_"+str(a) for a in range(max_imp+1,max_imp+1+smicount,1)],
             'canSMILES': [a for a in set(mdf['SMILES'])],
-            'isoSMILES': [a for a in set(mdf['SMILES'])],
+            # 'isoSMILES': [a for a in set(mdf['SMILES'])],
             'InChIKey': [None for a in range(smicount)],
             'formula': [None for a in range(smicount)],
             'weight': [None for a in range(smicount)]
@@ -95,9 +137,21 @@ def main():
     merged = pl.concat([mdf,namedf],how='horizontal').select(['SMILES','pubchem_id','nscid','lower_name'])
     melted = merged.melt(id_vars=['SMILES','pubchem_id'],value_vars=['nscid','lower_name']).select(['SMILES','pubchem_id','value']).unique()
     melted.columns = ['canSMILES','pubchem_id','chem_name']
-    if newdf.shape[0]>0:
-        newdf = newdf.join(melted,on='canSMILES',how='inner').select(res.columns)
-        res = pl.concat([res,newdf],how='vertical')
+
+    if newdf.shape[0] > 0:
+        res = res.with_columns([
+            pl.col("InChIKey").cast(pl.Utf8),
+            pl.col("formula").cast(pl.Utf8),
+            pl.col("weight").cast(pl.Utf8)
+        ])
+        newdf = newdf.with_columns([
+            pl.col("InChIKey").cast(pl.Utf8),
+            pl.col("formula").cast(pl.Utf8),
+            pl.col("weight").cast(pl.Utf8)
+        ])
+    
+        newdf = newdf.join(melted, on='canSMILES', how='inner').select(res.columns)
+        res = pl.concat([res, newdf], how='vertical')
     res.write_csv(opts.output,separator='\t')
     
 if __name__=='__main__':

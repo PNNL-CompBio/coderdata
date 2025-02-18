@@ -16,68 +16,119 @@ import hashlib
 import json
 import polars as pl
 import gc
-
+import hashlib
+from pathlib import Path
     
 def download_tool(url):
     """
-    Download, extract, and make a tool (GDC Client) executable from the provided URL.
+    Download, extract, and prepare the GDC client tool.
 
     Parameters
     ----------
     url : str
-        The URL from where the tool needs to be downloaded.
+        The URL to download the tool from.
 
     Returns
     -------
     str
-        Name of the downloaded file.
+        The path to the `gdc-client` executable.
     """
-    
+    # Download the file
+    print("Downloading tool...")
     filename = wget.download(url)
-    files_before = os.listdir()
+##commented due to merge conflict
+#    files_before = os.listdir()
+#    # shutil.unpack_archive(filename)
+#    ##there are two files to unpack
+#    print('Unpacking platform-specific path')
+#    shutil.unpack_archive(os.path.basename(url))
+#    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
+#    print('Unpacking secondary zip')
+#    fnames={
+#        'Darwin':"gdc-client_2.3_OSX_x64.zip",
+#        'Linux':"gdc-client_2.3_Ubuntu_x64.zip",
+#        'Windows':"gdc-client_2.3_Windows_x64.zip"
+#        }
+#    shutil.unpack_archive(fnames[platform.system()]) 
+#    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
+#    shutil.unpack_archive("gdc-client_2.3_Ubuntu_x64.zip") 
+#    if not os.path.exists('gdc-client'):
+#        raise FileNotFoundError("gdc-client executable not found after extraction.")
+#    # Ensure 'gdc-client' is executable
+#    st = os.stat('gdc-client')
+#    os.chmod('gdc-client', st.st_mode | stat.S_IEXEC)
+#    # Return the path to the executable
+#    return './gdc-client'
+
+    
+    # First extraction
+    print(f"\nExtracting {filename}...")
     shutil.unpack_archive(filename)
-    files_after = os.listdir()
-    new_file = str(next(iter((set(files_after) - set(files_before)))))
-    st = os.stat(new_file)
-    os.chmod(new_file, st.st_mode | stat.S_IEXEC)
-    return filename
+    os.remove(filename)
+
+    # Check for a nested zip file and extract again
+    extracted_files = [f for f in os.listdir() if os.path.isfile(f) and f.endswith(".zip")]
+    for zip_file in extracted_files:
+        print(f"Extracting nested archive: {zip_file}...")
+        shutil.unpack_archive(zip_file)
+        os.remove(zip_file)
+
+    gdc_client_path = None
+    for root, dirs, files in os.walk("."):
+        if "gdc-client" in files:
+            gdc_client_path = os.path.join(root, "gdc-client")
+            break
+
+    if not gdc_client_path:
+        raise FileNotFoundError("`gdc-client` executable not found after extraction.")
+
+    # Ensure `gdc-client` is executable
+    print(f"Making {gdc_client_path} executable...")
+    st = os.stat(gdc_client_path)
+    os.chmod(gdc_client_path, st.st_mode | stat.S_IEXEC)
+
+    return gdc_client_path
+
 
 def is_tool(name):
     """
-    Check if a specific tool is available on the system or in the current directory.
+    Check if a specific tool is available on the system.
 
     Parameters
     ----------
     name : str
-        The name of the tool to check.
+        The name of the tool.
 
     Returns
     -------
     bool
         True if the tool is found, otherwise False.
     """
-    
-    return which(name) is not None or name in os.listdir()
+    return shutil.which(name) is not None or name in os.listdir()
 
 def ensure_gdc_client():
     """
-    Ensure that the gdc-client is available on the system.
+    Ensure that the GDC client tool is available on the system.
     
-    If the gdc-client tool isn't found, this function will automatically
-    download the appropriate version based on the operating system.
+    If the tool isn't found, this function downloads and prepares it.
     """
-    
     tool_name = "gdc-client"
     if not is_tool(tool_name):
-        print("Downloading gdc-client")
+        print("GDC client not found. Downloading...")
         urls = {
-            "Darwin": 'https://gdc.cancer.gov/files/public/file/gdc-client_v1.6.1_OSX_x64.zip',
-            "Windows": 'https://gdc.cancer.gov/files/public/file/gdc-client_v1.6.1_Windows_x64.zip',
-            "Linux": 'https://gdc.cancer.gov/files/public/file/gdc-client_v1.6.1_Ubuntu_x64.zip'
+            "Darwin": "https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_OSX_x64-py3.8-macos-14.zip",
+            "Windows": "https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Windows_x64-py3.8-windows-2019.zip",
+            "Linux": "https://gdc.cancer.gov/system/files/public/file/gdc-client_2.3_Ubuntu_x64-py3.8-ubuntu-20.04.zip"
         }
-        download_tool(urls.get(platform.system()))
+        os_type = platform.system()
+        url = urls.get(os_type)
+        if not url:
+            raise ValueError(f"Unsupported OS: {os_type}")
+        gdc_client_path = download_tool(url)
+        print(f"`gdc-client` downloaded and available at {gdc_client_path}")
     else:
-        print("gdc-client already installed")
+        print("`gdc-client` is already installed.")
+
 
 def extract_uuids_from_manifest(manifest_data):
     """
@@ -132,34 +183,21 @@ def fetch_metadata(uuids):
     response = requests.post(endpoint, json=payload)
     return response.json()
 
+
 def use_gdc_tool(manifest_data, data_type, download_data):
     """
     Use the gdc-client tool to download data based on the provided manifest and data type.
     
-    The function first checks if the manifest location exists and cleans it if required. Then, it uses the gdc-client to download the data. Finally, it extracts UUIDs and fetches associated metadata.
-
-    Parameters
-    ----------
-    manifest_data : str
-        File path to the manifests file.
-    data_type : str
-        Type of the data to be downloaded.
-    download_data : bool
-        Flag to determine whether data should be downloaded or not.
-
-    Returns
-    -------
-    dict
-        Metadata associated with the UUIDs extracted from the manifest.
+    The function filters the manifest for the specified data type, downloads the files,
+    verifies the MD5 checksums, and retries downloading any missing or corrupt files
+    up to a maximum number of retries. Finally, it extracts UUIDs and fetches associated metadata.
     """
-
-    ##first, let's filter by type
-    tdict={'transcriptomics':'rna_seq','copy_number':'copy_number','mutations':'ensemble_masked'}
-    fm = pd.read_csv(manifest_data,sep='\t')
+    # First, filter by type
+    tdict = {'transcriptomics': 'rna_seq', 'copy_number': 'copy_number', 'mutations': 'ensemble_masked'}
+    fm = pd.read_csv(manifest_data, sep='\t')
     fm['include'] = [tdict[data_type] in a for a in fm.filename]
     newfm = fm[fm.include]
-#    newfm.reset_index(drop=True,inplace=True)
-    newfm.to_csv('new_manifest.txt',sep='\t',index=False)
+    newfm.to_csv('new_manifest.txt', sep='\t', index=False)
     
     manifest_loc = "full_manifest_files"
 
@@ -168,12 +206,104 @@ def use_gdc_tool(manifest_data, data_type, download_data):
             shutil.rmtree(manifest_loc)
         os.makedirs(manifest_loc)
 
-        # Download files using gdc-client
-        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m','new_manifest.txt'])
+        # Read the list of expected file IDs, their MD5 checksums, and filenames
+        expected_files = newfm[['id', 'md5', 'filename']].values.tolist()
+        total_files = len(expected_files)
+        print(f"Total files to download: {total_files}")
+
+        # Initialize retry variables
+        retries = 0
+        max_retries = 5
+
+        # Function to get downloaded file IDs
+        def get_downloaded_ids(manifest_loc):
+            return [d for d in os.listdir(manifest_loc) if os.path.isdir(os.path.join(manifest_loc, d))]
+
+        # Function to verify MD5 checksum
+        def _verify_md5(file_id, expected_md5, expected_filename):
+            file_dir = os.path.join(manifest_loc, file_id)
+            if os.path.isdir(file_dir):
+                file_path = os.path.join(file_dir, expected_filename)
+                if os.path.isfile(file_path):
+                    # Compute MD5 checksum
+                    hash_md5 = hashlib.md5()
+                    with open(file_path, "rb") as f:
+                        for chunk in iter(lambda: f.read(4096), b""):
+                            hash_md5.update(chunk)
+                    return hash_md5.hexdigest() == expected_md5
+                else:
+                    # Expected file not found in directory
+                    print(f"Expected file not found for file_id {file_id}: {expected_filename}")
+                    return False
+            else:
+                # Directory not found
+                print(f"Directory not found for file_id {file_id}")
+                return False
+
+        # Initial download attempt
+        print("Starting secondary download...")
+        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'new_manifest.txt'])
+        print("Secondary download complete.")
+
+        # Check for missing or corrupt files and retry if necessary
+        while retries <= max_retries:
+            downloaded_ids = get_downloaded_ids(manifest_loc)
+            missing_ids = []
+            corrupt_ids = []
+
+            # Check each expected file
+            for file_id, expected_md5, expected_filename in expected_files:
+                if file_id not in downloaded_ids:
+                    missing_ids.append(file_id)
+                else:
+                    if not _verify_md5(file_id, expected_md5, expected_filename):
+                        corrupt_ids.append(file_id)
+
+            missing_or_corrupt_ids = missing_ids + corrupt_ids
+
+            if not missing_or_corrupt_ids:
+                print("\nAll files downloaded and verified successfully.")
+                break
+
+            retries += 1
+            if retries > max_retries:
+                print(f"\nFailed to download or verify {len(missing_or_corrupt_ids)} files after {max_retries} retries.")
+                print("Proceeding with available files.")
+                break
+
+            print(f"\nRetrying download for {len(missing_or_corrupt_ids)} files (Attempt {retries}/{max_retries}):")
+            if missing_ids:
+                print(f"  Missing files: {len(missing_ids)}")
+                print(f"    File IDs: {', '.join(missing_ids)}")
+            if corrupt_ids:
+                print(f"  Corrupt files: {len(corrupt_ids)}")
+                print(f"    File IDs: {', '.join(corrupt_ids)}")
+
+            # Remove corrupt files before retrying
+            for file_id in corrupt_ids:
+                file_dir = os.path.join(manifest_loc, file_id)
+                shutil.rmtree(file_dir, ignore_errors=True)
+                print(f"  Removed corrupt file: {file_id}")
+
+            # Create a new manifest with missing or corrupt IDs
+            retry_manifest = newfm[newfm['id'].isin(missing_or_corrupt_ids)]
+            retry_manifest.to_csv('retry_manifest.txt', sep='\t', index=False)
+
+            # Retry download
+            print(f"Starting retry {retries} download...")
+            subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'retry_manifest.txt'])
+            print(f"Retry {retries} complete.")
+
+        if missing_or_corrupt_ids:
+            print(f"\nFailed to download or verify {len(missing_or_corrupt_ids)} files after {max_retries} retries.")
+            print("Proceeding with available files.")
 
     # Extract UUIDs and fetch metadata
+    print("Extracting UUIDs from manifest...")
     uuids = extract_uuids_from_manifest('new_manifest.txt')
+    print("Fetching metadata...")
     metadata = fetch_metadata(uuids)
+    print("Metadata retrieval complete.")
 
     return metadata
 
@@ -313,15 +443,13 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     'aliquot_id': [item['cases'][0]['samples'][0]["portions"][0]["analytes"][0]['aliquots'][0]['aliquot_id'] for item in metadata['data']['hits']]
     }
     df_metadata = pl.DataFrame(metadata_dict)
-
-#    print(final_dataframe)
-#    print(df_metadata)
+    
     # Merge the metadata DataFrame with the final dataframe based on 'file_id'
+    print(df_metadata)
+    print(final_dataframe)
     final_dataframe = final_dataframe.join(df_metadata, on='file_id', how='left')
     
     return final_dataframe
-
-
 
 def retrieve_figshare_data(url):
     """
@@ -371,15 +499,15 @@ def copy_num(arr):
 
         if math.isnan(a):
             return float('nan')
-        
-        a_val = math.log2(float(a)+0.000001) ###this should not be exponent, should be log!!! 2**float(a)
-        if a_val < 0.0: #0.5210507:
+
+        a_val = math.log2(float(a)+0.000001)
+        if a_val < 0.5210507:
             return 'deep del'
         elif a_val < 0.7311832:
             return 'het loss'
         elif a_val < 1.214125:
             return 'diploid'
-        elif a_val < 1.731183:
+        elif a_val < 1.422233:
             return 'gain'
         else:
             return 'amp'
@@ -442,12 +570,14 @@ def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samp
 
     # Process in chunks
     merged_data = pl.DataFrame()
+    print(f"merged_data:\n {merged_data}")
+    
     for i in range(0, len(data), chunksize):
         chunk = data[i:i + chunksize]
         if data_type == "mutations":
             chunk = chunk.rename({"Variant_Classification": "variant_classification"})
         chunk = chunk.select(selected_columns)
-        
+        print(f"chunk: \n{chunk}")
         merged_chunk = samples.join(chunk, left_on='other_names', right_on='aliquot_id', how='inner')
         merged_chunk = merged_chunk.drop(["aliquot_id", "other_names"])
 
@@ -480,180 +610,6 @@ def write_dataframe_to_csv(dataframe, outname):
     else:
         dataframe.to_pandas().to_csv(outname,index=False)
     return
-
-def upload_to_figshare(token, title, filepath):
-    """
-    Uploads a file to Figshare and publishes the article.
-
-    This function automates the process of uploading a file to Figshare and
-    subsequently publishing the associated article.
-
-    Parameters
-    ----------
-    token : str
-        The authentication token for Figshare API access.
-    
-    title : str
-        The title of the article to be created on Figshare.
-    
-    filepath : str
-        The path to the file that is to be uploaded to Figshare.
-
-    Notes
-    -----
-    The function uses various helper functions for each specific tasks.
-    - Sending requests to the Figshare API.
-    - Creating a new article on Figshare.
-    - Computing the MD5 checksum and size of a given file.
-    - Handling the multipart upload for large files.
-    - Publishing the article once the upload is complete.
-
-    The Figshare API endpoint is defined by the `BASE_URL` constant and the size
-    of each chunk in the multipart upload is defined by the `CHUNK_SIZE` constant.
-
-    Raises
-    ------
-    HTTPError
-        If there is any issue with the Figshare API requests.
-    
-    ValueError
-        If there's an issue parsing the response from the Figshare API.
-
-    """
-    
-    BASE_URL = 'https://api.figshare.com/v2/{endpoint}'
-    CHUNK_SIZE = 1048576
-    def raw_issue_request(method, url, data=None, binary=False):
-        """
-        Sends an HTTP request and returns the response.
-        """
-        headers = {'Authorization': 'token ' + token}
-        if data is not None and not binary:
-            data = json.dumps(data)
-        response = requests.request(method, url, headers=headers, data=data)
-        response.raise_for_status()
-        try:
-            data = json.loads(response.content)
-        except ValueError:
-            data = response.content
-        return data
-
-    def issue_request(method, endpoint, *args, **kwargs):
-        """
-        Sends a request to a specific Figshare API endpoint.
-        """
-        return raw_issue_request(method, BASE_URL.format(endpoint=endpoint), *args, **kwargs)
-
-    def create_article(title):
-        """
-        Creates a new article on Figshare with a given title.
-        """
-        data = {
-            'title': title,
-            'description': "Cancer Organoid Data",
-            'keywords': ["cancer","organoid","hcmi"],
-            "categories_by_source_id": [
-            "321101",
-            "400207"
-          ]
-        }
-        result = issue_request('POST', 'account/articles', data=data)
-        result = raw_issue_request('GET', result['location'])
-        return result['id']
-    
-    
-
-    def get_file_check_data(file_name):
-        """
-        Check the MD5 checksum and size of a given file.
-        """
-        with open(file_name, 'rb') as fin:
-            md5 = hashlib.md5()
-            size = 0
-            data = fin.read(CHUNK_SIZE)
-            while data:
-                size += len(data)
-                md5.update(data)
-                data = fin.read(CHUNK_SIZE)
-            return md5.hexdigest(), size
-
-    def initiate_new_upload(article_id, file_name):
-        """
-        Initiates the file upload process for a specific article.
-        """
-        endpoint = 'account/articles/{}/files'.format(article_id)
-        md5, size = get_file_check_data(file_name)
-        data = {'name': os.path.basename(file_name),
-                'md5': md5,
-                'size': size}
-        result = issue_request('POST', endpoint, data=data)
-        result = raw_issue_request('GET', result['location'])
-        return result
-
-    def complete_upload(article_id, file_id):
-        """
-        Marks the file upload as complete for a specific article.
-        """
-        issue_request('POST', 'account/articles/{}/files/{}'.format(article_id, file_id))
-
-    def upload_parts(file_info):
-        """
-        Handles the multipart upload for large files.
-        """
-        url = '{upload_url}'.format(**file_info)
-        print("url: ", url)
-        result = raw_issue_request('GET', url)
-        print("result: ", result)
-        with open(filepath, 'rb') as fin:
-            for part in result['parts']:
-                upload_part(file_info, fin, part)
-
-    def upload_part(file_info, stream, part):
-        """
-        Uploads a specific part/chunk of the file.
-        """
-        udata = file_info.copy()
-        udata.update(part)
-        url = '{upload_url}/{partNo}'.format(**udata)
-        stream.seek(part['startOffset'])
-        data = stream.read(part['endOffset'] - part['startOffset'] + 1)
-        raw_issue_request('PUT', url, data=data, binary=True)
-        
-
-    def change_article_status(article_id, status='public'):
-        """
-        Changes the visibility status of a specific article on Figshare.
-        """
-        data = {'status': status}
-        response = issue_request('PUT', f'account/articles/{article_id}', data=data)
-        
-    def publish_article(token, article_id):
-        """
-        Publishes a specific article on Figshare.
-        """
-        headers = {
-            'Authorization': 'token ' + token,
-            'Content-Type': 'application/json'
-        }
-    
-        url = BASE_URL.format(endpoint=f'account/articles/{article_id}/publish')
-        response = requests.post(url, headers=headers)
-
-        # Handle the response
-        if response.status_code == 201:
-            print("Article published successfully!")
-        else:
-            print("Error:", response.status_code)
-            print(response.text)
-            
-    article_id = create_article(title)
-    file_info = initiate_new_upload(article_id, filepath)
-    upload_parts(file_info)
-    complete_upload(article_id, file_info['id'])
-    change_article_status(article_id, 'public')
-    print("Make the file public")
-    publish_article(token,article_id)
-
 
 def main():
     """
@@ -718,9 +674,9 @@ def main():
     tc = ['transcriptomics', 'copy_number', 'mutations']
     parser.add_argument('-t', '--type', help='Type of data (e.g., transcriptomics, copy_number)',choices = tc, required=True)
     parser.add_argument('-o', '--outname', help='Output CSV Name', required=True)
-    parser.add_argument('-z', '--token', help='figshare token ID', required=False)
-    parser.add_argument('-s', '--samples',help='Samples file', required=False,default='/tmp/hcmi_samples.csv')
-    parser.add_argument('-g', '--genes',help='File containing valid gene ids',required=False,default='/tmp/genes.csv')
+    # parser.add_argument('-z', '--token', help='figshare token ID', required=False)
+    parser.add_argument('-s', '--samples', nargs='?',type=str, help='Samples file', required=False, const='/tmp/hcmi_samples.csv', default='/tmp/hcmi_samples.csv')
+    parser.add_argument('-g', '--genes',  nargs='?',type=str, help='File containing valid gene ids',required=False, const='/tmp/genes.csv', default='/tmp/genes.csv')
     args = parser.parse_args()
     
         
@@ -732,11 +688,9 @@ def main():
         ensure_gdc_client()
         print("Using provided manifest and downloading data...")
         
-          
     # Use gdc tool to get metadata
     print("Using gdc tool and retrieving get metadata...")
     metadata = use_gdc_tool(args.manifest, args.type, download_data=download_option)
-    #print(metadata)
     # Extract data files
     print("Running 'get_clean_files' function")
     data_files = get_clean_files(args.type)
@@ -766,16 +720,6 @@ def main():
     print("Running 'write_dataframe_to_csv' function")
     write_dataframe_to_csv(final_data, args.outname)
     
-    print("Data processing complete!")
-    if args.token:
-        token = args.token
-        print("Running 'upload_to_figshare' function")
-        upload_to_figshare(token, args.outname, args.outname)
-    else:
-        print("No token provided. Data not uploaded to Figshare")
-
-
 if __name__ == "__main__":
     main()
-    
     

@@ -20,7 +20,8 @@ def main():
     pats = set(counts.columns)-set(['stable_id','display_label','description','biotype'])
 
     ##transcript info from grc37
-    gtf = pd.read_csv("https://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz",sep='\t',comment='#')
+    # gtf = pd.read_csv("https://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz",sep='\t',comment='#') # the "current" dir no longer exists...
+    gtf = pd.read_csv("https://ftp.ensembl.org/pub/grch37/release-113/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz",sep='\t',comment='#')
     gtf.index = [a.split(';')[0].split(' ')[1].strip('"') for a in gtf[gtf.columns[8]]]
     ##first select only exons
     gtf = gtf[gtf.gene=='exon']

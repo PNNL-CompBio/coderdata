@@ -1,4 +1,4 @@
-pandas==2.2
+pandas==2.2.0
 wget==3.2
 requests
 synapseclient
@@ -9,6 +9,6 @@ scikit-learn
 scipy
 #polars
 pyarrow
-polars-lts-cpu
+polars-lts-cpu==0.19.17 
 PyYAML
 numpy

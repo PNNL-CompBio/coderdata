@@ -7,6 +7,8 @@ scikit-learn
 scipy
 requests
 openpyxl
-polars
+polars==0.19.17
 mordredcommunity
 rdkit
+coderdata==0.1.40
+psutil

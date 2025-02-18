@@ -9,19 +9,24 @@ library(synapser)
 # Retrieve command line arguments
 args <- commandArgs(trailingOnly = TRUE)
 
-# Check if a token was provided
-if (length(args) == 0) {
-  stop("No token or sample file provided. Usage: Rscript my_script.R <PAT> [olddrugfile] [newdrugfile]", call. = FALSE)
+
+# Check the number of arguments provided
+if (length(args) < 1) {
+  stop("At least one argument is required. Usage: Rscript 02_get_drug_data.R <newdrugfile> [olddrugfile]", call. = FALSE)
 }
 
-# Set your personal access token
-PAT <- args[1]
-olddrugfiles <- args[2]
-newdrugfile <- args[3]
-# Log in to Synapse
-library(synapser)
-synLogin(authToken = PAT)
 
+# Assign arguments
+newdrugfile <- args[1]  # Path to the new drug file
+olddrugfiles <- ifelse(length(args) >= 2 && args[2] != "", args[2], NA)
+
+# Read SYNAPSE_AUTH_TOKEN from the environment
+synapse_token <- Sys.getenv("SYNAPSE_AUTH_TOKEN")
+if (synapse_token == "") {
+  stop("Error: SYNAPSE_AUTH_TOKEN environment variable is not set.")
+}
+
+synLogin(authToken = synapse_token)
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
@@ -70,15 +75,73 @@ alldrugs[which(alldrugs=='PD901')]<-'PD-0325901'
 print(paste(alldrugs,collapse=','))
 
 
-##copy old drug to new drug
-olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x,header=T,sep='\t',quote='',comment.char='')))
-olddrugs<-unique(olddrugs)
 
-print(paste('Read in ',nrow(olddrugs),'old drugs'))
-                                        #file.copy(olddrugfile,newdrugfile)
-write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
-output_file_path <- newdrugfile
+## new code:
+
+
+# Handle old drugs
+if (!is.na(olddrugfiles)) {
+  # Read and combine old drug files
+  olddrug_list <- lapply(unique(unlist(strsplit(olddrugfiles, split = ','))), function(x) {
+    if (file.exists(x)) {
+      return(fread(x, header = TRUE, sep = '\t', quote = ''))
+    } else {
+      warning(paste("Old drug file does not exist:", x))
+      return(NULL)
+    }
+  })
+  
+  # Remove NULL entries and ensure uniqueness
+  olddrug_list <- Filter(Negate(is.null), olddrug_list)
+  
+  if (length(olddrug_list) > 0) {
+    olddrugs <- unique(rbindlist(olddrug_list, use.names = TRUE, fill = TRUE))
+    print(paste('Read in', nrow(olddrugs), 'old drugs'))
+  } else {
+    olddrugs <- data.frame(
+      improve_drug_id = integer(),
+      chem_name = character(),
+      pubchem_id = character(),
+      canSMILES = character(),
+      # isoSMILES = character(),
+      InChIKey = character(),
+      formula = character(),
+      weight = numeric(),
+      stringsAsFactors = FALSE
+    )
+    print("Old drug files not valid. Created empty olddrugs dataframe.")
+  }
+} else {
+  # Create an empty dataframe with specified columns
+  olddrugs <- data.frame(
+    improve_drug_id = integer(),
+    chem_name = character(),
+    pubchem_id = character(),
+    canSMILES = character(),
+    # isoSMILES = character(),
+    InChIKey = character(),
+    formula = character(),
+    weight = numeric(),
+    stringsAsFactors = FALSE
+  )
+  print("No old drug file provided. Created empty olddrugs dataframe.")
+}
+
+# Write the initial drug file (old drugs)
+write.table(olddrugs, file = newdrugfile, sep = '\t', row.names = FALSE, quote = FALSE,col.names=T)
+
+
+# Define the ignore file path
 ignore_file_path <- '/tmp/mpnst_ignore_chems.txt'
+
+
+# ##copy old drug to new drug
+# olddrugs<-do.call(rbind,lapply(unique(unlist(strsplit(olddrugfiles,split=','))),function(x) read.table(x,header=T,sep='\t',quote='',comment.char='')))
+# olddrugs<-unique(olddrugs)
+
+# print(paste('Read in ',nrow(olddrugs),'old drugs'))
+#                                         #file.copy(olddrugfile,newdrugfile)
+# write.table(olddrugs,file=newdrugfile,sep='\t',row.names=F,quote=FALSE,col.names=T)
 
 
 ##now load reticulate down here
@@ -88,10 +151,10 @@ library(reticulate)
 use_python("/opt/venv/bin/python3", required = TRUE)
 source_python("pubchem_retrieval.py")
 
-update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=output_file_path,ignore_chems=ignore_file_path)
+update_dataframe_and_write_tsv(unique_names=alldrugs,output_filename=newdrugfile,ignore_chems=ignore_file_path)
 
 
-tab<-read.table(newdrugfile,sep='\t',header=T,quote="",comment.char="")
+tab<-read.table(newdrugfile,sep='\t',header=T,quote="",fill=TRUE)
 
 newdrugs<-tab|>
     subset(chem_name%in%tolower(alldrugs))
@@ -100,6 +163,8 @@ tab<-tab|>
     subset(improve_drug_id%in%newdrugs$improve_drug_id)
 
 write.table(tab,file=newdrugfile,sep='\t',row.names=FALSE,quote=FALSE)
+
+print(paste("Final drug table written to", newdrugfile))
 
 
 ##now call the python drug script

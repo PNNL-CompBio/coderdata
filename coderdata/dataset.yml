@@ -1,0 +1,82 @@
+figshare: "https://api.figshare.com/v2/articles/28250603"
+version: "2.0.0"
+datasets:
+  beataml:
+    description: "Beat acute myeloid leukemia (BeatAML) focuses on acute myeloid leukemia tumor data. Data includes drug response, proteomics, and transcriptomics datasets."
+    references: 
+      - citation: "Bottomly D, Long N, Schultz AR, et al. Integrative analysis of drug response and clinical outcome in acute myeloid leukemia. Cancer Cell. 2022;40(8):850-864.e9."
+        doi: "https://doi.org/10.1016/j.ccell.2022.07.002"
+      - citation: "Pino JC, Posso C, Joshi SK, et al. Mapping the proteogenomic landscape enables prediction of drug response in acute myeloid leukemia. Cell Rep Med. 2024;5(1):101359."
+        doi: "https://doi.org/10.1016/j.xcrm.2023.101359"
+  ccle:
+    description: "Cancer Cell Line Encyclopedia (CCLE)."
+    references:
+      - citation: "Barretina J, Caponigro G, Stransky N, et al. The Cancer Cell Line Encyclopedia enables predictive modelling of anticancer drug sensitivity Nature. 2012;483(7391):603-607. Published 2012 Mar 28."
+        doi: "https://doi.org/10.1038/nature11003"
+  cptac:
+    description: "The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI) focused on improving our understanding of cancer biology through the integration of transcriptomic, proteomic, and genomic data."
+    references:
+      - citation: "Lindgren CM, Adams DW, Kimball B, et al. Simplified and Unified Access to Cancer Proteogenomic Data. J Proteome Res. 2021;20(4):1902-1910."
+        doi: "doi:10.1021/acs.jproteome.0c00919"
+  ctrpv2:
+    description: "Cancer Therapeutics Response Portal version 2 (CTRPv2)"
+    references:
+      - citation: "Rees MG, Seashore-Ludlow B, Cheah JH, et al. Correlating chemical sensitivity and basal gene expression reveals mechanism of action. Nat Chem Biol. 2016;12(2):109-116."
+        doi: "doi:10.1038/nchembio.1986"
+      - citation: "Seashore-Ludlow B, Rees MG, Cheah JH, et al. Harnessing Connectivity in a Large-Scale Small-Molecule Sensitivity Dataset. Cancer Discov. 2015;5(11):1210-1223."
+        doi: "doi:10.1158/2159-8290.CD-15-0235"
+      - citation: "Basu A, Bodycombe NE, Cheah JH, et al. An interactive resource to identify cancer genetic and lineage dependencies targeted by small molecules. Cell. 2013;154(5):1151-1161."
+        doi: "doi:10.1016/j.cell.2013.08.003"
+  fimm:
+    description: "Institute for Molecular Medicine Finland (FIMM) dataset."
+    references:
+      - citation: "Mpindi JP, Yadav B, Östling P, et al. Consistency in drug response profiling. Nature. 2016;540(7631):E5-E6."
+        doi: "doi:10.1038/nature20171"
+      - citation: "Pemovska T, Kontro M, Yadav B, et al. Individualized systems medicine strategy to tailor treatments for patients with chemorefractory acute myeloid leukemia. Cancer Discov. 2013;3(12):1416-1429."
+        doi: "doi:10.1158/2159-8290.CD-13-0350"
+  gcsi:
+    description: "The Genentech Cell Line Screening Initiative (gCSI)"
+    references:
+      - citation: "Haverty PM, Lin E, Tan J, et al. Reproducible pharmacogenomic profiling of cancer cell line panels. Nature. 2016;533(7603):333-337."
+        doi: "https://doi.org/10.1038/nature17987"
+      - citation: "Klijn C, Durinck S, Stawiski EW, et al. A comprehensive transcriptional portrait of human cancer cell lines. Nat Biotechnol. 2015;33(3):306-312."
+        doi: "https://doi.org/10.1038/nbt.3080"
+  gdscv1:
+    description: "Genomics of Drug Sensitivity in Cancer (GDSC) v1"
+    references:
+      - citation: "Garnett MJ, Edelman EJ, Heidorn SJ, et al. Systematic identification of genomic markers of drug sensitivity in cancer cells. Nature. 2012;483(7391):570-575. Published 2012 Mar 28."
+        doi: "doi:10.1038/nature11005"
+      - citation: "Iorio F, Knijnenburg TA, Vis DJ, et al. A Landscape of Pharmacogenomic Interactions in Cancer. Cell. 2016;166(3):740-754."
+        doi: "doi:10.1016/j.cell.2016.06.017"
+      - citation: "Yang W, Soares J, Greninger P, et al. Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells. Nucleic Acids Res. 2013;41(Database issue):D955-D961."
+        doi: "doi:10.1093/nar/gks1111"
+  gdscv2:
+    description: "Genomics of Drug Sensitivity in Cancer (GDSC) v2"
+    references:
+      - citation: "Garnett MJ, Edelman EJ, Heidorn SJ, et al. Systematic identification of genomic markers of drug sensitivity in cancer cells. Nature. 2012;483(7391):570-575. Published 2012 Mar 28."
+        doi: "doi:10.1038/nature11005"
+      - citation: "Iorio F, Knijnenburg TA, Vis DJ, et al. A Landscape of Pharmacogenomic Interactions in Cancer. Cell. 2016;166(3):740-754."
+        doi: "doi:10.1016/j.cell.2016.06.017"
+      - citation: "Yang W, Soares J, Greninger P, et al. Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells. Nucleic Acids Res. 2013;41(Database issue):D955-D961."
+        doi: "doi:10.1093/nar/gks1111"
+  hcmi:
+    description: "Human Cancer Models Initiative (HCMI) encompasses numerous cancer types and includes cell line, organoid, and tumor data. Data includes the transcriptomics, somatic mutation, and copy number datasets."
+  mpnst:
+    description: "Malignant Peripheral Nerve Sheath Tumor is a rare, agressive sarcoma that affects peripheral nerves throughout the body."
+    references:
+      - citation: "Dehner C, Moon CI, Zhang X, et al. Chromosome 8 gain is associated with high-grade transformation in MPNST. JCI Insight. 2021;6(6):e146351. Published 2021 Mar 22."
+        doi: "https://doi.org/10.1172/jci.insight.146351"
+  mpnstpdx:
+    description: "Patient derived xenograft data for MPNST"
+  nci60:
+    description: "National Cancer Institute 60"
+    references:
+      - citation: "Shoemaker RH. The NCI60 human tumour cell line anticancer drug screen. Nat Rev Cancer. 2006;6(10):813-823."
+        doi: "doi:10.1038/nrc1951"
+  prism:
+    description: "Profiling Relative Inhibition Simultaneously in Mixtures"
+    references:
+      - citation: "Corsello SM, Nagari RT, Spangler RD, et al. Discovering the anti-cancer potential of non-oncology drugs by systematic viability profiling. Nat Cancer. 2020;1(2):235-248."
+        doi: "doi:10.1038/s43018-019-0018-6"
+      - citation: "Yu C, Mannan AM, Yvone GM, et al. High-throughput identification of genotype-specific cancer vulnerabilities in mixtures of barcoded tumor cell lines. Nat Biotechnol. 2016;34(4):419-423."
+        doi: "doi:10.1038/nbt.3460"
