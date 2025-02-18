@@ -549,6 +549,10 @@ def test_fn(loader, model, device):
     
     # Calculate Mean Squared Error
     mse = mean_squared_error(y_true=target, y_pred=predicted)
+    # Calculate Mean Absolute Error
+    mae = mean_absolute_error(y_true=target, y_pred=predicted)
+    # Calculate R-squared
+    r2 = r2_score(y_true=target, y_pred=predicted)
     
     # Calculate Pearson correlation coefficient
     if len(target) > 1 and len(predicted) > 1:  # Ensure there are at least two data points
@@ -557,7 +561,8 @@ def test_fn(loader, model, device):
     else:
         pearson_corr, spearman_corr = None, None  # Handle cases with insufficient data points
 
-    return mse, pearson_corr, spearman_corr, target, predicted
+    # return mse, pearson_corr, spearman_corr, target, predicted
+    return mse, mae, r2, pearson_corr, spearman_corr, target, predicted
 
 # def test_fn(loader, model, device):
 #     model.eval()

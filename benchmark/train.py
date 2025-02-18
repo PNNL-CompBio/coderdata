@@ -434,60 +434,49 @@ def main():
             model_save_path = f'models/{output_prefix}_model_seed_{data_split_seed}_epoch_{epoch}.pt'
             torch.save(model.state_dict(), model_save_path)
             print("Model saved at", model_save_path)
-    
+        
     # --------------------------
     # Load best model (checkpoint) and test (if in self-test mode)
     # --------------------------
     model.load_state_dict(torch.load(ckpt_path))
-    
+
     if args.test_type == "self":
-        test_rmse, pearson_corr, spearman_corr, _, _ = test_fn(test_loader, model, device)
-        print(f"Test results -- RMSE: {test_rmse:.3f}, Pearson: {pearson_corr:.3f}, Spearman: {spearman_corr:.3f}")
+        mse, mae, r2, pearson_corr, spearman_corr, _, _ = test_fn(test_loader, model, device)
+        test_rmse = np.sqrt(mse)
+        print(f"Test results -- RMSE: {test_rmse:.3f}, MAE: {mae:.3f}, R²: {r2:.3f}, Pearson: {pearson_corr:.3f}, Spearman: {spearman_corr:.3f}")
     else:
-        test_rmse, pearson_corr, spearman_corr = None, None, None
-    
-    # --------------------------
-    # Plot training and validation loss
-    # --------------------------
-    plot_file = f'plots/seed_{data_split_seed}_epoch_{n_epochs}_{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_auc_train_val_plot.png'
-    plt.figure(figsize=(10, 6))
-    plt.plot(range(0, len(history["train_loss"])), history["train_loss"], label='Train Loss', linestyle='-', color='b')
-    plt.plot(range(0, len(history["val_loss"])), history["val_loss"], label='Val Loss', linestyle='-', color='r')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.title('Training and Validation Loss Over Epochs')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(plot_file)
-    print(f"Loss plot saved to {plot_file}")
-    
+        test_rmse, mae, r2, pearson_corr, spearman_corr = None, None, None, None, None
+
     # --------------------------
     # Write (append) results to file
     # --------------------------
     results_file_path = f'results/seed_{data_split_seed}_epoch_{n_epochs}_{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_rna_train_results_table.txt'
+    # Updated header to include Test MAE and Test R²
     header = ("Seed\tDataset\tSplit Type\tEncoder\tTest Type\tGene Selection\tGene Number\t"
-              "Test RMSE\tPearson Correlation\tSpearman Correlation\n")
+            "Test RMSE\tTest MAE\tTest R²\tPearson Correlation\tSpearman Correlation\n")
     with open(results_file_path, 'a') as file:
         if os.stat(results_file_path).st_size == 0:
             file.write(header)
         if args.test_type == "self":
             file.write(f"{data_split_seed}\t{args.dataset}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                       f"{args.gene_selection}\t{gene_number}\t{test_rmse:.3f}\t{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
+                    f"{args.gene_selection}\t{gene_number}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
+                    f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
         else:
             file.write(f"{data_split_seed}\t{args.dataset}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                       f"{args.gene_selection}\t{gene_number}\tNA\tNA\tNA\n")
+                    f"{args.gene_selection}\t{gene_number}\tNA\tNA\tNA\tNA\tNA\n")
     print(f"Results saved to {results_file_path}")
-    
+
     # Also append results to the user-specified output file
     with open(args.output, 'a') as out_file:
         if os.stat(args.output).st_size == 0:
             out_file.write(header)
         if args.test_type == "self":
             out_file.write(f"{data_split_seed}\t{args.dataset}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                           f"{args.gene_selection}\t{gene_number}\t{test_rmse:.3f}\t{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
+                        f"{args.gene_selection}\t{gene_number}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
+                        f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
         else:
             out_file.write(f"{data_split_seed}\t{args.dataset}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                           f"{args.gene_selection}\t{gene_number}\tNA\tNA\tNA\n")
+                        f"{args.gene_selection}\t{gene_number}\tNA\tNA\tNA\tNA\tNA\n")
 
 if __name__ == '__main__':
     main()
