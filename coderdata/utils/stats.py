@@ -8,16 +8,16 @@ from copy import deepcopy
 
 import numpy as np
 
-from coderdata import DatasetLoader
 import pandas as pd
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 import seaborn as sns
 
+import coderdata as cd
 
 def plot_2d_respones_metric(
-        data: DatasetLoader,
+        data: cd.Dataset,
         metric1: str,
         metric2: str,
         **kwargs: dict
@@ -42,7 +42,7 @@ def plot_2d_respones_metric(
         )
 
 def plot_response_metric(
-        data: DatasetLoader,
+        data: cd.Dataset,
         metric: str='auc',
         ax: Axes=None,
         **kwargs: dict
@@ -136,7 +136,7 @@ def plot_response_metric(
     p.set_title(title_)
 
 
-def split_experiments_by_study(data: DatasetLoader) -> dict:
+def split_experiments_by_study(data: cd.Dataset) -> dict:
     """
     Splits the CoderData object into multiple smaller CoderData objects
     according to the `study` recorded in the ``.experiments`` table in 
@@ -144,9 +144,9 @@ def split_experiments_by_study(data: DatasetLoader) -> dict:
 
     Parameters
     ----------
-    data : DatasetLoader
+    data : cd.Dataset
         The CoderData object containing the data set loaded into memory
-        via ``coderdata.DatasetLoader()``.
+        via ``coderdata.cd.Dataset()``.
 
     Returns
     -------
@@ -178,7 +178,7 @@ def split_experiments_by_study(data: DatasetLoader) -> dict:
     return df_ret
 
 
-def summarize_response_metric(data: DatasetLoader) -> pd.DataFrame:
+def summarize_response_metric(data: cd.Dataset) -> pd.DataFrame:
     """
     Helper function to extract basic statistics for the `experiments`
     object in a CoderData object. Uses `pandas.DataFrame.describe()` 
@@ -189,7 +189,7 @@ def summarize_response_metric(data: DatasetLoader) -> pd.DataFrame:
 
     Parameters
     ----------
-    data : coderdata.DatasetLoader
+    data : coderdata.cd.Dataset
         A full CoderData object of a dataset
 
     Returns
@@ -226,11 +226,11 @@ def summarize_response_metric(data: DatasetLoader) -> pd.DataFrame:
 
 
 def _filter(
-        data: DatasetLoader,
+        data: cd.Dataset,
         sample_ids: list,
         drug_ids: list,
         study: str=None,
-        ) -> DatasetLoader:
+        ) -> cd.Dataset:
     """
     Helper function to filter down the CoderData object(s) to create
     independent more concise CoderData objects for further processing.
@@ -241,7 +241,7 @@ def _filter(
 
     Parameters
     ----------
-    data : DatasetLoader
+    data : cd.Dataset
         Contains a full CoderData object imported/loaded via 
         ``cd.DataLoader``
     sample_ids : list
@@ -258,7 +258,7 @@ def _filter(
 
     Returns
     -------
-    DatasetLoader
+    cd.Dataset
         The filtered CoderData object
     
     Notes
