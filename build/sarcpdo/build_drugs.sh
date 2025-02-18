@@ -4,7 +4,7 @@ set -euo pipefail
 trap 'echo "Error on or near line $LINENO while executing: $BASH_COMMAND"; exit 1' ERR
 
 echo "Running script with token and drugFile $1"
-python3 02_createSarcPDODrugsFile.py --token $SYNAPSE_AUTH_TOKEN -d $1 -o /tmp/sarcpdo_drugs.tsv
+python3 02_createSarcPDODrugsFile --token $SYNAPSE_AUTH_TOKEN -d $1 -o /tmp/sarcpdo_drugs.tsv
 
 echo "Running build_drug_desc.py..."
 python3 build_drug_desc.py --drugtable /tmp/sarcpdo_drugs.tsv --desctable /tmp/sarcpdo_drug_descriptors.tsv.gz

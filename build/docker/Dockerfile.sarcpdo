@@ -3,11 +3,19 @@ FROM python:3.9
 WORKDIR /usr/src/app
 
 
-COPY build/sarcpdo/00_createSarcPDOSampleFile.py . 
+COPY build/sarcpdo/00_createSarcPDOSampleFile.py .
+COPY build/sarcpdo/01_createSarcPDOOmicsFiles.py .
+COPY build/sarcpdo/02_createSarcPDODrugsFile.py .
+COPY build/sarcpdo/03_createSarcPDOExperimentFile.py . 
 COPY build/sarcpdo/requirements.txt .
+COPY build/sarcpdo/*sh ./
+COPY build/utils/* ./
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-VOLUM ['/tmp']
+VOLUME  ['/tmp']
 
-CMD python 
