@@ -374,6 +374,12 @@ class CreateData:
             smiles = data.loc[i, 'canSMILES']
             y = data.loc[i, self.metric]
             improve_sample_id = data.loc[i, 'improve_sample_id']
+            # Check if sample_id exists in the gene expression DataFrame.
+            
+            if improve_sample_id not in self.gexp.index:
+                print(f"Warning: Sample id {improve_sample_id} not found in gene expression data; skipping this sample.")
+                continue
+            print(improve_sample_id)
             ge = self.gexp.loc[improve_sample_id, :].values.tolist()
             tokens, _ = self.tokenizer.tokenize(smiles)
             data_list.append(TransformerData(tokens=tokens, y=y, ge=ge))
