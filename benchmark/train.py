@@ -13,11 +13,13 @@ A new argument, --gene_selection, allows choosing among alternative gene-selecti
   "landmark"  : Use graphDRP_landmark_genes_map file (default)
   "pca"       : PCA-based gene selection
   "mutation"  : Mutation counts-based selection
-  "variance"  : Transcriptomic variance-based selection
+  "variance"  : Omics variance-based selection
   "random"    : A random selection - this uses seed for selection.
 
-A new argument, --gene_number, specifies the top X genes to retain (default: 500)
+A new argument, --gene_number, specifies the top X genes to retain (default: 1000)
 for gene-selection methods that rank genes.
+
+A new argument, --omics allows switching the omics data type (default: transcriptomics).
 """
 
 import os
@@ -31,12 +33,12 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import coderdata as cd
+import random
 
 # Local project imports
 from data_utils import DataProcessor
 from gnn_utils import CreateData, EarlyStopping, test_fn
 from deeptta_rna_model import Model
-import random
 
 def main():
     # --------------------------
@@ -100,13 +102,20 @@ def main():
               "'landmark' = graphDRP_landmark_genes_map file (default), "
               "'pca' = PCA-based, "
               "'mutation' = Mutation counts-based, "
-              "'variance' = Transcriptomic variance-based")
+              "'variance' = Omics variance-based")
     )
     parser.add_argument(
         "--gene_number",
         type=int,
         default=1000,
         help="Number of top genes to retain for ranking methods (default: 1000)"
+    )
+    parser.add_argument(
+        "--omics",
+        type=str,
+        choices=["transcriptomics", "proteomics"],
+        default="transcriptomics",
+        help="Omics data type to use (default: transcriptomics)"
     )
     
     args = parser.parse_args()
@@ -124,8 +133,7 @@ def main():
     dose_response_metric = "fit_auc"
     
     # Set output prefix and checkpoint path based on test_type.
-    # The output prefix now includes: dataset, split_type, encoder, test_type, gene_selection, gene_number.
-    output_prefix = f"{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}"
+    output_prefix = f"{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}"
     ckpt_path = f"./tmp/best_{output_prefix}.pt"
     
     # Create necessary directories
@@ -135,13 +143,21 @@ def main():
             print(f"'{folder}' directory created.")
 
     # --------------------------
-    # Load dataset using coderdata and perform gene selection
+    # Load dataset using coderdata and extract the chosen omics data
     # --------------------------
     print(f"Loading dataset: {args.dataset}")
     cd_data = cd.load(args.dataset, "data")
     
+    # Get the specified omics data (default is transcriptomics)
+    omics_data = getattr(cd_data, args.omics, None)
+    if omics_data is None:
+        print(f"Warning: {args.omics} data not found in the dataset. Exiting.")
+        exit(1)
+    
+    # --------------------------
+    # Perform gene selection on the omics data
+    # --------------------------
     if args.gene_selection == "landmark":
-        # Option "landmark": Use graphDRP_landmark_genes_map file (existing method)
         selected_gene_path = "./shared_input/graphDRP_landmark_genes_map.txt"
         if os.path.exists(selected_gene_path):
             try:
@@ -149,18 +165,15 @@ def main():
                 if 'To' not in selected_gene_df.columns:
                     raise ValueError("Column 'To' not found in landmark gene file.")
                 selected_genes = set(selected_gene_df['To'])
-                cd_data.transcriptomics = cd_data.transcriptomics[cd_data.transcriptomics['entrez_id'].isin(selected_genes)]
+                omics_data = omics_data[omics_data['entrez_id'].isin(selected_genes)]
             except Exception as e:
                 print(f"Error reading landmark gene file: {e}. Proceeding without gene filtering.")
         else:
             print(f"Warning: {selected_gene_path} not found. Proceeding without gene filtering.")
             
-            
-            
     elif args.gene_selection == "random":
-        # Option "random": Random gene selection using seed for reproducibility
         random.seed(args.seed)
-        all_genes = cd_data.transcriptomics['entrez_id'].unique().tolist()
+        all_genes = omics_data['entrez_id'].unique().tolist()
         if gene_number >= len(all_genes):
             print(f"Requested gene_number {gene_number} is greater than or equal to available genes ({len(all_genes)}). Using all genes.")
             selected_genes = all_genes
@@ -168,34 +181,30 @@ def main():
             selected_genes = random.sample(all_genes, gene_number)
         print(f"Randomly selected {len(selected_genes)} genes:")
         print(selected_genes)
-        cd_data.transcriptomics = cd_data.transcriptomics[cd_data.transcriptomics['entrez_id'].isin(selected_genes)]
+        omics_data = omics_data[omics_data['entrez_id'].isin(selected_genes)]
         
-            
     elif args.gene_selection == "pca":
-        # Option "pca": PCA-based gene selection
-        transcriptomics_df = cd_data.transcriptomics.copy()
-        # Identify expression columns (excluding identifier columns)
-        expr_cols = [col for col in transcriptomics_df.columns if col not in ['improve_sample_id', 'entrez_id']]
+        temp_df = omics_data.copy()
+        expr_cols = [col for col in temp_df.columns if col not in ['improve_sample_id', 'entrez_id']]
         if not expr_cols:
-            print("Warning: No expression column found for PCA gene selection. Skipping gene filtering.")
+            print("Warning: No expression columns found for PCA gene selection. Skipping gene filtering.")
         else:
             try:
-                # Use the data object's format function to obtain wide-format data.
-                transcriptomics_wide = cd.format(cd_data, "transcriptomics", "wide")
+                omics_wide = cd.format(cd_data, args.omics, "wide")
             except Exception as e:
-                print(f"Error formatting transcriptomics data: {e}. Skipping PCA gene selection.")
-                transcriptomics_wide = pd.DataFrame()
-            if transcriptomics_wide.empty:
-                print("Warning: Formatted transcriptomics data is empty. Skipping PCA gene selection.")
+                print(f"Error formatting {args.omics} data: {e}. Skipping PCA gene selection.")
+                omics_wide = pd.DataFrame()
+            if omics_wide.empty:
+                print("Warning: Formatted omics data is empty. Skipping PCA gene selection.")
             else:
-                transcriptomics_wide_filled = transcriptomics_wide.fillna(0)
+                omics_wide_filled = omics_wide.fillna(0)
                 scaler = StandardScaler()
-                transcriptomics_scaled = scaler.fit_transform(transcriptomics_wide_filled)
+                omics_scaled = scaler.fit_transform(omics_wide_filled)
                 pca = PCA()
-                pca.fit(transcriptomics_scaled)
+                pca.fit(omics_scaled)
                 loadings = pd.DataFrame(
                     pca.components_.T,
-                    index=transcriptomics_wide_filled.columns,
+                    index=omics_wide_filled.columns,
                     columns=[f'PC{i+1}' for i in range(pca.n_components_)]
                 )
                 explained_variance_ratio_cumulative = np.cumsum(pca.explained_variance_ratio_)
@@ -214,13 +223,11 @@ def main():
                     pca_top_genes = list(top_genes_set)
                 print(f"Top {gene_number} genes based on PCA loadings (selected {len(pca_top_genes)} genes):")
                 print(pca_top_genes)
-                cd_data.transcriptomics = cd_data.transcriptomics[cd_data.transcriptomics['entrez_id'].isin(pca_top_genes)]
+                omics_data = omics_data[omics_data['entrez_id'].isin(pca_top_genes)]
                 
     elif args.gene_selection == "mutation":
-        # Option "mutation": Mutation counts-based gene selection
         if hasattr(cd_data, 'mutations'):
             mutations_df = cd_data.mutations.copy()
-            # Filter out 'Silent' mutations
             non_silent_mutations = mutations_df[mutations_df['variant_classification'] != 'Silent']
             mutation_counts = non_silent_mutations['entrez_id'].value_counts()
             mutation_counts_df = mutation_counts.reset_index()
@@ -229,37 +236,43 @@ def main():
             mutation_top_genes = mutation_counts_df_sorted.head(gene_number)['entrez_id'].tolist()
             print(f"Top {gene_number} genes with highest mutation frequency:")
             print(mutation_top_genes)
-            cd_data.transcriptomics = cd_data.transcriptomics[cd_data.transcriptomics['entrez_id'].isin(mutation_top_genes)]
+            omics_data = omics_data[omics_data['entrez_id'].isin(mutation_top_genes)]
         else:
             print("Warning: Mutations data not found. Proceeding without mutation-based gene selection.")
             
     elif args.gene_selection == "variance":
-        # Option "variance": Transcriptomic variance-based gene selection
-        transcriptomics_df = cd_data.transcriptomics.copy()
-        expr_cols = [col for col in transcriptomics_df.columns if col not in ['improve_sample_id', 'entrez_id']]
+        # Option "variance": Omics variance-based gene selection
+        temp_df = omics_data.copy()
+        expr_cols = [col for col in temp_df.columns if col not in ['improve_sample_id', 'entrez_id']]
         if not expr_cols:
-            print("Warning: No expression column found for transcriptomic variance selection. Skipping gene filtering.")
+            print("Warning: No expression columns found for variance selection. Skipping gene filtering.")
         else:
             try:
-                transcriptomics_wide = cd.format(cd_data, "transcriptomics", "wide")
+                omics_wide = cd.format(cd_data, args.omics, "wide")
             except Exception as e:
-                print(f"Error formatting transcriptomics data for variance selection: {e}. Skipping variance-based gene selection.")
-                transcriptomics_wide = pd.DataFrame()
-            if transcriptomics_wide.empty:
-                print("Warning: Formatted transcriptomics data is empty. Skipping variance-based gene selection.")
+                print(f"Error formatting {args.omics} data for variance selection: {e}. Skipping variance-based gene selection.")
+                omics_wide = pd.DataFrame()
+            if omics_wide.empty:
+                print("Warning: Formatted omics data is empty. Skipping variance-based gene selection.")
             else:
-                gene_variances = transcriptomics_wide.var(axis=0)
+                gene_variances = omics_wide.var(axis=0)
                 top_genes_by_variance = gene_variances.sort_values(ascending=False).head(gene_number).index.tolist()
                 print(f"Top {gene_number} genes with highest expression variability:")
                 print(top_genes_by_variance)
-                cd_data.transcriptomics = cd_data.transcriptomics[cd_data.transcriptomics['entrez_id'].isin(top_genes_by_variance)]
+                omics_data = omics_data[omics_data['entrez_id'].isin(top_genes_by_variance)]
     
-    # Ensure that experiments and transcriptomics have matching sample IDs
+    # Update the cd_data object with the filtered omics data.
+    setattr(cd_data, args.omics, omics_data)
+    
+    # --------------------------
+    # Ensure that experiments and the omics data have matching sample IDs
+    # --------------------------
     common_ids = set(cd_data.experiments['improve_sample_id'].unique()).intersection(
-        set(cd_data.transcriptomics['improve_sample_id'].unique())
+        set(omics_data['improve_sample_id'].unique())
     )
     cd_data.experiments = cd_data.experiments[cd_data.experiments['improve_sample_id'].isin(common_ids)].reset_index(drop=True)
-    cd_data.transcriptomics = cd_data.transcriptomics[cd_data.transcriptomics['improve_sample_id'].isin(common_ids)]
+    omics_data = omics_data[omics_data['improve_sample_id'].isin(common_ids)]
+    setattr(cd_data, args.omics, omics_data)
     
     # Final Data Pre-Processing - this should be fixed on the data build side eventually.
     cd_data.experiments.dropna(inplace=True)
@@ -269,7 +282,6 @@ def main():
     # Process the data and create DataLoaders
     # --------------------------
     if args.test_type == "self":
-        # Create a train/validation/test split
         split = cd_data.train_test_validate(
             split_type=split_method,
             ratio=[8, 1, 1],
@@ -278,22 +290,15 @@ def main():
         )
         for experiment_set in [split.train, split.test, split.validate]:
             print(f"{experiment_set} in progress")
-            # Reformat Transcriptomics Data using the data object's format method.
-            experiment_set.transcriptomics = experiment_set.format(data_type='transcriptomics', shape='wide', inplace=True)
-            # Log Transform Transcriptomics Data
-            experiment_set.transcriptomics = np.log1p(experiment_set.transcriptomics)
-            # Scale Transcriptomics Data
+            formatted_omics = experiment_set.format(data_type=args.omics, shape='wide', inplace=True)
+            formatted_omics = np.log1p(formatted_omics)
             scaler = StandardScaler()
-            train_gene_exp_scaled = scaler.fit_transform(experiment_set.transcriptomics)
-            train_gene_exp_scaled = pd.DataFrame(train_gene_exp_scaled, 
-                                                 index=experiment_set.transcriptomics.index, 
-                                                 columns=experiment_set.transcriptomics.columns)
-            # Remove columns with NaN values
-            experiment_set.transcriptomics = train_gene_exp_scaled.dropna(axis=1)
+            scaled = scaler.fit_transform(formatted_omics)
+            scaled_df = pd.DataFrame(scaled, index=formatted_omics.index, columns=formatted_omics.columns)
+            formatted_omics = scaled_df.dropna(axis=1)
+            setattr(experiment_set, args.omics, formatted_omics)
 
-            ### Reformat Experiments Data
             experiment_set.experiments = experiment_set.format(data_type='experiments', shape='wide', metrics=[dose_response_metric])
-            # Add Canonical Smiles to Experiments Data
             experiment_set.experiments = pd.merge(experiment_set.experiments, experiment_set.drugs, on="improve_drug_id", how='left')
             experiment_set.experiments = experiment_set.experiments[["improve_sample_id", "improve_drug_id", dose_response_metric, "canSMILES"]]
             
@@ -307,11 +312,11 @@ def main():
                                                            experiment_set.drugs,
                                                            on="improve_drug_id",
                                                            how='left')
-                experiment_set.drug_descriptors = experiment_set.drug_descriptors[["improve_drug_id", "canSMILES", "structural_descriptor", "descriptor_value"]]
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors[["improve_sample_id", "canSMILES", "structural_descriptor", "descriptor_value"]]
                 experiment_set.drug_descriptors.rename(columns={"canSMILES": "smiles"}, inplace=True)
                 experiment_set.drug_descriptors = experiment_set.drug_descriptors[experiment_set.drug_descriptors["structural_descriptor"].str.startswith("n")]
                 experiment_set.drug_descriptors = experiment_set.drug_descriptors[~experiment_set.drug_descriptors["structural_descriptor"].str.contains("Ring")]
-                experiment_set.drug_descriptors.drop(columns="improve_drug_id", inplace=True)
+                experiment_set.drug_descriptors.drop(columns="improve_sample_id", inplace=True)
                 experiment_set.drug_descriptors = experiment_set.drug_descriptors.pivot_table(
                     index=["smiles"],
                     columns="structural_descriptor",
@@ -327,8 +332,7 @@ def main():
         
             experiment_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
             
-        # Create DataLoaders for train, test, and validation sets
-        data_creater = CreateData(gexp=split.train.transcriptomics,
+        data_creater = CreateData(gexp=getattr(split.train, args.omics),
                                   encoder_type=encoder,
                                   metric=dose_response_metric,
                                   data_path="shared_input/",
@@ -340,7 +344,6 @@ def main():
         validate_ds = data_creater.create_data(split.validate.experiments)
         validate_loader = DataLoader(validate_ds, batch_size=bs, shuffle=False, drop_last=False)
     else:
-        # external test mode: use only train and validation splits.
         split = cd_data.split_train_other(
             split_type=split_method,
             ratio=[8, 2],
@@ -350,14 +353,14 @@ def main():
         split.validate = split.other
         for experiment_set in [split.train, split.validate]:
             print(f"{experiment_set} in progress")
-            experiment_set.transcriptomics = experiment_set.format(data_type='transcriptomics', shape='wide', inplace=True)
-            experiment_set.transcriptomics = np.log1p(experiment_set.transcriptomics)
+            formatted_omics = experiment_set.format(data_type=args.omics, shape='wide', inplace=True)
+            formatted_omics = np.log1p(formatted_omics)
             scaler = StandardScaler()
-            train_gene_exp_scaled = scaler.fit_transform(experiment_set.transcriptomics)
-            train_gene_exp_scaled = pd.DataFrame(train_gene_exp_scaled, 
-                                                 index=experiment_set.transcriptomics.index, 
-                                                 columns=experiment_set.transcriptomics.columns)
-            experiment_set.transcriptomics = train_gene_exp_scaled.dropna(axis=1)
+            scaled = scaler.fit_transform(formatted_omics)
+            scaled_df = pd.DataFrame(scaled, index=formatted_omics.index, columns=formatted_omics.columns)
+            formatted_omics = scaled_df.dropna(axis=1)
+            setattr(experiment_set, args.omics, formatted_omics)
+
             experiment_set.experiments = experiment_set.format(data_type='experiments', shape='wide', metrics=[dose_response_metric])
             experiment_set.experiments = pd.merge(experiment_set.experiments, experiment_set.drugs, on="improve_drug_id", how='left')
             experiment_set.experiments = experiment_set.experiments[["improve_sample_id", "improve_drug_id", dose_response_metric, "canSMILES"]]
@@ -371,11 +374,11 @@ def main():
                                                            experiment_set.drugs,
                                                            on="improve_drug_id",
                                                            how='left')
-                experiment_set.drug_descriptors = experiment_set.drug_descriptors[["improve_drug_id", "canSMILES", "structural_descriptor", "descriptor_value"]]
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors[["improve_sample_id", "canSMILES", "structural_descriptor", "descriptor_value"]]
                 experiment_set.drug_descriptors.rename(columns={"canSMILES": "smiles"}, inplace=True)
                 experiment_set.drug_descriptors = experiment_set.drug_descriptors[experiment_set.drug_descriptors["structural_descriptor"].str.startswith("n")]
                 experiment_set.drug_descriptors = experiment_set.drug_descriptors[~experiment_set.drug_descriptors["structural_descriptor"].str.contains("Ring")]
-                experiment_set.drug_descriptors.drop(columns="improve_drug_id", inplace=True)
+                experiment_set.drug_descriptors.drop(columns="improve_sample_id", inplace=True)
                 experiment_set.drug_descriptors = experiment_set.drug_descriptors.pivot_table(
                     index=["smiles"],
                     columns="structural_descriptor",
@@ -391,7 +394,7 @@ def main():
     
             experiment_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
         
-        data_creater = CreateData(gexp=split.train.transcriptomics,
+        data_creater = CreateData(gexp=getattr(split.train, args.omics),
                                   encoder_type=encoder,
                                   metric=dose_response_metric,
                                   data_path="shared_input/",
@@ -405,7 +408,7 @@ def main():
     # Set up the model, optimizer, loss, and early stopping
     # --------------------------
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    n_genes = len(split.train.transcriptomics.columns)
+    n_genes = len(getattr(split.train, args.omics).columns)
     if encoder == "gnn":
         model = Model(gnn_features=65, n_descriptors=n_descriptors, encoder_type=encoder, n_genes=n_genes).to(device)
     else:
@@ -466,35 +469,35 @@ def main():
         test_rmse, mae, r2, pearson_corr, spearman_corr = None, None, None, None, None
 
     # --------------------------
-    # Write (append) results to file
+    # Write (append) results to file (logging all arguments)
     # --------------------------
-    results_file_path = f'results/seed_{data_split_seed}_epoch_{n_epochs}_{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_rna_train_results_table.txt'
-    # Updated header to include Test MAE and Test R²
-    header = ("Seed\tDataset\tSplit Type\tEncoder\tTest Type\tGene Selection\tGene Number\t"
-            "Test RMSE\tTest MAE\tTest R²\tPearson Correlation\tSpearman Correlation\n")
+    header = ("Seed\tDataset\tEpochs\tSplit Type\tEncoder\tTest Type\tGene Selection\tGene Number\tOmics\t"
+              "Test RMSE\tTest MAE\tTest R²\tPearson Correlation\tSpearman Correlation\n")
+    
+    results_file_path = f'results/seed_{data_split_seed}_epoch_{n_epochs}_{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}_train_results_table.txt'
+    
     with open(results_file_path, 'a') as file:
         if os.stat(results_file_path).st_size == 0:
             file.write(header)
         if args.test_type == "self":
-            file.write(f"{data_split_seed}\t{args.dataset}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                    f"{args.gene_selection}\t{gene_number}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
-                    f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
+            file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
+                       f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
+                       f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
         else:
-            file.write(f"{data_split_seed}\t{args.dataset}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                    f"{args.gene_selection}\t{gene_number}\tNA\tNA\tNA\tNA\tNA\n")
+            file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
+                       f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n")
     print(f"Results saved to {results_file_path}")
 
-    # Also append results to the user-specified output file
     with open(args.output, 'a') as out_file:
         if os.stat(args.output).st_size == 0:
             out_file.write(header)
         if args.test_type == "self":
-            out_file.write(f"{data_split_seed}\t{args.dataset}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                        f"{args.gene_selection}\t{gene_number}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
-                        f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
+            out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
+                           f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
+                           f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
         else:
-            out_file.write(f"{data_split_seed}\t{args.dataset}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                        f"{args.gene_selection}\t{gene_number}\tNA\tNA\tNA\tNA\tNA\n")
+            out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
+                           f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n")
 
 if __name__ == '__main__':
     main()
