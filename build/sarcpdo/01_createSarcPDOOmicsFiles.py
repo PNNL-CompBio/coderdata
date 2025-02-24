@@ -55,10 +55,9 @@ def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTabl
     # reformat variant classification column to be accepted by linkML and correct
     mutation_merged["variant_classification"] =mutation_merged['Canonical_Variant_Classification']
 
-    #mutation_merged['variant_classification'] = 
-    #mutation_merged['variant_classification'].replace("Missense", "Missense_Mutation", inplace=True)
+    
     mutation_merged.replace({'variant_classification': "Missense"}, "Missense_Mutation", inplace=True)
-    #mutation_merged['variant_classification'] = 
+    
     mutation_merged.replace({'variant_classification': "Splice_Donor"}, "Splice_Site", inplace=True)
     mutation_merged.replace({'variant_classification': "Splice_Acceptor"}, "Splice_Site", inplace=True)
     mutation_merged.replace({'variant_classification': "Nonsense"}, "Nonsense_Mutation", inplace=True)
@@ -69,12 +68,6 @@ def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTabl
     mutation_merged.replace({'variant_classification': "Frameshift"}, "Frameshift_Variant", inplace=True)
     mutation_merged.replace({'variant_classification': "intergenic_variant"}, "Silent", inplace=True)
 
-   # mutation_merged['variant_classification'] = mutation_merged['variant_classification'].replace("Nonsense", "Nonsense_Mutation", inplace=True)
-    #mutation_merged['variant_classification'] = mutation_merged['variant_classification'].replace('intron', 'Intron', inplace=True)
-    #mutation_merged['variant_classification'] = mutation_merged['variant_classification'].replace("synonymous", "Silent", inplace=True)
-    #mutation_merged['variant_classification'] = mutation_merged['variant_classification'].replace("Inframe_Del", "In_Frame_Del", inplace=True)
-    #mutation_merged['variant_classification'] = mutation_merged['variant_classification'].replace("5_prime_UTR", "5' UTR", inplace=True)
-    #mutation_merged['variant_classification'] = mutation_merged['variant_classification'].replace("intergenic_variant", "Silent", inplace=True)
     mutation_merged_select = mutation_merged[['entrez_id', 'Sample_ID_Tumor', 'Name', 'variant_classification']]
     #merge with improve_ids 
     samples['other_id_no_dash'] = samples['other_id'].str.replace("-2", "_2")
@@ -112,13 +105,9 @@ if __name__ == "__main__":
     if args.expression:
         download_and_format_transcriptomic(synObject, genes, samples).to_csv("/tmp/sarcpdo_transcriptomics.csv", index=False)
 
-   # if args.copy: 
-    #    download_and_format_copy_number(synObject, genes, samples).to_csv('sarcpdo_copynumber.csv', index=False)
-
+   
     if args.mutation:
-        download_and_format_genomic_mutation(synObject, genes, samples).to_csv('/tmp/sarcpdo_mutation.csv', index=False)
+        download_and_format_genomic_mutation(synObject, genes, samples).to_csv('/tmp/sarcpdo_mutations.csv', index=False)
     
-          # validate with: linkml validate -s coderdata/schema/coderdata.yaml ~/Downloads/sarcpdo_samples.csv
 
 
-    # command line testing: python3 01_createSarcPDOOmicsFiles.py -t $SYNAPSE_AUTH_TOKEN -s dev-environment/sarcpdo_samples.csv -g genes.csv -e

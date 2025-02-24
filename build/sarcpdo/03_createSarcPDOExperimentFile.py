@@ -14,7 +14,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--drugFile', nargs = "?", type=str, default = "", help = "Use this to provide previously generated drugs file for this dataset to link with to experiment data.")
 
     args = parser.parse_args()
-    print(args)
+    
     print("Logging into Synapse")
     PAT = args.token
     synObject = synapseclient.login(authToken=PAT)
@@ -38,10 +38,13 @@ if __name__ == "__main__":
 
     # inner merge with samples because there are samples without experiment info and many Sample_ID's in experiments data without sample info
     experiments = drug_data.merge(sarcpdo_drugs, how='left').merge(sarcpdo_samples, how='inner')
-
-    final_experiment = experiments[['improve_sample_id', 'improve_drug_id', 'Viability_Score']]
+    # drop rows corresponding to organoids
+    tumor_only = experiments[~experiments['model_type'].str.contains("organoid")]
+    # select relevant columns 
+    final_experiment = tumor_only[['improve_sample_id', 'improve_drug_id', 'Viability_Score']]
+    # add static info
     final_experiment.loc[:,['study']] = 'Landscape of Sarcoma'
-    final_experiment.loc[:,['source']] = 'pharmacoGX'
+    final_experiment.loc[:,['source']] = 'AlShihabietal2024'
     final_experiment.loc[:,['time']] = None
     final_experiment.loc[:,['time_unit']]= None
     final_experiment.loc[:,['dose_response_metric']] = 'published_auc' 
@@ -50,7 +53,3 @@ if __name__ == "__main__":
     toReturn = final_experiment[['source', 'improve_sample_id', 'improve_drug_id', 'study', 'time', 'time_unit', 'dose_response_metric', 'dose_response_value']]
 
     toReturn.to_csv('/tmp/sarcpdo_experiments.tsv', sep='\t', index=False)
-
-
-    # to test run
-    #  python3 03_createSarcPDOExperimentFile.py -t $SYNAPSE_AUTH_TOKEN -s sarcpdo_samples.csv -d sarcpdo_drugs.tsv

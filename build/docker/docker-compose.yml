@@ -53,6 +53,7 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: mpnstpdx:latest
+
   cptac:
     build:
       context: ../../
@@ -61,6 +62,15 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: cptac:latest
+
+  sarcpdo:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.sarcpdo
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: sarcpdo:latest
 
   genes:
     build:

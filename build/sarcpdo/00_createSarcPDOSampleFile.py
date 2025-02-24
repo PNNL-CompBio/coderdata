@@ -92,42 +92,34 @@ def download_and_format_rna_samples(synLoginObject):
 
     return rna_samples
 
-    #def generate_samples_file(prev_samples_path):
-
-    # if prev_samples_path == "":
-        #maxval = 0
-   # else:
-    #    maxval = max(pd.read_csv(prev_samples_path).improve_sample_id)
+    
 
 if __name__ == "__main__":
-    print('in main')
+    
     parser = argparse.ArgumentParser(description="This script handles downloading, processing and formatting of sample files for the Sarcoma PDO project into a single samplesheet")
-    print('in line 97')
+    
     parser.add_argument('-t', '--token', type=str, help='Synapse Token')
 
     parser.add_argument("-p", '--prevSamples', nargs="?", type=str, default ="", const  = "", help = "Use this to provide previous sample file, will run sample file generation")
 
     args = parser.parse_args()
-    print(args)
+   
     print("Logging into Synapse")
     PAT = args.token
     synObject = synapseclient.login(authToken=PAT)
 
     rnaTable = download_and_format_rna_samples(synObject)
-    print(rnaTable.shape)
     geneticTable = download_and_format_genetic_samples(synObject)
-    print(geneticTable.shape)
     merged = rnaTable.merge(geneticTable, how='outer')
-    print(merged.shape)
-    # change dash to underscore to align with omics data
-    #merged['other_id'] = merged['other_id'].str.replace("-2", "_2")
+    
 
-    prev_max_improve_id = max(pd.read_csv(args.prevSamples).improve_sample_id)
+    if (args.prevSamples):
+        prev_max_improve_id = max(pd.read_csv(args.prevSamples).improve_sample_id)
+    else: 
+        prev_max_improve_id = 0
+
     merged['improve_sample_id'] = range(prev_max_improve_id+1, prev_max_improve_id+merged.shape[0]+1) 
 
     merged.to_csv('/tmp/sarcpdo_samples.csv', index=False)
 
-        # validate with: linkml validate -s coderdata/schema/coderdata.yaml ~/Downloads/sarcpdo_samples.csv
-
-    # test script : python3 00_createSarcPDOSampleFile.py -t $SYNAPSE_AUTH_TOKEN -p '~/Downloads/mpnstpdx_samples.csv'
-
+        
