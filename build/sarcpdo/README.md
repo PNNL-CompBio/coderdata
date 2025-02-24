@@ -5,15 +5,17 @@ from patient sarcomas.
 
 ## Samples
 
-The sample information is contained in [this synapse
-table](https://www.synapse.org/Synapse:syn61894699/tables/)
-
+The sample information is contained in [this synapse table](https://www.synapse.org/Synapse:syn61894699/tables/)
 
 
 ## Omics data
 
-Omics data is spread across three synapse instances. 
+Omics data is spread across two Synapse instances. Genomic mutation data can be found in [this synapse table](https://www.synapse.org/Synapse:syn61894695/tables/) and RNAseq data can be found in [this synapse table](https://www.synapse.org/Synapse:syn64333318/tables/).
 
 ## Drug information
 
+Drug information can be found at [this synapse link](https://www.synapse.org/Synapse:syn61892224/tables/).
+
 ## Experimental measurements
+
+Full experimental data (including complete AUC information) was not available for this multi-omics dataset, so we used the available viability scores in the drug information listed above (syn61892224), and labelled them as 'published auc' in the final experiments table. 
