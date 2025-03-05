@@ -21,6 +21,7 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import coderdata as cd
+from sklearn.decomposition import PCA
 
 # Local project imports
 from data_utils import DataProcessor, add_smiles, average_dose_response_value, filter_exp_data
@@ -127,7 +128,6 @@ def main():
                 transcriptomics_wide_filled = transcriptomics_wide.fillna(0)
                 scaler = StandardScaler()
                 scaled_data = scaler.fit_transform(transcriptomics_wide_filled)
-                from sklearn.decomposition import PCA
                 pca = PCA()
                 pca.fit(scaled_data)
                 loadings = pd.DataFrame(

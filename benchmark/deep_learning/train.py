@@ -332,17 +332,24 @@ def main():
         
             experiment_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
             
-        data_creater = CreateData(gexp=getattr(split.train, args.omics),
-                                  encoder_type=encoder,
-                                  metric=dose_response_metric,
-                                  data_path="shared_input/",
-                                  feature_names=feature_names)
-        train_ds = data_creater.create_data(split.train.experiments)
-        train_loader = DataLoader(train_ds, batch_size=bs, shuffle=True, drop_last=True)
-        test_ds = data_creater.create_data(split.test.experiments)
-        test_loader = DataLoader(test_ds, batch_size=bs, shuffle=False, drop_last=False)
-        validate_ds = data_creater.create_data(split.validate.experiments)
-        validate_loader = DataLoader(validate_ds, batch_size=bs, shuffle=False, drop_last=False)
+        # Process each split and create loaders
+        loaders = {}
+        for name, gexp in zip(['train', 'test', 'validate'], [split.train, split.test, split.validate]):
+            data_creater = CreateData(
+                gexp=gexp.transcriptomics,
+                encoder_type=encoder,
+                metric=dose_response_metric,
+                data_path="shared_input/",
+                feature_names=feature_names
+            )
+            data = data_creater.create_data(gexp.experiments)
+            loaders[name] = DataLoader(data, batch_size=bs, shuffle=False, drop_last=False)
+
+        # Unpack loaders
+        train_loader = loaders['train']
+        test_loader = loaders['test']
+        validate_loader = loaders['validate']
+        
     else:
         split = cd_data.split_train_other(
             split_type=split_method,
@@ -394,15 +401,33 @@ def main():
     
             experiment_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
         
-        data_creater = CreateData(gexp=getattr(split.train, args.omics),
-                                  encoder_type=encoder,
-                                  metric=dose_response_metric,
-                                  data_path="shared_input/",
-                                  feature_names=feature_names)
-        train_ds = data_creater.create_data(split.train.experiments)
-        train_loader = DataLoader(train_ds, batch_size=bs, shuffle=True, drop_last=True)
-        validate_ds = data_creater.create_data(split.validate.experiments)
-        validate_loader = DataLoader(validate_ds, batch_size=bs, shuffle=False, drop_last=False)
+        # data_creater = CreateData(gexp=getattr(split.train, args.omics),
+        #                           encoder_type=encoder,
+        #                           metric=dose_response_metric,
+        #                           data_path="shared_input/",
+        #                           feature_names=feature_names)
+        # train_ds = data_creater.create_data(split.train.experiments)
+        # train_loader = DataLoader(train_ds, batch_size=bs, shuffle=True, drop_last=True)
+        # validate_ds = data_creater.create_data(split.validate.experiments)
+        # validate_loader = DataLoader(validate_ds, batch_size=bs, shuffle=False, drop_last=False)
+        
+        # Process each split and create loaders
+        loaders = {}
+        for name, gexp in zip(['train', 'validate'], [split.train, split.validate]):
+            data_creater = CreateData(
+                gexp=gexp.transcriptomics,
+                encoder_type=encoder,
+                metric=dose_response_metric,
+                data_path="shared_input/",
+                feature_names=feature_names
+            )
+            data = data_creater.create_data(gexp.experiments)
+            loaders[name] = DataLoader(data, batch_size=bs, shuffle=False, drop_last=False)
+
+        # Unpack loaders
+        train_loader = loaders['train']
+        validate_loader = loaders['validate']
+        
 
     # --------------------------
     # Set up the model, optimizer, loss, and early stopping
