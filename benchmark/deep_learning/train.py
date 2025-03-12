@@ -155,36 +155,45 @@ def main():
         exit(1)
     
     # --------------------------
-    # Perform gene selection on the full omics data (but delay final gene number filtering)
-    # Compute candidate gene set and, where applicable, a ranking for later truncation.
+    # Perform gene selection on the full omics data (but delay final gene-number filtering)
+    # Compute candidate gene set and ranking (if applicable)
     # --------------------------
     candidate_genes = set()
-    candidate_ranking = None  # For ranking-based methods
+    candidate_ranking = None  # Will hold an ordered list if available
 
     if args.gene_selection == "landmark":
         selected_gene_path = "./shared_input/graphDRP_landmark_genes_map.txt"
         if os.path.exists(selected_gene_path):
-            selected_gene_df = pd.read_csv(selected_gene_path, sep='\t')
-            if 'To' not in selected_gene_df.columns:
-                raise ValueError("Column 'To' not found in landmark gene file.")
-            candidate_genes = set(selected_gene_df['To'])
-            # For landmark, we simply sort alphabetically
-            candidate_ranking = sorted(candidate_genes)
-            omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
+            try:
+                selected_gene_df = pd.read_csv(selected_gene_path, sep='\t')
+                if 'To' not in selected_gene_df.columns:
+                    raise ValueError("Column 'To' not found in landmark gene file.")
+                candidate_genes = set(selected_gene_df['To'])
+                # For landmark selection, use alphabetical order for ranking
+                candidate_ranking = sorted(candidate_genes)
+                omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
+            except Exception as e:
+                print(f"Error reading landmark gene file: {e}. Proceeding without gene filtering.")
         else:
             print(f"Warning: {selected_gene_path} not found. Proceeding without gene filtering.")
 
     elif args.gene_selection == "random":
-        # For random selection, use all available genes as candidates and postpone random sampling.
+        random.seed(args.seed)
+        # For random selection, take all available genes as candidates (final sampling later)
         candidate_genes = set(omics_data['entrez_id'].unique())
-        # candidate_ranking remains None so that later we perform random sampling on the overlap.
-    
+        # Establish a consistent order (e.g., sorted) for reproducibility
+        candidate_ranking = sorted(candidate_genes)
+
     elif args.gene_selection == "pca":
-        omics_wide = cd.format(cd_data, args.omics, "wide")
+        try:
+            omics_wide = cd.format(cd_data, args.omics, "wide")
+        except Exception as e:
+            print(f"Error formatting {args.omics} data: {e}. Skipping PCA gene selection.")
+            omics_wide = pd.DataFrame()
         if omics_wide.empty:
             print("Warning: Formatted omics data is empty. Skipping PCA gene selection.")
             candidate_genes = set(omics_data['entrez_id'].unique())
-            candidate_ranking = list(candidate_genes)
+            candidate_ranking = sorted(candidate_genes)
         else:
             omics_wide_filled = omics_wide.fillna(0)
             scaler = StandardScaler()
@@ -199,8 +208,14 @@ def main():
             explained_variance_ratio_cumulative = np.cumsum(pca.explained_variance_ratio_)
             num_pcs = np.where(explained_variance_ratio_cumulative >= 0.95)[0][0] + 1
             selected_pcs = [f'PC{i+1}' for i in range(num_pcs)]
-            # Compute average absolute loadings per gene over selected PCs
-            avg_loadings = loadings[selected_pcs].abs().mean(axis=1)
+            top_genes_set = set()
+            top_n_genes_per_pc = 10
+            for pc in selected_pcs:
+                abs_loadings = loadings[pc].abs()
+                top_genes_pc = abs_loadings.sort_values(ascending=False).head(top_n_genes_per_pc).index.tolist()
+                top_genes_set.update(top_genes_pc)
+            # Do not truncate yet; compute full ranking based on average absolute loadings over selected PCs.
+            avg_loadings = loadings.loc[list(top_genes_set), selected_pcs].abs().mean(axis=1)
             candidate_ranking = avg_loadings.sort_values(ascending=False).index.tolist()
             candidate_genes = set(candidate_ranking)
             omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
@@ -216,16 +231,21 @@ def main():
         else:
             print("Warning: Mutations data not found. Proceeding without mutation-based gene selection.")
             candidate_genes = set(omics_data['entrez_id'].unique())
-            candidate_ranking = list(candidate_genes)
+            candidate_ranking = sorted(candidate_genes)
     
     elif args.gene_selection == "variance":
-        omics_wide = cd.format(cd_data, args.omics, "wide")
+        try:
+            omics_wide = cd.format(cd_data, args.omics, "wide")
+        except Exception as e:
+            print(f"Error formatting {args.omics} data for variance selection: {e}. Skipping variance-based gene selection.")
+            omics_wide = pd.DataFrame()
         if omics_wide.empty:
             print("Warning: Formatted omics data is empty. Skipping variance-based gene selection.")
             candidate_genes = set(omics_data['entrez_id'].unique())
-            candidate_ranking = list(candidate_genes)
+            candidate_ranking = sorted(candidate_genes)
         else:
             gene_variances = omics_wide.var(axis=0)
+            # Use the full ranking (do not truncate here)
             candidate_ranking = gene_variances.sort_values(ascending=False).index.tolist()
             candidate_genes = set(candidate_ranking)
             omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
@@ -243,7 +263,7 @@ def main():
     omics_data = omics_data[omics_data['improve_sample_id'].isin(common_ids)]
     setattr(cd_data, args.omics, omics_data)
     
-    # Final Data Pre-Processing on experiments
+    # Final Data Pre-Processing on experiments (unchanged)
     cd_data.experiments.dropna(inplace=True)
     cd_data.experiments = cd_data.experiments[cd_data.experiments.dose_response_metric == "fit_auc"]
     
@@ -284,12 +304,13 @@ def main():
     common_genes = sorted(common_genes)
     print("Overlapping genes across splits:", common_genes)
     
-    # Intersect with candidate genes computed earlier.
+    # Intersect candidate genes with overlapping genes.
     final_candidate = list(candidate_genes.intersection(common_genes))
-    # If we have a ranking, sort final_candidate based on candidate_ranking order.
+    # If a candidate ranking exists, sort final_candidate accordingly.
     if candidate_ranking is not None:
+        # Preserve the order from candidate_ranking.
         final_candidate = [gene for gene in candidate_ranking if gene in final_candidate]
-    # Now, if more genes remain than gene_number, truncate.
+    # Finally, if more genes remain than desired, truncate.
     if len(final_candidate) > gene_number:
         final_candidate = final_candidate[:gene_number]
     print(f"Final gene set (top {gene_number} genes):", final_candidate)
