@@ -10,6 +10,7 @@ import synapseclient
 ###### NOTES ######
 #   * need to change all paths to paths relevant to docker image
 #   * add description to parser
+#   * run functions in ipynb to test they are working
 
 def download_rnaseq(geo_url:str = "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE65253&format=file&file=GSE65253%5Fcol%5Ftum%5Forg%5Fmerge%2Ecsv%2Egz", save_path:str = None): 
     """
@@ -139,9 +140,6 @@ def generate_sample_file(sequencing_data_path:str = None, prev_samples_path:str 
 
 
 
-
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='###')
 
@@ -177,6 +175,6 @@ if __name__ == "__main__":
         else:
             print("Previous sample sheet {} detected. Running sample file generation and checking for duplicate IDs.".format(args.prevSamples))
             sample_sheet = generate_sample_file(sequencing_data_path = sequencing_download_path, prev_samples_path= args.prevSamples)
-        sample_sheet.to_csv("/tmp/cdc_samples.csv.gz")
+        sample_sheet.to_csv("/tmp/cdc_samples.csv")
     
 
