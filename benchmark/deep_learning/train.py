@@ -16,7 +16,8 @@ A new argument, --gene_selection, allows choosing among alternative gene-selecti
   "variance"  : Omics variance-based selection
   "random"    : A random selection - this uses seed for selection.
 
-A new argument, --gene_number, specifies the top X genes to retain for ranking methods (default: 1000).
+A new argument, --gene_number, specifies the top X genes to retain (default: 1000)
+for gene-selection methods that rank genes.
 
 A new argument, --omics allows switching the omics data type (default: transcriptomics).
 """
@@ -101,8 +102,7 @@ def main():
               "'landmark' = graphDRP_landmark_genes_map file (default), "
               "'pca' = PCA-based, "
               "'mutation' = Mutation counts-based, "
-              "'variance' = Omics variance-based, "
-              "'random' = random selection")
+              "'variance' = Omics variance-based")
     )
     parser.add_argument(
         "--gene_number",
@@ -155,12 +155,8 @@ def main():
         exit(1)
     
     # --------------------------
-    # Perform gene selection on the full omics data (but delay final gene-number filtering)
-    # Compute candidate gene set and ranking (if applicable)
+    # Perform gene selection on the omics data
     # --------------------------
-    candidate_genes = set()
-    candidate_ranking = None  # Will hold an ordered list if available
-
     if args.gene_selection == "landmark":
         selected_gene_path = "./shared_input/graphDRP_landmark_genes_map.txt"
         if os.path.exists(selected_gene_path):
@@ -168,89 +164,104 @@ def main():
                 selected_gene_df = pd.read_csv(selected_gene_path, sep='\t')
                 if 'To' not in selected_gene_df.columns:
                     raise ValueError("Column 'To' not found in landmark gene file.")
-                candidate_genes = set(selected_gene_df['To'])
-                # For landmark selection, use alphabetical order for ranking
-                candidate_ranking = sorted(candidate_genes)
-                omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
+                selected_genes = set(selected_gene_df['To'])
+                omics_data = omics_data[omics_data['entrez_id'].isin(selected_genes)]
             except Exception as e:
                 print(f"Error reading landmark gene file: {e}. Proceeding without gene filtering.")
         else:
             print(f"Warning: {selected_gene_path} not found. Proceeding without gene filtering.")
-
+            
     elif args.gene_selection == "random":
         random.seed(args.seed)
-        # For random selection, take all available genes as candidates (final sampling later)
-        candidate_genes = set(omics_data['entrez_id'].unique())
-        # Establish a consistent order (e.g., sorted) for reproducibility
-        candidate_ranking = sorted(candidate_genes)
-
-    elif args.gene_selection == "pca":
-        try:
-            omics_wide = cd.format(cd_data, args.omics, "wide")
-        except Exception as e:
-            print(f"Error formatting {args.omics} data: {e}. Skipping PCA gene selection.")
-            omics_wide = pd.DataFrame()
-        if omics_wide.empty:
-            print("Warning: Formatted omics data is empty. Skipping PCA gene selection.")
-            candidate_genes = set(omics_data['entrez_id'].unique())
-            candidate_ranking = sorted(candidate_genes)
+        all_genes = omics_data['entrez_id'].unique().tolist()
+        if gene_number >= len(all_genes):
+            print(f"Requested gene_number {gene_number} is greater than or equal to available genes ({len(all_genes)}). Using all genes.")
+            selected_genes = all_genes
         else:
-            omics_wide_filled = omics_wide.fillna(0)
-            scaler = StandardScaler()
-            omics_scaled = scaler.fit_transform(omics_wide_filled)
-            pca = PCA()
-            pca.fit(omics_scaled)
-            loadings = pd.DataFrame(
-                pca.components_.T,
-                index=omics_wide_filled.columns,
-                columns=[f'PC{i+1}' for i in range(pca.n_components_)]
-            )
-            explained_variance_ratio_cumulative = np.cumsum(pca.explained_variance_ratio_)
-            num_pcs = np.where(explained_variance_ratio_cumulative >= 0.95)[0][0] + 1
-            selected_pcs = [f'PC{i+1}' for i in range(num_pcs)]
-            top_genes_set = set()
-            top_n_genes_per_pc = 10
-            for pc in selected_pcs:
-                abs_loadings = loadings[pc].abs()
-                top_genes_pc = abs_loadings.sort_values(ascending=False).head(top_n_genes_per_pc).index.tolist()
-                top_genes_set.update(top_genes_pc)
-            # Do not truncate yet; compute full ranking based on average absolute loadings over selected PCs.
-            avg_loadings = loadings.loc[list(top_genes_set), selected_pcs].abs().mean(axis=1)
-            candidate_ranking = avg_loadings.sort_values(ascending=False).index.tolist()
-            candidate_genes = set(candidate_ranking)
-            omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
-    
+            selected_genes = random.sample(all_genes, gene_number)
+        print(f"Randomly selected {len(selected_genes)} genes:")
+        print(selected_genes)
+        omics_data = omics_data[omics_data['entrez_id'].isin(selected_genes)]
+        
+    elif args.gene_selection == "pca":
+        temp_df = omics_data.copy()
+        expr_cols = [col for col in temp_df.columns if col not in ['improve_sample_id', 'entrez_id']]
+        if not expr_cols:
+            print("Warning: No expression columns found for PCA gene selection. Skipping gene filtering.")
+        else:
+            try:
+                omics_wide = cd.format(cd_data, args.omics, "wide")
+            except Exception as e:
+                print(f"Error formatting {args.omics} data: {e}. Skipping PCA gene selection.")
+                omics_wide = pd.DataFrame()
+            if omics_wide.empty:
+                print("Warning: Formatted omics data is empty. Skipping PCA gene selection.")
+            else:
+                omics_wide_filled = omics_wide.fillna(0)
+                scaler = StandardScaler()
+                omics_scaled = scaler.fit_transform(omics_wide_filled)
+                pca = PCA()
+                pca.fit(omics_scaled)
+                loadings = pd.DataFrame(
+                    pca.components_.T,
+                    index=omics_wide_filled.columns,
+                    columns=[f'PC{i+1}' for i in range(pca.n_components_)]
+                )
+                explained_variance_ratio_cumulative = np.cumsum(pca.explained_variance_ratio_)
+                num_pcs = np.where(explained_variance_ratio_cumulative >= 0.95)[0][0] + 1
+                top_n_genes_per_pc = 10
+                selected_pcs = [f'PC{i+1}' for i in range(num_pcs)]
+                top_genes_set = set()
+                for pc in selected_pcs:
+                    abs_loadings = loadings[pc].abs()
+                    top_genes_pc = abs_loadings.sort_values(ascending=False).head(top_n_genes_per_pc).index.tolist()
+                    top_genes_set.update(top_genes_pc)
+                if len(top_genes_set) > gene_number:
+                    avg_loadings = loadings.loc[list(top_genes_set), selected_pcs].abs().mean(axis=1)
+                    pca_top_genes = avg_loadings.sort_values(ascending=False).head(gene_number).index.tolist()
+                else:
+                    pca_top_genes = list(top_genes_set)
+                print(f"Top {gene_number} genes based on PCA loadings (selected {len(pca_top_genes)} genes):")
+                print(pca_top_genes)
+                omics_data = omics_data[omics_data['entrez_id'].isin(pca_top_genes)]
+                
     elif args.gene_selection == "mutation":
         if hasattr(cd_data, 'mutations'):
             mutations_df = cd_data.mutations.copy()
             non_silent_mutations = mutations_df[mutations_df['variant_classification'] != 'Silent']
             mutation_counts = non_silent_mutations['entrez_id'].value_counts()
-            candidate_ranking = mutation_counts.sort_values(ascending=False).index.tolist()
-            candidate_genes = set(candidate_ranking)
-            omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
+            mutation_counts_df = mutation_counts.reset_index()
+            mutation_counts_df.columns = ['entrez_id', 'mutation_count']
+            mutation_counts_df_sorted = mutation_counts_df.sort_values(by='mutation_count', ascending=False)
+            mutation_top_genes = mutation_counts_df_sorted.head(gene_number)['entrez_id'].tolist()
+            print(f"Top {gene_number} genes with highest mutation frequency:")
+            print(mutation_top_genes)
+            omics_data = omics_data[omics_data['entrez_id'].isin(mutation_top_genes)]
         else:
             print("Warning: Mutations data not found. Proceeding without mutation-based gene selection.")
-            candidate_genes = set(omics_data['entrez_id'].unique())
-            candidate_ranking = sorted(candidate_genes)
-    
+            
     elif args.gene_selection == "variance":
-        try:
-            omics_wide = cd.format(cd_data, args.omics, "wide")
-        except Exception as e:
-            print(f"Error formatting {args.omics} data for variance selection: {e}. Skipping variance-based gene selection.")
-            omics_wide = pd.DataFrame()
-        if omics_wide.empty:
-            print("Warning: Formatted omics data is empty. Skipping variance-based gene selection.")
-            candidate_genes = set(omics_data['entrez_id'].unique())
-            candidate_ranking = sorted(candidate_genes)
+        # Option "variance": Omics variance-based gene selection
+        temp_df = omics_data.copy()
+        expr_cols = [col for col in temp_df.columns if col not in ['improve_sample_id', 'entrez_id']]
+        if not expr_cols:
+            print("Warning: No expression columns found for variance selection. Skipping gene filtering.")
         else:
-            gene_variances = omics_wide.var(axis=0)
-            # Use the full ranking (do not truncate here)
-            candidate_ranking = gene_variances.sort_values(ascending=False).index.tolist()
-            candidate_genes = set(candidate_ranking)
-            omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
+            try:
+                omics_wide = cd.format(cd_data, args.omics, "wide")
+            except Exception as e:
+                print(f"Error formatting {args.omics} data for variance selection: {e}. Skipping variance-based gene selection.")
+                omics_wide = pd.DataFrame()
+            if omics_wide.empty:
+                print("Warning: Formatted omics data is empty. Skipping variance-based gene selection.")
+            else:
+                gene_variances = omics_wide.var(axis=0)
+                top_genes_by_variance = gene_variances.sort_values(ascending=False).head(gene_number).index.tolist()
+                print(f"Top {gene_number} genes with highest expression variability:")
+                print(top_genes_by_variance)
+                omics_data = omics_data[omics_data['entrez_id'].isin(top_genes_by_variance)]
     
-    # Update the cd_data object with the candidate-filtered omics data.
+    # Update the cd_data object with the filtered omics data.
     setattr(cd_data, args.omics, omics_data)
     
     # --------------------------
@@ -263,12 +274,12 @@ def main():
     omics_data = omics_data[omics_data['improve_sample_id'].isin(common_ids)]
     setattr(cd_data, args.omics, omics_data)
     
-    # Final Data Pre-Processing on experiments (unchanged)
+    # Final Data Pre-Processing - this should be fixed on the data build side eventually.
     cd_data.experiments.dropna(inplace=True)
     cd_data.experiments = cd_data.experiments[cd_data.experiments.dose_response_metric == "fit_auc"]
     
     # --------------------------
-    # Split the data first, then determine overlapping genes and perform final gene-number selection
+    # Process the data and create DataLoaders
     # --------------------------
     if args.test_type == "self":
         split = cd_data.train_test_validate(
@@ -277,7 +288,68 @@ def main():
             random_state=data_split_seed,
             stratify_by='fit_auc'
         )
-        split_sets = [split.train, split.test, split.validate]
+        for experiment_set in [split.train, split.test, split.validate]:
+            print(f"{experiment_set} in progress")
+            formatted_omics = experiment_set.format(data_type=args.omics, shape='wide', inplace=True)
+            formatted_omics = np.log1p(formatted_omics)
+            scaler = StandardScaler()
+            scaled = scaler.fit_transform(formatted_omics)
+            scaled_df = pd.DataFrame(scaled, index=formatted_omics.index, columns=formatted_omics.columns)
+            formatted_omics = scaled_df.dropna(axis=1)
+            setattr(experiment_set, args.omics, formatted_omics)
+
+            experiment_set.experiments = experiment_set.format(data_type='experiments', shape='wide', metrics=[dose_response_metric])
+            experiment_set.experiments = pd.merge(experiment_set.experiments, experiment_set.drugs, on="improve_drug_id", how='left')
+            experiment_set.experiments = experiment_set.experiments[["improve_sample_id", "improve_drug_id", dose_response_metric, "canSMILES"]]
+            
+            if encoder in ["gnn", "morganfp", "descriptor"]:
+                experiment_set.experiments.rename(columns={"canSMILES": "smiles"}, inplace=True)
+                
+            n_descriptors = None
+            feature_names = None
+            if encoder in ["descriptor"]:
+                experiment_set.drug_descriptors = pd.merge(experiment_set.drug_descriptors,
+                                                           experiment_set.drugs,
+                                                           on="improve_drug_id",
+                                                           how='left')
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors[["improve_sample_id", "canSMILES", "structural_descriptor", "descriptor_value"]]
+                experiment_set.drug_descriptors.rename(columns={"canSMILES": "smiles"}, inplace=True)
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors[experiment_set.drug_descriptors["structural_descriptor"].str.startswith("n")]
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors[~experiment_set.drug_descriptors["structural_descriptor"].str.contains("Ring")]
+                experiment_set.drug_descriptors.drop(columns="improve_sample_id", inplace=True)
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors.pivot_table(
+                    index=["smiles"],
+                    columns="structural_descriptor",
+                    values="descriptor_value",
+                    aggfunc='first'
+                ).reset_index()
+                features = experiment_set.drug_descriptors
+                n_descriptors = features.shape[1] - 1
+                feature_names = features.drop(['smiles'], axis=1).columns.tolist()
+                experiment_set.experiments = pd.merge(experiment_set.experiments, features, on='smiles', how='left')
+                n_columns = [col for col in experiment_set.experiments.columns if col.startswith("n")]
+                experiment_set.experiments[n_columns] = experiment_set.experiments[n_columns].astype(float)
+        
+            experiment_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
+            
+        # Process each split and create loaders
+        loaders = {}
+        for name, gexp in zip(['train', 'test', 'validate'], [split.train, split.test, split.validate]):
+            data_creater = CreateData(
+                gexp=gexp.transcriptomics,
+                encoder_type=encoder,
+                metric=dose_response_metric,
+                data_path="shared_input/",
+                feature_names=feature_names
+            )
+            data = data_creater.create_data(gexp.experiments)
+            loaders[name] = DataLoader(data, batch_size=bs, shuffle=False, drop_last=False)
+
+        # Unpack loaders
+        train_loader = loaders['train']
+        test_loader = loaders['test']
+        validate_loader = loaders['validate']
+        
     else:
         split = cd_data.split_train_other(
             split_type=split_method,
@@ -286,149 +358,77 @@ def main():
             stratify_by='fit_auc'
         )
         split.validate = split.other
-        split_sets = [split.train, split.validate]
-    
-    # Process each split to get the wide-format omics DataFrame.
-    # We do not drop columns here so we can compute the common intersection.
-    omics_dfs = {}
-    for exp_set in split_sets:
-        formatted_omics = exp_set.format(data_type=args.omics, shape='wide', inplace=True)
-        formatted_omics = np.log1p(formatted_omics)
-        scaler = StandardScaler()
-        scaled = scaler.fit_transform(formatted_omics)
-        scaled_df = pd.DataFrame(scaled, index=formatted_omics.index, columns=formatted_omics.columns)
-        omics_dfs[exp_set] = scaled_df
+        for experiment_set in [split.train, split.validate]:
+            print(f"{experiment_set} in progress")
+            formatted_omics = experiment_set.format(data_type=args.omics, shape='wide', inplace=True)
+            formatted_omics = np.log1p(formatted_omics)
+            scaler = StandardScaler()
+            scaled = scaler.fit_transform(formatted_omics)
+            scaled_df = pd.DataFrame(scaled, index=formatted_omics.index, columns=formatted_omics.columns)
+            formatted_omics = scaled_df.dropna(axis=1)
+            setattr(experiment_set, args.omics, formatted_omics)
 
-    # Determine the overlapping genes (columns) across all splits.
-    common_genes = set.intersection(*(set(df.columns) for df in omics_dfs.values()))
-    common_genes = sorted(common_genes)
-    print("Overlapping genes across splits:", common_genes)
-    
-    # Intersect candidate genes with overlapping genes.
-    final_candidate = list(candidate_genes.intersection(common_genes))
-    # If a candidate ranking exists, sort final_candidate accordingly.
-    if candidate_ranking is not None:
-        # Preserve the order from candidate_ranking.
-        final_candidate = [gene for gene in candidate_ranking if gene in final_candidate]
-    # Finally, if more genes remain than desired, truncate.
-    if len(final_candidate) > gene_number:
-        final_candidate = final_candidate[:gene_number]
-    print(f"Final gene set (top {gene_number} genes):", final_candidate)
-    
-    # Now, for each split, subset the omics DataFrame to the final selected genes.
-    for exp_set in split_sets:
-        common_df = omics_dfs[exp_set][final_candidate]
-        setattr(exp_set, args.omics, common_df)
-    
-    # --------------------------
-    # Process the experiments for each split and create DataLoaders
-    # --------------------------
-    if args.test_type == "self":
-        for exp_set in split_sets:
-            print(f"Processing experiments for split: {exp_set}")
-            exp_set.experiments = exp_set.format(data_type='experiments', shape='wide', metrics=[dose_response_metric])
-            exp_set.experiments = pd.merge(exp_set.experiments, exp_set.drugs, on="improve_drug_id", how='left')
-            exp_set.experiments = exp_set.experiments[["improve_sample_id", "improve_drug_id", dose_response_metric, "canSMILES"]]
-            
+            experiment_set.experiments = experiment_set.format(data_type='experiments', shape='wide', metrics=[dose_response_metric])
+            experiment_set.experiments = pd.merge(experiment_set.experiments, experiment_set.drugs, on="improve_drug_id", how='left')
+            experiment_set.experiments = experiment_set.experiments[["improve_sample_id", "improve_drug_id", dose_response_metric, "canSMILES"]]
             if encoder in ["gnn", "morganfp", "descriptor"]:
-                exp_set.experiments.rename(columns={"canSMILES": "smiles"}, inplace=True)
+                experiment_set.experiments.rename(columns={"canSMILES": "smiles"}, inplace=True)
                 
             n_descriptors = None
             feature_names = None
             if encoder in ["descriptor"]:
-                exp_set.drug_descriptors = pd.merge(exp_set.drug_descriptors,
-                                                    exp_set.drugs,
-                                                    on="improve_drug_id",
-                                                    how='left')
-                exp_set.drug_descriptors = exp_set.drug_descriptors[["improve_sample_id", "canSMILES", "structural_descriptor", "descriptor_value"]]
-                exp_set.drug_descriptors.rename(columns={"canSMILES": "smiles"}, inplace=True)
-                exp_set.drug_descriptors = exp_set.drug_descriptors[exp_set.drug_descriptors["structural_descriptor"].str.startswith("n")]
-                exp_set.drug_descriptors = exp_set.drug_descriptors[~exp_set.drug_descriptors["structural_descriptor"].str.contains("Ring")]
-                exp_set.drug_descriptors.drop(columns="improve_sample_id", inplace=True)
-                exp_set.drug_descriptors = exp_set.drug_descriptors.pivot_table(
+                experiment_set.drug_descriptors = pd.merge(experiment_set.drug_descriptors,
+                                                           experiment_set.drugs,
+                                                           on="improve_drug_id",
+                                                           how='left')
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors[["improve_sample_id", "canSMILES", "structural_descriptor", "descriptor_value"]]
+                experiment_set.drug_descriptors.rename(columns={"canSMILES": "smiles"}, inplace=True)
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors[experiment_set.drug_descriptors["structural_descriptor"].str.startswith("n")]
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors[~experiment_set.drug_descriptors["structural_descriptor"].str.contains("Ring")]
+                experiment_set.drug_descriptors.drop(columns="improve_sample_id", inplace=True)
+                experiment_set.drug_descriptors = experiment_set.drug_descriptors.pivot_table(
                     index=["smiles"],
                     columns="structural_descriptor",
                     values="descriptor_value",
                     aggfunc='first'
                 ).reset_index()
-                features = exp_set.drug_descriptors
+                features = experiment_set.drug_descriptors
                 n_descriptors = features.shape[1] - 1
                 feature_names = features.drop(['smiles'], axis=1).columns.tolist()
-                exp_set.experiments = pd.merge(exp_set.experiments, features, on='smiles', how='left')
-                n_columns = [col for col in exp_set.experiments.columns if col.startswith("n")]
-                exp_set.experiments[n_columns] = exp_set.experiments[n_columns].astype(float)
-        
-            exp_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
-            
-        # Create DataLoaders for train, test, and validate splits.
-        loaders = {}
-        for name, exp_set in zip(['train', 'test', 'validate'], split_sets):
-            data_creater = CreateData(
-                gexp=exp_set.transcriptomics,
-                encoder_type=encoder,
-                metric=dose_response_metric,
-                data_path="shared_input/",
-                feature_names=feature_names
-            )
-            data = data_creater.create_data(exp_set.experiments)
-            loaders[name] = DataLoader(data, batch_size=bs, shuffle=False, drop_last=False)
-        
-        train_loader = loaders['train']
-        test_loader = loaders['test']
-        validate_loader = loaders['validate']
-        
-    else:
-        for exp_set in split_sets:
-            print(f"Processing experiments for split: {exp_set}")
-            exp_set.experiments = exp_set.format(data_type='experiments', shape='wide', metrics=[dose_response_metric])
-            exp_set.experiments = pd.merge(exp_set.experiments, exp_set.drugs, on="improve_drug_id", how='left')
-            exp_set.experiments = exp_set.experiments[["improve_sample_id", "improve_drug_id", dose_response_metric, "canSMILES"]]
-            if encoder in ["gnn", "morganfp", "descriptor"]:
-                exp_set.experiments.rename(columns={"canSMILES": "smiles"}, inplace=True)
-                
-            n_descriptors = None
-            feature_names = None
-            if encoder in ["descriptor"]:
-                exp_set.drug_descriptors = pd.merge(exp_set.drug_descriptors,
-                                                    exp_set.drugs,
-                                                    on="improve_drug_id",
-                                                    how='left')
-                exp_set.drug_descriptors = exp_set.drug_descriptors[["improve_sample_id", "canSMILES", "structural_descriptor", "descriptor_value"]]
-                exp_set.drug_descriptors.rename(columns={"canSMILES": "smiles"}, inplace=True)
-                exp_set.drug_descriptors = exp_set.drug_descriptors[exp_set.drug_descriptors["structural_descriptor"].str.startswith("n")]
-                exp_set.drug_descriptors = exp_set.drug_descriptors[~exp_set.drug_descriptors["structural_descriptor"].str.contains("Ring")]
-                exp_set.drug_descriptors.drop(columns="improve_sample_id", inplace=True)
-                exp_set.drug_descriptors = exp_set.drug_descriptors.pivot_table(
-                    index=["smiles"],
-                    columns="structural_descriptor",
-                    values="descriptor_value",
-                    aggfunc='first'
-                ).reset_index()
-                features = exp_set.drug_descriptors
-                n_descriptors = features.shape[1] - 1
-                feature_names = features.drop(['smiles'], axis=1).columns.tolist()
-                exp_set.experiments = pd.merge(exp_set.experiments, features, on='smiles', how='left')
-                n_columns = [col for col in exp_set.experiments.columns if col.startswith("n")]
-                exp_set.experiments[n_columns] = exp_set.experiments[n_columns].astype(float)
+                experiment_set.experiments = pd.merge(experiment_set.experiments, features, on='smiles', how='left')
+                n_columns = [col for col in experiment_set.experiments.columns if col.startswith("n")]
+                experiment_set.experiments[n_columns] = experiment_set.experiments[n_columns].astype(float)
     
-            exp_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
+            experiment_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
         
-        # Create DataLoaders for train and validate splits.
+        # data_creater = CreateData(gexp=getattr(split.train, args.omics),
+        #                           encoder_type=encoder,
+        #                           metric=dose_response_metric,
+        #                           data_path="shared_input/",
+        #                           feature_names=feature_names)
+        # train_ds = data_creater.create_data(split.train.experiments)
+        # train_loader = DataLoader(train_ds, batch_size=bs, shuffle=True, drop_last=True)
+        # validate_ds = data_creater.create_data(split.validate.experiments)
+        # validate_loader = DataLoader(validate_ds, batch_size=bs, shuffle=False, drop_last=False)
+        
+        # Process each split and create loaders
         loaders = {}
-        for name, exp_set in zip(['train', 'validate'], split_sets):
+        for name, gexp in zip(['train', 'validate'], [split.train, split.validate]):
             data_creater = CreateData(
-                gexp=exp_set.transcriptomics,
+                gexp=gexp.transcriptomics,
                 encoder_type=encoder,
                 metric=dose_response_metric,
                 data_path="shared_input/",
                 feature_names=feature_names
             )
-            data = data_creater.create_data(exp_set.experiments)
+            data = data_creater.create_data(gexp.experiments)
             loaders[name] = DataLoader(data, batch_size=bs, shuffle=False, drop_last=False)
-        
+
+        # Unpack loaders
         train_loader = loaders['train']
         validate_loader = loaders['validate']
         
+
     # --------------------------
     # Set up the model, optimizer, loss, and early stopping
     # --------------------------
@@ -476,7 +476,10 @@ def main():
         
         hist["val_rmse"].append(val_rmse)
         print(f'Epoch: {epoch}, Val_rmse: {val_rmse:.3f}')
-        
+        # if epoch % 33 == 0:
+        #     model_save_path = f'models/{output_prefix}_epoch_{epoch}.pt'
+        #     torch.save(model.state_dict(), model_save_path)
+        #     print("Model saved at", model_save_path)
     # --------------------------
     # Load best model (checkpoint) and test (if in self-test mode)
     # --------------------------
