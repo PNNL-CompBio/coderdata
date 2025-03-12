@@ -164,16 +164,13 @@ def main():
     if args.gene_selection == "landmark":
         selected_gene_path = "./shared_input/graphDRP_landmark_genes_map.txt"
         if os.path.exists(selected_gene_path):
-            try:
-                selected_gene_df = pd.read_csv(selected_gene_path, sep='\t')
-                if 'To' not in selected_gene_df.columns:
-                    raise ValueError("Column 'To' not found in landmark gene file.")
-                candidate_genes = set(selected_gene_df['To'])
-                # For landmark, we simply sort alphabetically
-                candidate_ranking = sorted(candidate_genes)
-                omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
-            except Exception as e:
-                print(f"Error reading landmark gene file: {e}. Proceeding without gene filtering.")
+            selected_gene_df = pd.read_csv(selected_gene_path, sep='\t')
+            if 'To' not in selected_gene_df.columns:
+                raise ValueError("Column 'To' not found in landmark gene file.")
+            candidate_genes = set(selected_gene_df['To'])
+            # For landmark, we simply sort alphabetically
+            candidate_ranking = sorted(candidate_genes)
+            omics_data = omics_data[omics_data['entrez_id'].isin(candidate_genes)]
         else:
             print(f"Warning: {selected_gene_path} not found. Proceeding without gene filtering.")
 
@@ -183,11 +180,8 @@ def main():
         # candidate_ranking remains None so that later we perform random sampling on the overlap.
     
     elif args.gene_selection == "pca":
-        try:
-            omics_wide = cd.format(cd_data, args.omics, "wide")
-        except Exception as e:
-            print(f"Error formatting {args.omics} data: {e}. Skipping PCA gene selection.")
-            omics_wide = pd.DataFrame()
+        omics_wide = cd.format(cd_data, args.omics, "wide")
+        omics_wide = pd.DataFrame()
         if omics_wide.empty:
             print("Warning: Formatted omics data is empty. Skipping PCA gene selection.")
             candidate_genes = set(omics_data['entrez_id'].unique())
@@ -226,11 +220,8 @@ def main():
             candidate_ranking = list(candidate_genes)
     
     elif args.gene_selection == "variance":
-        try:
-            omics_wide = cd.format(cd_data, args.omics, "wide")
-        except Exception as e:
-            print(f"Error formatting {args.omics} data for variance selection: {e}. Skipping variance-based gene selection.")
-            omics_wide = pd.DataFrame()
+        omics_wide = cd.format(cd_data, args.omics, "wide")
+        omics_wide = pd.DataFrame()
         if omics_wide.empty:
             print("Warning: Formatted omics data is empty. Skipping variance-based gene selection.")
             candidate_genes = set(omics_data['entrez_id'].unique())
