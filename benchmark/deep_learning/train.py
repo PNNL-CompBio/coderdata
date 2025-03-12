@@ -133,11 +133,11 @@ def main():
     dose_response_metric = "fit_auc"
     
     # Set output prefix and checkpoint path based on test_type.
-    output_prefix = f"{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}"
-    ckpt_path = f"./tmp/best_{output_prefix}.pt"
+    output_prefix = f"{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}_{n_epochs}_{data_split_seed}"
+    ckpt_path = f"./models/best_{output_prefix}.pt"
     
     # Create necessary directories
-    for folder in ["models", "results", "tmp", "shared_input", "plots"]:
+    for folder in ["models", "results", "shared_input", "plots"]:
         if not os.path.exists(folder):
             os.makedirs(folder)
             print(f"'{folder}' directory created.")
@@ -476,11 +476,10 @@ def main():
         
         hist["val_rmse"].append(val_rmse)
         print(f'Epoch: {epoch}, Val_rmse: {val_rmse:.3f}')
-        if epoch % 33 == 0:
-            model_save_path = f'models/{output_prefix}_model_seed_{data_split_seed}_epoch_{epoch}.pt'
-            torch.save(model.state_dict(), model_save_path)
-            print("Model saved at", model_save_path)
-        
+        # if epoch % 33 == 0:
+        #     model_save_path = f'models/{output_prefix}_epoch_{epoch}.pt'
+        #     torch.save(model.state_dict(), model_save_path)
+        #     print("Model saved at", model_save_path)
     # --------------------------
     # Load best model (checkpoint) and test (if in self-test mode)
     # --------------------------
