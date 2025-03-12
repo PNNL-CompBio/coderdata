@@ -181,7 +181,6 @@ def main():
     
     elif args.gene_selection == "pca":
         omics_wide = cd.format(cd_data, args.omics, "wide")
-        omics_wide = pd.DataFrame()
         if omics_wide.empty:
             print("Warning: Formatted omics data is empty. Skipping PCA gene selection.")
             candidate_genes = set(omics_data['entrez_id'].unique())
@@ -221,7 +220,6 @@ def main():
     
     elif args.gene_selection == "variance":
         omics_wide = cd.format(cd_data, args.omics, "wide")
-        omics_wide = pd.DataFrame()
         if omics_wide.empty:
             print("Warning: Formatted omics data is empty. Skipping variance-based gene selection.")
             candidate_genes = set(omics_data['entrez_id'].unique())
