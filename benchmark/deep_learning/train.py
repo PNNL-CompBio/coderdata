@@ -155,8 +155,9 @@ def main():
         exit(1)
     
     # --------------------------
-    # Perform gene selection on the omics data
+    # Compute gene ranking without filtering the global omics data
     # --------------------------
+    gene_rank = []
     if args.gene_selection == "landmark":
         selected_gene_path = "./shared_input/graphDRP_landmark_genes_map.txt"
         if os.path.exists(selected_gene_path):
@@ -165,7 +166,7 @@ def main():
                 if 'To' not in selected_gene_df.columns:
                     raise ValueError("Column 'To' not found in landmark gene file.")
                 selected_genes = set(selected_gene_df['To'])
-                omics_data = omics_data[omics_data['entrez_id'].isin(selected_genes)]
+                gene_rank = list(selected_genes)  # preserve as list for ordering
             except Exception as e:
                 print(f"Error reading landmark gene file: {e}. Proceeding without gene filtering.")
         else:
@@ -179,9 +180,8 @@ def main():
             selected_genes = all_genes
         else:
             selected_genes = random.sample(all_genes, gene_number)
-        print(f"Randomly selected {len(selected_genes)} genes:")
-        print(selected_genes)
-        omics_data = omics_data[omics_data['entrez_id'].isin(selected_genes)]
+        print(f"Random selection established {len(selected_genes)} genes.")
+        gene_rank = selected_genes
         
     elif args.gene_selection == "pca":
         temp_df = omics_data.copy()
@@ -221,9 +221,8 @@ def main():
                     pca_top_genes = avg_loadings.sort_values(ascending=False).head(gene_number).index.tolist()
                 else:
                     pca_top_genes = list(top_genes_set)
-                print(f"Top {gene_number} genes based on PCA loadings (selected {len(pca_top_genes)} genes):")
-                print(pca_top_genes)
-                omics_data = omics_data[omics_data['entrez_id'].isin(pca_top_genes)]
+                print(f"PCA-based gene ranking established with {len(pca_top_genes)} genes.")
+                gene_rank = pca_top_genes
                 
     elif args.gene_selection == "mutation":
         if hasattr(cd_data, 'mutations'):
@@ -234,14 +233,12 @@ def main():
             mutation_counts_df.columns = ['entrez_id', 'mutation_count']
             mutation_counts_df_sorted = mutation_counts_df.sort_values(by='mutation_count', ascending=False)
             mutation_top_genes = mutation_counts_df_sorted.head(gene_number)['entrez_id'].tolist()
-            print(f"Top {gene_number} genes with highest mutation frequency:")
-            print(mutation_top_genes)
-            omics_data = omics_data[omics_data['entrez_id'].isin(mutation_top_genes)]
+            print(f"Mutation-based gene ranking established with top {len(mutation_top_genes)} genes.")
+            gene_rank = mutation_top_genes
         else:
             print("Warning: Mutations data not found. Proceeding without mutation-based gene selection.")
             
     elif args.gene_selection == "variance":
-        # Option "variance": Omics variance-based gene selection
         temp_df = omics_data.copy()
         expr_cols = [col for col in temp_df.columns if col not in ['improve_sample_id', 'entrez_id']]
         if not expr_cols:
@@ -257,11 +254,11 @@ def main():
             else:
                 gene_variances = omics_wide.var(axis=0)
                 top_genes_by_variance = gene_variances.sort_values(ascending=False).head(gene_number).index.tolist()
-                print(f"Top {gene_number} genes with highest expression variability:")
-                print(top_genes_by_variance)
-                omics_data = omics_data[omics_data['entrez_id'].isin(top_genes_by_variance)]
-    
-    # Update the cd_data object with the filtered omics data.
+                print(f"Variance-based gene ranking established with top {len(top_genes_by_variance)} genes.")
+                gene_rank = top_genes_by_variance
+
+    # Note: At this point, we have computed gene_rank but we have not filtered the global omics_data.
+    # Update the cd_data object with the unfiltered omics data.
     setattr(cd_data, args.omics, omics_data)
     
     # --------------------------
@@ -331,7 +328,28 @@ def main():
                 experiment_set.experiments[n_columns] = experiment_set.experiments[n_columns].astype(float)
         
             experiment_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
-            
+        
+        # --------------------------
+        # Perform gene selection after splitting based on overlap across splits and the gene_rank list
+        # --------------------------
+        split_exps = [split.train, split.test, split.validate]
+        common_genes = None
+        for exp_set in split_exps:
+            current_genes = set(getattr(exp_set, args.omics).columns)
+            if common_genes is None:
+                common_genes = current_genes
+            else:
+                common_genes = common_genes.intersection(current_genes)
+        print(f"Common genes across splits: {len(common_genes)} found.")
+        final_gene_list = [gene for gene in gene_rank if gene in common_genes]
+        final_gene_list = final_gene_list[:gene_number]
+        print(f"Final selected {len(final_gene_list)} genes based on overlap with gene rank list:")
+        print(final_gene_list)
+        for exp_set in split_exps:
+            data_df = getattr(exp_set, args.omics)
+            filtered_df = data_df.loc[:, [col for col in data_df.columns if col in final_gene_list]]
+            setattr(exp_set, args.omics, filtered_df)
+        
         # Process each split and create loaders
         loaders = {}
         for name, gexp in zip(['train', 'test', 'validate'], [split.train, split.test, split.validate]):
@@ -400,16 +418,27 @@ def main():
                 experiment_set.experiments[n_columns] = experiment_set.experiments[n_columns].astype(float)
     
             experiment_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
-        
-        # data_creater = CreateData(gexp=getattr(split.train, args.omics),
-        #                           encoder_type=encoder,
-        #                           metric=dose_response_metric,
-        #                           data_path="shared_input/",
-        #                           feature_names=feature_names)
-        # train_ds = data_creater.create_data(split.train.experiments)
-        # train_loader = DataLoader(train_ds, batch_size=bs, shuffle=True, drop_last=True)
-        # validate_ds = data_creater.create_data(split.validate.experiments)
-        # validate_loader = DataLoader(validate_ds, batch_size=bs, shuffle=False, drop_last=False)
+            
+        # --------------------------
+        # Perform gene selection after splitting based on overlap across splits and the gene_rank list
+        # --------------------------
+        split_exps = [split.train, split.validate]
+        common_genes = None
+        for exp_set in split_exps:
+            current_genes = set(getattr(exp_set, args.omics).columns)
+            if common_genes is None:
+                common_genes = current_genes
+            else:
+                common_genes = common_genes.intersection(current_genes)
+        print(f"Common genes across splits: {len(common_genes)} found.")
+        final_gene_list = [gene for gene in gene_rank if gene in common_genes]
+        final_gene_list = final_gene_list[:gene_number]
+        print(f"Final selected {len(final_gene_list)} genes based on overlap with gene rank list:")
+        print(final_gene_list)
+        for exp_set in split_exps:
+            data_df = getattr(exp_set, args.omics)
+            filtered_df = data_df.loc[:, [col for col in data_df.columns if col in final_gene_list]]
+            setattr(exp_set, args.omics, filtered_df)
         
         # Process each split and create loaders
         loaders = {}
@@ -428,7 +457,6 @@ def main():
         train_loader = loaders['train']
         validate_loader = loaders['validate']
         
-
     # --------------------------
     # Set up the model, optimizer, loss, and early stopping
     # --------------------------
