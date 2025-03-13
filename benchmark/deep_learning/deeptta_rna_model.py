@@ -86,8 +86,8 @@ class Model(torch.nn.Module):
         
         self.gexp_lin1 = Linear(n_genes, n_genes)
         self.gexp_lin2 = Linear(n_genes, 256)
-        
-        self.cat1 = Linear(512, 256)
+        self.cat1 = Linear(256, 256)
+        # self.cat1 = Linear(512, 256)
         self.cat2 = Linear(256, 128)
         self.out = Linear(128, 1)
         
@@ -103,14 +103,14 @@ class Model(torch.nn.Module):
             _,_, drug = self.drug_encoder(data)
             drug = self.transformer_lin(drug)
         
-        gexp = data.ge
-        gexp = self.gexp_lin1(gexp)
-        gexp = self.gexp_lin2(gexp)
+        # gexp = data.ge
+        # gexp = self.gexp_lin1(gexp)
+        # gexp = self.gexp_lin2(gexp)
         
-        drug_gene = torch.cat((drug, gexp), 1)
+        # drug_gene = torch.cat((drug, gexp), 1)
         
         
-        x3 = self.dropout1(self.act1(self.cat1( drug_gene )))
+        x3 = self.dropout1(self.act1(self.cat1( drug )))
         x3 = self.dropout2(self.act2(self.cat2( x3 )))
         x3 = self.out(x3)
         return x3
