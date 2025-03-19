@@ -40,6 +40,15 @@ from data_utils import DataProcessor
 from gnn_utils import CreateData, EarlyStopping, test_fn
 from deeptta_rna_model import Model
 
+def set_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    
 def main():
     # --------------------------
     # Parse command-line arguments
@@ -131,6 +140,9 @@ def main():
     n_epochs = args.epochs
     encoder = args.encoder
     dose_response_metric = "fit_auc"
+    
+    # Set the seed for the model
+    set_seed(data_split_seed)
     
     # Set output prefix and checkpoint path based on test_type.
     output_prefix = f"{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}_{n_epochs}_{data_split_seed}"
@@ -514,7 +526,7 @@ def main():
     model.load_state_dict(torch.load(ckpt_path))
 
     if args.test_type == "self":
-        mse, mae, r2, pearson_corr, spearman_corr, _, _ = test_fn(test_loader, model, device)
+        mse, mae, r2, pearson_corr, spearman_corr, target_list, predicted_list = test_fn(test_loader, model, device)
         test_rmse = np.sqrt(mse)
         print(f"Test results -- RMSE: {test_rmse:.3f}, MAE: {mae:.3f}, R²: {r2:.3f}, Pearson: {pearson_corr:.3f}, Spearman: {spearman_corr:.3f}")
     else:
@@ -524,20 +536,33 @@ def main():
     # Write (append) results to file (logging all arguments)
     # --------------------------
     header = ("Seed\tDataset\tEpochs\tSplit Type\tEncoder\tTest Type\tGene Selection\tGene Number\tOmics\t"
-              "Test RMSE\tTest MAE\tTest R²\tPearson Correlation\tSpearman Correlation\n")
-    
+            "Test RMSE\tTest MAE\tTest R²\tPearson Correlation\tSpearman Correlation\n")
+
     results_file_path = f'results/seed_{data_split_seed}_epoch_{n_epochs}_{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}_train_results_table.txt'
-    
+
+    df = pd.DataFrame({
+        "improve_sample_id": split.validate.experiments.improve_sample_id.to_list(),
+        "improve_drug_id": split.validate.experiments.improve_drug_id.to_list(),
+        "target": target_list,
+        "predicted": predicted_list,
+    })
+
+    # Save the predictions with the same prefix as other results
+    predictions_file_path = f"results/{output_prefix}_predictions.csv"
+    df.to_csv(predictions_file_path, index_label="index")
+    print(f"Predictions saved to {predictions_file_path}")
+
     with open(results_file_path, 'a') as file:
         if os.stat(results_file_path).st_size == 0:
             file.write(header)
         if args.test_type == "self":
             file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                       f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
-                       f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
+                    f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
+                    f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
         else:
             file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                       f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n")
+                    f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n")
+
     print(f"Results saved to {results_file_path}")
 
     with open(args.output, 'a') as out_file:
@@ -545,11 +570,51 @@ def main():
             out_file.write(header)
         if args.test_type == "self":
             out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                           f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
-                           f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
+                        f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
+                        f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
         else:
             out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
-                           f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n")
+                        f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n") 
+
+
+
+#    header = ("Seed\tDataset\tEpochs\tSplit Type\tEncoder\tTest Type\tGene Selection\tGene Number\tOmics\t"
+#               "Test RMSE\tTest MAE\tTest R²\tPearson Correlation\tSpearman Correlation\n")
+    
+#     results_file_path = f'results/seed_{data_split_seed}_epoch_{n_epochs}_{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}_train_results_table.txt'
+   
+#     df = pd.DataFrame({
+#     "improve_sample_id": split.validate.experiments.improve_sample_id.to_list(),
+#     "improve_drug_id": split.validate.experiments.improve_drug_id.to_list(),
+#     "target": target_list,
+#     "predicted": predicted_list,
+#     })
+
+
+
+# df.to_csv("test_first_predictions.csv", index_label="index")
+#     with open(results_file_path, 'a') as file:
+#         if os.stat(results_file_path).st_size == 0:
+#             file.write(header)
+#         if args.test_type == "self":
+#             file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
+#                        f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
+#                        f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
+#         else:
+#             file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
+#                        f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n")
+#     print(f"Results saved to {results_file_path}")
+
+#     with open(args.output, 'a') as out_file:
+#         if os.stat(args.output).st_size == 0:
+#             out_file.write(header)
+#         if args.test_type == "self":
+#             out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
+#                            f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
+#                            f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
+#         else:
+#             out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
+#                            f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n")
 
 if __name__ == '__main__':
     main()
