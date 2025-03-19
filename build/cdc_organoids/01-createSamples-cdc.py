@@ -120,7 +120,7 @@ def generate_sample_file(sequencing_data_path:str = None, prev_samples_path:str 
         if "Normal-Organoid" in samples_df.loc[index, 'other_id']:
             samples_df.loc[index, 'common_name'] = samples_df.loc[index, 'common_name'] + "N-O"
             samples_df.loc[index, 'model_type'] = "organoid"
-    samples_df['other_id_source'] = "Supplementary Figure"
+    samples_df['other_id_source'] = "vandeWetering_2015"
     samples_df['cancer_type'] = "Colorectal Carcinoma"
     samples_df['species'] = "Homo sapiens (Human)"
 
@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
     parser.add_argument('-D', '--download',action='store_true', default=False, help='Download RNA seq and sequencing data from GEO and supplemental materials from https://www.cell.com/cell/fulltext/S0092-8674(15)00373-6#mmc2')
     parser.add_argument('-t', '--token', type=str, default=None, help='Synapse Token')
-    parser.add_argument('-i', '--synapseID', type=str, default="syn64961953", help='SynapseID')
+    parser.add_argument('-i', '--synapseID', type=str, default="syn64961953", help='SynapseID of data to download')
 
     parser.add_argument('-s', '--samples', action = 'store_true', help='Only generate samples, requires previous samples',default=False)
     parser.add_argument('-p', '--prevSamples', nargs='?',type=str, default='', const='', help='Use this to provide previous sample file')
