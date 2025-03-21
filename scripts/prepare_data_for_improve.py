@@ -178,7 +178,7 @@ def process_datasets(args):
                     'dss',
                 ],
             )
-            experiments.append(experiment)
+            experiments.append(experiment.dropna())
         else:
             logger.debug(f"NO experiment data for {data_set}")
 
