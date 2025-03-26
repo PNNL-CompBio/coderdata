@@ -7,7 +7,7 @@ import time
 import yaml
 
 
-def upload_to_figshare(token, title, directory, project_id, publish, article_id=None):
+def upload_to_figshare(token, title, directory, project_id, publish, version, article_id=None):
     """
     Uploads a file to Figshare and publishes the article.
 
@@ -187,34 +187,41 @@ def upload_to_figshare(token, title, directory, project_id, publish, article_id=
         issue_request('DELETE', f'account/articles/{article_id}/files/{file_id}')
 
 
-    def write_figshare_details_to_yaml(article_id, project_id, title):
+    def write_figshare_details_to_yaml(article_id, project_id, title, version):
         """
-        Write details of Figshare to yaml
+        Write details of Figshare to two yaml files.  
+        figshare_latest.yml will be updated for the docs.
+        dataset.yml will be updated for the python package.
         """
-        #convert slashes and periods to underscores so the file links are generated correctly.
+                
+        # update dataset.yml
+        with open("coderdata/dataset.yml", "r") as f:
+            data = yaml.safe_load(f)
+        data["figshare"] = f"https://api.figshare.com/v2/articles/{article_id}"
+        data["version"] = version
+        with open("tmp/dataset.yml", "w") as f:
+            yaml.safe_dump(data, f, sort_keys=False)       
+             
+        
+        # write figshare_latest.yml
         title_updated = title.replace('/', '_')
         title_updated = title_updated.replace('.', '_')
         article_info = issue_request('GET', f'articles/{article_id}')
-        # article_link = f"https://figshare.com/articles/dataset/{title}/{project_id}/file/{article_id}"
         article_link = f"https://figshare.com/articles/dataset/{title_updated}/{article_id}"
 
         # Retrieve the article details
         article_details_response = requests.get(article_info['url'])
         article_details_response.raise_for_status()
         article_details = article_details_response.json()
-
-        # Construct the URLs
-        file_url_links = {file['name']:f"https://figshare.com/articles/dataset/{title_updated}/{article_id}?file={file['id']}" for file in article_details['files']}
-        file_download_link = {file['name']: file['download_url'] for file in article_details['files']}
+        
         yaml_data = {
             'article_link': article_link,
-            'file_url': file_url_links,
-            'file_download': file_download_link
+            'version': version,
         }
 
         with open('/tmp/figshare_latest.yml', 'w') as file:
             yaml.dump(yaml_data, file, default_flow_style=False)
-
+            
 
     article_id = create_or_get_article(title, project_id, article_id)
     all_files_uploaded = True
@@ -249,7 +256,7 @@ def upload_to_figshare(token, title, directory, project_id, publish, article_id=
         print("Files uploaded successfully but not published.")
         
     if all_files_uploaded:
-        write_figshare_details_to_yaml(article_id, project_id,title)
+        write_figshare_details_to_yaml(article_id, project_id,title, version)
 
 def main():
     parser = argparse.ArgumentParser(description='Upload files to Figshare.')
@@ -259,9 +266,10 @@ def main():
     parser.add_argument('-p', '--publish', help='Publish the article', action='store_true')
     parser.add_argument('-j', '--project_id', help='Existing Figshare project ID', required=True)
     parser.add_argument('-a', '--article_id', help='Existing Figshare article ID', required=False, default=None)
+    parser.add_argument('-v', '--version', help='Latest Version', required=True)
     args = parser.parse_args()
 
-    upload_to_figshare(args.token, args.title, args.directory, args.project_id, args.publish, args.article_id)
+    upload_to_figshare(args.token, args.title, args.directory, args.project_id, args.publish, args.version, args.article_id)
 
 if __name__ == "__main__":
     main()

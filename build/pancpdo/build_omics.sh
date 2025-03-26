@@ -6,6 +6,9 @@ trap 'echo "Error on or near line $LINENO while executing: $BASH_COMMAND"; exit 
 echo "Running 02-getPancPDOData.py for transcriptomics."
 python 02-getPancPDOData.py -m full_manifest.txt -t transcriptomics -o /tmp/pancpdo_transcriptomics.csv.gz -g $1 -s $2
 
+echo 'Running 02a-getPancPDODataFromSynapse.py for copy number and mutations'
+python 02a-getPancPDODataFromSynapse.py -g $1 -s $2 -t $SYNAPSE_AUTH_TOKEN -c -m
+
 #echo "Running 02-getPancPDOData.py for copy_number."
 #python 02-getPancPDOData.py -m full_manifest.txt -t copy_number -o /tmp/pancpdo_copy_number.csv.gz -g $1 -s $2
 

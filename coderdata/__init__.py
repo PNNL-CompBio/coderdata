@@ -3,7 +3,9 @@ from .dataset.dataset import (
     Dataset,
     load,
     format,
-    train_test_validate
+    train_test_validate,
+    split_train_other,
+    split_train_test_validate
 )
 
 from ._version import __version__

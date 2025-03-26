@@ -183,7 +183,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
         # Initialize retry variables
         retries = 0
-        max_retries = 5
+        max_retries = 1
 
         # Function to get downloaded file IDs
         def get_downloaded_ids(manifest_loc):
@@ -682,6 +682,12 @@ def main():
     print("Aligning to Schema")
     final_data = align_to_schema(combined_data,args.type,7500,args.samples)
     gc.collect()
+
+    ##what if we shrink samples to only include the values that have transcriptional data
+    #this fails
+    #newsamps = pd.read_csv(args.samples)
+    #newsamps = newsamps[newsamps.improve_sample_id.isin(final_data.improve_sample_id)]
+    #newsamps.to_csv(args.samples)
 
     combined_data = None
     
