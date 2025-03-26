@@ -13,7 +13,7 @@ def parse_mmc2(mmc2_excel_path):
 
     Returns
     -------
-    mutations_data : pd.DataFrame
+    mutation_data : pd.DataFrame
         A DataFrame containing mutations data.
 
     copy_number_data : pd.DataFrame
@@ -21,11 +21,11 @@ def parse_mmc2(mmc2_excel_path):
 
     """
     mmc2_excel = pd.ExcelFile(open(mmc2_excel_path, 'rb'))
-    mutations_data = pd.read_excel(mmc2_excel, 'TableS1J-Somatic mutations') # table with somatic mutation information 
+    mutation_data = pd.read_excel(mmc2_excel, 'TableS1J-Somatic mutations') # table with somatic mutation information 
     copy_number_data = pd.read_excel(mmc2_excel, 'TableS1D-Segmented_CN') # table with copy number information
 
 
-    return(mutations_data, copy_number_data)
+    return(mutation_data, copy_number_data)
 
 def map_mutations(mutation_data, improve_id_data, entrez_data):
     """
@@ -61,7 +61,7 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
 
     
     # map columns in mutations data to their improved id
-    mapped_mutation_data = mutations_data.loc[:,['Entrez_Gene_Id', 'Hugo_Symbol','Genome_Change','Variant_Classification','Tumor_Sample_Barcode']]
+    mapped_mutation_data = mutation_data.loc[:,['Entrez_Gene_Id', 'Hugo_Symbol','Genome_Change','Variant_Classification','Tumor_Sample_Barcode']]
     mapped_mutation_data['Tumor_Sample_Barcode'] = mapped_mutation_data['Tumor_Sample_Barcode'].str.split('-',n = 1,expand=True).iloc[:,1]
     mapped_mutation_data = pd.merge(mapped_mutation_data, improve_id_data[['other_id','improve_sample_id']], how = 'left', left_on= "Tumor_Sample_Barcode", right_on= "other_id")
     
@@ -69,11 +69,11 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     mapped_mutation_data.loc[mapped_mutation_data['Variant_Classification'] == "Non-coding_Transcript",'Variant_Classification'] = "RNA"
 
     # some of the entrezID's have ?, but it must be an integer.  check to see if we have an entrez ID using the hugo symbol and mapping using entrez_data. if there's any leftover, put in nothing
-    questions = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] == "?"].reset_index()
-    fixed_entrez = pd.merge(questions, entrez_data[['entrez_id','other_id','gene_symbol']], how='inner', left_on="Hugo_Symbol", right_on="other_id")
+    questions = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] == "?"].reset_index()  # all rows with ? 
+    fixed_entrez = pd.merge(questions, entrez_data[['entrez_id','other_id','gene_symbol']], how='inner', left_on="Hugo_Symbol", right_on="other_id") # merge with our entrez database to see if we have additional matches
     for index_val in fixed_entrez['index'].values:
-        mapped_mutation_data.loc[index_val,'Entrez_Gene_Id'] = fixed_entrez[fixed_entrez['index'] == index_val]['entrez_id'].values
-    mapped_mutation_data.loc[mapped_mutation_data['Entrez_Gene_Id'] == "?",'Entrez_Gene_Id'] = np.nan  # any leftover "?" change them to np.nan bc schema requires them to be int
+        mapped_mutation_data.loc[index_val,'Entrez_Gene_Id'] = fixed_entrez[fixed_entrez['index'] == index_val]['entrez_id'].values  # for loop to replace these values with found entrez's
+    mapped_mutation_data = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] != "?"]  # remove rows with ? leftover
 
     # clean up column names 
     mapped_mutation_data = mapped_mutation_data.rename(columns={'Entrez_Gene_Id':'entrez_id','Genome_Change':'mutation','Variant_Classification':'variant_classification'})
@@ -84,7 +84,22 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     return(mapped_mutation_data)
 
 
-def map_transcriptomics():
+def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
+
+    # read in data
+    if isinstance(transciptomics_data, pd.DataFrame) == False:
+        transciptomics_data = pd.read_csv(transciptomics_data)
+
+    if isinstance(improve_id_data, pd.DataFrame) == False:
+        improve_id_data = pd.read_csv(improve_id_data)
+    
+    if isinstance(entrez_data, pd.DataFrame) == False:
+        entrez_data = pd.read_csv(entrez_data)
+
+    
+
+    
+
     return()
 
 
