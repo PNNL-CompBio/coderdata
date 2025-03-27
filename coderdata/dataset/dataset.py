@@ -341,7 +341,7 @@ class Dataset:
         split_type: Literal[
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
-        ratio: tuple[int, int, int]=(8,2),
+        ratio: tuple[int, int]=(8,2),
         stratify_by: Optional[str]=None,
         balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
@@ -351,7 +351,7 @@ class Dataset:
         split = split_train_other(
             data=self,
             split_type=split_type,
-            ration=ratio,
+            ratio=ratio,
             stratify_by=stratify_by,
             balance=balance,
             random_state=random_state,
@@ -728,19 +728,19 @@ def split_train_other(
         split_type: Literal[
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
-        ratio: tuple[int, int, int]=(8,2),
+        ratio: tuple[int, int]=(8,2),
         stratify_by: Optional[str]=None,
         balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict, 
     ):
     train, other = _split_two_way(
-        data,
-        split_type,
-        ratio,
-        stratify_by,
-        balance,
-        random_state,
+        data=data,
+        split_type=split_type,
+        ratio=ratio,
+        stratify_by=stratify_by,
+        balance=balance,
+        random_state=random_state,
         **kwargs
     )
     if stratify_by is not None:
