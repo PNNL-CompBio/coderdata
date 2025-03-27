@@ -16,9 +16,30 @@ import argparse
 import pandas as pd
 
 def main(counts_data, genome_link, gene_column, out_file):
+    """
+    Converts RNA count matrix to tpm matrix (transcripts per million).  
+    
+    Parameters
+    ----------
+    counts_data : string
+        Path to RNA sequencing counts data. No default
+        
+    genome_link : string
+        Link to human genome build. Defaults to "https://ftp.ensembl.org/pub/grch37/release-113/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz"
+
+    gene_column : string
+        Column name of column with gene name information.  Defaults to "stable_id".
+
+    out_file : string
+        Path to output csv. No default.
+
+    Returns
+    -------
+    None
+    
+    """
     # read in counts data
-    if isinstance(counts_data, pd.DataFrame) == False:
-        counts = pd.read_csv(counts_data,sep='\t')
+    counts = pd.read_csv(counts_data,sep='\t')
     counts.index=counts[gene_column]
 
     ##get list of patients
