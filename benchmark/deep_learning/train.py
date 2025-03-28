@@ -20,6 +20,11 @@ A new argument, --gene_number, specifies the top X genes to retain (default: 100
 for gene-selection methods that rank genes.
 
 A new argument, --omics allows switching the omics data type (default: transcriptomics).
+
+IMPORTANT (external mode): When using the external test mode (i.e. --test_type external),
+you must also provide --external_dataset. In this case the script loads both the internal
+and external datasets, determines the overlapping set of genes, and writes the final gene list
+to file ("shared_input/final_gene_list.txt").
 """
 
 import os
@@ -126,6 +131,13 @@ def main():
         default="transcriptomics",
         help="Omics data type to use (default: transcriptomics)"
     )
+    # New argument for external dataset (required in external test mode)
+    parser.add_argument(
+        "--external_dataset",
+        type=str,
+        default=None,
+        help="External dataset to use for overlapping gene selection when test_type is external"
+    )
     
     args = parser.parse_args()
     gene_number = args.gene_number
@@ -145,7 +157,12 @@ def main():
     set_seed(data_split_seed)
     
     # Set output prefix and checkpoint path based on test_type.
+    
     output_prefix = f"{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}_{n_epochs}_{data_split_seed}"
+    if args.external_dataset:
+            output_prefix = f"{args.dataset}_{args.external_dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}_{n_epochs}_{data_split_seed}"
+
+    
     ckpt_path = f"./models/best_{output_prefix}.pt"
     
     # Create necessary directories
@@ -300,7 +317,8 @@ def main():
         for experiment_set in [split.train, split.test, split.validate]:
             print(f"{experiment_set} in progress")
             formatted_omics = experiment_set.format(data_type=args.omics, shape='wide', inplace=True)
-            formatted_omics = np.log1p(formatted_omics)
+            if args.omics == "transcriptomics":
+                formatted_omics = np.log1p(formatted_omics)
             scaler = StandardScaler()
             scaled = scaler.fit_transform(formatted_omics)
             scaled_df = pd.DataFrame(scaled, index=formatted_omics.index, columns=formatted_omics.columns)
@@ -365,8 +383,12 @@ def main():
         # Process each split and create loaders
         loaders = {}
         for name, gexp in zip(['train', 'test', 'validate'], [split.train, split.test, split.validate]):
+            if args.omics == "proteomics":
+                gexp_vals = gexp.proteomics
+            if args.omics == "transcriptomics":
+                gexp_vals = gexp.transcriptomics
             data_creater = CreateData(
-                gexp=gexp.transcriptomics,
+                gexp=gexp_vals,
                 encoder_type=encoder,
                 metric=dose_response_metric,
                 data_path="shared_input/",
@@ -381,6 +403,8 @@ def main():
         validate_loader = loaders['validate']
         
     else:
+        # -------- External Test Mode --------
+        # In external mode, we only split into train and validation.
         split = cd_data.split_train_other(
             split_type=split_method,
             ratio=[8, 2],
@@ -391,7 +415,8 @@ def main():
         for experiment_set in [split.train, split.validate]:
             print(f"{experiment_set} in progress")
             formatted_omics = experiment_set.format(data_type=args.omics, shape='wide', inplace=True)
-            formatted_omics = np.log1p(formatted_omics)
+            if args.omics == "transcriptomics":
+                formatted_omics = np.log1p(formatted_omics)
             scaler = StandardScaler()
             scaled = scaler.fit_transform(formatted_omics)
             scaled_df = pd.DataFrame(scaled, index=formatted_omics.index, columns=formatted_omics.columns)
@@ -432,7 +457,30 @@ def main():
             experiment_set.experiments.drop_duplicates(ignore_index=True, inplace=True)
             
         # --------------------------
-        # Perform gene selection after splitting based on overlap across splits and the gene_rank list
+        # Load and process the external dataset to obtain its gene list
+        # --------------------------
+        if args.external_dataset is None:
+            parser.error("--external_dataset must be provided when test_type is external")
+        print(f"Loading external dataset: {args.external_dataset}")
+        cd_external = cd.load(args.external_dataset, "data")
+        # Process external transcriptomics data similar to internal processing:
+        if args.omics == "transcriptomics":
+            ext_omics = cd_external.transcriptomics.copy()
+            ext_omics = cd_external.format("transcriptomics", "wide", inplace=False)
+        if args.omics == "proteomics":
+            ext_omics = cd_external.proteomics.copy()
+            ext_omics = cd_external.format("proteomics", "wide", inplace=False)
+        if args.omics == "transcriptomics":
+            ext_omics = np.log1p(ext_omics)
+        scaler_ext = StandardScaler()
+        scaled_ext = scaler_ext.fit_transform(ext_omics)
+        ext_omics_df = pd.DataFrame(scaled_ext, index=ext_omics.index, columns=ext_omics.columns)
+        ext_omics_df = ext_omics_df.dropna(axis=1)
+        external_genes = set(ext_omics_df.columns)
+        print(f"External dataset has {len(external_genes)} genes after processing.")
+    
+        # --------------------------
+        # Perform gene selection based on internal splits and external dataset
         # --------------------------
         split_exps = [split.train, split.validate]
         common_genes = None
@@ -442,21 +490,33 @@ def main():
                 common_genes = current_genes
             else:
                 common_genes = common_genes.intersection(current_genes)
-        print(f"Common genes across splits: {len(common_genes)} found.")
-        final_gene_list = [gene for gene in gene_rank if gene in common_genes]
+        print(f"Common genes across internal splits: {len(common_genes)} found.")
+        # Now, take the overlap among the gene_rank list, internal common genes, and external genes
+        final_gene_list = [gene for gene in gene_rank if gene in common_genes and gene in external_genes]
         final_gene_list = final_gene_list[:gene_number]
-        print(f"Final selected {len(final_gene_list)} genes based on overlap with gene rank list:")
+        print(f"Final selected {len(final_gene_list)} genes based on overlap with gene rank list, internal splits, and external dataset:")
         print(final_gene_list)
         for exp_set in split_exps:
             data_df = getattr(exp_set, args.omics)
             filtered_df = data_df.loc[:, [col for col in data_df.columns if col in final_gene_list]]
             setattr(exp_set, args.omics, filtered_df)
+            
+        # Write the final gene list to file for use during testing
+        gene_list_file = f"shared_input/{output_prefix}_gene_list.txt"
+        with open(gene_list_file, 'w') as f:
+            for gene in final_gene_list:
+                f.write(f"{gene}\n")
+        print(f"Final gene list written to {gene_list_file}")
         
         # Process each split and create loaders
         loaders = {}
         for name, gexp in zip(['train', 'validate'], [split.train, split.validate]):
+            if args.omics == "proteomics":
+                gexp_vals = gexp.proteomics
+            if args.omics == "transcriptomics":
+                gexp_vals = gexp.transcriptomics
             data_creater = CreateData(
-                gexp=gexp.transcriptomics,
+                gexp=gexp_vals,
                 encoder_type=encoder,
                 metric=dose_response_metric,
                 data_path="shared_input/",
@@ -516,10 +576,6 @@ def main():
         
         hist["val_rmse"].append(val_rmse)
         print(f'Epoch: {epoch}, Val_rmse: {val_rmse:.3f}')
-        # if epoch % 33 == 0:
-        #     model_save_path = f'models/{output_prefix}_epoch_{epoch}.pt'
-        #     torch.save(model.state_dict(), model_save_path)
-        #     print("Model saved at", model_save_path)
     # --------------------------
     # Load best model (checkpoint) and test (if in self-test mode)
     # --------------------------
@@ -575,46 +631,6 @@ def main():
         else:
             out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
                         f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n") 
-
-
-
-#    header = ("Seed\tDataset\tEpochs\tSplit Type\tEncoder\tTest Type\tGene Selection\tGene Number\tOmics\t"
-#               "Test RMSE\tTest MAE\tTest R²\tPearson Correlation\tSpearman Correlation\n")
-    
-#     results_file_path = f'results/seed_{data_split_seed}_epoch_{n_epochs}_{args.dataset}_{split_method}_{encoder}_{args.test_type}_{args.gene_selection}_{gene_number}_{args.omics}_train_results_table.txt'
-   
-#     df = pd.DataFrame({
-#     "improve_sample_id": split.validate.experiments.improve_sample_id.to_list(),
-#     "improve_drug_id": split.validate.experiments.improve_drug_id.to_list(),
-#     "target": target_list,
-#     "predicted": predicted_list,
-#     })
-
-
-
-# df.to_csv("test_first_predictions.csv", index_label="index")
-#     with open(results_file_path, 'a') as file:
-#         if os.stat(results_file_path).st_size == 0:
-#             file.write(header)
-#         if args.test_type == "self":
-#             file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
-#                        f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
-#                        f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
-#         else:
-#             file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
-#                        f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n")
-#     print(f"Results saved to {results_file_path}")
-
-#     with open(args.output, 'a') as out_file:
-#         if os.stat(args.output).st_size == 0:
-#             out_file.write(header)
-#         if args.test_type == "self":
-#             out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
-#                            f"{args.gene_selection}\t{gene_number}\t{args.omics}\t{test_rmse:.3f}\t{mae:.3f}\t{r2:.3f}\t"
-#                            f"{pearson_corr:.3f}\t{spearman_corr:.3f}\n")
-#         else:
-#             out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
-#                            f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n")
 
 if __name__ == '__main__':
     main()
