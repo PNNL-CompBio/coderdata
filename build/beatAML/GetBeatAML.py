@@ -653,7 +653,7 @@ if __name__ == "__main__":
             # New Transcriptomics Data
             print("Starting Transcriptomics Data")
             ##first run conversion tool
-            os.system("python tpmFromCounts.py --counts "+transcriptomics_file)
+            os.system("python tpmFromCounts.py --counts {} --out_file {}".format(transcriptomics_file,'tpm_'+transcriptomics_file))
             
             
             t_df = pd.read_csv('tpm_'+transcriptomics_file, sep = '\t')
