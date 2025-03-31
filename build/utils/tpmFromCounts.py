@@ -1,15 +1,6 @@
 '''
 python script to read in counts matrix and gene lengths to calculate tpm
 
-Input: expects patient Id's on column names
-
-Args:
-genome_link : str
-    Link to human genome build. Defualts to "https://ftp.ensembl.org/pub/grch37/release-113/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz"
-
-cols_to_exclude : list
-    List of column names to exclude.  Script assumes that patient Id's are in column names. Put columns to exclude  (that don't have patient info in them).
-
 '''
 
 import argparse
