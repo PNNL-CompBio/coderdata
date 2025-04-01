@@ -123,10 +123,10 @@ if __name__ == "__main__":
     samples = pd.read_csv(args.samples)
 
     if args.expression:
-        get_bladder_pdo_transcriptomics(args.geolink, samples, genes).to_csv("bladderpdo_transcriptomics.csv", index=False)
+        get_bladder_pdo_transcriptomics(args.geolink, samples, genes).to_csv("/tmp/bladderpdo_transcriptomics.csv", index=False)
 
     if args.mutation:
-        get_bladder_pdo_mutations(synObject, samples, genes).to_csv('bladderpdo_mutations.csv', index=False)
+        get_bladder_pdo_mutations(synObject, samples, genes).to_csv('/tmp/bladderpdo_mutations.csv', index=False)
     
     if args.copy:
-        get_bladder_pdo_copynumber(synObject, samples, genes).to_csv("bladderpdo_copynumber.csv", index=False)
+        get_bladder_pdo_copynumber(synObject, samples, genes).to_csv("/tmp/bladderpdo_copynumber.csv", index=False)

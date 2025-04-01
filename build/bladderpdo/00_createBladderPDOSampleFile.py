@@ -47,4 +47,4 @@ if __name__ == "__main__":
 
     bladder_pdo_samples = get_bladder_pdo_samples(synObject, prev_max_improve_id)
 
-    bladder_pdo_samples.to_csv("bladderpdo_samples.csv", index=False)
+    bladder_pdo_samples.to_csv("/tmp/bladderpdo_samples.csv", index=False)
