@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 
 def parse_mmc2(mmc2_excel_path):
     """
@@ -96,11 +97,36 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
     if isinstance(entrez_data, pd.DataFrame) == False:
         entrez_data = pd.read_csv(entrez_data)
 
-    
+    # move row names to a column called "stable_id" and format gene names to remove the chromosome num
+    transciptomics_data['stable_id'] = transciptomics_data.index
+    transciptomics_data['stable_id'] = transciptomics_data['stable_id'].str.split('__',n = 1,expand=True).iloc[:,0]
+    transciptomics_data.to_csv("counts_for_tpm_conversion.csv")
 
+    # run tpmFromCounts.py to convert counts to tpm
+    os.system("python tpmFromCounts.py --counts counts_for_tpm_conversion.csv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file transcriptomics_tpm.tsv")
     
+    # get output from script (in tsv format) and average across organoids from each patient ]
+    tpm_transciptomics_data = pd.read_csv("transcriptomics_tpm.tsv", sep="\t")
+    tpm_transciptomics_data.index = tpm_transciptomics_data['stable_id']
+    tpm_transciptomics_data = tpm_transciptomics_data.drop(columns=['stable_id'])
+    transpose_transcriptomics = tpm_transciptomics_data.T
+    transpose_transcriptomics['full_patient_id'] = transpose_transcriptomics.index
+    transpose_transcriptomics['patient'] = transpose_transcriptomics['full_patient_id'].str.split('.',n = 1,expand=True).iloc[:,0]
+    transpose_transcriptomics = transpose_transcriptomics.drop(columns=['full_patient_id'])
+    transpose_transcriptomics = transpose_transcriptomics.groupby(by='patient').mean()
 
-    return()
+    # melt dataframe so that there is gene name and improve_sample_id per row
+    transpose_transcriptomics = transpose_transcriptomics.reset_index()
+    long_transcriptomics_table = pd.melt(transpose_transcriptomics, id_vars=['patient'], value_vars=transpose_transcriptomics.columns[transpose_transcriptomics.columns != 'patient'])
+    long_transcriptomics_table = long_transcriptomics_table.rename(columns = {'value':'transcriptomics'})
+
+    # map gene names to entrez id's 
+
+    # map patients to improve_sample_id 
+
+    # add source and study cols
+
+    return(long_transcriptomics_table)
 
 
 def map_copy_number():
