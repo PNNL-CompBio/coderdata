@@ -76,11 +76,12 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
         mapped_mutation_data.loc[index_val,'Entrez_Gene_Id'] = fixed_entrez[fixed_entrez['index'] == index_val]['entrez_id'].values  # for loop to replace these values with found entrez's
     mapped_mutation_data = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] != "?"]  # remove rows with ? leftover
 
-    # clean up column names 
+    # clean up column names and data types
     mapped_mutation_data = mapped_mutation_data.rename(columns={'Entrez_Gene_Id':'entrez_id','Genome_Change':'mutation','Variant_Classification':'variant_classification'})
     mapped_mutation_data = mapped_mutation_data.drop(columns=['Hugo_Symbol','Tumor_Sample_Barcode','other_id'])
     mapped_mutation_data['source'] = "vandeWetering_2015"
     mapped_mutation_data['study'] = "CRC_Organoids"
+    mapped_mutation_data = mapped_mutation_data.astype({'entrez_id':'int'})
 
     return(mapped_mutation_data)
 
@@ -117,16 +118,30 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
 
     # melt dataframe so that there is gene name and improve_sample_id per row
     transpose_transcriptomics = transpose_transcriptomics.reset_index()
-    long_transcriptomics_table = pd.melt(transpose_transcriptomics, id_vars=['patient'], value_vars=transpose_transcriptomics.columns[transpose_transcriptomics.columns != 'patient'])
-    long_transcriptomics_table = long_transcriptomics_table.rename(columns = {'value':'transcriptomics'})
+    long_transcriptomics_df = pd.melt(transpose_transcriptomics, id_vars=['patient'], value_vars=transpose_transcriptomics.columns[transpose_transcriptomics.columns != 'patient'])
+    long_transcriptomics_df = long_transcriptomics_df.rename(columns = {'value':'transcriptomics'})
 
     # map gene names to entrez id's 
+    mapped_transcriptomics_df = pd.merge(long_transcriptomics_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'left', left_on= "stable_id", right_on= "other_id")
+    mapped_transcriptomics_df = mapped_transcriptomics_df.dropna(subset=['entrez_id'])
 
     # map patients to improve_sample_id 
+    improve_id_tumor_org = improve_id_data[improve_id_data['other_id'].str.contains('Tumor-Organoid')] # mapping patient
+    improve_id_tumor_org['patient'] = improve_id_tumor_org['other_id'].str.split('-',n = 1,expand=True).iloc[:,0].str.replace("T","").str.upper() # the way patient is written in transcriptomics data is slightly diff than that of our samples. edit to match. delete T's, uppercase A,B
+    mapped_transcriptomics_df['patient'] = mapped_transcriptomics_df['patient'].str.upper() # make P in patients uppercase to merge
+    mapped_transcriptomics_df = pd.merge(mapped_transcriptomics_df, improve_id_tumor_org[['patient','improve_sample_id']].drop_duplicates(), how = 'left', on='patient')
+    
+    # clean up column names and data types
+    mapped_transcriptomics_df = mapped_transcriptomics_df.drop(columns=['stable_id','patient','other_id'])
+    mapped_transcriptomics_df['source'] = "vandeWetering_2015"
+    mapped_transcriptomics_df['study'] = "CRC_Organoids"
+    mapped_transcriptomics_df = mapped_transcriptomics_df.astype({'entrez_id':'int','improve_sample_id':'int'})
+    mapped_transcriptomics_df = mapped_transcriptomics_df[['entrez_id','transcriptomics','improve_sample_id','source','study']]
 
-    # add source and study cols
+    return(mapped_transcriptomics_df)
 
-    return(long_transcriptomics_table)
+
+
 
 
 def map_copy_number():
