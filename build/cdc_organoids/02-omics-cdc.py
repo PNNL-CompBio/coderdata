@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+import math
 
 def parse_mmc2(mmc2_excel_path):
     """
@@ -140,9 +141,65 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
 
     return(mapped_transcriptomics_df)
 
+def get_copy_call(a):
+    """
+    Heler Function - Determine copy call for a value.
+    """
+
+    if a is None:
+        return float('nan')
+
+    if math.isnan(a):
+        return float('nan')
+
+    a_val = math.log2(float(a)+0.000001)
+    if a_val < 0.5210507:
+        return 'deep del'
+    elif a_val < 0.7311832:
+        return 'het loss'
+    elif a_val < 1.214125:
+        return 'diploid'
+    elif a_val < 1.422233:
+        return 'gain'
+    else:
+        return 'amp'
 
 
+def map_copy_number(copy_number_data, improve_id_data, entrez_data):
 
+    # read in data
+    if isinstance(copy_number_data, pd.DataFrame) == False:
+        copy_number_data = pd.read_csv(copy_number_data)
 
-def map_copy_number():
-    return()
+    if isinstance(improve_id_data, pd.DataFrame) == False:
+        improve_id_data = pd.read_csv(improve_id_data)
+    
+    if isinstance(entrez_data, pd.DataFrame) == False:
+        entrez_data = pd.read_csv(entrez_data)
+
+    # get data ready for R script
+    copy_number_data = copy_number_data.rename(columns = {'Chromosome':'chrom', 'Start':'loc.start','End':'loc.end','Segment_Mean':'seg.mean','Sample':'ID'})
+    copy_number_data.to_csv("sample_copy_num.csv")
+
+    # get gene names using chr, start, and end using CNV-segfile-annotation.R
+    os.system("Rscript --vanilla CNV-segfile-annotation.R sample_copy_num.csv output_copy_num.csv")
+    mapped_cn_df = pd.read_csv("output_copy_num.csv")
+
+    # do copy_number calculation from score and get copy call column
+    mapped_cn_df['copy_number'] = np.exp2(mapped_cn_df['score'].div(2))*2
+    mapped_cn_df['copy_call'] = [get_copy_call(a) for a in mapped_cn_df['copy_number']]
+
+    # map ID to improve_ID
+    mapped_cn_df['other_id'] = mapped_cn_df['ID'].str.split('.',n = 1,expand=True).iloc[:,1] # remove the I2L at the beginning
+    mapped_cn_df['other_id'] = mapped_cn_df['other_id'].str.replace(".","-")
+    improve_mapped_cn_df = pd.merge(mapped_cn_df, improve_id_data[['other_id','improve_sample_id']], how = 'left', on='other_id')
+
+    # clean up columns and data types
+    improve_mapped_cn_df = improve_mapped_cn_df.drop(columns=['ID','score','other_id'])
+    improve_mapped_cn_df['source'] = "vandeWetering_2015"
+    improve_mapped_cn_df['study'] = "CRC_Organoids"
+    improve_mapped_cn_df = improve_mapped_cn_df.rename(columns={'ENTREZID':'entrez_id'})
+    improve_mapped_cn_df = improve_mapped_cn_df.astype({'entrez_id':'int','improve_sample_id':'int'})
+    improve_mapped_cn_df = improve_mapped_cn_df[['entrez_id','copy_number','copy_call','study','source','improve_sample_id']]
+    
+    return(improve_mapped_cn_df)
