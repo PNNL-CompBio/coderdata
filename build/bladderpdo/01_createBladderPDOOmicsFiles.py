@@ -38,7 +38,7 @@ def get_bladder_pdo_transcriptomics(GEO_id_link_table, samples, genes):
     bladderpdo_url ='https://ftp.ncbi.nlm.nih.gov/geo/series/GSE103nnn/GSE103990/suppl/GSE103990_Normalized_counts.txt.gz'
     transcriptomic_txt = wget.download(bladderpdo_url)
     transcriptomics = pd.read_csv(transcriptomic_txt, compression='gzip', sep="\t")
-    subprocess.call (["/usr/local/bin/Rscript", "--vanilla", "obtainGSMidLink.R"])
+    subprocess.call (["/usr/bin/Rscript", "--vanilla", "obtainGSMidLink.R"])
 
     GEO_ids_link = pd.read_csv("./gsmlinkDf.csv")
     fpkm_totals = transcriptomics.iloc[:, 1:43].sum()
@@ -85,7 +85,7 @@ def get_bladder_pdo_copynumber(synObject, samples, genes):
     segfile_df = pd.read_csv(segfile.path, sep='\t')
 
     segfile_df.to_csv("bladder_segfile.csv")
-    subprocess.call (["/usr/local/bin/Rscript", "--vanilla", "CNV-segfile-annotation.R", "bladder_segfile.csv", "bladder_annotated_segfile.csv"])
+    subprocess.call (["/usr/bin/Rscript", "--vanilla", "CNV-segfile-annotation.R", "bladder_segfile.csv", "bladder_annotated_segfile.csv"])
     copynumber = pd.read_csv("bladder_annotated_segfile.csv")
     copynumber['copy_number'] = np.exp2(copynumber['score'].div(2))*2
     copynumber['copy_call'] = [get_copy_call(a) for a in copynumber['copy_number']]

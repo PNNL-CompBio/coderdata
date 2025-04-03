@@ -1,46 +1,63 @@
 FROM r-base:4.4.1
+
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update  --fix-missing
-#RUN apt-get install -y --fix-missing --allow-unauthenticated build-essential libpq-dev python3.10 python3-pip python3-setuptools python3-dev python3-venv libcurl4-openssl-dev libxml2-dev libglpk-dev
 
-# RUN apt-get install -y --fix-missing --allow-unauthenticated build-essential python3-pip python3-setuptools python3-dev python3-venv libcurl4-openssl-dev libglpk-dev libxml2-dev libpq-dev
+# Update package list and install required packages
+RUN apt-get update && \
+    apt-get install -y build-essential wget curl libcurl4-openssl-dev libxml2-dev \
+    zlib1g-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev
 
-RUN apt-get install -y --fix-missing --allow-unauthenticated \
-    build-essential \
-    python3-pip \
-    python3-setuptools \
-    python3-dev \
-    python3-venv \
-    libcurl4-openssl-dev \
-    libglpk-dev \
-    libxml2-dev \
-    libpq-dev \
-    ca-certificates
+# Download and compile Python 3.10 with shared library support
+RUN wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz && \
+    tar -xf Python-3.10.12.tgz && \
+    cd Python-3.10.12 && \
+    ./configure --enable-optimizations --enable-shared && \
+    make -j$(nproc) && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-3.10.12.tgz Python-3.10.12
 
-RUN python3 -m venv /opt/venv
-RUN /opt/venv/bin/pip3 install --upgrade pip
+# Set Python 3.10 as default
+RUN ln -s /usr/local/bin/python3.10 /usr/bin/python3 && \
+    ln -s /usr/local/bin/pip3.10 /usr/bin/pip3
 
+# Update library paths for Python shared library
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/python3.10.conf && ldconfig
 
-# Set MPLCONFIGDIR to a writable directory
+# Create a Python virtual environment
+#RUN python3 -m venv /opt/venv
+#RUN /opt/venv/bin/pip install --upgrade pip
+
+# Set environment variables for reticulate
+#ENV RETICULATE_PYTHON="/opt/venv/bin/python3"
+ENV PYTHONPATH=/app#"${PYTHONPATH}:/app"
+WORKDIR /app
+
+# Set MPLCONFIGDIR to a writable directory and create it.
 ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
 
-ENV PYTHONPATH "${PYTHONPATH}:/app"
-WORKDIR /app
+ADD build/bladderpdo/requirements.R .
+# installing r libraries
+RUN Rscript requirements.R
 
-ADD build/broad_sanger/obtainGSMidLink.R.R ./
-ADD build/broad_sanger/CNV-segfile-annotation.R ./
-ADD build/broad_sanger/*py ./
-ADD build/broad_sanger/*sh ./
+
+
+# installing python libraries
+ADD build/bladderpdo/requirements.txt .
+#RUN /opt/venv/bin/pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt
+
+RUN python3 --version
+RUN which Rscript
+
+#ENV PATH="/opt/venv/bin:$PATH"
+
+ADD build/bladderpdo/obtainGSMidLink.R ./
+ADD build/bladderpdo/CNV-segfile-annotation.R ./
+ADD build/bladderpdo/*py ./
+ADD build/bladderpdo/*sh ./
 
 ADD build/utils/* ./
 
-ADD build/bladderpdo/requirements.txt .
-ADD build/bladderpdo/exp_requirements.r .
-
-# installing r libraries
-RUN Rscript exp_requirements.r
-
-# installing python libraries
-RUN /opt/venv/bin/pip3 install -r requirements.txt

@@ -4,9 +4,9 @@ import numpy as np
 import argparse
 import os
 # for testing locally
-from utils.pubchem_retrieval import update_dataframe_and_write_tsv
+#from utils.pubchem_retrieval import update_dataframe_and_write_tsv
 # for building in docker
-#from pubchem_retrieval import update_dataframe_and_write_tsv
+from pubchem_retrieval import update_dataframe_and_write_tsv
 
 
 def create_bladder_pdo_drugs_file(synObject, prevDrugFilepath, outputPath):
@@ -39,7 +39,7 @@ def create_bladder_pdo_drugs_file(synObject, prevDrugFilepath, outputPath):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="This script handles downloading, processing and formatting of drug data files for the Lee Bladder PDO project")
-    parser.add_argument('-d', '--prevDrugFilePath', help='Path to a previous drug file for sarcpdo', default = None)
+    parser.add_argument('-d', '--prevDrugFilePath', help='Path to a previous drug file for sarcpdo', nargs="?", default = None)
     parser.add_argument('-o', '--outputPath', help='Output path for updated sarcpdo drug file', default = "/tmp/sarcpdo_drugs.tsv") 
     parser.add_argument('-t', '--token', help='Synapse token')
 
@@ -47,4 +47,8 @@ if __name__ == "__main__":
     print("Logging into Synapse")
     PAT = args.token
     synObject = synapseclient.login(authToken=PAT)
-    create_bladder_pdo_drugs_file(synObject, args.prevDrugFilePath, args.outputPath)
+    if args.prevDrugFilePath:
+        previousDrugs = args.prevDrugFilePath
+    else:
+        previousDrugs = None
+    create_bladder_pdo_drugs_file(synObject, previousDrugs, args.outputPath)

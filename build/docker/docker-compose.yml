@@ -71,7 +71,7 @@ services:
     platform: linux/amd64
     image: cptac:latest
 
-   bladderpdo:
+  bladderpdo:
     build:
       context: ../../
       dockerfile: build/docker/Dockerfile.bladderpdo

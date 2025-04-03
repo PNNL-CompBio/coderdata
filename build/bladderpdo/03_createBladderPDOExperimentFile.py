@@ -1,13 +1,14 @@
 import synapseclient
 import pandas as pd
+import argparse
 
 
 def get_bladder_pdo_experiments(synObject, samples, drugs):
     # get list of syn id info
-    files = list(syn.getChildren(parent='syn64765430', includeTypes=['file']))
+    files = list(synObject.getChildren(parent='syn64765430', includeTypes=['file']))
     # load sample sheet and format _ to .
     # load conversion table and remove trailing _T
-    conversion_table = syn.get(files[50]['id'])
+    conversion_table = synObject.get(files[50]['id'])
     conversion_table_df = pd.read_excel(conversion_table.path, header=None)
     conversion_table_df[2] = conversion_table_df[1].str.rsplit("_", expand=True)[0]#.replace(".", "_")
     conversion_table_df[3] = conversion_table_df[2].str.replace(".", "_")
@@ -17,7 +18,7 @@ def get_bladder_pdo_experiments(synObject, samples, drugs):
     drug_df = pd.DataFrame()
     # for each drug, 
     for i in range(len(files)-4):
-        drug_table_syn =syn.get(files[i]['id'])
+        drug_table_syn =synObject.get(files[i]['id'])
         drug_table = pd.read_csv(drug_table_syn.path, sep="\t")
     # melt
     # link to conversion table
@@ -54,7 +55,7 @@ def get_bladder_pdo_experiments(synObject, samples, drugs):
 
 if __name__ == "__main__": 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t' '--token', help='Synapse authentication token')
+    parser.add_argument('-t', '--token', help='Synapse authentication token')
     parser.add_argument('-s', '--curSampleFile', help='Sample mapping file for bladder pdo samples')
     parser.add_argument('-d', '--drugfile', help='Drug mapping file for bladder pdo samples')
     parser.add_argument('-o', '--output', default = '/tmp/bladderpdo_doserep.tsv',help='Output file to be read into curve fitting code')

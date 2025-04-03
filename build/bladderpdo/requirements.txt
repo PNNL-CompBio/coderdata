@@ -7,10 +7,10 @@ scikit-learn
 mordredcommunity
 rdkit
 wget
-gzip
-subprocess
-math
+#gzip
+#subproce
+#math
 tqdm
-itertools
+#itertools
 scipy
-multiprocessing
+openpyxl
