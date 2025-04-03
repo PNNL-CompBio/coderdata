@@ -97,14 +97,20 @@ def generate_sample_file(sequencing_data_path:str = None, prev_samples_path:str 
     # reading in previous sample file 
     if prev_samples_path != "":
         prev_samples = pd.read_csv(prev_samples_path)
+
+    # reading in rucurent mutation info
     recurrent_tumor = pd.DataFrame({'other_id':recurrent_mutations['Tumor_Sample_Barcode'].str.split('-',n = 1,expand=True).iloc[:,1].unique()})
     recurrent_normal = pd.DataFrame({'other_id':recurrent_mutations['Matched_Norm_Sample_Barcode'].str.split('-',n = 1,expand=True).iloc[:,1].unique()})
-    
+
     # merging somatic organoids too just in case recurrent excludes some
     somatic_tumor = pd.DataFrame({'other_id':somatic_mutations['Tumor_Sample_Barcode'].str.split('-',n = 1,expand=True).iloc[:,1].unique()})
     somatic_normal = pd.DataFrame({'other_id':somatic_mutations['Matched_Norm_Sample_Barcode'].str.split('-',n = 1,expand=True).iloc[:,1].unique()})
-    samples_df = pd.concat([recurrent_tumor,recurrent_normal, somatic_tumor, somatic_normal])
-    
+
+    # also merging from segmented CN bc the other two exclude P18 Tumor biopsy
+    copy_num_patients = pd.DataFrame({'other_id':copy_num['Sample'].str.split('.',n = 1,expand=True).iloc[:,1].str.replace(".","-").unique()})
+
+    samples_df = pd.concat([recurrent_tumor,recurrent_normal, somatic_tumor, somatic_normal,copy_num_patients])
+
     # formatting the table
     samples_df = samples_df.drop_duplicates('other_id')
     samples_df = samples_df.reset_index()
