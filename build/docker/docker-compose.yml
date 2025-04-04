@@ -61,6 +61,7 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: mpnstpdx:latest
+
   cptac:
     build:
       context: ../../
@@ -69,6 +70,15 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: cptac:latest
+
+  bladderpdo:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.bladderpdo
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: bladderpdo:latest
 
   genes:
     build:
