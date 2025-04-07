@@ -133,7 +133,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             datasets_to_build.extend(dataset_map.get(dataset, []))
         
         # Build the docker-compose command, adding specific datasets
-        compose_command = ['docker', 'compose', '-f', compose_file, 'build', '--parallel'] + datasets_to_build
+        compose_command = ['docker-compose', '-f', compose_file, 'build', '--parallel'] + datasets_to_build
         
         log_file_path = 'local/docker.log'
         env = os.environ.copy()
