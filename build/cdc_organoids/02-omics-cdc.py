@@ -209,11 +209,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='###')
 
     # arguments for file paths
-    parser.add_argument('-e', '--excel', type=str, default=None, help='Path to excel spreadsheet that contains mutations and copy number data. From https://www.cell.com/cell/fulltext/S0092-8674(15)00373-6#mmc2')
-    parser.add_argument('-c', '--counts', type=str, default=None, help='Path to transcriptomics counts csv. From https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE65253&format=file&file=GSE65253%5Fcol%5Ftum%5Forg%5Fmerge%2Ecsv%2Egz')
     parser.add_argument('-g', '--genes', type=str, default=None, help='Path to transcriptomics genes.csv.  Can be obtained using this docker container: https://github.com/PNNL-CompBio/coderdata/blob/0225c52b861dcd6902521228731c54a61768bcd6/build/genes/README.md#L4')
     parser.add_argument('-i', '--ids', type=str, default=None, help='Path to sample Ids')
 
+    # arguments for what data to process
     parser.add_argument('-P', '--parse', action = 'store_true', default=False, help='Parse excel file with data')
     parser.add_argument('-T', '--transcriptomics', action = 'store_true', default=False, help='Generate transcriptomics data')
     parser.add_argument('-M', '--mutations', action = 'store_true', default=False, help='Generate mutations data')
@@ -234,9 +233,6 @@ if __name__ == "__main__":
 
 
     if args.transcriptomics:
-        if args.counts is None or args.counts=='':
-            print("No counts data provided. Exiting script.")
-            exit()
         if args.genes is None or args.genes=='':
             print("No genes data provided. Exiting script.")
             exit()
