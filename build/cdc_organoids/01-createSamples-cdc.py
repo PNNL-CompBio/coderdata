@@ -36,7 +36,6 @@ def download_rnaseq(geo_url:str = "https://www.ncbi.nlm.nih.gov/geo/download/?ac
     response = requests.get(geo_url)
     with open(save_path, 'wb') as f:
         f.write(response.content)
-    return
 
 def download_sequencing_data(synID:str , save_path:str = None, synToken:str = None):
     """ 
@@ -68,7 +67,7 @@ def download_sequencing_data(synID:str , save_path:str = None, synToken:str = No
 
     # Get the path to the local copy of the data file 
     sequencing_filepath = syn64961953.path
-    return sequencing_filepath
+    return(sequencing_filepath)
 
 def generate_sample_file(sequencing_data_path:str = None, prev_samples_path:str = "") -> pd.DataFrame:
     """
