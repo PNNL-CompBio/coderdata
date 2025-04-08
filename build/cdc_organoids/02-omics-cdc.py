@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import math
+import argparse
 
 def parse_mmc2(mmc2_excel_path):
     """
@@ -203,3 +204,71 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     improve_mapped_cn_df = improve_mapped_cn_df[['entrez_id','copy_number','copy_call','study','source','improve_sample_id']]
     
     return(improve_mapped_cn_df)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='###')
+
+    # arguments for file paths
+    parser.add_argument('-e', '--excel', type=str, default=None, help='Path to excel spreadsheet that contains mutations and copy number data. From https://www.cell.com/cell/fulltext/S0092-8674(15)00373-6#mmc2')
+    parser.add_argument('-c', '--counts', type=str, default=None, help='Path to transcriptomics counts csv. From https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE65253&format=file&file=GSE65253%5Fcol%5Ftum%5Forg%5Fmerge%2Ecsv%2Egz')
+    parser.add_argument('-g', '--genes', type=str, default=None, help='Path to transcriptomics genes.csv.  Can be obtained using this docker container: https://github.com/PNNL-CompBio/coderdata/blob/0225c52b861dcd6902521228731c54a61768bcd6/build/genes/README.md#L4')
+    parser.add_argument('-i', '--ids', type=str, default=None, help='Path to sample Ids')
+
+    parser.add_argument('-P', '--parse', action = 'store_true', default=False, help='Parse excel file with data')
+    parser.add_argument('-T', '--transcriptomics', action = 'store_true', default=False, help='Generate transcriptomics data')
+    parser.add_argument('-M', '--mutations', action = 'store_true', default=False, help='Generate mutations data')
+    parser.add_argument('-C', '--copy_number', action = 'store_true', default=False, help='Generate copy number data')
+
+    args = parser.parse_args()
+
+
+    ###########################
+
+    if args.parse:
+        print("Parsing excel file.")
+        # Download parse excel file to get mutation data and the copy num data
+        mutation_df, copy_num_df = parse_mmc2("/tmp/mmc2.xlsx")
+        # Save mutation and copy number data into csv format
+        mutation_df.to_csv("/tmp/mutation_data.csv")
+        copy_num_df.to_csv("/tmp/copy_num_data.csv")
+
+
+    if args.transcriptomics:
+        if args.counts is None or args.counts=='':
+            print("No counts data provided. Exiting script.")
+            exit()
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting transcriptomics data.")
+            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/GSE65253_col_tum_org_merge.csv.gz", improve_id_data = "/tmp/cdc_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df.to_csv("/tmp/cdc_organoids_transcriptomics.csv", index=False)
+    
+    if args.mutations:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting mutations data.")
+            mutation_df = map_mutations(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/cdc_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/cdc_organoids_mutations.csv", index=False)
+    
+    if args.copy_number:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting copy number data.")
+            mutation_df = map_copy_number(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/cdc_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/cdc_organoids_copynumber.csv", index=False)
+    
