@@ -172,7 +172,7 @@ if __name__ == "__main__":
             # Download RNA seq data
             download_rnaseq(save_path = "/tmp/GSE65253_col_tum_org_merge.csv.gz")
             # Download sequencing data
-            sequencing_download_path = download_sequencing_data(synID = args.synapseID, synToken = args.token, save_path = "/tmp/GSE65253_col_tum_org_merge.csv.gz")
+            sequencing_download_path = download_sequencing_data(synID = args.synapseID, synToken = args.token, save_path = "/tmp/mmc2.xlsx")
 
     if args.samples:
         if args.prevSamples is None or args.prevSamples=='':
