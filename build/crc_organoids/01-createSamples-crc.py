@@ -180,6 +180,6 @@ if __name__ == "__main__":
         else:
             print("Previous sample sheet {} detected. Running sample file generation and checking for duplicate IDs.".format(args.prevSamples))
             sample_sheet = generate_sample_file(sequencing_data_path = sequencing_download_path, prev_samples_path= args.prevSamples)
-        sample_sheet.to_csv("/tmp/cdc_samples.csv")
+        sample_sheet.to_csv("/tmp/crc_samples.csv")
     
 

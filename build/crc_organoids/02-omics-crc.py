@@ -241,8 +241,8 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting transcriptomics data.")
-            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/GSE65253_col_tum_org_merge.csv.gz", improve_id_data = "/tmp/cdc_samples.csv", entrez_data = "/tmp/genes.csv")
-            transcriptomics_df.to_csv("/tmp/cdc_organoids_transcriptomics.csv", index=False)
+            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/GSE65253_col_tum_org_merge.csv.gz", improve_id_data = "/tmp/crc_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df.to_csv("/tmp/crc_organoids_transcriptomics.csv", index=False)
     
     if args.mutations:
         if args.genes is None or args.genes=='':
@@ -253,8 +253,8 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting mutations data.")
-            mutation_df = map_mutations(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/cdc_samples.csv", entrez_data = "/tmp/genes.csv")
-            mutation_df.to_csv("/tmp/cdc_organoids_mutations.csv", index=False)
+            mutation_df = map_mutations(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/crc_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/crc_organoids_mutations.csv", index=False)
     
     if args.copy_number:
         if args.genes is None or args.genes=='':
@@ -265,6 +265,6 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting copy number data.")
-            mutation_df = map_copy_number(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/cdc_samples.csv", entrez_data = "/tmp/genes.csv")
-            mutation_df.to_csv("/tmp/cdc_organoids_copynumber.csv", index=False)
+            mutation_df = map_copy_number(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/crc_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/crc_organoids_copynumber.csv", index=False)
     

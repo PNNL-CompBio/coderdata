@@ -3,9 +3,11 @@ import numpy as np
 import os
 import math
 import argparse
+import synapseclient 
+from pubchem_retrieval import update_dataframe_and_write_tsv
 
 ### get drug data
-def download_synapse_data(synID:str , save_path:str = None, synToken:str = None):
+def download_synapse_data(synID:str, save_path:str = None, synToken:str = None):
     """ 
     Download drug data from Synapse. Requires a synapse token, which requires you to make a Synapse account
     and create a Personal Access Token.  More information here: https://help.synapse.org/docs/Managing-Your-Account.2055405596.html#ManagingYourAccount-PersonalAccessTokens 
@@ -39,10 +41,22 @@ def download_synapse_data(synID:str , save_path:str = None, synToken:str = None)
 
 
 ### create drug csv
-def make_drug_data():
-
-
-    return()
+def create_crc_drug_data(fitted_drug_data_path:str, prevDrugFilepath:str, output_drug_data_path:str):
+    # import fitted drug data and get drug names from DRUG_NAME column
+    fitted_drug_df = pd.read_csv(fitted_drug_data_path)
+    crc_drugs_df = pd.DataFrame(fitted_drug_df['DRUG_NAME'].unique())
+    # if there is a prev drug file, check for new drugs
+    if prevDrugFilepath is not None and prevDrugFilepath is not "":
+        prev_drug_df = pd.read_csv(prevDrugFilepath)
+        # get drugs that are only in the crc_drugs_df (aka new drugs only)
+        new_drugs_df = crc_drugs_df[~crc_drugs_df.chem_name.isin(prev_drug_df.chem_name)]
+    else:
+        # if there's no prev drugs, then all drugs are new
+        new_drugs_df = crc_drugs_df
+    # get new drug names
+    new_drug_names = new_drugs_df['chem_name'].unique()
+    # call function that gets info for these drugs
+    update_dataframe_and_write_tsv(new_drug_names,output_drug_data_path)
 
 
 ###
@@ -67,7 +81,5 @@ if __name__ == "__main__":
         else:
             print("Downloading Files from Synapse.")
             # download fitted and raw drug data from synapse
-            fitted_drug_data_path = download_synapse_data(synID = fitted_drug_data_synID, save_path = "/tmp/fitted_drug_data.csv", synToken = "syn65452841")
-            raw_drug_data_path = download_synapse_data(synID = raw_drug_data_synID, save_path = "/tmp/raw_drug_data.csv", synToken = "syn65452842")
-
- 
+            fitted_drug_data_path = download_synapse_data(synID = "syn65452841", save_path = "/tmp/", synToken = args.token)
+            raw_drug_data_path = download_synapse_data(synID = "syn65452842", save_path = "/tmp/", synToken = args.token)
