@@ -59,27 +59,36 @@ def create_crc_drug_data(fitted_drug_data_path:str, prevDrugFilepath:str, output
     update_dataframe_and_write_tsv(new_drug_names,output_drug_data_path)
 
 
-###
+############################
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='###')
 
     # arguments for what data to process
-    parser.add_argument('-D', '--download', action = 'store_true', default=False, help='Download drug data.')
-    parser.add_argument('-t', '--token', type=str, default=None, help='Synapse Token')
+    parser.add_argument('-d', '--Download', action = 'store_true', default=False, help='Download drug data.')
+    parser.add_argument('-t', '--Token', type=str, default=None, help='Synapse Token')
+    parser.add_argument('-D', '--Drug', action = 'store_true', default=False, help='Generate drug data.')
+    parser.add_argument('-p', '--PrevDrugs', type=str, default=None, help='Synapse Token')
 
     args = parser.parse_args()
 
 
     ###########################
 
-    if args.download:
-        if args.token is None:
+    if args.Download:
+        if args.Token is None:
             print("No synpase download tocken was provided. Cannot download data.")
             exit()
         else:
             print("Downloading Files from Synapse.")
             # download fitted and raw drug data from synapse
-            fitted_drug_data_path = download_synapse_data(synID = "syn65452841", save_path = "/tmp/", synToken = args.token)
-            raw_drug_data_path = download_synapse_data(synID = "syn65452842", save_path = "/tmp/", synToken = args.token)
+            fitted_drug_data_path = download_synapse_data(synID = "syn65452841", save_path = "/tmp/", synToken = args.Token)
+    if args.Drug:
+        if args.PrevDrugs is None or args.PrevDrugs=='':
+            print("No previous drugs file provided.  Starting improve_drug_id from SMI_1. Running drug file generation")
+            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", output_drug_data_path = "/tmp/crc_drugs.csv")
+        else:
+            print("Previous drugs file {} detected. Running drugs file generation and checking for duplicate IDs.".format(args.PrevDrugs))
+            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/crc_drugs.csv")
+
