@@ -48,9 +48,6 @@ def main():
 
     full[['study']] = 'DepMap'
     full[['source']] = 'Broad'
-    ##now save to separate files
-    full.dropna(axis=0)
-    full.to_csv('/tmp/broad_proteomics.csv.gz', index=False, compression='gzip')
 
 
     ##now get sanger
@@ -72,9 +69,9 @@ def main():
     full2.loc[:,['study']] = 'Sanger'
     full2.loc[:,['source']] = 'Sanger'
     
-    #full3 = pd.concat([full,full2])
-    #print(full3)
-    full2.dropna(axis=0)
-    full2.to_csv('/tmp/sanger_proteomics.csv.gz',index=False, compression='gzip')
+    full3 = pd.concat([full,full2])
+    print(full3)
+    full3.dropna(axis=0)
+    full3.to_csv('/tmp/broad_sanger_proteomics.csv.gz',index=False, compression='gzip')
     
 main()

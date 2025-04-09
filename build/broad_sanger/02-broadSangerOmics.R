@@ -206,7 +206,8 @@ sanger_files<-function(fi,value){
       samps<-samps[-c(1:2),]|>as.data.frame()|>
         tibble::rownames_to_column('other_id')|>
         left_join(sanger_samples)|>
-        dplyr::rename(source='data_source',study='dataset_name')
+        dplyr::rename(source='data_source',study='dataset_name') %>%
+        mutate(source = "Sanger")
 
       missing<-subset(samps,is.na(improve_sample_id))|>
         dplyr::select(-c(other_id,improve_sample_id))|>
@@ -566,11 +567,8 @@ main<-function(){
     lapply(alltypes,function(dt){
         print(dt)
         temps<-sanger_files(sanger_filenames[[dt]],dt)|>tidyr::drop_na()
-        readr::write_csv(temps,file=paste0('/tmp/sanger_',dt,'.csv.gz'))
         tempd<-depmap_files(depmap_filenames[[dt]],dt)|>tidyr::drop_na()
-        readr::write_csv(tempd,file=paste0('/tmp/broad_',dt,'.csv.gz'))
-
-#        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv.gz'))
+        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv.gz'))
         rm(tempd)
         rm(temps)
     })
@@ -578,4 +576,3 @@ main<-function(){
 }
 
 main()
-
