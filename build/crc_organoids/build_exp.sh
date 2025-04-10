@@ -9,3 +9,6 @@ python 04-experiments-crc.py --Download --Experiment --token $SYNAPSE_AUTH_TOKEN
 
 # running the drug descriptor python script
 python fit_curve.py --input /tmp/crc_experiments_for_curve_fitting.tsv --output /tmp/crc_doserep.tsv
+
+# for some reason, the fit_curve.py script always outputs with .0 at the end, so remove that
+mv /tmp/crc_doserep.tsv.0 crc_doserep.tsv
