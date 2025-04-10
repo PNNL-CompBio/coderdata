@@ -87,8 +87,8 @@ if __name__ == "__main__":
     if args.Drug:
         if args.PrevDrugs is None or args.PrevDrugs=='':
             print("No previous drugs file provided.  Starting improve_drug_id from SMI_1. Running drug file generation")
-            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", output_drug_data_path = "/tmp/crc_drugs.csv")
+            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", output_drug_data_path = "/tmp/crc_drugs.tsv")
         else:
             print("Previous drugs file {} detected. Running drugs file generation and checking for duplicate IDs.".format(args.PrevDrugs))
-            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/crc_drugs.csv")
+            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/crc_drugs.tsv")
 
