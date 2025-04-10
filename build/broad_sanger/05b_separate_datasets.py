@@ -77,15 +77,11 @@ def main():
         #One by one, filter other Omics files, write to file, delete from mem.
         for omics in omics_datatypes:
             ds = dataset_sources[dataset][0]
-            print(f"ds: {ds}")
             omics_filename_in = f"{ds}_{omics}.csv"
-            print(f"omics_filename_in: {omics_filename_in}")
             if os.path.isfile(omics_filename_in + ".gz"):
                 omics_filename_in += ".gz"
-            print(f"omics_filename_in: {omics_filename_in}")
                 
             omics_filename_out = f"/tmp/{dataset}_{omics}.csv".lower()
-            print(f"omics_filename_out: {omics_filename_out}")
             omics_df = pl.read_csv(omics_filename_in)
             omics_df = omics_df.filter(pl.col("improve_sample_id").is_in(exp_improve_sample_ids))
 #            omics_df = omics_df.filter(pl.col("source").is_in(dataset_sources[dataset]))
