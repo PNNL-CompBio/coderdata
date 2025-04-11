@@ -288,8 +288,9 @@ def main():
         exit()
         
     # Remove the old values in samples (from prev file)
-    samples.drop(samples.index,inplace=True)
-    
+    if 'other_id_source' in samples.columns:
+        samples = samples[samples['other_id_source'] == 'CPTAC3'].copy()
+        
     # Create new samples
     if build_samples:
         # Loop through the cancer types to build samples
