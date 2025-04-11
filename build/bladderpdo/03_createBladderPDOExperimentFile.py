@@ -48,9 +48,9 @@ def get_bladder_pdo_experiments(synObject, samples, drugs):
         final_drugdata['time_unit'] = 'days'
         #print(final_drugdata.head)
         # append to dataframe
-        dose_resp_df = pd.concat([drug_df, final_drugdata])
+        drug_df = pd.concat([drug_df, final_drugdata])
     
-    return dose_resp_df
+    return drug_df
 
 
 if __name__ == "__main__": 

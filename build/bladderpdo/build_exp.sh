@@ -6,4 +6,4 @@ trap 'echo "Error on or near line $LINENO while executing: $BASH_COMMAND"; exit 
 echo "Running 04-drug_dosage_and_curves.py with drugfile $2 and curSampleFile $1"
 python3 03_createBladderPDOExperimentFile.py --token $SYNAPSE_AUTH_TOKEN --drugfile $2 --curSampleFile $1 --output /tmp/bladderpdo_doserep.tsv
 
-python3 fit_curve.py --input /tmp/bladderpdo_doserep.tsv --output /tmp/bladderpdo_doserep.tsv
+python3 fit_curve.py --input /tmp/bladderpdo_doserep.tsv --output /tmp/bladderpdo_experiments.tsv
