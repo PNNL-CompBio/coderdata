@@ -256,7 +256,7 @@ def upload_to_figshare(token, title, directory, project_id, publish, version, ar
         print("Files uploaded successfully but not published.")
         
     if all_files_uploaded:
-        write_figshare_details_to_yaml(article_id, project_id,title, version)
+        write_figshare_details_to_yaml(article_id, project_id, title, version)
 
 def main():
     parser = argparse.ArgumentParser(description='Upload files to Figshare.')
