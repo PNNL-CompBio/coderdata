@@ -199,7 +199,7 @@ def upload_to_figshare(token, title, directory, project_id, publish, version, ar
             data = yaml.safe_load(f)
         data["figshare"] = f"https://api.figshare.com/v2/articles/{article_id}"
         data["version"] = version
-        with open("/tmp/dataset.yml", "w") as f:
+        with open('/tmp/dataset.yml', 'w') as f:
             yaml.safe_dump(data, f, sort_keys=False)       
              
         
