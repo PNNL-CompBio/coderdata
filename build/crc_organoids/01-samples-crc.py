@@ -92,6 +92,7 @@ def generate_sample_file(sequencing_data_path:str = None, prev_samples_path:str 
     sequencing_excel = pd.ExcelFile(open(sequencing_data_path, 'rb'))
     recurrent_mutations = pd.read_excel(sequencing_excel, 'TableS1I_Recurrent mutations') # table with recurrent mutation information 
     somatic_mutations = pd.read_excel(sequencing_excel, 'TableS1J-Somatic mutations') # table with somatic mutation information 
+    copy_num = pd.read_excel(excel, 'TableS1D-Segmented_CN') 
     
     # reading in previous sample file 
     if prev_samples_path != "":
@@ -180,6 +181,6 @@ if __name__ == "__main__":
         else:
             print("Previous sample sheet {} detected. Running sample file generation and checking for duplicate IDs.".format(args.prevSamples))
             sample_sheet = generate_sample_file(sequencing_data_path = sequencing_download_path, prev_samples_path= args.prevSamples)
-        sample_sheet.to_csv("/tmp/crc_samples.csv")
+        sample_sheet.to_csv("/tmp/crc_samples.csv", index=False)
     
 
