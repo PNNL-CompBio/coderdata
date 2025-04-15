@@ -92,7 +92,7 @@ def generate_sample_file(sequencing_data_path:str = None, prev_samples_path:str 
     sequencing_excel = pd.ExcelFile(open(sequencing_data_path, 'rb'))
     recurrent_mutations = pd.read_excel(sequencing_excel, 'TableS1I_Recurrent mutations') # table with recurrent mutation information 
     somatic_mutations = pd.read_excel(sequencing_excel, 'TableS1J-Somatic mutations') # table with somatic mutation information 
-    copy_num = pd.read_excel(excel, 'TableS1D-Segmented_CN') 
+    copy_num = pd.read_excel(sequencing_excel, 'TableS1D-Segmented_CN') 
     
     # reading in previous sample file 
     if prev_samples_path != "":
@@ -122,7 +122,7 @@ def generate_sample_file(sequencing_data_path:str = None, prev_samples_path:str 
             samples_df.loc[index, 'model_type'] = "organoid"
         if "Tumor-Biopsy" in samples_df.loc[index, 'other_id']:
             samples_df.loc[index, 'common_name'] = samples_df.loc[index, 'common_name'] + "T-B"
-            samples_df.loc[index, 'model_type'] = "biopsy"
+            samples_df.loc[index, 'model_type'] = "ex vivo"
         if "Normal-Organoid" in samples_df.loc[index, 'other_id']:
             samples_df.loc[index, 'common_name'] = samples_df.loc[index, 'common_name'] + "N-O"
             samples_df.loc[index, 'model_type'] = "organoid"
