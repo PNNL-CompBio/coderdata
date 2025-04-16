@@ -87,3 +87,12 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: upload:latest
+
+  crc_organoids:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.crc_organoids
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: crc_organoids:latest
