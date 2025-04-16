@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import wget
 import os
 import gzip
 import requests
