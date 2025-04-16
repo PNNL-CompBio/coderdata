@@ -1,0 +1,17 @@
+pandas
+numpy==1.23
+os
+gzip
+requests
+argparse
+synapseclient 
+math
+time
+threading
+signal
+rdkit
+mordred
+multiprocessing
+tqdm
+itertools
+scikit-learn
