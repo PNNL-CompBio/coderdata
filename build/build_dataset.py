@@ -45,7 +45,8 @@ def process_docker(dataset,validate):
         'pancpdo': ['pancpdo'],
         'cptac': ['cptac'],
         'genes': ['genes'],
-        'upload': ['upload']
+        'upload': ['upload'],
+        'crc_organoids': ['crc_organoids']
     }
 
     # Collect container names to build based on the dataset provided. Always build 'genes'.
@@ -125,7 +126,8 @@ def process_omics(executor, dataset, should_continue):
         'cptac': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'hcmi': ['mutations', 'transcriptomics'],
         'pancpdo': ['transcriptomics'],
-        'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics']
+        'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
+        'crc_organoids':['copy_number', 'mutations', 'transcriptomics']
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])
