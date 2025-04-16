@@ -92,7 +92,7 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
 
     # read in data
     if isinstance(transciptomics_data, pd.DataFrame) == False:
-        transciptomics_data = pd.read_csv(transciptomics_data)
+        transciptomics_data = pd.read_csv(transciptomics_data, sep='\t')
 
     if isinstance(improve_id_data, pd.DataFrame) == False:
         improve_id_data = pd.read_csv(improve_id_data)
