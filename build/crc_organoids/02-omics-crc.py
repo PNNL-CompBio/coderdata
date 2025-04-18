@@ -103,13 +103,13 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
     # move row names to a column called "stable_id" and format gene names to remove the chromosome num
     transciptomics_data['stable_id'] = transciptomics_data.index
     transciptomics_data['stable_id'] = transciptomics_data['stable_id'].str.split('__',n = 1,expand=True).iloc[:,0]
-    transciptomics_data.to_csv("counts_for_tpm_conversion.csv")
+    transciptomics_data.to_csv("/tmp/counts_for_tpm_conversion.csv")
 
     # run tpmFromCounts.py to convert counts to tpm
-    os.system("python tpmFromCounts.py --counts counts_for_tpm_conversion.csv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file transcriptomics_tpm.tsv")
+    os.system("python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.csv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
     
     # get output from script (in tsv format) and average across organoids from each patient ]
-    tpm_transciptomics_data = pd.read_csv("transcriptomics_tpm.tsv", sep="\t")
+    tpm_transciptomics_data = pd.read_csv("/tmp/transcriptomics_tpm.tsv", sep="\t")
     tpm_transciptomics_data.index = tpm_transciptomics_data['stable_id']
     tpm_transciptomics_data = tpm_transciptomics_data.drop(columns=['stable_id'])
     transpose_transcriptomics = tpm_transciptomics_data.T
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     if args.parse:
         print("Parsing excel file.")
         # Download parse excel file to get mutation data and the copy num data
-        mutation_df, copy_num_df = parse_mmc2("/tmp/mmc2.xlsx")
+        mutation_df, copy_num_df = parse_mmc2("/tmp/mmc2.xlsx/mmc2.xlsx")
         # Save mutation and copy number data into csv format
         mutation_df.to_csv("/tmp/mutation_data.csv")
         copy_num_df.to_csv("/tmp/copy_num_data.csv")
@@ -241,7 +241,7 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting transcriptomics data.")
-            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/GSE65253_col_tum_org_merge.csv.gz", improve_id_data = "/tmp/crc_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/GSE65253_col_tum_org_merge.csv.gz", improve_id_data = "/tmp/crc_organoids_samples.csv", entrez_data = "/tmp/genes.csv")
             transcriptomics_df.to_csv("/tmp/crc_organoids_transcriptomics.csv", index=False)
     
     if args.mutations:
@@ -253,7 +253,7 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting mutations data.")
-            mutation_df = map_mutations(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/crc_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df = map_mutations(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/crc_organoids_samples.csv", entrez_data = "/tmp/genes.csv")
             mutation_df.to_csv("/tmp/crc_organoids_mutations.csv", index=False)
     
     if args.copy_number:
@@ -265,6 +265,6 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting copy number data.")
-            mutation_df = map_copy_number(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/crc_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df = map_copy_number(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/crc_organoids_samples.csv", entrez_data = "/tmp/genes.csv")
             mutation_df.to_csv("/tmp/crc_organoids_copynumber.csv", index=False)
     

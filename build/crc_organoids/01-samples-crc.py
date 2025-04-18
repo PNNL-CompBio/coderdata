@@ -171,7 +171,7 @@ if __name__ == "__main__":
             # Download RNA seq data
             download_rnaseq(save_path = "/tmp/GSE65253_col_tum_org_merge.csv.gz")
             # Download sequencing data
-            sequencing_download_path = download_sequencing_data(synID = args.synapseID, synToken = args.token, save_path = "/tmp/mmc2.xlsx")
+            sequencing_download_path = download_sequencing_data(synID = args.synapseID, synToken = args.token, save_path = "/tmp")
 
     if args.samples:
         if args.prevSamples is None or args.prevSamples=='':
@@ -180,6 +180,6 @@ if __name__ == "__main__":
         else:
             print("Previous sample sheet {} detected. Running sample file generation and checking for duplicate IDs.".format(args.prevSamples))
             sample_sheet = generate_sample_file(sequencing_data_path = sequencing_download_path, prev_samples_path= args.prevSamples)
-        sample_sheet.to_csv("/tmp/crc_samples.csv", index=False)
+        sample_sheet.to_csv("/tmp/crc_organoids_samples.csv", index=False)
     
 

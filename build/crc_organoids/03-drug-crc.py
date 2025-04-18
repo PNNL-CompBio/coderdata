@@ -5,6 +5,8 @@ import math
 import argparse
 import synapseclient 
 from pubchem_retrieval import update_dataframe_and_write_tsv
+import warnings
+warnings.filterwarnings("ignore")
 
 ### get drug data
 def download_synapse_data(synID:str, save_path:str = None, synToken:str = None):
@@ -44,9 +46,9 @@ def download_synapse_data(synID:str, save_path:str = None, synToken:str = None):
 def create_crc_drug_data(fitted_drug_data_path:str, prevDrugFilepath:str, output_drug_data_path:str):
     # import fitted drug data and get drug names from DRUG_NAME column
     fitted_drug_df = pd.read_csv(fitted_drug_data_path)
-    crc_drugs_df = pd.DataFrame(fitted_drug_df['DRUG_NAME'].unique())
+    crc_drugs_df = pd.DataFrame(columns={"DRUG_NAME":fitted_drug_df['DRUG_NAME'].unique()})
     # if there is a prev drug file, check for new drugs
-    if prevDrugFilepath is not None and prevDrugFilepath is not "":
+    if prevDrugFilepath != None and prevDrugFilepath != "":
         prev_drug_df = pd.read_csv(prevDrugFilepath)
         # get drugs that are only in the crc_drugs_df (aka new drugs only)
         new_drugs_df = crc_drugs_df[~crc_drugs_df.chem_name.isin(prev_drug_df.chem_name)]
@@ -54,7 +56,7 @@ def create_crc_drug_data(fitted_drug_data_path:str, prevDrugFilepath:str, output
         # if there's no prev drugs, then all drugs are new
         new_drugs_df = crc_drugs_df
     # get new drug names
-    new_drug_names = new_drugs_df['chem_name'].unique()
+    new_drug_names = new_drugs_df['DRUG_NAME'].unique()
     # call function that gets info for these drugs
     update_dataframe_and_write_tsv(new_drug_names,output_drug_data_path)
 
@@ -69,7 +71,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--Download', action = 'store_true', default=False, help='Download drug data.')
     parser.add_argument('-t', '--Token', type=str, default=None, help='Synapse Token')
     parser.add_argument('-D', '--Drug', action = 'store_true', default=False, help='Generate drug data.')
-    parser.add_argument('-p', '--PrevDrugs', type=str, default=None, help='Synapse Token')
+    parser.add_argument('-p', '--PrevDrugs', nargs='?', type=str, default='', const='', help='Previous drug file')
 
     args = parser.parse_args()
 
@@ -87,8 +89,8 @@ if __name__ == "__main__":
     if args.Drug:
         if args.PrevDrugs is None or args.PrevDrugs=='':
             print("No previous drugs file provided.  Starting improve_drug_id from SMI_1. Running drug file generation")
-            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", output_drug_data_path = "/tmp/crc_drugs.tsv")
+            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", output_drug_data_path = "/tmp/crc_organoids_drugs.tsv", prevDrugFilepath = "")
         else:
             print("Previous drugs file {} detected. Running drugs file generation and checking for duplicate IDs.".format(args.PrevDrugs))
-            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/crc_drugs.tsv")
+            create_crc_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/crc_organoids_drugs.tsv")
 

@@ -5,4 +5,4 @@ trap 'echo "Error on or near line $LINENO while executing: $BASH_COMMAND"; exit 
 
 echo "Running 01-createSamples-crc.py with token and prevSamples $1."
 #   download the data and then create sample sheet  
-python 01-samples-crc.py  --download --samples --token $SYNAPSE_AUTH_TOKEN --prevSamples $1
+python3 01-samples-crc.py  --download --samples --token $SYNAPSE_AUTH_TOKEN --prevSamples $1
