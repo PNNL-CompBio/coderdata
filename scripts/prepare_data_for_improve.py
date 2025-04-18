@@ -149,6 +149,8 @@ def process_datasets(args):
     logger.info("importing datasets...")
     data_sets = {}
     for data_set in data_sets_info.keys():
+        if data_set == 'sarcpdo':
+            continue
         data_sets[data_set] = cd.load(name=data_set, local_path=local_path)
     logger.info("importing datasets... done")
 
@@ -159,6 +161,8 @@ def process_datasets(args):
     experiments = []
     logger.debug("creating list of datasets that contain experiment info ...")
     for data_set in data_sets_info.keys():
+        if data_set == 'sarcpdo':
+            continue
         # not all Datasets have experiments / drug response data
         if data_sets[data_set].experiments is not None:
             logger.debug(f"experiment data found for {data_set}")
@@ -644,6 +648,8 @@ def split_data_sets(
         random_seeds = [None] * args.NUM_SPLITS
 
     for data_set in data_sets_info.keys():
+        if data_set == 'sarcpdo':
+            continue
         if data_sets[data_set].experiments is not None:
             logger.info(f'creating splits for {data_set} ...')
             # getting "<DATASET>_all.txt"
