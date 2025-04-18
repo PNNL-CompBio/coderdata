@@ -968,21 +968,26 @@ def _filter(data: Dataset, split: pd.DataFrame) -> Dataset:
     # cd.samples -> reduce based on improve_sample_id
     # cd.transcriptomics -> reduce based on improve_sample_id
     
-    data_ret.drugs = data_ret.drugs[
-        data_ret.drugs['improve_drug_id'].isin(drug_ids)
-        ]
-    data_ret.mutations = data_ret.mutations[
-        data_ret.mutations['improve_sample_id'].isin(sample_ids)
-        ]
-    data_ret.proteomics = data_ret.proteomics[
-        data_ret.proteomics['improve_sample_id'].isin(sample_ids)
-        ]
-    data_ret.samples = data_ret.samples[
-        data_ret.samples['improve_sample_id'].isin(sample_ids)
-        ]
-    data_ret.transcriptomics = data_ret.transcriptomics[
-        data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
-        ]
+    if data_ret.drugs is not None:
+        data_ret.drugs = data_ret.drugs[
+            data_ret.drugs['improve_drug_id'].isin(drug_ids)
+            ]
+    if data_ret.mutations is not None:
+        data_ret.mutations = data_ret.mutations[
+            data_ret.mutations['improve_sample_id'].isin(sample_ids)
+            ]
+    if data_ret.proteomics is not None:
+        data_ret.proteomics = data_ret.proteomics[
+            data_ret.proteomics['improve_sample_id'].isin(sample_ids)
+            ]
+    if data_ret.samples is not None:
+        data_ret.samples = data_ret.samples[
+            data_ret.samples['improve_sample_id'].isin(sample_ids)
+            ]
+    if data_ret.transcriptomics is not None:
+        data_ret.transcriptomics = data_ret.transcriptomics[
+            data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
+        ]   
     data_ret.experiments = split_long
     
     return data_ret
