@@ -412,7 +412,7 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
                         help='Build date in YYYY-MM-DD. Default=now.')
     parser.add_argument('--version', required=True,
                         help='Build version. Must be unique per build.')
-    parser.add_argument('--datasets', default='ccle,ctrpv2,fimm,gcsi,gdscv1,gdscv2,nci60,prism,hcmi,beataml,cptac,mpnst,mpnstpdx,pancpdo,bladderpdo',
+    parser.add_argument('--datasets', default='ccle,ctrpv2,fimm,gcsi,gdscv1,gdscv2,nci60,prism,hcmi,beataml,cptac,mpnst,mpnstpdx,pancpdo,bladderpdo,sarcpdo',
                         help='Comma-separated list of datasets, e.g., beataml,ccle')
     parser.add_argument('--local_dir', default='data',
                         help='Directory containing all CSV/TSV files.')
