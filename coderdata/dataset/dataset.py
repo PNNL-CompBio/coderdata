@@ -341,8 +341,9 @@ class Dataset:
         split_type: Literal[
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
-        ratio: tuple[int, int, int]=(8,2),
+        ratio: tuple[int, int]=(8,2),
         stratify_by: Optional[str]=None,
+        balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict, 
         ) -> TwoWaySplit:
@@ -350,8 +351,9 @@ class Dataset:
         split = split_train_other(
             data=self,
             split_type=split_type,
-            ration=ratio,
+            ratio=ratio,
             stratify_by=stratify_by,
+            balance=balance,
             random_state=random_state,
             **kwargs
         )
@@ -366,15 +368,16 @@ class Dataset:
             ]='mixed-set',
         ratio: tuple[int, int, int]=(8,1,1),
         stratify_by: Optional[str]=None,
+        balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict,
         ) -> Split:
-
         split = split_train_test_validate(
             data=self,
             split_type=split_type,
             ratio=ratio,
             stratify_by=stratify_by,
+            balance=balance,
             random_state=random_state,
             **kwargs
         )
@@ -389,6 +392,7 @@ class Dataset:
             ]='mixed-set',
         ratio: tuple[int, int, int]=(8,1,1),
         stratify_by: Optional[str]=None,
+        balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict,
         ) -> Split:
@@ -398,6 +402,7 @@ class Dataset:
             split_type=split_type,
             ratio=ratio,
             stratify_by=stratify_by,
+            balance=balance,
             random_state=random_state,
             **kwargs
         )
@@ -723,18 +728,20 @@ def split_train_other(
         split_type: Literal[
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
-        ratio: tuple[int, int, int]=(8,2),
+        ratio: tuple[int, int]=(8,2),
         stratify_by: Optional[str]=None,
+        balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict, 
     ):
     train, other = _split_two_way(
-        data,
-        split_type,
-        ratio,
-        stratify_by,
-        random_state,
-        kwargs=kwargs
+        data=data,
+        split_type=split_type,
+        ratio=ratio,
+        stratify_by=stratify_by,
+        balance=balance,
+        random_state=random_state,
+        **kwargs
     )
     if stratify_by is not None:
         train.experiments = train.experiments[train.experiments['dose_response_metric'] != 'split_class']
@@ -749,10 +756,10 @@ def split_train_test_validate(
             ]='mixed-set',
         ratio: tuple[int, int, int]=(8,1,1),
         stratify_by: Optional[str]=None,
+        balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict,
         ) -> Split:
-
     # Type checking split_type
     if split_type not in [
         'mixed-set', 'drug-blind', 'cancer-blind'
@@ -766,8 +773,9 @@ def split_train_test_validate(
         split_type=split_type,
         ratio=[ratio[0], ratio[1] + ratio[2]],
         stratify_by=stratify_by,
+        balance=balance,
         random_state=random_state,
-        kwargs=kwargs,
+        **kwargs,
         )
     
     test, val = _split_two_way(
@@ -775,8 +783,9 @@ def split_train_test_validate(
         split_type=split_type,
         ratio=[ratio[1], ratio[2]],
         stratify_by=stratify_by,
+        balance=balance,
         random_state=random_state,
-        kwargs=kwargs,
+        **kwargs,
     )
 
     if stratify_by is not None:
@@ -794,6 +803,7 @@ def train_test_validate(
             ]='mixed-set',
         ratio: tuple[int, int, int]=(8,1,1),
         stratify_by: Optional[str]=None,
+        balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict,
         ) -> Split:
@@ -871,8 +881,9 @@ def train_test_validate(
         split_type=split_type,
         ratio=ratio,
         stratify_by=stratify_by,
+        balance=balance,
         random_state=random_state,
-        kwargs=kwargs,
+        **kwargs,
         )
 
 
@@ -957,24 +968,43 @@ def _filter(data: Dataset, split: pd.DataFrame) -> Dataset:
     # cd.samples -> reduce based on improve_sample_id
     # cd.transcriptomics -> reduce based on improve_sample_id
     
-    data_ret.drugs = data_ret.drugs[
-        data_ret.drugs['improve_drug_id'].isin(drug_ids)
-        ]
-    data_ret.mutations = data_ret.mutations[
-        data_ret.mutations['improve_sample_id'].isin(sample_ids)
-        ]
-    data_ret.proteomics = data_ret.proteomics[
-        data_ret.proteomics['improve_sample_id'].isin(sample_ids)
-        ]
-    data_ret.samples = data_ret.samples[
-        data_ret.samples['improve_sample_id'].isin(sample_ids)
-        ]
-    data_ret.transcriptomics = data_ret.transcriptomics[
-        data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
-        ]
+    if data_ret.drugs is not None:
+        data_ret.drugs = data_ret.drugs[
+            data_ret.drugs['improve_drug_id'].isin(drug_ids)
+            ]
+    if data_ret.mutations is not None:
+        data_ret.mutations = data_ret.mutations[
+            data_ret.mutations['improve_sample_id'].isin(sample_ids)
+            ]
+    if data_ret.proteomics is not None:
+        data_ret.proteomics = data_ret.proteomics[
+            data_ret.proteomics['improve_sample_id'].isin(sample_ids)
+            ]
+    if data_ret.samples is not None:
+        data_ret.samples = data_ret.samples[
+            data_ret.samples['improve_sample_id'].isin(sample_ids)
+            ]
+    if data_ret.transcriptomics is not None:
+        data_ret.transcriptomics = data_ret.transcriptomics[
+            data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
+        ]   
     data_ret.experiments = split_long
     
     return data_ret
+
+def _balance_data(
+        data: pd.Dataframe,
+        random_state: Optional[Union[int,RandomState]]=None,
+        # oversample: bool=False,
+        ) -> pd.Dataframe:
+    tmp = deepcopy(data)
+    counts = tmp.value_counts('split_class')
+    ret_df = (
+        tmp
+        .groupby('split_class')
+        .sample(n=min(counts), random_state=random_state)
+        )
+    return ret_df
 
 
 def _create_classes(
@@ -1072,6 +1102,7 @@ def _split_two_way(
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
         ratio: tuple[int, int, int]=(8,2),
+        balance: bool=False,
         stratify_by: Optional[str]=None,
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict, 
@@ -1150,7 +1181,6 @@ def _split_two_way(
     thresh = kwargs.get('thresh', None)
     num_classes = kwargs.get('num_classes', 2)
     quantiles = kwargs.get('quantiles', True)
-
     # Type checking split_type
     if split_type not in [
         'mixed-set', 'drug-blind', 'cancer-blind'
@@ -1289,6 +1319,11 @@ def _split_two_way(
                 num_classes=num_classes,
                 thresh=thresh,
                 quantiles=quantiles,
+                )
+            if balance:
+                df_full = _balance_data(
+                    data=df_full,
+                    random_state=random_state
                 )
         if split_type == 'mixed-set':
             # Using StratifiedShuffleSplit to generate randomized train 
