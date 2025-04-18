@@ -14,6 +14,8 @@ from urllib import request
 conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=11&modificationDate=1712351454136&api=v2'
 ##OCT 2024
 conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=13&modificationDate=1727922354561&api=v2'
+#jan 2025
+conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=14&modificationDate=1735932462303&api=v2'
 
 cancelled = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP_Cancelled.csv?version=1&modificationDate=1660871847000&api=v2&download=true'
 

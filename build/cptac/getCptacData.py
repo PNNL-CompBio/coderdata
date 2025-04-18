@@ -286,8 +286,12 @@ def main():
     else:
         print("No sample file provided. Exiting.")
         exit()
-
-    # Proceed to build samples and/or data
+        
+    # Remove the old values in samples (from prev file)
+    if 'other_id_source' in samples.columns:
+        samples = samples[samples['other_id_source'] == 'CPTAC3'].copy()
+        
+    # Create new samples
     if build_samples:
         # Loop through the cancer types to build samples
         for cancertype in ['brca', 'coad', 'hnscc', 'lscc', 'luad', 'ov', 'gbm', 'pdac', 'ucec', 'ccrcc']:

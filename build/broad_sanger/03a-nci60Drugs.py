@@ -16,21 +16,36 @@ smi_strings='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_smiles.
 #oct 2024
 smi_strings = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_smiles.csv?version=3&modificationDate=1727924130457&api=v2&download=true'
 
+#jan 2025
+smi_strings ='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_smiles.csv?version=5&modificationDate=1735932227387&api=v2'
+
 pc_ids='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_sid_cid.csv?version=2&modificationDate=1712766341112&api=v2&download=true'
 pc_ids = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_sid_cid.csv?version=4&modificationDate=1727924129121&api=v2&download=true'
 
-#oct 2024
-chemnames='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemcal_name.csv?version=1&modificationDate=1710382716000&api=v2&download=true'
+#jan 2025
+pc_ids = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_sid_cid.csv?version=5&modificationDate=1735931099618&api=v2'
 
-chemnames='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemical_name.csv?version=1&modificationDate=1727924127004&api=v2'
+
+chemnames = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemcal_name.csv?version=1&modificationDate=1710382716000&api=v2&download=true'
+#oct 2024
+chemnames = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemical_name.csv?version=1&modificationDate=1727924127004&api=v2'
+
+#jan 2025
+chemnames = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_chemical_names.csv?version=1&modificationDate=1735931084378&api=v2'
+
 #oct 2024
 cas='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=1&modificationDate=1710381783000&api=v2&download=true'
 #oct 2024
 cas = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=3&modificationDate=1727924126194&api=v2&download=true'
+
+#jan 2025
+cas = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=4&modificationDate=1735931080720&api=v2'
+
 conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=11&modificationDate=1712351454136&api=v2'
 ##OCT 2024
 conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=13&modificationDate=1727922354561&api=v2'
-
+#jan 2025
+conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=14&modificationDate=1735932462303&api=v2'
 
 def main():    
     parser = argparse.ArgumentParser()

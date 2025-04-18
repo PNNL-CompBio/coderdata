@@ -1,0 +1,17 @@
+pandas==2.2.0
+wget==3.2
+requests
+synapseclient
+openpyxl
+matplotlib
+tqdm
+scikit-learn
+scipy
+#polars
+pyarrow
+polars-lts-cpu==0.19.17 
+PyYAML
+numpy
+rdkit
+mordredcommunity
+

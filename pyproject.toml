@@ -1,0 +1,61 @@
+[build-system]
+requires = [
+    "hatchling",
+    "hatch-vcs",
+    ]
+build-backend = "hatchling.build"
+
+[project]
+name = "coderdata"
+description = "A package to download, load, and process multiple benchmark multi-omic drug response datasets"
+
+requires-python = ">=3.9"
+authors = [
+    { name = "Jeremy Jacobson", email = "jeremy.jacobson@pnnl.gov" },
+    { name = "Yannick Mahlich", email = "yannick.mahlich@pnnl.gov" },
+    { name = "Sara Gosline", email = "sara.gosline@pnnl.gov"}
+]
+classifiers = [
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "requests",
+    "scikit-learn",
+    "pyyaml",
+]
+dynamic = [
+    "version",
+    ]
+readme = "README.md"
+license = {text = "2-clause BSD"}
+
+[project.scripts]
+coderdata = "coderdata.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/PNNL-CompBio/candleDataProcessing"
+Documentation = "https://pnnl-compbio.github.io/coderdata/"
+Repository = "https://github.com/PNNL-CompBio/coderdata.git"
+Issues = "https://github.com/PNNL-CompBio/coderdata/issues"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "coderdata/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/coderdata",
+]

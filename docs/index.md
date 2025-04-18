@@ -7,42 +7,62 @@ title: CoderData
 
 <!-- # Cancer Omics and Drug Experiment Response Data (`coderdata`) Python Package -->
 
-### Introduction
+## Introduction
 CoderData is a cancer benchmark data package developed in Python and R. 
 There are two aspects of this package, the backend build section and the user facing python package.
 The build section is a github workflow that generates four cancer datasets in a format that is easy for users and algorithms to ingest. 
 The python package allows users to easily download the data, load it into python and reformat it as desired.
 
-### Installation and Usage
-##### Bash / Command Line
+## Installation and Usage
+### Installation
 
-To install coderdata, simply run the following command in your terminal:
-
-```bash
-pip install coderdata
-```
-
-##### Bash / Command line
-To download datasets, simply run the following command in your terminal. Remove the prefix argument if you'd like to install all datasets.
+Assuming `python>=3.9` is installed on the system, simply run the following command in the terminal to install the most recent release of the coderdata API:
 
 ```bash
-coderdata download --prefix hcmi
+$ pip install coderdata
 ```
 
-##### Python
-To download, load, and call datasets in python, simply run the following commands. 
+### Bash / Command line
+A full list of available datasets can be retrieved via:
+```sh
+$ coderdata --list
+```
 
-<div class="code-box">
-    <p>import coderdata as cd </p>
-    <p>cd.download_data_by_prefix('hcmi')</p>
-    <p>hcmi_data = cd.DatasetLoader('hcmi')</p>
-    <p>hcmi_data.transcriptomics</p>
-</div>
+To download datasets, simply run the following command in your terminal substituting `<DATASET>` with the desired dataset (e.g. `beataml`). To download all datasets use `--name all`.
 
-View our [Usage](pages/usage.md) page for full instructions.
+```bash
+$ coderdata download --name <DATASET>
+```
+
+### Python
+
+To download, load, and call datasets in python, simply run the following commands.
+
+```python
+>>> import coderdata as cd
+>>> cd.download(name='beataml')
+>>> beataml = cd.load('beataml')
+>>> beataml.experiments
+         source  improve_sample_id improve_drug_id    study  time time_unit dose_response_metric  dose_response_value
+0       synapse               3907       SMI_11123  BeatAML    72       hrs              fit_auc               0.0564
+1       synapse               3907       SMI_11211  BeatAML    72       hrs              fit_auc               0.9621
+2       synapse               3907       SMI_12192  BeatAML    72       hrs              fit_auc               0.1691
+3       synapse               3907       SMI_12254  BeatAML    72       hrs              fit_auc               0.4245
+4       synapse               3907       SMI_12469  BeatAML    72       hrs              fit_auc               0.7397
+...         ...                ...             ...      ...   ...       ...                  ...                  ...
+233775  synapse               3626        SMI_7110  BeatAML    72       hrs                  dss               0.0000
+233776  synapse               3626        SMI_7590  BeatAML    72       hrs                  dss               0.0000
+233777  synapse               3626        SMI_8159  BeatAML    72       hrs                  dss               0.1946
+233778  synapse               3626        SMI_8724  BeatAML    72       hrs                  dss               0.0000
+233779  synapse               3626         SMI_987  BeatAML    72       hrs                  dss               0.7165
+
+[233780 rows x 8 columns]
+```
+
+For more indepth instructions view our [Usage](pages/usage.md) page.
 
 
-### Datasets
+## Datasets
 
 <table>
   <thead>
@@ -171,7 +191,7 @@ View our [Usage](pages/usage.md) page for full instructions.
 </div> -->
 
 
-### Data Overview
+## Data Overview
 
 <div class="flex-container"> 
     <div class="flex-item">

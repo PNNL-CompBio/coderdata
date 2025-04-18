@@ -221,6 +221,8 @@ enums:
         description: I believe this is the drug sensitivity score
       mrecist:
         description: For PDX data this value should be either Progressive Disease, Stable Disease, Partial Response or Complete Response.
+      published_auc:
+        description: AUC that has been published with the study. Currently used in organoid data.
       gc_auc:
         description: Area under tumor growth curve
       efs:

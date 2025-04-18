@@ -36,6 +36,30 @@ def download_tool(url):
     # Download the file
     print("Downloading tool...")
     filename = wget.download(url)
+##commented due to merge conflict
+#    files_before = os.listdir()
+#    # shutil.unpack_archive(filename)
+#    ##there are two files to unpack
+#    print('Unpacking platform-specific path')
+#    shutil.unpack_archive(os.path.basename(url))
+#    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
+#    print('Unpacking secondary zip')
+#    fnames={
+#        'Darwin':"gdc-client_2.3_OSX_x64.zip",
+#        'Linux':"gdc-client_2.3_Ubuntu_x64.zip",
+#        'Windows':"gdc-client_2.3_Windows_x64.zip"
+#        }
+#    shutil.unpack_archive(fnames[platform.system()]) 
+#    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
+#    shutil.unpack_archive("gdc-client_2.3_Ubuntu_x64.zip") 
+#    if not os.path.exists('gdc-client'):
+#        raise FileNotFoundError("gdc-client executable not found after extraction.")
+#    # Ensure 'gdc-client' is executable
+#    st = os.stat('gdc-client')
+#    os.chmod('gdc-client', st.st_mode | stat.S_IEXEC)
+#    # Return the path to the executable
+#    return './gdc-client'
+
     
     # First extraction
     print(f"\nExtracting {filename}...")
@@ -64,6 +88,7 @@ def download_tool(url):
     os.chmod(gdc_client_path, st.st_mode | stat.S_IEXEC)
 
     return gdc_client_path
+
 
 def is_tool(name):
     """
