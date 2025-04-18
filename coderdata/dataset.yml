@@ -12,6 +12,18 @@ datasets:
         enables prediction of drug response in acute myeloid leukemia. Cell Rep Med.
         2024;5(1):101359.
       doi: https://doi.org/10.1016/j.xcrm.2023.101359
+  bladderpdo:
+    description: Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer
+      Data includes transcriptomics, mutations, copy number, and drug response data.
+    references:
+    - citation: Suk Hyung Lee, Wenhuo Hu, Justin T. Matulay, Mark V. Silva, 
+        Tomasz B. Owczarek, Kwanghee Kim, Chee Wai Chua, LaMont J. Barlow, 
+        Cyriac Kandoth, Alanna B. Williams, Sarah K. Bergren, Eugene J. Pietzak, 
+        Christopher B. Anderson, Mitchell C. Benson, Jonathan A. Coleman, Barry S. Taylor, 
+        Cory Abate‑Shen, James M. McKiernan, Hikmat Al‑Ahmadie, David B. Solit, Michael M. Shen. 
+        Tumor Evolution and Drug Response in Patient‑Derived Organoid Models of Bladder Cancer. 
+        Cell. 2018;173(2):515‑528.e17.
+      doi: https://doi.org/10.1016/j.cell.2018.03.017
   ccle:
     description: Cancer Cell Line Encyclopedia (CCLE).
     references:
@@ -109,6 +121,24 @@ datasets:
     - citation: Shoemaker RH. The NCI60 human tumour cell line anticancer drug screen.
         Nat Rev Cancer. 2006;6(10):813-823.
       doi: doi:10.1038/nrc1951
+  pancpdo:
+    description: Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer
+      Data includes transcriptomics, mutations, copy number, and drug response data.
+    references:
+    - citation: Hervé Tiriac, Pascal Belleau, Dannielle D. Engle, Dennis Plenker, Astrid Deschênes, 
+        Tim D. D. Somerville, Fieke E. M. Froeling, Richard A. Burkhart, Robert E. Denroche, Gun‑Ho Jang,
+        Koji Miyabayashi, C. Megan Young, Hardik Patel, Michelle Ma, Joseph F. LaComb, Randze L. D. Palmaira, 
+        Ammar A. Javed, Jasmine C. Huynh, Molly Johnson, Kanika Arora, Nicolas Robine, Minita Shah, 
+        Rashesh Sanghvi, Austin B. Goetz, Cinthya Y. Lowder, Laura Martello, Else Driehuis, Nicolas LeComte, 
+        Gokce Askan, Christine A. Iacobuzio‑Donahue, Hans Clevers, Laura D. Wood, Ralph H. Hruban, Elizabeth Thompson, 
+        Andrew J. Aguirre, Brian M. Wolpin, Aaron Sasson, Joseph Kim, Maoxin Wu, Juan C. Bucobo, Peter Allen, 
+        Divyesh V. Sejpal, William Nealon, James D. Sullivan, Jordan M. Winter, Phyllis A. Gimotty, Jean L. Grem, 
+        Dominick J. DiMaio, Jonathan M. Buscaglia, Paul M. Grandgenett, Jonathan R. Brody, Michael A. Hollingsworth, 
+        Grainne M. O’Kane, Faiyaz Notta, Edward Kim, James M. Crawford, Craig Devoe, Allyson Ocean, Christopher L. Wolfgang, 
+        Kenneth H. Yu, Ellen Li, Christopher R. Vakoc, Benjamin Hubert, Sandra E. Fischer, Julie M. Wilson, Richard Moffitt, 
+        Jennifer Knox, Alexander Krasnitz, Steven Gallinger, David A. Tuveson. Organoid Profiling Identifies Common 
+        Responders to Chemotherapy in Pancreatic Cancer. Cancer Discov. 2018;8(9):1112‑1129.
+      doi: https://doi.org/10.1158/2159-8290.CD-18-0349
   prism:
     description: Profiling Relative Inhibition Simultaneously in Mixtures
     references:
@@ -120,3 +150,17 @@ datasets:
         genotype-specific cancer vulnerabilities in mixtures of barcoded tumor cell
         lines. Nat Biotechnol. 2016;34(4):419-423.
       doi: doi:10.1038/nbt.3460
+  sarcpdo:
+      description: The landscape of drug sensitivity and resistance in sarcoma
+        Data includes transcriptomics, mutations, and drug response data.
+      references:
+      - citation: Ahmad Al Shihabi, Peyton J. Tebon, Huyen T. L. Nguyen, 
+          Jomjit Chantharasamee, Sara Sartini, Ardalan Davarifar, Alexandra Y. Jensen, 
+          Miranda Diaz‑Infante, Hannah Cox, Alfredo E. Gonzalez, Summer Norris, Jantzen Sperry, 
+          Jonathan Nakashima, Nasrin Tavanaie, Helena Winata, Sorel T. Fitz‑Gibbon, 
+          Takafumi N. Yamaguchi, Jae H. Jeong, Sarah Dry, Arun S. Singh, Bartosz Chmielowski, 
+          Joseph G. Crompton, Anusha K. Kalbasi, Fritz C. Eilber, Francis Hornicek, 
+          Nicholas M. Bernthal, Scott D. Nelson, Paul C. Boutros, Noah C. Federman, Jane Yanagawa, 
+          Alice Soragni. The landscape of drug sensitivity and resistance in sarcoma. 
+          Cell Stem Cell. 2024;31(10):1524‑1542.e4.
+        doi: https://doi.org/10.1016/j.stem.2024.08.010
