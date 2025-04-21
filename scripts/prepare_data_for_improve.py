@@ -466,6 +466,12 @@ def process_datasets(args):
     out_df['PUBCHEM_ID'] = pd.to_numeric(out_df['PUBCHEM_ID'], errors='coerce', downcast='integer')
     out_df['PUBCHEM_ID'] = out_df['PUBCHEM_ID'].replace(0, None)
 
+    if args.EXCL_DRUGS_LIST is not None:
+        logger.info(
+            f"Removing all chemical compunds with ids: '{args.EXCL_DRUGS_LIST}'"
+        )
+        out_df = out_df[~out_df['improve_drug_id'].isin(args.EXCL_DRUGS_LIST)]
+
     outfile_path = args.WORKDIR.joinpath(
         "data_out",
         "x_data",
@@ -537,6 +543,11 @@ def process_datasets(args):
     concat_drugs = pd.concat(dfs_to_merge.values())
     out_df = concat_drugs.reset_index()
     out_df = out_df.drop_duplicates(subset=['improve_drug_id'], keep='first')
+    if args.EXCL_DRUGS_LIST is not None:
+        logger.info(
+            f"Removing all chemical compunds with ids: '{args.EXCL_DRUGS_LIST}'"
+        )
+        out_df = out_df[~out_df['improve_drug_id'].isin(args.EXCL_DRUGS_LIST)]
     out_df = pd.concat((out_df, out_df['morgan fingerprint'].astype(str).apply(lambda x: pd.Series(list(x))).astype(int).add_prefix('ecfp4.')), axis=1)
     out_df = out_df.drop(['morgan fingerprint'], axis=1)
     out_df.rename(
