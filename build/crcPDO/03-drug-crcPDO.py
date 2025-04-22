@@ -43,18 +43,18 @@ def download_synapse_data(synID:str, save_path:str = None, synToken:str = None):
 
 
 ### create drug csv
-def create_crcPDO_drug_data(fitted_drug_data_path:str, prevDrugFilepath:str, output_drug_data_path:str):
+def create_crcpdo_drug_data(fitted_drug_data_path:str, prevDrugFilepath:str, output_drug_data_path:str):
     # import fitted drug data and get drug names from DRUG_NAME column
     fitted_drug_df = pd.read_csv(fitted_drug_data_path)
-    crcPDO_drugs_df = pd.DataFrame({"DRUG_NAME":fitted_drug_df['DRUG_NAME'].unique()})
+    crcpdo_drugs_df = pd.DataFrame({"DRUG_NAME":fitted_drug_df['DRUG_NAME'].unique()})
     # if there is a prev drug file, check for new drugs
     if prevDrugFilepath != None and prevDrugFilepath != "":
         prev_drug_df = pd.read_csv(prevDrugFilepath)
-        # get drugs that are only in the crcPDO_drugs_df (aka new drugs only)
-        new_drugs_df = crcPDO_drugs_df[~crcPDO_drugs_df.chem_name.isin(prev_drug_df.chem_name)]
+        # get drugs that are only in the crcpdo_drugs_df (aka new drugs only)
+        new_drugs_df = crcpdo_drugs_df[~crcpdo_drugs_df.chem_name.isin(prev_drug_df.chem_name)]
     else:
         # if there's no prev drugs, then all drugs are new
-        new_drugs_df = crcPDO_drugs_df
+        new_drugs_df = crcpdo_drugs_df
     # get new drug names
     new_drug_names = new_drugs_df['DRUG_NAME'].unique()
     # call function that gets info for these drugs
@@ -89,8 +89,8 @@ if __name__ == "__main__":
     if args.Drug:
         if args.PrevDrugs is None or args.PrevDrugs=='':
             print("No previous drugs file provided.  Starting improve_drug_id from SMI_1. Running drug file generation")
-            create_crcPDO_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", output_drug_data_path = "/tmp/crcPDO_drugs.tsv", prevDrugFilepath = "")
+            create_crcpdo_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", output_drug_data_path = "/tmp/crcpdo_drugs.tsv", prevDrugFilepath = "")
         else:
             print("Previous drugs file {} detected. Running drugs file generation and checking for duplicate IDs.".format(args.PrevDrugs))
-            create_crcPDO_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/crcPDO_drugs.tsv")
+            create_crcpdo_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/crcpdo_drugs.tsv")
 
