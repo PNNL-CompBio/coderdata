@@ -47,7 +47,7 @@ def process_docker(dataset,validate):
         'sarcpdo': ['sarcpdo'],
         'genes': ['genes'],
         'upload': ['upload'],
-        'crc_organoids': ['crc_organoids'], 
+        'crcPDO': ['crcPDO'], 
         'bladderpdo': ['bladderpdo']
     }
 
@@ -131,7 +131,7 @@ def process_omics(executor, dataset, should_continue):
         'sarcpdo': ['mutations', 'transcriptomics'],
         'pancpdo': ['transcriptomics'],
         'bladderpdo': ['copy_number', 'mutations', 'transcriptomics'],
-        'crc_organoids':['copy_number', 'mutations', 'transcriptomics']
+        'crcPDO':['copy_number', 'mutations', 'transcriptomics']
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])
