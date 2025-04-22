@@ -109,6 +109,6 @@ if __name__ == "__main__":
         else:
             print("Generating experiments data.")
             experiments_df = create_experiments_data(experiment_data_path = "/tmp/raw_data_GDSC_Org_restricted_11Mar25_plus_viabilities.csv", samples_data_path = args.Samples, drugs_data_path = args.Drugs)
-            output_path = "/tmp/crc_experiments_for_curve_fitting.tsv"
+            output_path = "/tmp/crcPDO_experiments_for_curve_fitting.tsv"
             print("Experiments data sucessfully generated.  Saving tsv to {}".format(output_path))
             experiments_df.to_csv(output_path, sep='\t')

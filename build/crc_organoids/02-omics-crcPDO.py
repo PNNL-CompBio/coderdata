@@ -82,7 +82,7 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     mapped_mutation_data = mapped_mutation_data.rename(columns={'Entrez_Gene_Id':'entrez_id','Genome_Change':'mutation','Variant_Classification':'variant_classification'})
     mapped_mutation_data = mapped_mutation_data.drop(columns=['Hugo_Symbol','Tumor_Sample_Barcode','other_id'])
     mapped_mutation_data['source'] = "vandeWetering_2015"
-    mapped_mutation_data['study'] = "CRC_Organoids"
+    mapped_mutation_data['study'] = "crcPDO"
     mapped_mutation_data = mapped_mutation_data.astype({'entrez_id':'int'})
 
     return(mapped_mutation_data)
@@ -136,7 +136,7 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
     # clean up column names and data types
     mapped_transcriptomics_df = mapped_transcriptomics_df.drop(columns=['stable_id','patient','other_id'])
     mapped_transcriptomics_df['source'] = "vandeWetering_2015"
-    mapped_transcriptomics_df['study'] = "CRC_Organoids"
+    mapped_transcriptomics_df['study'] = "crcPDO"
     mapped_transcriptomics_df = mapped_transcriptomics_df.astype({'entrez_id':'int','improve_sample_id':'int'})
     mapped_transcriptomics_df = mapped_transcriptomics_df[['entrez_id','transcriptomics','improve_sample_id','source','study']]
 
@@ -198,7 +198,7 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     # clean up columns and data types
     improve_mapped_cn_df = improve_mapped_cn_df.drop(columns=['ID','score','other_id'])
     improve_mapped_cn_df['source'] = "vandeWetering_2015"
-    improve_mapped_cn_df['study'] = "CRC_Organoids"
+    improve_mapped_cn_df['study'] = "crcPDO"
     improve_mapped_cn_df = improve_mapped_cn_df.rename(columns={'ENTREZID':'entrez_id'})
     improve_mapped_cn_df = improve_mapped_cn_df.astype({'entrez_id':'int','improve_sample_id':'int'})
     improve_mapped_cn_df = improve_mapped_cn_df[['entrez_id','copy_number','copy_call','study','source','improve_sample_id']]
@@ -241,8 +241,8 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting transcriptomics data.")
-            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/GSE65253_col_tum_org_merge.csv.gz", improve_id_data = "/tmp/crc_organoids_samples.csv", entrez_data = "/tmp/genes.csv")
-            transcriptomics_df.to_csv("/tmp/crc_organoids_transcriptomics.csv", index=False)
+            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/GSE65253_col_tum_org_merge.csv.gz", improve_id_data = "/tmp/crcPDO_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df.to_csv("/tmp/crcPDO_transcriptomics.csv", index=False)
     
     if args.mutations:
         if args.genes is None or args.genes=='':
@@ -253,8 +253,8 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting mutations data.")
-            mutation_df = map_mutations(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/crc_organoids_samples.csv", entrez_data = "/tmp/genes.csv")
-            mutation_df.to_csv("/tmp/crc_organoids_mutations.csv", index=False)
+            mutation_df = map_mutations(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/crcPDO_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/crcPDO_mutations.csv", index=False)
     
     if args.copy_number:
         if args.genes is None or args.genes=='':
@@ -265,6 +265,6 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting copy number data.")
-            mutation_df = map_copy_number(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/crc_organoids_samples.csv", entrez_data = "/tmp/genes.csv")
-            mutation_df.to_csv("/tmp/crc_organoids_copy_number.csv", index=False)
+            mutation_df = map_copy_number(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/crcPDO_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/crcPDO_copy_number.csv", index=False)
     
