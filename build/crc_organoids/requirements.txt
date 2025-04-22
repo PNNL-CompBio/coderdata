@@ -5,6 +5,7 @@ numpy==1.23
 requests
 argparse
 synapseclient 
+matplotlib
 #math
 #time
 #threading

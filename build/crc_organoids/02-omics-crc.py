@@ -103,10 +103,10 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
     # move row names to a column called "stable_id" and format gene names to remove the chromosome num
     transciptomics_data['stable_id'] = transciptomics_data.index
     transciptomics_data['stable_id'] = transciptomics_data['stable_id'].str.split('__',n = 1,expand=True).iloc[:,0]
-    transciptomics_data.to_csv("/tmp/counts_for_tpm_conversion.csv")
+    transciptomics_data.to_csv("/tmp/counts_for_tpm_conversion.tsv", sep='\t')
 
     # run tpmFromCounts.py to convert counts to tpm
-    os.system("python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.csv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
+    os.system("python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.tsv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
     
     # get output from script (in tsv format) and average across organoids from each patient ]
     tpm_transciptomics_data = pd.read_csv("/tmp/transcriptomics_tpm.tsv", sep="\t")
@@ -266,5 +266,5 @@ if __name__ == "__main__":
         else:
             print("Starting copy number data.")
             mutation_df = map_copy_number(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/crc_organoids_samples.csv", entrez_data = "/tmp/genes.csv")
-            mutation_df.to_csv("/tmp/crc_organoids_copynumber.csv", index=False)
+            mutation_df.to_csv("/tmp/crc_organoids_copy_number.csv", index=False)
     

@@ -64,6 +64,8 @@ def create_experiments_data(experiment_data_path:str, samples_data_path:str, dru
     # get samples to only tumor organoid
     tumor_org_samples = samples_data[samples_data['other_id'].str.contains("Tumor-Organoid")]
     tumor_org_samples['patient_number'] = samples_data['other_id'].str.split("-",expand=True).iloc[:,0].str.replace("P","").str.replace("T","")
+    sample_drug_experiment_merge = pd.merge(drug_experiment_merge,tumor_org_samples[['patient_number','improve_sample_id']], how='left', on='patient_number')
+
     # clean up table by dropping and renaming columns
     sample_drug_experiment_merge = sample_drug_experiment_merge.rename(columns = {'CONC':'DOSE','viability':'GROWTH','improve_drug_id':'Drug','DURATION':'time','RESEARCH_PROJECT':'study'})
     sample_drug_experiment_merge['time_unit'] = "days"

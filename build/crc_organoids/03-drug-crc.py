@@ -46,7 +46,7 @@ def download_synapse_data(synID:str, save_path:str = None, synToken:str = None):
 def create_crc_drug_data(fitted_drug_data_path:str, prevDrugFilepath:str, output_drug_data_path:str):
     # import fitted drug data and get drug names from DRUG_NAME column
     fitted_drug_df = pd.read_csv(fitted_drug_data_path)
-    crc_drugs_df = pd.DataFrame(columns={"DRUG_NAME":fitted_drug_df['DRUG_NAME'].unique()})
+    crc_drugs_df = pd.DataFrame({"DRUG_NAME":fitted_drug_df['DRUG_NAME'].unique()})
     # if there is a prev drug file, check for new drugs
     if prevDrugFilepath != None and prevDrugFilepath != "":
         prev_drug_df = pd.read_csv(prevDrugFilepath)
