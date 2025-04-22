@@ -226,7 +226,7 @@ if __name__ == "__main__":
     if args.parse:
         print("Parsing excel file.")
         # Download parse excel file to get mutation data and the copy num data
-        mutation_df, copy_num_df = parse_mmc2("/tmp/mmc2.xlsx/mmc2.xlsx")
+        mutation_df, copy_num_df = parse_mmc2("/tmp/mmc2.xlsx")
         # Save mutation and copy number data into csv format
         mutation_df.to_csv("/tmp/mutation_data.csv")
         copy_num_df.to_csv("/tmp/copy_num_data.csv")
