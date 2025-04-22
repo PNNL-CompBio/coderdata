@@ -470,7 +470,7 @@ def process_datasets(args):
         logger.info(
             f"Removing all chemical compunds with ids: '{args.EXCL_DRUGS_LIST}'"
         )
-        out_df = out_df[~out_df['improve_drug_id'].isin(args.EXCL_DRUGS_LIST)]
+        out_df = out_df[~out_df['improve_chem_id'].isin(args.EXCL_DRUGS_LIST)]
 
     outfile_path = args.WORKDIR.joinpath(
         "data_out",
