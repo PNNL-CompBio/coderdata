@@ -38,14 +38,14 @@ ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
 
-ADD build/crc_organoids/requirements.R .
+ADD build/crcPDO/requirements.R .
 # installing r libraries
 RUN Rscript requirements.R
 
 
 
 # installing python libraries
-ADD build/crc_organoids/requirements.txt .
+ADD build/crcPDO/requirements.txt .
 #RUN /opt/venv/bin/pip3 install -r requirements.txt
 RUN pip3 install -r requirements.txt
 
@@ -54,8 +54,8 @@ RUN which Rscript
 
 #ENV PATH="/opt/venv/bin:$PATH"
 
-ADD build/crc_organoids/CNV-segfile-annotation.R ./
-ADD build/crc_organoids/*py ./
-ADD build/crc_organoids/*sh ./
+ADD build/crcPDO/CNV-segfile-annotation.R ./
+ADD build/crcPDO/*py ./
+ADD build/crcPDO/*sh ./
 
 ADD build/utils/* ./
