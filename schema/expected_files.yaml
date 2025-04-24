@@ -246,3 +246,15 @@ datasets:
       file: /tmp/pancpdo_drugs.tsv
     - target_class: Drug Descriptor
       file: /tmp/pancpdo_drug_descriptors.tsv
+
+  crcpdo:
+    - target_class: Sample
+      file: /tmp/crcpdo_samples.csv
+    - target_class: Transcriptomics
+      file: /tmp/crcpdo_transcriptomics.csv
+    - target_class: Experiments
+      file: /tmp/crcpdo_experiments.tsv
+    - target_class: Drug
+      file: /tmp/crcpdo_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/crcpdo_drug_descriptors.tsv
