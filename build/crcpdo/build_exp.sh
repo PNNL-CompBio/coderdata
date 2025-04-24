@@ -11,4 +11,4 @@ python3 04-experiments-crcpdo.py --Download --Experiment --Token $SYNAPSE_AUTH_T
 python3 fit_curve.py --input /tmp/crcpdo_experiments_for_curve_fitting.tsv --output /tmp/crcpdo_experiments.tsv
 
 # change name of script 
-mv crcpdo_experiments.tsv.0 crcpdo_experiments.tsv
+mv /tmp/crcpdo_experiments.tsv.0 /tmp/crcpdo_experiments.tsv
