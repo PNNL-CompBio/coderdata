@@ -29,11 +29,11 @@ def _parse_model_type(sample_id):
     """Derive model_type from Sample ID."""
     low = sample_id.lower()
     if "_xenoorganoid" in low:
-        return "xdo"
+        return "xenograft derived organoid"
     if "_organoid" in low:
         return "organoid"
     if "_xenograft" in low:
-        return "xenograft"
+        return "patient derived xenograft"
     if "_parental" in low:
         return "tumor"
     return "unknown"

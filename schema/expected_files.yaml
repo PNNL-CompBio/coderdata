@@ -1,248 +1,266 @@
 datasets:
   beataml:
     - target_class: Sample
-      file: /tmp/beataml_samples.csv
+      file: local/beataml_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/beataml_transcriptomics.csv
+      file: local/beataml_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/beataml_proteomics.csv
+      file: local/beataml_proteomics.csv
     - target_class: Mutations
-      file: /tmp/beataml_mutations.csv
+      file: local/beataml_mutations.csv
     - target_class: Experiments
-      file: /tmp/beataml_experiments.tsv
+      file: local/beataml_experiments.tsv
     - target_class: Drug
-      file: /tmp/beataml_drugs.tsv
+      file: local/beataml_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/beataml_drug_descriptors.tsv
+      file: local/beataml_drug_descriptors.tsv
 
   hcmi:
     - target_class: Sample
-      file: /tmp/hcmi_samples.csv
+      file: local/hcmi_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/hcmi_transcriptomics.csv
+      file: local/hcmi_transcriptomics.csv
     - target_class: Copy Number
-      file: /tmp/hcmi_copy_number.csv
+      file: local/hcmi_copy_number.csv
     - target_class: Mutations
-      file: /tmp/hcmi_mutations.csv
+      file: local/hcmi_mutations.csv
 
   mpnst:
     - target_class: Sample
-      file: /tmp/mpnst_samples.csv
+      file: local/mpnst_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/mpnst_transcriptomics.csv
+      file: local/mpnst_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/mpnst_proteomics.csv
+      file: local/mpnst_proteomics.csv
     - target_class: Mutations
-      file: /tmp/mpnst_mutations.csv
+      file: local/mpnst_mutations.csv
     - target_class: Copy Number
-      file: /tmp/mpnst_copy_number.csv
+      file: local/mpnst_copy_number.csv
     - target_class: Experiments
-      file: /tmp/mpnst_experiments.tsv
+      file: local/mpnst_experiments.tsv
     - target_class: Drug
-      file: /tmp/mpnst_drugs.tsv
+      file: local/mpnst_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/mpnst_drug_descriptors.tsv
+      file: local/mpnst_drug_descriptors.tsv
 
   mpnstpdx:
     - target_class: Sample
-      file: /tmp/mpnstpdx_samples.csv
+      file: local/mpnstpdx_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/mpnstpdx_transcriptomics.csv
+      file: local/mpnstpdx_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/mpnstpdx_proteomics.csv
+      file: local/mpnstpdx_proteomics.csv
     - target_class: Mutations
-      file: /tmp/mpnstpdx_mutations.csv
+      file: local/mpnstpdx_mutations.csv
     - target_class: Copy Number
-      file: /tmp/mpnstpdx_copy_number.csv
+      file: local/mpnstpdx_copy_number.csv
     - target_class: Experiments
-      file: /tmp/mpnstpdx_experiments.tsv
+      file: local/mpnstpdx_experiments.tsv
     - target_class: Drug
-      file: /tmp/mpnstpdx_drugs.tsv
+      file: local/mpnstpdx_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/mpnstpdx_drug_descriptors.tsv
+      file: local/mpnstpdx_drug_descriptors.tsv
 
   cptac:
     - target_class: Sample
-      file: /tmp/cptac_samples.csv
+      file: local/cptac_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/cptac_transcriptomics.csv
+      file: local/cptac_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/cptac_proteomics.csv
+      file: local/cptac_proteomics.csv
     - target_class: Mutations
-      file: /tmp/cptac_mutations.csv
+      file: local/cptac_mutations.csv
     - target_class: Copy Number
-      file: /tmp/cptac_copy_number.csv
+      file: local/cptac_copy_number.csv
       
   ccle:
     - target_class: Sample
-      file: /tmp/ccle_samples.csv
+      file: local/ccle_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/ccle_transcriptomics.csv
+      file: local/ccle_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/ccle_proteomics.csv
+      file: local/ccle_proteomics.csv
     - target_class: Mutations
-      file: /tmp/ccle_mutations.csv
+      file: local/ccle_mutations.csv
     - target_class: Copy Number
-      file: /tmp/ccle_copy_number.csv
+      file: local/ccle_copy_number.csv
     - target_class: Experiments
-      file: /tmp/ccle_experiments.tsv
+      file: local/ccle_experiments.tsv
     - target_class: Drug
-      file: /tmp/ccle_drugs.tsv
+      file: local/ccle_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/ccle_drug_descriptors.tsv
+      file: local/ccle_drug_descriptors.tsv
 
   ctrpv2:
     - target_class: Sample
-      file: /tmp/ctrpv2_samples.csv
+      file: local/ctrpv2_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/ctrpv2_transcriptomics.csv
+      file: local/ctrpv2_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/ctrpv2_proteomics.csv
+      file: local/ctrpv2_proteomics.csv
     - target_class: Mutations
-      file: /tmp/ctrpv2_mutations.csv
+      file: local/ctrpv2_mutations.csv
     - target_class: Copy Number
-      file: /tmp/ctrpv2_copy_number.csv
+      file: local/ctrpv2_copy_number.csv
     - target_class: Experiments
-      file: /tmp/ctrpv2_experiments.tsv
+      file: local/ctrpv2_experiments.tsv
     - target_class: Drug
-      file: /tmp/ctrpv2_drugs.tsv
+      file: local/ctrpv2_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/ctrpv2_drug_descriptors.tsv
-
-  depmap:
-    - target_class: Sample
-      file: /tmp/depmap_samples.csv
-    - target_class: Transcriptomics
-      file: /tmp/depmap_transcriptomics.csv
-    - target_class: Proteomics
-      file: /tmp/depmap_proteomics.csv
-    - target_class: Mutations
-      file: /tmp/depmap_mutations.csv
-    - target_class: Copy Number
-      file: /tmp/depmap_copy_number.csv
-    - target_class: Experiments
-      file: /tmp/depmap_experiments.csv
-    - target_class: Drug
-      file: /tmp/depmap_drugs.tsv
-    - target_class: Drug Descriptor
-      file: /tmp/depmap_drug_descriptors.tsv
+      file: local/ctrpv2_drug_descriptors.tsv
 
   fimm:
     - target_class: Sample
-      file: /tmp/fimm_samples.csv
+      file: local/fimm_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/fimm_transcriptomics.csv
+      file: local/fimm_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/fimm_proteomics.csv
+      file: local/fimm_proteomics.csv
     - target_class: Mutations
-      file: /tmp/fimm_mutations.csv
+      file: local/fimm_mutations.csv
     - target_class: Copy Number
-      file: /tmp/fimm_copy_number.csv
+      file: local/fimm_copy_number.csv
     - target_class: Experiments
-      file: /tmp/fimm_experiments.tsv
+      file: local/fimm_experiments.tsv
     - target_class: Drug
-      file: /tmp/fimm_drugs.tsv
+      file: local/fimm_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/fimm_drug_descriptors.tsv
+      file: local/fimm_drug_descriptors.tsv
 
   gcsi:
     - target_class: Sample
-      file: /tmp/gcsi_samples.csv
+      file: local/gcsi_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/gcsi_transcriptomics.csv
+      file: local/gcsi_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/gcsi_proteomics.csv
+      file: local/gcsi_proteomics.csv
     - target_class: Mutations
-      file: /tmp/gcsi_mutations.csv
+      file: local/gcsi_mutations.csv
     - target_class: Copy Number
-      file: /tmp/gcsi_copy_number.csv
+      file: local/gcsi_copy_number.csv
     - target_class: Experiments
-      file: /tmp/gcsi_experiments.tsv
+      file: local/gcsi_experiments.tsv
     - target_class: Drug
-      file: /tmp/gcsi_drugs.tsv
+      file: local/gcsi_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/gcsi_drug_descriptors.tsv
+      file: local/gcsi_drug_descriptors.tsv
 
   gdscv1:
     - target_class: Sample
-      file: /tmp/gdscv1_samples.csv
+      file: local/gdscv1_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/gdscv1_transcriptomics.csv
+      file: local/gdscv1_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/gdscv1_proteomics.csv
+      file: local/gdscv1_proteomics.csv
     - target_class: Mutations
-      file: /tmp/gdscv1_mutations.csv
+      file: local/gdscv1_mutations.csv
     - target_class: Copy Number
-      file: /tmp/gdscv1_copy_number.csv
+      file: local/gdscv1_copy_number.csv
     - target_class: Experiments
-      file: /tmp/gdscv1_experiments.tsv
+      file: local/gdscv1_experiments.tsv
     - target_class: Drug
-      file: /tmp/gdscv1_drugs.tsv
+      file: local/gdscv1_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/gdscv1_drug_descriptors.tsv
+      file: local/gdscv1_drug_descriptors.tsv
 
   gdscv2:
     - target_class: Sample
-      file: /tmp/gdscv2_samples.csv
+      file: local/gdscv2_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/gdscv2_transcriptomics.csv
+      file: local/gdscv2_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/gdscv2_proteomics.csv
+      file: local/gdscv2_proteomics.csv
     - target_class: Mutations
-      file: /tmp/gdscv2_mutations.csv
+      file: local/gdscv2_mutations.csv
     - target_class: Copy Number
-      file: /tmp/gdscv2_copy_number.csv
+      file: local/gdscv2_copy_number.csv
     - target_class: Experiments
-      file: /tmp/gdscv2_experiments.tsv
+      file: local/gdscv2_experiments.tsv
     - target_class: Drug
-      file: /tmp/gdscv2_drugs.tsv
+      file: local/gdscv2_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/gdscv2_drug_descriptors.tsv
+      file: local/gdscv2_drug_descriptors.tsv
 
   nci60:
     - target_class: Sample
-      file: /tmp/nci60_samples.csv
+      file: local/nci60_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/nci60_transcriptomics.csv
+      file: local/nci60_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/nci60_proteomics.csv
+      file: local/nci60_proteomics.csv
     - target_class: Mutations
-      file: /tmp/nci60_mutations.csv
+      file: local/nci60_mutations.csv
     - target_class: Copy Number
-      file: /tmp/nci60_copy_number.csv
+      file: local/nci60_copy_number.csv
     - target_class: Experiments
-      file: /tmp/nci60_experiments.tsv
+      file: local/nci60_experiments.tsv
     - target_class: Drug
-      file: /tmp/nci60_drugs.tsv
+      file: local/nci60_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/nci60_drug_descriptors.tsv
+      file: local/nci60_drug_descriptors.tsv
 
   prism:
     - target_class: Sample
-      file: /tmp/prism_samples.csv
+      file: local/prism_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/prism_transcriptomics.csv
+      file: local/prism_transcriptomics.csv
     - target_class: Proteomics
-      file: /tmp/prism_proteomics.csv
+      file: local/prism_proteomics.csv
     - target_class: Mutations
-      file: /tmp/prism_mutations.csv
+      file: local/prism_mutations.csv
     - target_class: Copy Number
-      file: /tmp/prism_copy_number.csv
+      file: local/prism_copy_number.csv
     - target_class: Experiments
-      file: /tmp/prism_experiments.tsv
+      file: local/prism_experiments.tsv
     - target_class: Drug
-      file: /tmp/prism_drugs.tsv
+      file: local/prism_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/prism_drug_descriptors.tsv
+      file: local/prism_drug_descriptors.tsv
 
   pancpdo:
     - target_class: Sample
-      file: /tmp/pancpdo_samples.csv
+      file: local/pancpdo_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/pancpdo_transcriptomics.csv
+      file: local/pancpdo_transcriptomics.csv
+    - target_class: Mutations
+      file: local/pancpdo_mutations.csv
+    - target_class: Copy Number
+      file: local/pancpdo_copy_number.csv
     - target_class: Experiments
-      file: /tmp/pancpdo_experiments.tsv
+      file: local/pancpdo_experiments.tsv
     - target_class: Drug
-      file: /tmp/pancpdo_drugs.tsv
+      file: local/pancpdo_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/pancpdo_drug_descriptors.tsv
+      file: local/pancpdo_drug_descriptors.tsv
+
+
+  bladderpdo:
+    - target_class: Sample
+      file: local/bladderpdo_samples.csv
+    - target_class: Transcriptomics
+      file: local/bladderpdo_transcriptomics.csv    
+    - target_class: Mutations
+      file: local/bladderpdo_mutations.csv
+    - target_class: Copy Number
+      file: local/bladderpdo_copy_number.csv
+    - target_class: Experiments
+      file: local/bladderpdo_experiments.tsv
+    - target_class: Drug
+      file: local/bladderpdo_drugs.tsv
+    - target_class: Drug Descriptor
+      file: local/bladderpdo_drug_descriptors.tsv
+
+
+  sarcpdo:
+    - target_class: Sample
+      file: local/sarcpdo_samples.csv
+    - target_class: Transcriptomics
+      file: local/sarcpdo_transcriptomics.csv   
+    - target_class: Mutations
+      file: local/sarcpdo_mutations.csv
+    - target_class: Experiments
+      file: local/sarcpdo_experiments.tsv
+    - target_class: Drug
+      file: local/sarcpdo_drugs.tsv
+    - target_class: Drug Descriptor
+      file: local/sarcpdo_drug_descriptors.tsv
