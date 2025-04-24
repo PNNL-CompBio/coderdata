@@ -46,17 +46,20 @@ def download_synapse_data(synID:str, save_path:str = None, synToken:str = None):
 def create_crcpdo_drug_data(fitted_drug_data_path:str, prevDrugFilepath:str, output_drug_data_path:str):
     # import fitted drug data and get drug names from DRUG_NAME column
     fitted_drug_df = pd.read_csv(fitted_drug_data_path)
-    crcpdo_drugs_df = pd.DataFrame({"DRUG_NAME":fitted_drug_df['DRUG_NAME'].unique()})
+    crcpdo_drugs_df = pd.DataFrame({"chem_name":fitted_drug_df['DRUG_NAME'].unique()})
     # if there is a prev drug file, check for new drugs
-    if prevDrugFilepath != None and prevDrugFilepath != "":
-        prev_drug_df = pd.read_csv(prevDrugFilepath)
+    if prevDrugFilepath != "":
+        if prevDrugFilepath.__contains__(".tsv"):
+            prev_drug_df = pd.read_csv(prevDrugFilepath, sep='\t')
+        else:
+            prev_drug_df = pd.read_csv(prevDrugFilepath)
         # get drugs that are only in the crcpdo_drugs_df (aka new drugs only)
         new_drugs_df = crcpdo_drugs_df[~crcpdo_drugs_df.chem_name.isin(prev_drug_df.chem_name)]
     else:
         # if there's no prev drugs, then all drugs are new
         new_drugs_df = crcpdo_drugs_df
     # get new drug names
-    new_drug_names = new_drugs_df['DRUG_NAME'].unique()
+    new_drug_names = new_drugs_df['chem_name'].unique()
     # call function that gets info for these drugs
     update_dataframe_and_write_tsv(new_drug_names,output_drug_data_path)
 
