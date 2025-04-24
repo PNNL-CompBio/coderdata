@@ -44,6 +44,7 @@ def process_docker(dataset,validate):
         'mpnstpdx': ['mpnstpdx'],
         'pancpdo': ['pancpdo'],
         'cptac': ['cptac'],
+        'sarcpdo': ['sarcpdo'],
         'genes': ['genes'],
         'upload': ['upload'], 
         'bladderpdo': ['bladderpdo']
@@ -57,7 +58,7 @@ def process_docker(dataset,validate):
         
     datasets_to_build.extend(dataset_map.get(dataset, []))
 
-    compose_command = ['docker','compose', '-f', compose_file, 'build'] + datasets_to_build
+    compose_command = ['docker-compose', '-f', compose_file, 'build'] + datasets_to_build
 
     log_file_path = 'local/docker.log'
     env = os.environ.copy()
@@ -125,8 +126,9 @@ def process_omics(executor, dataset, should_continue):
         'broad_sanger': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'cptac': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'hcmi': ['mutations', 'transcriptomics'],
+        'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
+        'sarcpdo': ['mutations', 'transcriptomics'],
         'pancpdo': ['transcriptomics'],
-        'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics'], 
         'bladderpdo': ['copy_number', 'mutations', 'transcriptomics']
     }
 

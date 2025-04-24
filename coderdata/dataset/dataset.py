@@ -341,7 +341,7 @@ class Dataset:
         split_type: Literal[
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
-        ratio: tuple[int, int, int]=(8,2),
+        ratio: tuple[int, int]=(8,2),
         stratify_by: Optional[str]=None,
         balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
@@ -351,7 +351,7 @@ class Dataset:
         split = split_train_other(
             data=self,
             split_type=split_type,
-            ration=ratio,
+            ratio=ratio,
             stratify_by=stratify_by,
             balance=balance,
             random_state=random_state,
@@ -728,19 +728,19 @@ def split_train_other(
         split_type: Literal[
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
-        ratio: tuple[int, int, int]=(8,2),
+        ratio: tuple[int, int]=(8,2),
         stratify_by: Optional[str]=None,
         balance: bool=False,
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict, 
     ):
     train, other = _split_two_way(
-        data,
-        split_type,
-        ratio,
-        stratify_by,
-        balance,
-        random_state,
+        data=data,
+        split_type=split_type,
+        ratio=ratio,
+        stratify_by=stratify_by,
+        balance=balance,
+        random_state=random_state,
         **kwargs
     )
     if stratify_by is not None:
@@ -968,21 +968,26 @@ def _filter(data: Dataset, split: pd.DataFrame) -> Dataset:
     # cd.samples -> reduce based on improve_sample_id
     # cd.transcriptomics -> reduce based on improve_sample_id
     
-    data_ret.drugs = data_ret.drugs[
-        data_ret.drugs['improve_drug_id'].isin(drug_ids)
-        ]
-    data_ret.mutations = data_ret.mutations[
-        data_ret.mutations['improve_sample_id'].isin(sample_ids)
-        ]
-    data_ret.proteomics = data_ret.proteomics[
-        data_ret.proteomics['improve_sample_id'].isin(sample_ids)
-        ]
-    data_ret.samples = data_ret.samples[
-        data_ret.samples['improve_sample_id'].isin(sample_ids)
-        ]
-    data_ret.transcriptomics = data_ret.transcriptomics[
-        data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
-        ]
+    if data_ret.drugs is not None:
+        data_ret.drugs = data_ret.drugs[
+            data_ret.drugs['improve_drug_id'].isin(drug_ids)
+            ]
+    if data_ret.mutations is not None:
+        data_ret.mutations = data_ret.mutations[
+            data_ret.mutations['improve_sample_id'].isin(sample_ids)
+            ]
+    if data_ret.proteomics is not None:
+        data_ret.proteomics = data_ret.proteomics[
+            data_ret.proteomics['improve_sample_id'].isin(sample_ids)
+            ]
+    if data_ret.samples is not None:
+        data_ret.samples = data_ret.samples[
+            data_ret.samples['improve_sample_id'].isin(sample_ids)
+            ]
+    if data_ret.transcriptomics is not None:
+        data_ret.transcriptomics = data_ret.transcriptomics[
+            data_ret.transcriptomics['improve_sample_id'].isin(sample_ids)
+        ]   
     data_ret.experiments = split_long
     
     return data_ret

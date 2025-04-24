@@ -5,6 +5,12 @@ import gzip
 import shutil
 
 def main():
+    
+    print("ls:\n")
+    files = os.listdir(".")
+    print(files)
+    print("\n")
+    
     datasets_to_process = ["CCLE", "CTRPv2", "PRISM", "GDSCv1", "GDSCv2", "FIMM", "gCSI", "NCI60"]
     omics_datatypes = ["transcriptomics","proteomics", "copy_number","mutations"] # csv 
     samples_datatypes = ["samples"] #csv
@@ -13,14 +19,14 @@ def main():
 
 
     dataset_sources = {
-        "CCLE": ["Broad"],
-        "CTRPv2": ["Broad"],
-        "PRISM": ["Broad"],
-        "GDSCv1": ["Sanger"],
-        "GDSCv2": ["Sanger"],
-        "FIMM": ["Broad"],
-        "gCSI": ["Broad"],  # gCSI generates its own omics data but it is comparable to CCLE. In future, retrive gCSI omics.
-        "NCI60": ["Broad"]
+        "CCLE": ["broad"],
+        "CTRPv2": ["broad"],
+        "PRISM": ["broad"],
+        "GDSCv1": ["sanger"],
+        "GDSCv2": ["sanger"],
+        "FIMM": ["broad"],
+        "gCSI": ["broad"],  # gCSI generates its own omics data but it is comparable to CCLE. In future, retrive gCSI omics.
+        "NCI60": ["broad"]
     }
 
     for dataset in datasets_to_process:
@@ -70,14 +76,15 @@ def main():
 
         #One by one, filter other Omics files, write to file, delete from mem.
         for omics in omics_datatypes:
-            omics_filename_in = f"broad_sanger_{omics}.csv"
+            ds = dataset_sources[dataset][0]
+            omics_filename_in = f"{ds}_{omics}.csv"
             if os.path.isfile(omics_filename_in + ".gz"):
                 omics_filename_in += ".gz"
                 
             omics_filename_out = f"/tmp/{dataset}_{omics}.csv".lower()
             omics_df = pl.read_csv(omics_filename_in)
             omics_df = omics_df.filter(pl.col("improve_sample_id").is_in(exp_improve_sample_ids))
-            omics_df = omics_df.filter(pl.col("source").is_in(dataset_sources[dataset]))
+#            omics_df = omics_df.filter(pl.col("source").is_in(dataset_sources[dataset]))
             omics_df.write_csv(omics_filename_out) #csv
             
             #Rewrite as gzipped if needed
