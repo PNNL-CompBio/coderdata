@@ -261,4 +261,4 @@ datasets:
     - target_class: Drug
       file: /tmp/crcpdo_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/crcpdo_drug_descriptors.csv
+      file: /tmp/crcpdo_drug_descriptors.tsv

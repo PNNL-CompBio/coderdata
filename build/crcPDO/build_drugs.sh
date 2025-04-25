@@ -9,4 +9,4 @@ echo "Running 03-drug-crcpdo.py with token and PrevDrugs $1."
 python3 03-drug-crcpdo.py --Download --Drug --Token $SYNAPSE_AUTH_TOKEN --PrevDrugs $1
 
 # running the drug descriptor python script
-python3 build_drug_desc.py --drugtable /tmp/crcpdo_drugs.tsv --desctable /tmp/crcpdo_drug_descriptors.csv.gz
+python3 build_drug_desc.py --drugtable /tmp/crcpdo_drugs.tsv --desctable /tmp/crcpdo_drug_descriptors.tsv.gz
