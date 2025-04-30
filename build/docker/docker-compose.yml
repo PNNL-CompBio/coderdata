@@ -104,3 +104,12 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: upload:latest
+
+  crcpdo:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.crcpdo
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: crcpdo:latest
