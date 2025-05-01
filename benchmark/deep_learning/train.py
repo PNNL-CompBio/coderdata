@@ -631,6 +631,8 @@ def main():
         else:
             out_file.write(f"{data_split_seed}\t{args.dataset}\t{n_epochs}\t{split_method}\t{encoder}\t{args.test_type}\t"
                         f"{args.gene_selection}\t{gene_number}\t{args.omics}\tNA\tNA\tNA\tNA\tNA\n") 
+            
+    print(f"Results also saved to {args.output}")
 
 if __name__ == '__main__':
     main()
