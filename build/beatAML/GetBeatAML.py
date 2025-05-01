@@ -424,6 +424,9 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
         mapped_df.rename(columns={"hgvsc": "mutation"}, inplace=True)
         mapped_df.rename(columns={"labId": "sample_id"}, inplace=True)
         mapped_df.rename(columns={"Entrez_Gene_Id": "entrez_id"}, inplace=True)
+        
+        #remove (gene) information preceeding the colon - this formats it like other datasets.
+        mapped_df["mutation"] = mapped_df["mutation"].astype(str).str.split(":", n=1).str[-1]
 
         variant_mapping = {
             'frameshift_variant': 'Frameshift_Variant',
