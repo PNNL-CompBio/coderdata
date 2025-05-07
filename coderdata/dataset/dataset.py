@@ -470,6 +470,21 @@ def load(
         _description_
     """
 
+    data_types_to_load = (
+        'transcriptomics',
+        'proteomics',
+        'mutations',
+        'copy_number',
+        'samples',
+        'drugs',
+        'drug_descriptors',
+        'mirna',
+        'experiments',
+        'methylation',
+        'metabolomics',
+        'genes',
+    )
+
     if type(local_path) is not Path:
         try:
             local_path = Path(local_path)
@@ -487,30 +502,45 @@ def load(
         dataset = Dataset(name)
         accepted_file_endings = ('.csv', '.tsv', '.csv.gz', '.tsv.gz')
         print(f"Importing raw data ...", file=sys.stderr)
-        for child in local_path.iterdir():
-            if child.name in ["genes.csv", "genes.csv.gz"]:
+        
+        # generating the file list that contains all files that need to 
+        # be imported based on the Dataset name
+        files = {}
+        for p in local_path.glob(f'{name}_*'):
+            if p.name.endswith(accepted_file_endings) and p.is_file():
+                dataset_type = p.name[len(name)+1:].split('.')[0]
+                files[dataset_type] = p
+        for p in local_path.glob(f'genes*'):
+            if p.name.endswith(accepted_file_endings) and p.is_file():
+                files['genes'] = p
+
+        for dataset_type in data_types_to_load:
+            if dataset_type not in files:
                 print(
-                    f"Importing 'genes' from {child} ...",
-                    end=' ',
+                    f"'{dataset_type}' not available for {name}",
+                    end='\n',
                     file=sys.stderr
                     )
-                dataset.genes = _load_file(child)
-                print("DONE", file=sys.stderr)
-
-            if (
-                child.name.startswith(name)
-                and child.name.endswith(accepted_file_endings)
-                ):
-
-                dataset_type = child.name[len(name)+1:].split('.')[0]
+                continue
+            file = files[dataset_type]
+            if dataset_type != 'genes':
                 print(
-                    f"Importing '{dataset_type}' from {child} ...",
+                    f"Importing '{dataset_type}' from {file} ...",
                     end=' ',
                     file=sys.stderr
                     )
                 if hasattr(dataset, dataset_type):
-                    setattr(dataset, dataset_type, _load_file(child))
+                    setattr(dataset, dataset_type, _load_file(file))
                     print("DONE", file=sys.stderr)
+            else:
+                print(
+                    f"Importing 'genes' from {file} ...",
+                    end=' ',
+                    file=sys.stderr
+                    )
+                dataset.genes = _load_file(file)
+                print("DONE", file=sys.stderr)
+
         print(f"Importing raw data ... DONE", file=sys.stderr)
         return dataset
 
