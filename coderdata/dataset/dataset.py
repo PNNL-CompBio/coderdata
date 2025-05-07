@@ -533,12 +533,30 @@ def load(
                     setattr(dataset, dataset_type, _load_file(file))
                     print("DONE", file=sys.stderr)
             else:
+                '''
+                The genes dataset available in the online repository is
+                universal and contains information on genes of all 
+                datasets. To that end it needs to be subsetted to only
+                those genes that are associate with a specific cancer
+                dataset.
+                '''
                 print(
                     f"Importing 'genes' from {file} ...",
                     end=' ',
                     file=sys.stderr
                     )
                 dataset.genes = _load_file(file)
+
+                entrez_ids = set()
+                for dataset_type in ('transcriptomics', 'proteomics',
+                                     'mutations', 'copy_number'):
+                    if getattr(dataset, dataset_type) is not None:
+                        entrez_ids.update(list(
+                           getattr(dataset, dataset_type)['entrez_id'].unique()
+                        ))                
+                dataset.genes = dataset.genes[
+                    dataset.genes['entrez_id'].isin(entrez_ids)
+                    ]
                 print("DONE", file=sys.stderr)
 
         print(f"Importing raw data ... DONE", file=sys.stderr)
