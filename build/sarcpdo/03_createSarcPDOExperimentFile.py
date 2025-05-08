@@ -45,10 +45,10 @@ if __name__ == "__main__":
     # add static info
     final_experiment.loc[:,['study']] = 'Landscape of Sarcoma'
     final_experiment.loc[:,['source']] = 'AlShihabietal2024'
-    final_experiment.loc[:,['time']] = None
-    final_experiment.loc[:,['time_unit']]= None
+    final_experiment.loc[:,['time']] = 2
+    final_experiment.loc[:,['time_unit']]= 'days'
     final_experiment.loc[:,['dose_response_metric']] = 'published_auc' 
-    final_experiment.loc[:,['dose_response_value']] = final_experiment['Viability_Score']
+    final_experiment.loc[:,['dose_response_value']] = final_experiment['Viability_Score'] / 100
 
     toReturn = final_experiment[['source', 'improve_sample_id', 'improve_drug_id', 'study', 'time', 'time_unit', 'dose_response_metric', 'dose_response_value']]
 
