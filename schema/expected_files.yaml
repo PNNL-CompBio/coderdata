@@ -109,24 +109,6 @@ datasets:
     - target_class: Drug Descriptor
       file: /tmp/ctrpv2_drug_descriptors.tsv
 
-  depmap:
-    - target_class: Sample
-      file: /tmp/depmap_samples.csv
-    - target_class: Transcriptomics
-      file: /tmp/depmap_transcriptomics.csv
-    - target_class: Proteomics
-      file: /tmp/depmap_proteomics.csv
-    - target_class: Mutations
-      file: /tmp/depmap_mutations.csv
-    - target_class: Copy Number
-      file: /tmp/depmap_copy_number.csv
-    - target_class: Experiments
-      file: /tmp/depmap_experiments.csv
-    - target_class: Drug
-      file: /tmp/depmap_drugs.tsv
-    - target_class: Drug Descriptor
-      file: /tmp/depmap_drug_descriptors.tsv
-
   fimm:
     - target_class: Sample
       file: /tmp/fimm_samples.csv
@@ -240,12 +222,46 @@ datasets:
       file: /tmp/pancpdo_samples.csv
     - target_class: Transcriptomics
       file: /tmp/pancpdo_transcriptomics.csv
+    - target_class: Mutations
+      file: /tmp/pancpdo_mutations.csv
+    - target_class: Copy Number
+      file: /tmp/pancpdo_copy_number.csv
     - target_class: Experiments
       file: /tmp/pancpdo_experiments.tsv
     - target_class: Drug
       file: /tmp/pancpdo_drugs.tsv
     - target_class: Drug Descriptor
       file: /tmp/pancpdo_drug_descriptors.tsv
+
+  bladderpdo:
+    - target_class: Sample
+      file: /tmp/bladderpdo_samples.csv
+    - target_class: Transcriptomics
+      file: /tmp/bladderpdo_transcriptomics.csv    
+    - target_class: Mutations
+      file: /tmp/bladderpdo_mutations.csv
+    - target_class: Copy Number
+      file: /tmp/bladderpdo_copy_number.csv
+    - target_class: Experiments
+      file: /tmp/bladderpdo_experiments.tsv
+    - target_class: Drug
+      file: /tmp/bladderpdo_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/bladderpdo_drug_descriptors.tsv
+
+  sarcpdo:
+    - target_class: Sample
+      file: /tmp/sarcpdo_samples.csv
+    - target_class: Transcriptomics
+      file: /tmp/sarcpdo_transcriptomics.csv   
+    - target_class: Mutations
+      file: /tmp/sarcpdo_mutations.csv
+    - target_class: Experiments
+      file: /tmp/sarcpdo_experiments.tsv
+    - target_class: Drug
+      file: /tmp/sarcpdo_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/sarcpdo_drug_descriptors.tsv
 
   crcpdo:
     - target_class: Sample
@@ -262,3 +278,4 @@ datasets:
       file: /tmp/crcpdo_drugs.tsv
     - target_class: Drug Descriptor
       file: /tmp/crcpdo_drug_descriptors.tsv
+
