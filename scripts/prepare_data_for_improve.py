@@ -44,6 +44,12 @@ def main():
         default='warn',
         help='defines verbosity level of logging'
     )
+    p_shared_args.add_argument(
+        '--names',
+        dest='DATASET_NAMES',
+        type=_dataset_list,
+        default=list(cd.list_datasets(raw=True).keys())
+    )
 
     p_setup_workflow = command_parsers.add_parser(
         "setup",
@@ -142,15 +148,13 @@ def process_datasets(args):
     local_path = args.WORKDIR.joinpath('data_in_tmp')
     
     # getting the info which datasets are available
-    data_sets_info = cd.list_datasets(raw=True)
+    data_sets_names_list = args.DATASET_NAMES
     
     # loading all available datasets into a dict where the dataset name
     # is the key
     logger.info("importing datasets...")
     data_sets = {}
-    for data_set in data_sets_info.keys():
-        if data_set == 'sarcpdo':
-            continue
+    for data_set in data_sets_names_list:
         data_sets[data_set] = cd.load(name=data_set, local_path=local_path)
     logger.info("importing datasets... done")
 
@@ -160,11 +164,20 @@ def process_datasets(args):
     logger.info("creating 'response.tsv' ...")
     experiments = []
     logger.debug("creating list of datasets that contain experiment info ...")
-    for data_set in data_sets_info.keys():
+    for data_set in data_sets_names_list:
+        # sarcpdo has different drug response values
         if data_set == 'sarcpdo':
-            continue
+            experiment = data_sets[data_set].format(
+                data_type='experiments',
+                shape='wide',
+                metrics=[
+                    'published_auc',
+                ],
+            )
+            experiment.rename(columns={'published_auc': 'auc'}, inplace=True)
+            experiments.append(experiment)
         # not all Datasets have experiments / drug response data
-        if data_sets[data_set].experiments is not None:
+        elif data_sets[data_set].experiments is not None:
             logger.debug(f"experiment data found for {data_set}")
             # formatting existing response data to wide
             experiment = data_sets[data_set].format(
@@ -188,7 +201,10 @@ def process_datasets(args):
 
     # concatenating existing response data and "clean up"
     logger.debug("concatenating experiment data ...")
-    response_data = pd.concat(experiments, axis=0, ignore_index=True)
+    if len(experiments) > 1:
+        response_data = pd.concat(experiments, axis=0, ignore_index=True)
+    else:
+        response_data = experiments.pop()
     # TODO: potentially more columns must be renamed
     # (e.g. fit_auc to auc). If so this would happen here
     response_data.rename(
@@ -216,7 +232,7 @@ def process_datasets(args):
     split_data_sets(
         args=args,
         data_sets=data_sets,
-        data_sets_info=data_sets_info,
+        data_sets_names=data_sets_names_list,
         response_data=response_data
         )
 
@@ -316,94 +332,97 @@ def process_datasets(args):
     #-------------------------------------------------------------------
 
     merged_copy_number = merge_master_tables(args, data_sets=data_sets, data_type='copy_number')
-    merged_copy_number.fillna(1, inplace=True)
+    if merged_copy_number is not None:
+        merged_copy_number.fillna(1, inplace=True)
 
-    discretized_copy_number = merged_copy_number.apply(
-        pd.cut,
-        bins = [0, 0.5210507, 0.7311832, 1.214125, 1.422233, 2],
-        labels = [-2, -1, 0, 1, 2],
-        include_lowest=True
-    )
-
-    merged_copy_number = pd.merge(
-        merged_copy_number,
-        data_gene_names[[
-            'entrez_id',
-            'ensembl_gene_id',
-            'gene_symbol'
-        ]],
-        how='left',
-        on='entrez_id',
-    )
-
-    merged_copy_number.insert(
-        1,
-        'ensembl_gene_id',
-        merged_copy_number.pop('ensembl_gene_id')
-    )
-    merged_copy_number.insert(
-        1,
-        'gene_symbol',
-        merged_copy_number.pop('gene_symbol')
-    )
-    merged_copy_number = merged_copy_number.T.reset_index()
-    for i in range(0,3):
-        merged_copy_number.iloc[i,0] = np.nan
-
-    # writing the expression datatable to '/x_data/*_copy_number.tsv'
-    outfile_path = args.WORKDIR.joinpath(
-        "data_out",
-        "x_data",
-        "cancer_copy_number.tsv"
-    )
-    (merged_copy_number
-        .to_csv(
-            path_or_buf=outfile_path,
-            sep='\t',
-            header=False,
-            index=False
-            )
+        discretized_copy_number = merged_copy_number.apply(
+            pd.cut,
+            bins = [0, 0.5210507, 0.7311832, 1.214125, 1.422233, 2],
+            labels = [-2, -1, 0, 1, 2],
+            include_lowest=True
         )
-    
-    discretized_copy_number = pd.merge(
-        discretized_copy_number,
-        data_gene_names[[
-            'entrez_id',
-            'ensembl_gene_id',
-            'gene_symbol'
-        ]],
-        how='left',
-        on='entrez_id',
-    )
 
-    discretized_copy_number.insert(
-        1,
-        'ensembl_gene_id',
-        discretized_copy_number.pop('ensembl_gene_id')
-    )
-    discretized_copy_number.insert(
-        1,
-        'gene_symbol',
-        discretized_copy_number.pop('gene_symbol')
-    )
-    discretized_copy_number = discretized_copy_number.T.reset_index()
-    for i in range(0,3):
-        discretized_copy_number.iloc[i,0] = np.nan
-
-    # writing the expression datatable to '/x_data/*_copy_number.tsv'
-    outfile_path = args.WORKDIR.joinpath(
-        "data_out",
-        "x_data",
-        "cancer_discretized_copy_number.tsv"
-    )
-    (discretized_copy_number
-        .to_csv(
-            path_or_buf=outfile_path,
-            sep='\t',
-            header=False,
-            index=False
-            )
+        merged_copy_number = pd.merge(
+            merged_copy_number,
+            data_gene_names[[
+                'entrez_id',
+                'ensembl_gene_id',
+                'gene_symbol'
+            ]],
+            how='left',
+            on='entrez_id',
         )
+
+        merged_copy_number.insert(
+            1,
+            'ensembl_gene_id',
+            merged_copy_number.pop('ensembl_gene_id')
+        )
+        merged_copy_number.insert(
+            1,
+            'gene_symbol',
+            merged_copy_number.pop('gene_symbol')
+        )
+        merged_copy_number = merged_copy_number.T.reset_index()
+        for i in range(0,3):
+            merged_copy_number.iloc[i,0] = np.nan
+
+        # writing the expression datatable to '/x_data/*_copy_number.tsv'
+        outfile_path = args.WORKDIR.joinpath(
+            "data_out",
+            "x_data",
+            "cancer_copy_number.tsv"
+        )
+        (merged_copy_number
+            .to_csv(
+                path_or_buf=outfile_path,
+                sep='\t',
+                header=False,
+                index=False
+                )
+            )
+        
+        discretized_copy_number = pd.merge(
+            discretized_copy_number,
+            data_gene_names[[
+                'entrez_id',
+                'ensembl_gene_id',
+                'gene_symbol'
+            ]],
+            how='left',
+            on='entrez_id',
+        )
+
+        discretized_copy_number.insert(
+            1,
+            'ensembl_gene_id',
+            discretized_copy_number.pop('ensembl_gene_id')
+        )
+        discretized_copy_number.insert(
+            1,
+            'gene_symbol',
+            discretized_copy_number.pop('gene_symbol')
+        )
+        discretized_copy_number = discretized_copy_number.T.reset_index()
+        for i in range(0,3):
+            discretized_copy_number.iloc[i,0] = np.nan
+
+        # writing the expression datatable to '/x_data/*_copy_number.tsv'
+        outfile_path = args.WORKDIR.joinpath(
+            "data_out",
+            "x_data",
+            "cancer_discretized_copy_number.tsv"
+        )
+        (discretized_copy_number
+            .to_csv(
+                path_or_buf=outfile_path,
+                sep='\t',
+                header=False,
+                index=False
+                )
+            )
+    else:
+        logger.info(f"No copy number variation available for datasets {data_sets_names_list}")
     
     #-------------------------------------------------------------------
     # create SMILES table
@@ -415,8 +434,11 @@ def process_datasets(args):
             and data_sets[data_set].drugs is not None
         ):
             dfs_to_merge[data_set] = deepcopy(data_sets[data_set].drugs)
-
-    concat_drugs = pd.concat(dfs_to_merge.values())
+    
+    if len(dfs_to_merge) > 1:
+        concat_drugs = pd.concat(dfs_to_merge.values())
+    else:
+        concat_drugs = dfs_to_merge.popitem()[1]
     out_df = concat_drugs[['improve_drug_id','canSMILES']].drop_duplicates()
 
     if args.EXCL_DRUGS_LIST is not None:
@@ -454,7 +476,10 @@ def process_datasets(args):
         ):
             dfs_to_merge[data_set] = deepcopy(data_sets[data_set].drugs)
 
-    concat_drugs = pd.concat(dfs_to_merge.values())
+    if len(dfs_to_merge) > 1:
+        concat_drugs = pd.concat(dfs_to_merge.values())
+    else:
+        concat_drugs = dfs_to_merge.popitem()[1]
     out_df = deepcopy(concat_drugs)
     out_df['SMILES'] = concat_drugs['canSMILES']
     out_df['DrugID'] = concat_drugs['improve_drug_id']
@@ -465,6 +490,12 @@ def process_datasets(args):
     out_df['PUBCHEM_ID'] = out_df['PUBCHEM_ID'].fillna(0)
     out_df['PUBCHEM_ID'] = pd.to_numeric(out_df['PUBCHEM_ID'], errors='coerce', downcast='integer')
     out_df['PUBCHEM_ID'] = out_df['PUBCHEM_ID'].replace(0, None)
+
+    if args.EXCL_DRUGS_LIST is not None:
+        logger.info(
+            f"Removing all chemical compunds with ids: '{args.EXCL_DRUGS_LIST}'"
+        )
+        out_df = out_df[~out_df['improve_chem_id'].isin(args.EXCL_DRUGS_LIST)]
 
     outfile_path = args.WORKDIR.joinpath(
         "data_out",
@@ -491,7 +522,10 @@ def process_datasets(args):
             df_tmp = df_tmp.drop(columns=['morgan fingerprint']).add_prefix('mordred.')
             dfs_to_merge[data_set] = df_tmp
 
-    concat_drugs = pd.concat(dfs_to_merge.values())
+    if len(dfs_to_merge) > 1:
+        concat_drugs = pd.concat(dfs_to_merge.values())
+    else:
+        concat_drugs = dfs_to_merge.popitem()[1]
     concat_drugs = concat_drugs.replace({'False': '0', 'True': '1'})
     cols = concat_drugs.columns
     concat_drugs[cols] = concat_drugs[cols].apply(pd.to_numeric, errors='coerce')
@@ -534,9 +568,17 @@ def process_datasets(args):
             df_tmp = df_tmp['morgan fingerprint']
             dfs_to_merge[data_set] = df_tmp
     
-    concat_drugs = pd.concat(dfs_to_merge.values())
+    if len(dfs_to_merge) > 1:
+        concat_drugs = pd.concat(dfs_to_merge.values())
+    else:
+        concat_drugs = dfs_to_merge.popitem()[1]
     out_df = concat_drugs.reset_index()
     out_df = out_df.drop_duplicates(subset=['improve_drug_id'], keep='first')
+    if args.EXCL_DRUGS_LIST is not None:
+        logger.info(
+            f"Removing all chemical compunds with ids: '{args.EXCL_DRUGS_LIST}'"
+        )
+        out_df = out_df[~out_df['improve_drug_id'].isin(args.EXCL_DRUGS_LIST)]
     out_df = pd.concat((out_df, out_df['morgan fingerprint'].astype(str).apply(lambda x: pd.Series(list(x))).astype(int).add_prefix('ecfp4.')), axis=1)
     out_df = out_df.drop(['morgan fingerprint'], axis=1)
     out_df.rename(
@@ -565,76 +607,87 @@ def process_datasets(args):
         if data_sets[data_set].experiments is not None and data_sets[data_set].mutations is not None:
             dfs_to_merge[data_set] = data_sets[data_set].mutations
             dfs_to_merge[data_set]['dataset_origin'] = data_set
-    merged_mutations = ft.reduce(
+
+    muts = True
+    if len(dfs_to_merge) > 1:
+        merged_mutations = pd.concat(dfs_to_merge.values())
+        merged_mutations = ft.reduce(
         lambda left_df, right_df: pd.merge(
             left_df[['entrez_id', 'improve_sample_id', 'mutation', 'dataset_origin']],
             right_df[['entrez_id', 'improve_sample_id', 'mutation', 'dataset_origin']],
             on=['entrez_id', 'improve_sample_id', 'mutation', 'dataset_origin'],
             how='outer'),
             dfs_to_merge.values())
+    elif len(dfs_to_merge) == 1:
+        merged_mutations = dfs_to_merge.popitem()[1]
+    else:
+        muts = False
     
-    # retrieving unique mutations (the above creates multiplicates) & 
-    # adding a prefix to the improve_sample_id
-    unique_mutations = merged_mutations[['entrez_id', 'improve_sample_id', 'mutation']].drop_duplicates()
-    unique_mutations['improve_sample_id'] = 'SAMPLE-ID-' + unique_mutations['improve_sample_id'].astype(str)
-    
-    # counting the mutations per entrez_id/improve_sample_id pair and
-    # aggregating it into a pivot table (also filling NAs with 0s)
-    mutation_counts = pd.pivot_table(unique_mutations, values='mutation', index='entrez_id', columns='improve_sample_id',
-                          aggfunc='count')
-    mutation_counts.fillna(0, inplace=True)
+    if muts:
+        # retrieving unique mutations (the above creates multiplicates) & 
+        # adding a prefix to the improve_sample_id
+        unique_mutations = merged_mutations[['entrez_id', 'improve_sample_id', 'mutation']].drop_duplicates()
+        unique_mutations['improve_sample_id'] = 'SAMPLE-ID-' + unique_mutations['improve_sample_id'].astype(str)
+        
+        # counting the mutations per entrez_id/improve_sample_id pair and
+        # aggregating it into a pivot table (also filling NAs with 0s)
+        mutation_counts = pd.pivot_table(unique_mutations, values='mutation', index='entrez_id', columns='improve_sample_id',
+                            aggfunc='count')
+        mutation_counts.fillna(0, inplace=True)
 
-    # merging in the gene_symbol and ensembl_gene_id
-    mutation_counts = pd.merge(       
-        mutation_counts,
-        data_gene_names[[
-            'entrez_id',
+        # merging in the gene_symbol and ensembl_gene_id
+        mutation_counts = pd.merge(       
+            mutation_counts,
+            data_gene_names[[
+                'entrez_id',
+                'ensembl_gene_id',
+                'gene_symbol'
+            ]],
+            how='left',
+            on='entrez_id',
+        )
+
+        # rearranging the colums such that entrez_id, gene_symbol and
+        # ensenbl_gene_id are the first three rows after transposing the
+        # table
+        mutation_counts.insert(
+            1,
             'ensembl_gene_id',
-            'gene_symbol'
-        ]],
-        how='left',
-        on='entrez_id',
-    )
+            mutation_counts.pop('ensembl_gene_id')
+        )
+        mutation_counts.insert(
+            1,
+            'gene_symbol',
+            mutation_counts.pop('gene_symbol')
+        )
 
-    # rearranging the colums such that entrez_id, gene_symbol and
-    # ensenbl_gene_id are the first three rows after transposing the
-    # table
-    mutation_counts.insert(
-        1,
-        'ensembl_gene_id',
-        mutation_counts.pop('ensembl_gene_id')
-    )
-    mutation_counts.insert(
-        1,
-        'gene_symbol',
-        mutation_counts.pop('gene_symbol')
-    )
+        # removing some rows where we don't have a 'gene_symbol' for the 
+        # entrez id
+        mutation_counts = mutation_counts[mutation_counts['gene_symbol'].notna()]
+        mutation_counts = mutation_counts.T.reset_index()
+        for i in range(0,3):
+            mutation_counts.iloc[i,0] = np.nan
 
-    # removing some rows where we don't have a 'gene_symbol' for the 
-    # entrez id
-    mutation_counts = mutation_counts[mutation_counts['gene_symbol'].notna()]
-    mutation_counts = mutation_counts.T.reset_index()
-    for i in range(0,3):
-        mutation_counts.iloc[i,0] = np.nan
-
-    # writing the dataframe to the mutation counts mastertable 
-    outfile_path = args.WORKDIR.joinpath(
-        "data_out",
-        "x_data",
-        "cancer_mutation_count.tsv"
-    )
-    mutation_counts.to_csv(
-        path_or_buf=outfile_path,
-        sep='\t',        
-        header=False,
-        index=False
-    )
+        # writing the dataframe to the mutation counts mastertable 
+        outfile_path = args.WORKDIR.joinpath(
+            "data_out",
+            "x_data",
+            "cancer_mutation_count.tsv"
+        )
+        mutation_counts.to_csv(
+            path_or_buf=outfile_path,
+            sep='\t',        
+            header=False,
+            index=False
+        )
+    else:
+        logger.warning(f"no mutation info for {data_sets_names_list}")
 
 
 def split_data_sets(
         args: dict,
         data_sets: dict,
-        data_sets_info: dict,
+        data_sets_names: list,
         response_data: pd.DataFrame
         ):
 
@@ -647,9 +700,7 @@ def split_data_sets(
     else:
         random_seeds = [None] * args.NUM_SPLITS
 
-    for data_set in data_sets_info.keys():
-        if data_set == 'sarcpdo':
-            continue
+    for data_set in data_sets_names:
         if data_sets[data_set].experiments is not None:
             logger.info(f'creating splits for {data_set} ...')
             # getting "<DATASET>_all.txt"
@@ -829,6 +880,8 @@ def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
                     )
 
     merged_data = None
+    if len(dfs_to_merge) == 0:
+        return None
     for df in dfs_to_merge:
         if merged_data is None:
             # filling the return DF with a copy of the "first" DF
@@ -950,6 +1003,21 @@ def _random_seed_list(list: str) -> list:
         )
     list_ = list.split(',')
     return [int(item) for item in list_]
+
+def _dataset_list(list: str) -> list:
+    if not isinstance(list, str):
+        raise TypeError(
+            f"'names' must be of type str. Supplied argument is of type "
+            f"{type(list)}."
+        )
+    list_ = list.split(',')
+    for name in list_:
+        if name not in cd.list_datasets(raw=True).keys():
+            raise ValueError(
+                f"dataset name {name} is not in list of available datasets. "
+                f"Available datasets are: {list(cd.list_datasets(raw=True).keys())}"
+            )
+    return list_
 
 def _improve_drug_id_list(list: str) -> list:
     if not isinstance(list, str):

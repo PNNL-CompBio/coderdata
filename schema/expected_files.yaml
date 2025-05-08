@@ -233,7 +233,6 @@ datasets:
     - target_class: Drug Descriptor
       file: /tmp/pancpdo_drug_descriptors.tsv
 
-
   bladderpdo:
     - target_class: Sample
       file: /tmp/bladderpdo_samples.csv
@@ -250,7 +249,6 @@ datasets:
     - target_class: Drug Descriptor
       file: /tmp/bladderpdo_drug_descriptors.tsv
 
-
   sarcpdo:
     - target_class: Sample
       file: /tmp/sarcpdo_samples.csv
@@ -264,3 +262,20 @@ datasets:
       file: /tmp/sarcpdo_drugs.tsv
     - target_class: Drug Descriptor
       file: /tmp/sarcpdo_drug_descriptors.tsv
+
+  crcpdo:
+    - target_class: Sample
+      file: /tmp/crcpdo_samples.csv
+    - target_class: Transcriptomics
+      file: /tmp/crcpdo_transcriptomics.csv
+    - target_class: Copy Number
+      file: /tmp/crcpdo_copy_number.csv
+    - target_class: Mutations
+      file: /tmp/crcpdo_mutations.csv
+    - target_class: Experiments
+      file: /tmp/crcpdo_experiments.tsv
+    - target_class: Drug
+      file: /tmp/crcpdo_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/crcpdo_drug_descriptors.tsv
+
