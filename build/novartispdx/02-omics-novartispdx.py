@@ -101,5 +101,70 @@ def map_copy_number_novPDX(copy_number_data, improve_id_data, entrez_data):
     sample_entrez_cn_df = sample_entrez_cn_df.rename(columns={'value':'copy_number'})
     sample_entrez_cn_df = sample_entrez_cn_df.astype({'entrez_id':'int','improve_sample_id':'int'})
     sample_entrez_cn_df = sample_entrez_cn_df[['entrez_id','copy_number','copy_call','study','source','improve_sample_id']]
+    sample_entrez_cn_df = sample_entrez_cn_df.drop_duplicates()
+
     
     return(sample_entrez_cn_df)
+
+
+def map_transcriptomics_novPDX(transcriptomics_data, improve_id_data, entrez_data):
+    """
+    Maps transcriptomics data to improved sample id's and entrez gene data. Also does some data formatting.
+    
+    Parameters
+    ----------
+    copy_number_data : pd.Dataframe OR string
+        Pandas dataframe object with transcriptomics data OR path to csv with transcriptomics data
+
+    improve_id_data : pd.Dataframe OR string
+        Pandas dataframe object with improve id data OR path to csv with improve id data.  This is one of the outputs of parse_mmc2()
+
+    entrez_data : pd.Dataframe OR string
+        Pandas dataframe object with entrez gene data OR path to csv with entrez gene data.  Use this code to get this file: https://github.com/PNNL-CompBio/coderdata/tree/e65634b99d060136190ec5fba0b7798f8d140dfb/build/genes 
+
+    Returns
+    -------
+    sample_entrez_cn_df : pd.DataFrame
+        A DataFrame containing the mapped transcriptomics data with columns: entrez_id, copy_number, copy_call, study, source ,improve_sample_id
+
+    """
+    # read in data
+    if isinstance(transcriptomics_data, pd.DataFrame) == False:
+        transcriptomics_data = pd.read_csv(transcriptomics_data)
+
+    if isinstance(improve_id_data, pd.DataFrame) == False:
+        improve_id_data = pd.read_csv(improve_id_data)
+    
+    if isinstance(entrez_data, pd.DataFrame) == False:
+        entrez_data = pd.read_csv(entrez_data)
+    
+    # melt dataframe so that there is gene name and improve_sample_id per row
+    rnaseq_df = rnaseq_df.rename(columns={'Sample':'stable_id'})
+    rnaseq_df.to_csv("/tmp/counts_for_tpm_conversion.tsv", sep='\t')
+
+    # run tpmFromCounts.py to convert counts to tpm
+    os.system("python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.tsv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
+
+    # read in amd melt dataframe so that there is an entrez and sample id per row
+    tpm_transciptomics_data = pd.read_csv("/tmp/transcriptomics_tpm.tsv", sep="\t")
+    long_rnaseq = pd.melt(tpm_transciptomics_data, id_vars=['stable_id'], value_vars=tpm_transciptomics_data.columns[tpm_transciptomics_data.columns != 'stable_id'])
+
+    # merge entrez id's
+    entrez_transcriptomics_df = pd.merge(long_rnaseq.drop_duplicates(), entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'inner', left_on= "stable_id", right_on= "other_id")
+
+    # get improve sample id
+    improve_id_data['to_merge'] = improve_id_data['common_name'].str.replace("NIBR","")
+    sample_entrez_transcriptomics_df = pd.merge(entrez_transcriptomics_df.drop_duplicates(), improve_id_data[['to_merge','improve_sample_id']].drop_duplicates(), how = 'inner', left_on= "variable", right_on= "to_merge")
+
+    # clean up columns and data types
+    sample_entrez_transcriptomics_df = sample_entrez_transcriptomics_df.drop(columns=['stable_id','variable','other_id','to_merge'])
+    sample_entrez_transcriptomics_df['source'] = "CPDM"
+    sample_entrez_transcriptomics_df['study'] = "novartispdx"
+    sample_entrez_transcriptomics_df = sample_entrez_transcriptomics_df.rename(columns={'value':'transcriptomics'})
+    sample_entrez_transcriptomics_df = sample_entrez_transcriptomics_df.astype({'entrez_id':'int','improve_sample_id':'int'})
+    sample_entrez_transcriptomics_df = sample_entrez_transcriptomics_df[['entrez_id','transcriptomics','improve_sample_id','source','study']]
+
+    return(sample_entrez_transcriptomics_df)
+
+
+
