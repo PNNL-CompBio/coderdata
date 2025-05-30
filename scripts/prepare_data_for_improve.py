@@ -326,7 +326,82 @@ def process_datasets(args):
             )
         )
 
+    #-------------------------------------------------------------------
+    # create proteomics master table
+    #-------------------------------------------------------------------
 
+    proteomics = merge_master_tables(
+        args=args,
+        data_sets=data_sets,
+        data_type='proteomics'
+        )
+    
+    ####
+    # Imputation step:
+    # currently we are imputing by generating the mean over all samples
+    # in wich the protein was detected across all datasets.
+    # The missing values are the back filled for each protein.
+    ####
+    proteomics = (
+        proteomics
+        # the proteomics table has the transposed first (see below)
+        # due to .fillna not working as expected with axis==1
+        .T
+        .fillna(
+            # the filling of NAs with 'value' is not implemented for
+            # axis==1, despite what is documented for pandas>2.0.0
+            value=proteomics.median(axis=1, skipna=True), 
+            axis=0
+            )
+        .T # transpose back into original orientation
+    )
+    # merging ensemble gene id & gene symbol into the proteomics 
+    # data
+    proteomics = pd.merge(
+        proteomics,
+        data_gene_names[[
+            'entrez_id',
+            'ensembl_gene_id',
+            'gene_symbol'
+        ]],
+        how='left',
+        on='entrez_id',
+    )
+
+    # moving ensemble_id & gene_symbol columns to the front of the table
+    # such that when transposing the DataFrame they are row 3 and 2
+    # respectively
+    proteomics.insert(
+        1,
+        'gene_symbol',
+        proteomics.pop('gene_symbol')
+    )
+    proteomics.insert(
+        0,
+        'ensembl_gene_id',
+        proteomics.pop('ensembl_gene_id')
+    )
+
+    proteomics = proteomics[proteomics['entrez_id'] != 0]
+    proteomics = proteomics.fillna(0).T.reset_index()
+    for i in range(0,3):
+        proteomics.iloc[i,0] = np.nan
+
+    # writing the proteomics datatable to '/x_data/*_proteomics.tsv'
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "cancer_proteomics.tsv"
+    )
+    (proteomics
+        .to_csv(
+            path_or_buf=outfile_path,
+            sep='\t',
+            header=False,
+            index=False
+            )
+        )
+    
     #-------------------------------------------------------------------
     # create copynumber master table & discretized table
     #-------------------------------------------------------------------
@@ -869,7 +944,7 @@ def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
     for data_set in data_sets:
         if data_sets[data_set].experiments is not None:
             if (
-                data_type in ['transcriptomics', 'copy_number'] and 
+                data_type in ['transcriptomics', 'copy_number', 'proteomics'] and 
                 getattr(data_sets[data_set], data_type, None) is not None
             ):
                 dfs_to_merge.append(
