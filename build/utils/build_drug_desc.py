@@ -99,6 +99,14 @@ def main():
     pattern = '|'.join(strings_to_replace)
     full['descriptor_value'] = full['descriptor_value'].astype(str)
     full.loc[full['descriptor_value'].str.contains(pattern, case=False, na=False), 'descriptor_value'] = "NaN"
+    
+    # Remove Data that is incorrectly written by mordred or rdkit. - Very rare bug, but it happens.
+    full['improve_drug_id'] = full['improve_drug_id'].astype(str).str.strip()
+    mask = full['improve_drug_id'].str.match(r'^SMI_\d+$')
+    n_dropped = (~mask).sum()
+    if n_dropped:
+        print(f"Dropping {n_dropped} malformed improve_drug_id rows.")
+    full = full[mask].copy()
 
 
     full.to_csv(args.outtable,sep='\t',index=False,compression='gzip')

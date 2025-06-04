@@ -188,7 +188,7 @@ classes:
       - source
       - study
     attributes:
-      drug_drug_2:
+      improve_drug_1:
         description: improve_drug_id of first drug
       improve_drug_2:
         description: imrrove_drug_id of second drug
@@ -245,6 +245,7 @@ enums:
       organoid:
       tumor:
       patient derived xenograft:
+      xenograft derived organoid:
       ex vivo:
   Variant:
     permissible_values:
