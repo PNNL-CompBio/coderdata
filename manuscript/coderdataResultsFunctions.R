@@ -138,10 +138,12 @@ calcSourceStatistics<-function(metric, dataset=cdres){
     left_join(stats) |>
     arrange(meanVal)
 
-  mom <- gres|> group_by(src,Combos)|> summarize(mv = mean(meanVal))|> arrange(mv)
+ # mom <- gres|>
+#    group_by(src,Combos)|>
+#    summarize(mv = mean(meanVal))|>
+#    arrange(mv)
 
-  #gres <- subset(gres,met=='scc')
-  gres$src = factor(gres$src,levels = unique(mom$src))
+#  gres$src = factor(gres$src,levels = unique(mom$src))
 
   p1 <- ggplot(gres, aes(x=Samples, y = meanVal,col=model))+
     geom_point()+scale_x_log10()+scale_color_manual(values=modelcolors)+geom_smooth(method=lm, alpha=0.2)+theme_bw()
@@ -161,7 +163,7 @@ calcSourceStatistics<-function(metric, dataset=cdres){
   p4 <- ggplot(corvals, aes(x=statistic,y=correlation,fill=model)) + geom_bar(position='dodge',stat='identity') +
     scale_fill_manual(values=modelcolors) + theme_bw()
 
-  return(cowplot::plot_grid(p1,p2,p3,p4,nrow=2))
+  return(cowplot::plot_grid(p1,p2,p3,p4,nrow=4))
 }
 
 ##do we still need this function?

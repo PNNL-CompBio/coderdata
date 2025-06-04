@@ -5,11 +5,7 @@ date: "2025-06-02"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-Here we are focused on getting the details from a model prediction algorithm - where did it fail, where did it succeed?
+This figure focuses on the ex vivo results
 
 ## Data and packages
 
@@ -39,7 +35,7 @@ The data has been uploaded by natasha and can be downloaded as follows.
 
 ```{r}
 exres = lapply(metrics,function(x) {
-  doFullPlot(x, ecdres,'cellline')
+  ridgelineMetricPlots(x, ecdres,'cellline')
   })
 
 print(exres)
@@ -54,6 +50,7 @@ plot<-calcSourceStatistics('scc',ecdres)
 
 
 ggsave('exVivoSamplePerformanceCorrelation.pdf',plot, height=12)
+print(plot)
 
 ```
 
