@@ -44,6 +44,19 @@ exres = lapply(metrics,function(x) {
 
 print(exres)
 ```
+
+Now we can confirm that the datasets follow the same pattern. 
+
+```{r dataset samples}
+
+
+plot<-calcSourceStatistics('scc',ecdres)
+
+
+ggsave('exVivoSamplePerformanceCorrelation.pdf',plot, height=12)
+
+```
+
 ## Create funtion to dive in
 
 

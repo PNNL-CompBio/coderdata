@@ -4,12 +4,23 @@ library(ggplot2)
 library(dplyr)
 library(ggridges)
 library(synapser)
-
+library(RColorBrewer)
 ##COLORS: standardize here
-modelcolors <- c()
-datasetcolors <- c()
 
-exvivo = c('mpnst','beataml','sarcpdo','pancpdo','bladderpdo')
+modelcolors <- RColorBrewer::brewer.pal(n=6,name='RdYlBu')
+names(modelcolors) <- c('deepttc','graphdrp','lgbm','pathdsp','uno')
+
+
+exvivo = c('mpnst','beataml','sarcpdo','pancpdo','bladderpdo','liverpdo')
+cellline = c('nci60','ctrpv2','fimm','gcsi','gdscv1','gdscv2','prism','ccle')
+
+ccols = RColorBrewer::brewer.pal(n=length(cellline),name='RdBu')
+names(ccols) <- cellline
+
+ecols = RColorBrewer::brewer.pal(n=length(exvivo),name='PRGn')
+names(ecols) <- exvivo
+
+datasetcolors <- c(ccols,ecols)
 
 synapser::synLogin()
 
@@ -38,10 +49,9 @@ getModelPerformanceData <- function(){
 
 
 ###these files are very big so i'm not sure how to deal with them.
-getModelPredictionData<-function(dset='lgbm'){
+getModelPredictionData <- function(dset='lgbm') {
 
   preds <- list(deepttc = 'syn68149793', graphdrp = 'syn68146828', lgbm = 'syn68149807', pathdsp = 'syn66772452', uno = 'syn68149809')
-
 
   fullres <- do.call(rbind,lapply(dset,function(mod)
     readr::read_csv(synapser::synGet(preds[[mod]])$path) |> mutate(model = mod)))
@@ -75,7 +85,8 @@ ridgelineMetricPlots <- function(metric,dataset=cdres, prefix='all'){
     ggplot(aes(x = value,y = trg,fill = model)) +
     ggridges::geom_density_ridges(alpha = 0.5) +
     facet_grid(src~.) +
-    ggtitle(paste0(metric,' by source dataset'))
+    ggtitle(paste0(metric,' by source dataset'))+
+    scale_fill_manual(values=modelcolors)
 
   ##now we rerank by target dataset and evaluate by target
   mvals <- sr |> group_by(trg) |>
@@ -88,17 +99,70 @@ ridgelineMetricPlots <- function(metric,dataset=cdres, prefix='all'){
     ggplot(aes(x = value,y = src,fill = model)) +
     ggridges::geom_density_ridges(alpha = 0.5) +
     facet_grid(trg~.) +
-    ggtitle(paste0(metric,' by target dataset'))
+    ggtitle(paste0(metric,' by target dataset'))+
+    scale_fill_manual(values=modelcolors)
+
 
   return(list(src=p1,trg=p3))
 }
 
 
 ##here we have to interrogate the results to visualize how specific drugs are behaving
-performanceByDrugOrSample<-function(){
+performanceByDrugOrSample <- function(){
 
 }
 
+## calculate source dataset statistics
+## how do features of the source dataset impact  performance?
+calcSourceStatistics<-function(metric, dataset=cdres){
+  #number of combos
+  combos = c(ccle = 10911,ctrpv2 = 303520,fimm = 2457 ,gcsi = 12320,
+             gdscv1 = 105808,gdscv2 = 45323, nci60 = 2317205,prism = 633169)
+
+  numsamples = c(ccle = 503, ctrpv2 = 847, fimm=52, gcsi = 571, gdscv1 = 984,
+                 gdscv2 = 806, nci60 = 83, prism = 478)
+  numdrugs = c(ccle = 24, ctrpv2 = 461, fimm=52, gcsi = 43, gdscv1 = 296, gdscv2 = 169,
+               nci60 = 54707, prism = 1418)
+
+  stats = data.frame(Samples = numsamples, Drugs =numdrugs, Combos = combos)
+  stats$src = rownames(stats)
+
+  #todo: we can also evaluate number of samples or drugs
+
+  #e can get performance summaries
+  gres <- dataset  |>
+    #subset(model!='uno')|>
+    subset(met==metric) |>
+    group_by(met,src,trg,model) |>
+    summarize(meanVal=mean(value,na.rm=TRUE)) |>
+    left_join(stats) |>
+    arrange(meanVal)
+
+  mom <- gres|> group_by(src,Combos)|> summarize(mv = mean(meanVal))|> arrange(mv)
+
+  #gres <- subset(gres,met=='scc')
+  gres$src = factor(gres$src,levels = unique(mom$src))
+
+  p1 <- ggplot(gres, aes(x=Samples, y = meanVal,col=model))+
+    geom_point()+scale_x_log10()+scale_color_manual(values=modelcolors)+geom_smooth(method=lm, alpha=0.2)+theme_bw()
+
+  p2 <- ggplot(gres, aes(x=Drugs, y = meanVal,col=model))+
+    geom_point()+scale_x_log10()+scale_color_manual(values=modelcolors)+geom_smooth(method=lm, alpha=0.2)+theme_bw()
+
+  p3 <- ggplot(gres, aes(x=Combos, y = meanVal,col=model))+
+    geom_point()+scale_x_log10()+scale_color_manual(values=modelcolors)+geom_smooth(method=lm, alpha=0.2)+theme_bw()
+
+  corvals <- gres |>
+    ungroup() |>
+    group_by(model) |>
+    summarize(Sample=cor(Samples,meanVal),Drugs=cor(Drugs,meanVal),Combinations=cor(Combos,meanVal,use='pairwise.complete.obs'))|>
+    tidyr::pivot_longer(cols=c(2,3,4),names_to='statistic',values_to='correlation')
+
+  p4 <- ggplot(corvals, aes(x=statistic,y=correlation,fill=model)) + geom_bar(position='dodge',stat='identity') +
+    scale_fill_manual(values=modelcolors) + theme_bw()
+
+  return(cowplot::plot_grid(p1,p2,p3,p4,nrow=2))
+}
 
 ##do we still need this function?
 

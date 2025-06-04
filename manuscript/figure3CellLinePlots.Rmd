@@ -22,9 +22,9 @@ Currently the cross-model data results have been uploaded to synapse. Please req
 
   metrics <- c('pcc','scc')
   res <- lapply(metrics,function(x) {
-    res <- doFullPlot(x,cdres)
+    res <- ridgelineMetricPlots(x,cdres)
     cowplot::plot_grid(res$src,res$trg)
-    ggsave(paste0('all_',metric,'_ridglines.pdf'),height = 12,width = 10)
+    ggsave(paste0('all_',x,'_ridglines.pdf'),height = 12,width = 10)
     return(res$src)
 })
 
@@ -43,9 +43,9 @@ First result: evaluation on cell lines.
 ccdres <- subset(cdres,!trg %in% exvivo)
 
 ccres = lapply(metrics,function(x) {
-  res <- doFullPlot(x, ccdres)
+  res <- ridgelineMetricPlots(x, ccdres)
   cowplot::plot_grid(res$src,res$trg)
-  ggsave(paste0('celllines',metric,'_ridglines.pdf'),height = 8,width = 10)
+  ggsave(paste0('celllines',x,'_ridglines.pdf'),height = 8,width = 10)
   return(res$src)
 })  
 
@@ -61,30 +61,9 @@ We wonder if the dataset size affects the predictive power.
 
 ```{r dataset size}
 
-#number of combos
-combos = list(beataml = 3033,ccle = 10911,ctrpv2 = 303520,fimm = 2457 ,gcsi = 12320,
-             gdscv1 = 105808,gdscv2 = 45323,mpnst = 250, nci60 = 2317205,prism = 633169)
+plot <- calcSourceStatistics('scc',ccdres)
 
-numsamples = list()
-numdrugs = list()
-#todo: we can also evaluate number of samples or drugs
-
-#e can get performance summaries
-gres <- ccdres  |>
-  subset(model!='uno')|>
-  subset(met=='scc') |>
-  group_by(met,src,trg,model) |>
-  summarize(meanVal=mean(value)) |>
-  left_join(data.frame(src = names(combos),sampleNum = unlist(combos))) |>
-  arrange(meanVal)
-
-mom <- gres|>group_by(src,sampleNum)|>summarize(mv=mean(meanVal))|>arrange(mv)
-
-#gres <- subset(gres,met=='scc')
-gres$src = factor(gres$src,levels=unique(mom$src))
-gres |> 
-  ggplot(aes(x=src,y=meanVal,fill=model))+geom_boxplot()#+geom_jitter()
-
+ggsave('cellLineSamplePerformanceCorrelation.pdf', plot,height=12)
 
 ```
 
@@ -92,9 +71,26 @@ gres |>
 # Dataset prediction parsing
 Now we have to go into the individual predidictions to pull out trends
 
-## Figure 3
+## Figure 3C
 
-What does this figure look like
+First we can compare actual AUCs to predictive power
+
+```{r auc calculation}
+
+##parse data, plot results
+
+```
+
+
+## Figure 3D
+
+Compare drug sample performance
+
+are there better performing drugs/samples?
+
+```{r sample/drug performance}
+
+```
 
 
 
