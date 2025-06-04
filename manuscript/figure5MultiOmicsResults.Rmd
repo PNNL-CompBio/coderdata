@@ -1,0 +1,18 @@
+---
+title: "Figure 5 protein comparison"
+output: html_notebook
+---
+
+The last figure is what we want to do to compare multiple omics measurements
+
+```{r}
+knitr::opts_chunk$set(echo  =  TRUE)
+library(tidyverse)
+library(ggplot2)
+source('coderdataResultsFunctions.R')
+
+```
+
+
+
+

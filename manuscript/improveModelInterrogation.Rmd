@@ -1,0 +1,43 @@
+---
+title: "Improve results interrogation"
+author: "Sara Gosline"
+date: "2025-06-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here we are focused on getting the details from a model prediction algorithm - where did it fail, where did it succeed?
+
+## Data and packages
+
+First we get the packages loaded and logged into synapse.
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo  =  TRUE)
+library(tidyverse)
+library(synapser)
+library(ggplot2)
+library(ggridges)
+synapser::synLogin()
+
+```
+
+
+The data has been uploaded by natasha and can be downloaded as follows.
+
+```{r download data}
+
+
+```
+
+
+
+## Create funtion to dive in
+
+
+
+```{r}
+
+```
