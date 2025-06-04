@@ -63,7 +63,7 @@ We wonder if the dataset size affects the predictive power.
 
 plot <- calcSourceStatistics('scc',ccdres)
 
-ggsave('cellLineSamplePerformanceCorrelation.pdf', plot,height=12)
+ggsave('cellLineSamplePerformanceCorrelation.pdf', plot,height=12,width=5)
 
 ```
 
