@@ -15,4 +15,23 @@ source('coderdataResultsFunctions.R')
 
 
 
+Now we can evaluate the proteomics data across models
+```{r get data}
+  pres = getProteomicsData()
 
+```
+
+## Figure 5A
+
+
+```{r}
+metrics <- c('scc','pcc')
+exres = lapply(metrics,function(x) {
+  res<-ridgelineMetricPlots(x, pres,'cellline')
+  cowplot::plot_grid(res$src,res$trg)
+  ggsave(paste0('proteomics',x,'_ridglines.pdf'),height = 8,width = 10)
+  return(res$src)
+  })
+
+print(exres)
+```

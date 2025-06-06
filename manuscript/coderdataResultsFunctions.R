@@ -14,15 +14,34 @@ names(modelcolors) <- c('deepttc','graphdrp','lgbm','pathdsp','uno')
 exvivo = c('mpnst','beataml','sarcpdo','pancpdo','bladderpdo','liverpdo')
 cellline = c('nci60','ctrpv2','fimm','gcsi','gdscv1','gdscv2','prism','ccle')
 
-ccols = RColorBrewer::brewer.pal(n=length(cellline),name='RdBu')
+ccols = RColorBrewer::brewer.pal(n = length(cellline),name = 'RdBu')
 names(ccols) <- cellline
 
-ecols = RColorBrewer::brewer.pal(n=length(exvivo),name='PRGn')
+ecols = RColorBrewer::brewer.pal(n = length(exvivo),name = 'PRGn')
 names(ecols) <- exvivo
 
 datasetcolors <- c(ccols,ecols)
 
 synapser::synLogin()
+
+getProteomicsData <- function(){
+
+  allscoreslist <- list(lgbm = 'syn68156330')
+  fullres <- do.call(rbind,lapply(names(allscoreslist),function(mod)
+    readr::read_csv(synapser::synGet(allscoreslist[[mod]])$path) |> mutate(model = mod)))
+
+  fullres <- fullres |>
+    mutate(withinDataset = ifelse(src == trg,TRUE,FALSE))
+
+  #lets remove same-dataset data
+ # cdres <- subset(fullres,!withinDataset)
+
+  ##lets remove ex vivo training
+  fullres <- subset(fullres,!src %in% c('mpnst','beataml'))
+
+  return(fullres)
+
+}
 
 getModelPerformanceData <- function(){
 
@@ -31,6 +50,7 @@ getModelPerformanceData <- function(){
   ##with pancpdo
   allscoreslist <- list(deepttc = 'syn66323471',graphdrp = 'syn66323492',lgbm = 'syn66323510',pathdsp = 'syn66326173',uno = 'syn66323527')
 
+  allscoreslist <- list(deepttc = 'syn68155944', graphdrp = 'syn68155957', lgbm = 'syn68155973', pathdsp = 'syn66326173', uno = 'syn68155991')
   fullres <- do.call(rbind,lapply(names(allscoreslist),function(mod)
     readr::read_csv(synapser::synGet(allscoreslist[[mod]])$path) |> mutate(model = mod)))
 
