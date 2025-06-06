@@ -14,14 +14,16 @@ First we get the packages loaded and logged into synapse.
 knitr::opts_chunk$set(echo  =  TRUE)
 library(tidyverse)
 library(ggplot2)
-source('coderdataResultsFunctions.R')
+library(arrow)
+library(dplyr)
 
+source('coderdataResultsFunctions.R')
 ```
 
 
 The data has been uploaded by natasha and can be downloaded as follows.
 
-```{r download data}
+```{r download data, eval}
 
   cdres <- getModelPerformanceData()
 
@@ -33,7 +35,7 @@ The data has been uploaded by natasha and can be downloaded as follows.
 ## Figure 4A
 
 
-```{r}
+```{r, eval=FALSE}
 metrics <- c('scc','pcc')
 exres = lapply(metrics,function(x) {
   res<-ridgelineMetricPlots(x, ecdres,'cellline')
@@ -47,7 +49,7 @@ print(exres)
 
 Now we can confirm that the datasets follow the same pattern. 
 
-```{r dataset samples}
+```{r dataset samples, eval=FALSE}
 
 
 plot<-calcSourceStatistics('scc',ecdres)
@@ -61,7 +63,25 @@ print(plot)
 ## Create funtion to dive in
 
 
+Full model predictions are stored on synapse as parquet files. Individual
+datasets can be downloaded via `getModelPredictionData` in
+`coderdataResultsFunctions.R` (sources during the setup process).
+```{r lgbm data import}
 
-```{r}
+lgbm_all_preds <- getModelPredictionData(dset = "lgbm")
 
 ```
+
+```{r subsetting data}
+query <- lgbm_all_preds |>
+  dplyr::filter(target == 'mpnst')
+
+mpnst_response_data <- query |> collect()
+```
+
+```{r}
+options(repr.plot.width = 5, repr.plot.height = 15)
+plot <- ggplot(mpnst_response_data, aes(x=auc_true, y=auc_pred)) + geom_point() + geom_smooth(method=lm) + facet_grid(source ~ .)
+ggsave('mpnst_auc_plot.pdf', plot, dpi=300, width=5, height=20)
+```
+
