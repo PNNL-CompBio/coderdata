@@ -2,6 +2,7 @@
 
 library(ggplot2)
 library(dplyr)
+library(arrow)
 library(ggridges)
 library(synapser)
 library(RColorBrewer)
@@ -67,17 +68,30 @@ getModelPerformanceData <- function(){
 }
 
 
-
-###these files are very big so i'm not sure how to deal with them.
+# this currently only retrieves one dataset at a time and returns an appache
+# "arrow" tabular dataset object that can be interacted / queried via dplyr
 getModelPredictionData <- function(dset='lgbm') {
 
-  preds <- list(deepttc = 'syn68149793', graphdrp = 'syn68146828', lgbm = 'syn68149807', pathdsp = 'syn66772452', uno = 'syn68149809')
+  preds <- list(lgbm = 'syn68176033')
 
-  fullres <- do.call(rbind,lapply(dset,function(mod)
-    readr::read_csv(synapser::synGet(preds[[mod]])$path) |> mutate(model = mod)))
+  dataset <- arrow::open_dataset(
+    sources = synapser::synGet(preds[[dset]])$path,
+    format = "parquet"
+    )
 
-  return(preds)
+  return(dataset)
 }
+
+###these files are very big so i'm not sure how to deal with them.
+# getModelPredictionData <- function(dset='lgbm') {
+#
+#   preds <- list(deepttc = 'syn68149793', graphdrp = 'syn68146828', lgbm = 'syn68149807', pathdsp = 'syn66772452', uno = 'syn68149809')
+#
+#   fullres <- do.call(rbind,lapply(dset,function(mod)
+#     readr::read_csv(synapser::synGet(preds[[mod]])$path) |> mutate(model = mod)))
+#
+#   return(preds)
+# }
 
 #this function plots a single metric by all the possible values
 #
