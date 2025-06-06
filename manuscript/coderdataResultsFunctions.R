@@ -8,8 +8,9 @@ library(synapser)
 library(RColorBrewer)
 ##COLORS: standardize here
 
+models <- c('deepttc','graphdrp','lgbm','pathdsp','uno')
 modelcolors <- RColorBrewer::brewer.pal(n=6,name='RdYlBu')
-names(modelcolors) <- c('deepttc','graphdrp','lgbm','pathdsp','uno')
+names(modelcolors) <- models
 
 
 exvivo = c('mpnst','beataml','sarcpdo','pancpdo','bladderpdo','liverpdo')
