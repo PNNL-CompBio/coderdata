@@ -72,7 +72,13 @@ getModelPerformanceData <- function(){
 # "arrow" tabular dataset object that can be interacted / queried via dplyr
 getModelPredictionData <- function(dset='lgbm') {
 
-  preds <- list(lgbm = 'syn68176033')
+  preds <- list(
+    deepttc = "syn68176968",
+    graphdrp = "syn68176977",
+    lgbm = "syn68176033",
+    pathdsp = "syn68176970",
+    uno = "syn68176971"
+  )
 
   dataset <- arrow::open_dataset(
     sources = synapser::synGet(preds[[dset]])$path,
