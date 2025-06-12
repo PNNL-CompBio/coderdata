@@ -159,19 +159,19 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     # get data ready 
     copy_number_data.columns = copy_number_data.iloc[0]
     copy_number_data = copy_number_data.drop([0], axis=0)
-    copynum_df = copynum_df.drop(columns=['Hugo_Symbol','Cytoband'])
+    copynum_df = copy_number_data.drop(columns=['Hugo_Symbol','Cytoband'])
 
 
     # need to convert segment mean to copy number ratio, which is a 2 ^ x transformation, then melt df into 1 gene 1 sample per row
-    long_transcriptomics_df = pd.melt(copynum_df, id_vars=['Gene ID'], value_vars=copynum_df.columns[copynum_df.columns != 'Gene ID'])
+    long_cn_df = pd.melt(copynum_df, id_vars=['Gene ID'], value_vars=copynum_df.columns[copynum_df.columns != 'Gene ID'])
 
     # do copy_number calculation from score and get copy call column
-    long_transcriptomics_df = long_transcriptomics_df.rename(columns={0:'other_id'})
-    long_transcriptomics_df['copy_number'] = pow(2,long_transcriptomics_df['value'])*2
-    long_transcriptomics_df['copy_call'] = [get_copy_call(a) for a in long_transcriptomics_df['copy_number']]
+    long_cn_df = long_cn_df.rename(columns={0:'other_id'})
+    long_cn_df['copy_number'] = pow(2,long_cn_df['value'])*2
+    long_cn_df['copy_call'] = [get_copy_call(a) for a in long_cn_df['copy_number']]
 
     # map ID to improve_ID
-    improve_mapped_cn_df = pd.merge(long_transcriptomics_df, improve_id_data[['other_id','improve_sample_id']], how = 'left', on='other_id')
+    improve_mapped_cn_df = pd.merge(long_cn_df, improve_id_data[['other_id','improve_sample_id']], how = 'left', on='other_id')
 
 # clean up columns and data types
     improve_mapped_cn_df = improve_mapped_cn_df.drop(columns=['other_id','value'])
@@ -182,3 +182,47 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     improve_mapped_cn_df = improve_mapped_cn_df[['entrez_id','copy_number','copy_call','study','source','improve_sample_id']]
         
     return(improve_mapped_cn_df)
+
+
+def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
+
+    # read in data
+    if isinstance(transciptomics_data, pd.DataFrame) == False:
+        transciptomics_data = pd.read_csv(transciptomics_data, sep='\t')
+
+    if isinstance(improve_id_data, pd.DataFrame) == False:
+        improve_id_data = pd.read_csv(improve_id_data)
+    
+    if isinstance(entrez_data, pd.DataFrame) == False:
+        entrez_data = pd.read_csv(entrez_data)
+
+    # move row names to a column called "stable_id" and format gene names to remove the chromosome num
+    transciptomics_data.columns = transciptomics_data.iloc[0]
+    transciptomics_data = transciptomics_data.drop([0], axis=0)
+    transciptomics_data = transciptomics_data.rename(columns={transciptomics_data.columns[0]:'stable_id'})
+    transciptomics_data.to_csv("/tmp/counts_for_tpm_conversion.tsv", sep='\t')
+
+    # run tpmFromCounts.py to convert counts to tpm
+    # os.system("python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.tsv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
+
+    # melt dataframe so that there is gene name and improve_sample_id per row
+    # tpm_transciptomics_data = pd.read_csv("/tmp/transcriptomics_tpm.tsv", sep="\t")
+    tpm_transciptomics_data = transciptomics_data
+    long_transcriptomics_df = pd.melt(tpm_transciptomics_data, id_vars=['stable_id'], value_vars=tpm_transciptomics_data.columns[tpm_transciptomics_data.columns != 'stable_id'])
+    long_transcriptomics_df = long_transcriptomics_df.rename(columns = {'value':'transcriptomics', 0:'sample_name'})
+
+    # map gene names to entrez id's 
+    mapped_transcriptomics_df = pd.merge(long_transcriptomics_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'left', left_on= "stable_id", right_on= "other_id")
+    mapped_transcriptomics_df = mapped_transcriptomics_df.dropna(subset=['entrez_id'])
+
+    # map patients to improve_sample_id 
+    mapped_transcriptomics_df = pd.merge(mapped_transcriptomics_df, improve_id_data[['other_id','improve_sample_id']].drop_duplicates(), how = 'left', left_on= "sample_name", right_on= "other_id")
+    
+    # clean up column names and data types
+    mapped_transcriptomics_df = mapped_transcriptomics_df.drop(columns=['stable_id','sample_name','other_id_x','other_id_y'])
+    mapped_transcriptomics_df['source'] = "Synapse"
+    mapped_transcriptomics_df['study'] = "liverpdo"
+    mapped_transcriptomics_df = mapped_transcriptomics_df.astype({'entrez_id':'int','improve_sample_id':'int'})
+    mapped_transcriptomics_df = mapped_transcriptomics_df[['entrez_id','transcriptomics','improve_sample_id','source','study']]
+
+    return(mapped_transcriptomics_df)
