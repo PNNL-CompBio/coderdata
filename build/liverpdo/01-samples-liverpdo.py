@@ -42,6 +42,11 @@ def download_samples_data(synID:str , save_path:str = None, synToken:str = None)
     samples_filepath = downloaded_data.path
     return(samples_filepath)
 
+def map_substring(s, dict_map):
+    for key in dict_map.keys():
+        if key in s: 
+            return dict_map[key]
+    return np.nan
 
  ### create sample sheet function 
 def generate_sample_file(samples_data_path:str = None, prev_samples_path:str = "") -> pd.DataFrame:
