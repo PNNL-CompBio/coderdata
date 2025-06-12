@@ -156,9 +156,11 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     if isinstance(entrez_data, pd.DataFrame) == False:
         entrez_data = pd.read_csv(entrez_data)
 
-    # clean data
-    copy_number_data = copy_number_data.rename(columns = {'Chromosome':'chrom', 'Start':'loc.start','End':'loc.end','Segment_Mean':'seg.mean','Sample':'ID'})
-    copy_number_data.to_csv("sample_copy_num.csv")
+    # get data ready 
+    copy_number_data.columns = copy_number_data.iloc[0]
+    copy_number_data = copy_number_data.drop([0], axis=0)
+    copynum_df = copynum_df.drop(columns=['Hugo_Symbol','Cytoband'])
+
 
     # need to convert segment mean to copy number ratio, which is a 2 ^ x transformation, then melt df into 1 gene 1 sample per row
     long_transcriptomics_df = pd.melt(copynum_df, id_vars=['Gene ID'], value_vars=copynum_df.columns[copynum_df.columns != 'Gene ID'])
