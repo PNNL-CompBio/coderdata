@@ -7,6 +7,7 @@ import argparse
 import synapseclient
 import mygene
 
+# function for loading data
 def download_parse_omics_data(synID:str , save_path:str = None, synToken:str = None):
     """ 
     Download omics data from Synapse at synapseID syn66401303. Requires a synapse token, which requires you to make a Synapse account
@@ -31,9 +32,6 @@ def download_parse_omics_data(synID:str , save_path:str = None, synToken:str = N
     copynum_data : pd.Dataframe
         A pandas dataframe containing copy number data
 
-    rnaseq_data : pd.Dataframe
-        A pandas dataframe containing rna seq data
-
     proteomics_data : pd.Dataframe
         A pandas dataframe containing proteomics data
     """
@@ -51,10 +49,49 @@ def download_parse_omics_data(synID:str , save_path:str = None, synToken:str = N
     omics_excel = pd.ExcelFile(open(omics_filepath, 'rb'))
     mutations_data = pd.read_excel(omics_excel, 'A. Mutation (LICOB)')
     copynum_data = pd.read_excel(omics_excel, 'B. CNV (LICOB)')
-    rnaseq_data = pd.read_excel(omics_excel, 'C. RNA-seq (LICOB)')
     proteomics_data = pd.read_excel(omics_excel, 'D. Proteomics')
 
-    return(mutations_data, copynum_data, rnaseq_data, proteomics_data)
+    return(mutations_data, copynum_data, proteomics_data)
+
+
+# function for getting rnaseq counts
+def download_parse_rna_data(synID:str , save_path:str = None, synToken:str = None):
+    """ 
+    Download omics data from Synapse at synapseID syn66401303. Requires a synapse token, which requires you to make a Synapse account
+    and create a Personal Access Token.  More information here: https://help.synapse.org/docs/Managing-Your-Account.2055405596.html#ManagingYourAccount-PersonalAccessTokens 
+    
+    Parameters
+    ----------
+    synID : string
+        SynapseID of dataset to download. Default is synapseID of the omics dataset.
+        
+    save_path : string
+        atal path where the downloaded file will be saved.
+
+    synToken : string
+        Synapse Personal Access Token of user.  Requires a Synapse account. More information at: https://help.synapse.org/docs/Managing-Your-Account.2055405596.html#ManagingYourAccount-PersonalAccessTokens
+        
+    Returns
+    -------
+    rnaseq_data : pd.Dataframe
+        A pandas dataframe containing rna sequencing counts data
+
+    """
+    
+    syn = synapseclient.Synapse() 
+    syn.login(authToken=synToken) 
+    
+    # Obtain a pointer and download the data 
+    downloaded_data = syn.get(entity=synID, downloadLocation = save_path) 
+
+    # Get the path to the local copy of the data file 
+    rna_filepath = downloaded_data.path
+
+    # Parse the downloaded excel file
+    rna_excel = pd.ExcelFile(open(rna_filepath, 'rb'))
+    rnaseq_data = pd.read_excel(rna_excel)
+
+    return(rnaseq_data)
 
 
 
