@@ -270,3 +270,75 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
     mapped_transcriptomics_df = mapped_transcriptomics_df[['entrez_id','transcriptomics','improve_sample_id','source','study']]
 
     return(mapped_transcriptomics_df)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='###')
+
+    # arguments for file paths
+    parser.add_argument('-g', '--genes', type=str, default=None, help='Path to genes.csv.  Can be obtained using this docker container: https://github.com/PNNL-CompBio/coderdata/blob/0225c52b861dcd6902521228731c54a61768bcd6/build/genes/README.md#L4')
+    parser.add_argument('-i', '--ids', type=str, default=None, help='Path to sample Ids')
+    parser.add_argument('-t', '--token', type=str, default=None, help='Synapse Token')
+
+
+    # arguments for what data to process
+    parser.add_argument('-P', '--parse', action = 'store_true', default=False, help='Parse excel file with data')
+    parser.add_argument('-T', '--transcriptomics', action = 'store_true', default=False, help='Generate transcriptomics data')
+    parser.add_argument('-M', '--mutations', action = 'store_true', default=False, help='Generate mutations data')
+    parser.add_argument('-C', '--copy_number', action = 'store_true', default=False, help='Generate copy number data')
+
+    args = parser.parse_args()
+
+
+    ###########################
+
+    if args.parse:
+        print("Parsing excel file.")
+        # Download and parse rnaseq data
+        rnaseq_df = download_parse_rna_data(synID="syn68327513", synToken = args.token, save_path="/tmp/")
+        # Download rest of omics data
+        mutations_df, copynum_df, proteomics_df= download_parse_omics_data(synID="syn66401303", synToken = args.token, save_path="/tmp/")
+        # Save mutation and copy number data into csv format
+        rnaseq_df.to_csv("/tmp/raw_rnaseq_data.csv")
+        mutations_df.to_csv("/tmp/raw_mutation_data.csv")
+        copynum_df.to_csv("/tmp/raw_copynum_data.csv")
+        proteomics_df.to_csv("/tmp/raw_proteomics_data.csv")
+
+
+
+    if args.transcriptomics:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting transcriptomics data.")
+            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/raw_rnaseq_data.csv", improve_id_data = "/tmp/crcpdo_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df.to_csv("/tmp/liverpdo_transcriptomics.csv", index=False)
+    
+    if args.mutations:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting mutations data.")
+            mutation_df = map_mutations(mutation_data = "/tmp/raw_mutation_data.csv", improve_id_data = "/tmp/crcpdo_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/liverpdo_mutations.csv", index=False)
+    
+    if args.copy_number:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting copy number data.")
+            mutation_df = map_copy_number(copy_number_data = "/tmp/raw_copynum_data.csv", improve_id_data = "/tmp/crcpdo_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/liverpdo_copy_number.csv", index=False)
+    
