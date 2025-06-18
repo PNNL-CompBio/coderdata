@@ -39,41 +39,22 @@ class Split:
 
 class Dataset:
 
-    data_format_params = {
-        "samples": (
-            "improve_sample_id", "cancer_type", "model_type", "common_name",
-            "other_id", "other_names", "id_source", "species"
-            ),
-        "transcriptomics": (
-            "improve_sample_id", "entrez_id", "transcriptomics"
-            ),
-        "proteomics": ("improve_sample_id", "entrez_id", "proteomics"),
-        "mutations": ("improve_sample_id", "entrez_id", "mutation"),
-        "copy_number": ("improve_sample_id", "entrez_id", "copy_number"),
-        "methylation": ("improve_sample_id", "entrez_id", "methylation"),
-        "experiments": (
-            "improve_sample_id", "improve_drug_id", "dose_response_value"
-            ),
-        "drugs": ("improve_drug_id", "chem_name", "isoSMILES"),
-        "genes": ("entrez_id", "gene_symbol", "other_id")
-        }
-
     def __init__(
             self,
-            name: str=None,
-            transcriptomics: pd.DataFrame=None,
-            proteomics: pd.DataFrame=None,
-            mutations: pd.DataFrame=None,
-            copy_number: pd.DataFrame=None,
-            samples: pd.DataFrame=None,
-            drugs: pd.DataFrame=None,
-            drug_descriptors: pd.DataFrame=None,
-            mirna: pd.DataFrame=None,
-            experiments: pd.DataFrame=None,
-            methylation: pd.DataFrame=None,
-            metabolomics: pd.DataFrame=None,
-            genes: pd.DataFrame=None,
-            combinations: pd.DataFrame=None,
+            name: Optional[str]=None,
+            transcriptomics: Optional[pd.DataFrame]=None,
+            proteomics: Optional[pd.DataFrame]=None,
+            mutations: Optional[pd.DataFrame]=None,
+            copy_number: Optional[pd.DataFrame]=None,
+            samples: Optional[pd.DataFrame]=None,
+            drugs: Optional[pd.DataFrame]=None,
+            drug_descriptors: Optional[pd.DataFrame]=None,
+            mirna: Optional[pd.DataFrame]=None,
+            experiments: Optional[pd.DataFrame]=None,
+            methylation: Optional[pd.DataFrame]=None,
+            metabolomics: Optional[pd.DataFrame]=None,
+            genes: Optional[pd.DataFrame]=None,
+            combinations: Optional[pd.DataFrame]=None,
             ):
         """
         Load datasets of a specific type into predefined attributes of this class instance.
@@ -130,12 +111,6 @@ class Dataset:
     #-----------------------------
     # getters / setters & deleters
     # ----------------------------
-
-
-    @property
-    def data_format_params(self):
-        return self._data_format_params
-
 
     @property
     def name(self):
@@ -330,10 +305,10 @@ class Dataset:
                 'experiments', 'combinations', 'drug_descriptor', 'drugs',
                 'genes', 'samples',
                 ],
-            use_polars: bool=False,
+            remove_na: bool=False,
             **kwargs: dict,
             ):
-        return format(self, data_type=data_type, use_polars=use_polars, **kwargs)
+        return format(self, data_type=data_type, remove_na=False, **kwargs)
 
 
     def split_train_other(
@@ -526,6 +501,7 @@ def load(
                     dataset = pickle.load(file=file)
                 print("DONE", file=sys.stderr)
                 return dataset
+        raise FileNotFoundError("No suitable pickle file found.")
 
 
 
@@ -536,7 +512,7 @@ def format(
             'experiments', 'combinations', 'drug_descriptor', 'drugs',
             'genes', 'samples',
             ],
-        use_polars: bool=False,
+        remove_na: bool=False,
         **kwargs: dict,
         ):
 
@@ -642,6 +618,8 @@ def format(
                 columns = 'dose_response_metric',
                 values = 'dose_response_value'
             ).reset_index().rename_axis(None, axis=1)
+            if remove_na:
+                ret.dropna(axis='index', inplace=True)
         elif shape == 'matrix':
             if len(metrics) > 1:
                 raise ValueError(
@@ -654,7 +632,6 @@ def format(
                 index='improve_drug_id',
                 columns='improve_sample_id'
             )
-        return ret
 
     elif data_type == "combinations":
         raise NotImplementedError(
@@ -771,7 +748,7 @@ def split_train_test_validate(
     train, other = _split_two_way(
         data=data,
         split_type=split_type,
-        ratio=[ratio[0], ratio[1] + ratio[2]],
+        ratio=(ratio[0], ratio[1] + ratio[2]),
         stratify_by=stratify_by,
         balance=balance,
         random_state=random_state,
@@ -781,7 +758,7 @@ def split_train_test_validate(
     test, val = _split_two_way(
         data=other,
         split_type=split_type,
-        ratio=[ratio[1], ratio[2]],
+        ratio=(ratio[1], ratio[2]),
         stratify_by=stratify_by,
         balance=balance,
         random_state=random_state,
@@ -993,10 +970,10 @@ def _filter(data: Dataset, split: pd.DataFrame) -> Dataset:
     return data_ret
 
 def _balance_data(
-        data: pd.Dataframe,
+        data: pd.DataFrame,
         random_state: Optional[Union[int,RandomState]]=None,
         # oversample: bool=False,
-        ) -> pd.Dataframe:
+        ) -> pd.DataFrame:
     tmp = deepcopy(data)
     counts = tmp.value_counts('split_class')
     ret_df = (
@@ -1012,7 +989,7 @@ def _create_classes(
         metric: str,
         num_classes: int=2,
         quantiles: bool=True,
-        thresh: float=None,
+        thresh: Optional[float]=None,
         ) -> pd.DataFrame:
     """
     Helper function that bins experiment data into a number of defined 
@@ -1101,7 +1078,7 @@ def _split_two_way(
         split_type: Literal[
             'mixed-set', 'drug-blind', 'cancer-blind'
             ]='mixed-set',
-        ratio: tuple[int, int, int]=(8,2),
+        ratio: tuple[int, int]=(8,2),
         balance: bool=False,
         stratify_by: Optional[str]=None,
         random_state: Optional[Union[int,RandomState]]=None,
@@ -1207,7 +1184,8 @@ def _split_two_way(
         columns = 'dose_response_metric',
         values = 'dose_response_value'
     ).reset_index()
-
+    if stratify_by is not None:
+        df_full.dropna(axis='index', subset=[stratify_by], inplace=True)
     # Defining the split sizes. 
     train_size = float(ratio[0]) / sum(ratio)
     test_val_size = float(ratio[1]) / sum(ratio)
