@@ -74,3 +74,37 @@ def create_liverpdo_drug_data(drug_info_path:str, prevDrugFilepath:str, output_d
     new_drug_names = new_drugs_df['chem_name'].unique()
     # call function that gets info for these drugs
     update_dataframe_and_write_tsv(new_drug_names,output_drug_data_path)
+
+    ############################
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='###')
+
+    # arguments for what data to process
+    parser.add_argument('-d', '--Download', action = 'store_true', default=False, help='Download drug data.')
+    parser.add_argument('-t', '--Token', type=str, default=None, help='Synapse Token')
+    parser.add_argument('-D', '--Drug', action = 'store_true', default=False, help='Generate drug data.')
+    parser.add_argument('-p', '--PrevDrugs', nargs='?', type=str, default='', const='', help='Previous drug file')
+
+    args = parser.parse_args()
+
+
+    ###########################
+
+    if args.Download:
+        if args.Token is None:
+            print("No synpase download tocken was provided. Cannot download data.")
+            exit()
+        else:
+            print("Downloading Files from Synapse.")
+            # download fitted and raw drug data from synapse
+            fitted_drug_data_path = download_parse_drug_data(synID = "syn66401300", save_path = "/tmp/", synToken = args.Token)
+    if args.Drug:
+        if args.PrevDrugs is None or args.PrevDrugs=='':
+            print("No previous drugs file provided.  Starting improve_drug_id from SMI_1. Running drug file generation")
+            create_liverpdo_drug_data(fitted_drug_data_path = "/tmp/raw_druginfo.csv", output_drug_data_path = "/tmp/liverpdo_drugs.tsv", prevDrugFilepath = "")
+        else:
+            print("Previous drugs file {} detected. Running drugs file generation and checking for duplicate IDs.".format(args.PrevDrugs))
+            create_liverpdo_drug_data(fitted_drug_data_path = "/tmp/raw_druginfo.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/liverpdo_drugs.tsv")
+
