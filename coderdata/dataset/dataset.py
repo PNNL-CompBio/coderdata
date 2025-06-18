@@ -305,10 +305,10 @@ class Dataset:
                 'experiments', 'combinations', 'drug_descriptor', 'drugs',
                 'genes', 'samples',
                 ],
-            use_polars: bool=False,
+            remove_na: bool=False,
             **kwargs: dict,
             ):
-        return format(self, data_type=data_type, use_polars=use_polars, **kwargs)
+        return format(self, data_type=data_type, remove_na=False, **kwargs)
 
 
     def split_train_other(
@@ -512,7 +512,7 @@ def format(
             'experiments', 'combinations', 'drug_descriptor', 'drugs',
             'genes', 'samples',
             ],
-        use_polars: bool=False,
+        remove_na: bool=False,
         **kwargs: dict,
         ):
 
@@ -618,6 +618,8 @@ def format(
                 columns = 'dose_response_metric',
                 values = 'dose_response_value'
             ).reset_index().rename_axis(None, axis=1)
+            if remove_na:
+                ret.dropna(axis='index', inplace=True)
         elif shape == 'matrix':
             if len(metrics) > 1:
                 raise ValueError(
@@ -1182,7 +1184,8 @@ def _split_two_way(
         columns = 'dose_response_metric',
         values = 'dose_response_value'
     ).reset_index()
-
+    if stratify_by is not None:
+        df_full.dropna(axis='index', subset=[stratify_by], inplace=True)
     # Defining the split sizes. 
     train_size = float(ratio[0]) / sum(ratio)
     test_val_size = float(ratio[1]) / sum(ratio)
