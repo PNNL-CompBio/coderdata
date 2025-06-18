@@ -50,6 +50,27 @@ def download_parse_drug_data(synID:str , save_path:str = None, synToken:str = No
     # Parse the downloaded excel file
     drugs_excel = pd.ExcelFile(open(drugs_filepath, 'rb'))
     drugs_data = pd.read_excel(drugs_excel)
-
-
+    drugs_data.to_csv("/tmp/raw_druginfo.csv")
+    
     return(drugs_data)
+
+
+def create_liverpdo_drug_data(drug_info_path:str, prevDrugFilepath:str, output_drug_data_path:str):
+    # import fitted drug data and get drug names from DRUG_NAME column
+    drug_info_df = pd.read_csv(drug_info_path)
+    liverpdo_drugs_df = pd.DataFrame({"chem_name":drug_info_df['Drug'].unique()})
+    # if there is a prev drug file, check for new drugs
+    if prevDrugFilepath != "":
+        if prevDrugFilepath.__contains__(".tsv"):
+            prev_drug_df = pd.read_csv(prevDrugFilepath, sep='\t')
+        else:
+            prev_drug_df = pd.read_csv(prevDrugFilepath)
+        # get drugs that are only in the crcpdo_drugs_df (aka new drugs only)
+        new_drugs_df = liverpdo_drugs_df[~liverpdo_drugs_df.chem_name.isin(prev_drug_df.chem_name)]
+    else:
+        # if there's no prev drugs, then all drugs are new
+        new_drugs_df = liverpdo_drugs_df
+    # get new drug names
+    new_drug_names = new_drugs_df['chem_name'].unique()
+    # call function that gets info for these drugs
+    update_dataframe_and_write_tsv(new_drug_names,output_drug_data_path)
