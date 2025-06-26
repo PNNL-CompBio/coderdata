@@ -118,13 +118,13 @@ def generate_sample_file(sequencing_data_path:str = None, prev_samples_path:str 
     for index, row in samples_df.iterrows():
         if "Tumor-Organoid" in samples_df.loc[index, 'other_id']:
             samples_df.loc[index, 'common_name'] = samples_df.loc[index, 'common_name'] + "T-O"
-            samples_df.loc[index, 'model_type'] = "organoid"
+            samples_df.loc[index, 'model_type'] = "patient derived organoid"
         if "Tumor-Biopsy" in samples_df.loc[index, 'other_id']:
             samples_df.loc[index, 'common_name'] = samples_df.loc[index, 'common_name'] + "T-B"
-            samples_df.loc[index, 'model_type'] = "ex vivo"
+            samples_df.loc[index, 'model_type'] = "tumor"
         if "Normal-Organoid" in samples_df.loc[index, 'other_id']:
             samples_df.loc[index, 'common_name'] = samples_df.loc[index, 'common_name'] + "N-O"
-            samples_df.loc[index, 'model_type'] = "organoid"
+            samples_df.loc[index, 'model_type'] = "patient derived organoid"
     samples_df['other_id_source'] = "vandeWetering_2015"
     samples_df['cancer_type'] = "Colorectal Carcinoma"
     samples_df['species'] = "Homo sapiens (Human)"

@@ -40,6 +40,9 @@ def main():
         # Extract information to separate out datasets
         exp_improve_sample_ids = exp["improve_sample_id"].unique().to_list()
         exp_improve_drug_ids = exp["improve_drug_id"].unique().to_list()
+        
+        #Ensure that the improve_sample_id column is in integer form.
+        exp = exp.with_column(pl.col("improve_sample_id").cast(pl.Float64).cast(pl.Int64))
 
         # Write Filtered Experiments File to TSV. Then delete it from memory.
         exp_filename_out = f"/tmp/{dataset}_experiments.tsv".lower()

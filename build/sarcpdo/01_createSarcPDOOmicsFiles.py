@@ -40,6 +40,8 @@ def download_and_format_transcriptomic(synLoginObject, genesTable, samplesTable)
     final = melted_joined_renamed[['entrez_id', 'improve_sample_id', 'transcriptomics', 'source', 'study']]
     #dropduplicates (see a few lines above - should be down here)
     final = final.drop_duplicates()
+    # make sure entrez id is in int format.
+    final['entrez_id'] = final['entrez_id'].astype(int)
     return final
 
 def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTable):
@@ -79,6 +81,9 @@ def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTabl
     mutationData =mutationData.rename({"Name": "mutation"}, axis=1)
     # drop duplicates
     mutationData = mutationData.drop_duplicates()
+    # make sure entrez_id is in integer format
+    mutationData['entrez_id'] = mutationData['entrez_id'].astype(int)
+
     return mutationData
 
 

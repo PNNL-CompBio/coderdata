@@ -22,19 +22,19 @@ def align_to_linkml_schema(input_df):
     -------
     pd.DataFrame
         A copy of the input DataFrame with the 'model_type' column values mapped to 
-        a set of predefined categories ('tumor', 'organoid', 'cell line'). 
+        a set of predefined categories ('tumor', 'patient derived organoid', 'cell line'). 
         The mapping is designed to align the DataFrame with the LinkML schema requirements.
     """
     
     mapping_dict = {
     'Solid Tissue': 'tumor',
-    '3D Organoid': 'organoid',
+    '3D Organoid': 'patient derived organoid',
     'Peripheral Blood Components NOS': 'tumor',
     'Buffy Coat': np.nan,
      None: np.nan,
     'Peripheral Whole Blood': 'tumor',
     'Adherent Cell Line': 'cell line',
-    '3D Neurosphere': 'organoid',
+    '3D Neurosphere': 'patient derived organoid',
     '2D Modified Conditionally Reprogrammed Cells': 'cell line',
     'Pleural Effusion': np.nan,
     'Human Original Cells': 'cell line',
@@ -50,6 +50,9 @@ def align_to_linkml_schema(input_df):
     input_df.dropna(subset=['model_type'], inplace=True)
     input_df = input_df.sort_values(by='improve_sample_id')
     
+    #Apparently any missing cancer type is normal tissue.
+    input_df['cancer_type'] = input_df['cancer_type'].replace('', np.nan)
+    input_df['cancer_type'] = input_df['cancer_type'].fillna('Normal Tissue')
     return input_df
 
 def download_from_github(raw_url, save_path):

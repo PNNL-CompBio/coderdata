@@ -50,13 +50,13 @@ def align_to_linkml_schema(input_df):
     
     mapping_dict = {
     'Solid Tissue': 'tumor',
-    '3D Organoid': 'organoid',
+    '3D Organoid': 'patient derived organoid',
     'Peripheral Blood Components NOS': 'tumor',
     'Buffy Coat': np.nan,
      None: np.nan,
     'Peripheral Whole Blood': 'tumor',
     'Adherent Cell Line': 'cell line',
-    '3D Neurosphere': 'organoid',
+    '3D Neurosphere': 'patient derived organoid',
     '2D Modified Conditionally Reprogrammed Cells': 'cell line',
     'Pleural Effusion': np.nan,
     'Human Original Cells': 'cell line',
@@ -301,6 +301,10 @@ def filter_and_subset_data(df, maxval, mapfile):
     if not missing_ids.empty:
         print("\nWarning: Some samples could not be assigned an 'improve_sample_id'.")
         print(missing_ids)
+        
+    # Missing cancer type indicates that it is normal tissue.
+    longtab['cancer_type'] = longtab['cancer_type'].replace('', np.nan)
+    longtab['cancer_type'] = longtab['cancer_type'].fillna('Normal Tissue')
     return longtab
 
 def main():

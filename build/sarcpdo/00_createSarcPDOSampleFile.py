@@ -86,10 +86,12 @@ def download_and_format_rna_samples(synLoginObject):
     rna_samples['model_type'] = modeltypeDF[0]
     # add rows by hand for SARC0139_1 that are missing from sample sheet but present in rnaseq data
     addrow1 = {'other_id' : 'SARC0139_1_Tumor', 'common_name':'SARC0139_1', 'other_id_source' : 'Synapse', 'other_names':'', "cancer_type" : "Leiomyosarcoma", 'species':"Homo sapiens(Human)", 'model_type':'tumor'}
-    addrow2 = {'other_id' : 'SARC0139_1_Organoid', 'common_name':'SARC0139_1', 'other_id_source' : 'Synapse', 'other_names':'', "cancer_type" : "Leiomyosarcoma", 'species':"Homo sapiens(Human)", 'model_type':'organoid'}
+    addrow2 = {'other_id' : 'SARC0139_1_Organoid', 'common_name':'SARC0139_1', 'other_id_source' : 'Synapse', 'other_names':'', "cancer_type" : "Leiomyosarcoma", 'species':"Homo sapiens(Human)", 'model_type':'patient derived organoid'}
     rna_samples.loc[len(rna_samples)] = addrow1
     rna_samples.loc[len(rna_samples)] = addrow2
-
+    
+    rna_samples.loc[rna_samples['model_type'] == 'organoid', 'model_type'] = 'patient derived organoid'
+    
     return rna_samples
 
     
