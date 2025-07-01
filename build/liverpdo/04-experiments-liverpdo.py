@@ -121,6 +121,7 @@ def merge_improve_samples_drugs(experiment_data:pd.DataFrame, samples_data_path:
     drugids_merged['sample_name'] = drugids_merged['sample_name'].apply(remove_zero_between_letter_and_digit) # need to apply this function bc some of the naming conventions for the sample names are inconsistent (ex: HCCO01 and HCCO1)
     all_merged = pd.merge(drugids_merged, improve_sample_df[['other_id','improve_sample_id']], how = 'left', left_on= "sample_name", right_on= "other_id")
     # now do some formatting
+    all_merged = all_merged[all_merged['DOSE'] != 0] # get rid of any dose that is 0 bc that will cause issues during curve fitting
     all_merged['time'] = 72
     all_merged['time_unit'] = "hours"
     all_merged['study'] = "LiverPDO"
