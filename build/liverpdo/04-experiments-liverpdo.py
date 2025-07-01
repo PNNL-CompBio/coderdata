@@ -4,7 +4,22 @@ import os
 import math
 import argparse
 import synapseclient 
+import re
 
+
+def remove_zero_between_letter_and_digit(text):
+    """
+    Removes a '0' character that is immediately preceded by a letter
+    and immediately followed by a digit. We use this when merging drugsids and sampleids into the experiments df.
+    """
+    # The regex pattern looks for:
+    # (r'([a-zA-Z])0(\d)')
+    # ([a-zA-Z]): Captures any single uppercase or lowercase letter (Group 1)
+    # 0: Matches the literal '0'
+    # (\d): Captures any single digit (Group 2)
+    # The replacement string r'\1\2' puts Group 1 and Group 2 back together,
+    # effectively removing the '0' in between.
+    return re.sub(r'([a-zA-Z])0(\d)', r'\1\2', text)
 
 def download_experiments_data(synID:str , save_path:str = None, synToken:str = None):
     """ 
@@ -73,3 +88,29 @@ def parse_experiments_excel_sheets(first_file_path, second_file_path):
         full_df_list.append(full_experiments_df)
     experiments_df = pd.concat(full_df_list)
     return(experiments_df)
+    
+
+def merge_improve_samples_drugs(experiment_data:pd.DataFrame, samples_data_path:str, drugs_info_path:str, improve_drugs_path:str):
+    # read in data
+    experiments_df = experiment_data
+    improve_sample_df = pd.read_csv(samples_data_path, sep='\t')
+    improve_drug_df = pd.read_csv(improve_drugs_path, sep='\t')
+    druginfo_df = pd.read_excel(drugs_info_path)
+    # merging improve drug id's 
+    drugnames_merged = pd.merge(experiments_df, druginfo_df[['Catalogue','Drug']], how = 'inner', left_on= "drug_id", right_on= "Catalogue")
+    drugnames_merged['Drug'] = drugnames_merged['Drug'].str.lower()
+    drugids_merged = pd.merge(drugnames_merged, improve_drug_df[['improve_drug_id','chem_name']], how = 'inner', left_on= "Drug", right_on= "chem_name")
+    # merging improve sample id's 
+    drugids_merged['sample_name'] = drugids_merged['sample_name'].apply(remove_zero_between_letter_and_digit) # need to apply this function bc some of the naming conventions for the sample names are inconsistent (ex: HCCO01 and HCCO1)
+    all_merged = pd.merge(drugids_merged, improve_sample_df[['other_id','improve_sample_id']], how = 'left', left_on= "sample_name", right_on= "other_id")
+    # now do some formatting
+    all_merged['time'] = 72
+    all_merged['time_unit'] = "hours"
+    all_merged['study'] = "LiverPDO"
+    all_merged['source'] = "synapse"
+    all_merged = all_merged.drop(columns={'drug_id','count', 'sample_name','Catalogue','chem_name','other_id','Drug'})
+    all_merged = all_merged.rename(columns={'improve_drug_id':'Drug'})
+    all_merged = all_merged[['study','time','DOSE','GROWTH','Drug','improve_sample_id','time_unit','source']]
+    all_merged = all_merged.dropna()
+
+    return(all_merged)
