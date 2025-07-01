@@ -57,13 +57,13 @@ def download_experiments_data(synID:str , save_path:str = None, synToken:str = N
 
 
 
+### Parse Data Function
 def parse_experiments_excel_sheets(first_file_path, second_file_path):
     # read in the excel files
-    first_exp_excel = pd.ExcelFile(open(first_file_path, 'rb'))
+    first_exp_excel = pd.ExcelFile(open(first_experiments_path, 'rb'))
     first_experiments_dict = pd.read_excel(first_exp_excel, sheet_name=None, header=None)
-    rest_exp_excel = pd.ExcelFile(open(second_file_path, 'rb'))
+    rest_exp_excel = pd.ExcelFile(open(rest_experiments_path, 'rb'))
     rest_experiments_dict = pd.read_excel(rest_exp_excel, sheet_name=None, header=None)
-    # use for loops to interate through the dictionaries, melt the df's into longer df's instead of matrices, and then concat
     list_of_exp_excels = [first_experiments_dict,rest_experiments_dict]
     full_df_list = []
     for dictionary in list_of_exp_excels:
@@ -76,13 +76,30 @@ def parse_experiments_excel_sheets(first_file_path, second_file_path):
             conc_indexes = conc_indexes + [one_sample_df.index[-1]+1]
             for index in range(0,(len(conc_indexes)-1)):
                 one_conc_df = one_sample_df.loc[conc_indexes[index]:(conc_indexes[(index+1)]-1)]
+                # print("length before melt is:", len(one_conc_df))
+                # print("end index is ",(conc_indexes[(index+1)]-1))
                 one_conc_df.columns = one_conc_df.iloc[0]
                 one_conc_df = one_conc_df[1:]
                 one_conc_df = pd.melt(one_conc_df, id_vars=['concentration'], value_vars=one_conc_df.columns[one_conc_df.columns != 'concentration'])
-                one_conc_df = one_conc_df.rename(columns={"concentration":"drug_id",one_conc_df.columns[1]:"concentration","value":"count"})
+                one_conc_df = one_conc_df.rename(columns={"concentration":"drug_id",one_conc_df.columns[1]:"DOSE","value":"count"})
+                one_conc_df = one_conc_df.astype({"DOSE": 'float'})
+                one_conc_df = one_conc_df.reset_index(drop=True)
+                # now convert all counts to growth rates
+                for drug in one_conc_df['drug_id'].unique():
+                    # print("the drug name is",drug)
+                    # print("the mean of the 0's is ",one_conc_df[(one_conc_df['drug_id'] == drug) & (one_conc_df['DOSE'] == 0)]['count'].mean())
+                    mean_of_zeros = one_conc_df[(one_conc_df['drug_id'] == drug) & (one_conc_df['DOSE'] == 0)]['count'].mean()
+                    one_conc_df.loc[one_conc_df['drug_id'] == drug, 'GROWTH'] = (one_conc_df[(one_conc_df['drug_id'] == drug)]['count']/mean_of_zeros)*100
+                # print("sample is ", experiment_key)
+                # print("index is ",index)
+                # print("length of df is", len(one_conc_df))
+                # print("number of unique drugs is", one_conc_df['drug_id'].nunique())
                 list_of_dfs.append(one_conc_df)
+            # print(list_of_dfs)
             elongated_df = pd.concat(list_of_dfs)
             elongated_df['sample_name'] = experiment_key
+            # print(experiment_key)
+            # print(elongated_df['drug_id'].nunique())
             list_of_finished_dfs.append(elongated_df)
         full_experiments_df = pd.concat(list_of_finished_dfs)
         full_df_list.append(full_experiments_df)
@@ -93,7 +110,7 @@ def parse_experiments_excel_sheets(first_file_path, second_file_path):
 def merge_improve_samples_drugs(experiment_data:pd.DataFrame, samples_data_path:str, drugs_info_path:str, improve_drugs_path:str):
     # read in data
     experiments_df = experiment_data
-    improve_sample_df = pd.read_csv(samples_data_path, sep='\t')
+    improve_sample_df = pd.read_csv(samples_data_path)
     improve_drug_df = pd.read_csv(improve_drugs_path, sep='\t')
     druginfo_df = pd.read_excel(drugs_info_path)
     # merging improve drug id's 
@@ -114,3 +131,45 @@ def merge_improve_samples_drugs(experiment_data:pd.DataFrame, samples_data_path:
     all_merged = all_merged.dropna()
 
     return(all_merged)
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='###')
+
+    # arguments for what data to process
+    parser.add_argument('-D', '--Download', action = 'store_true', default=False, help='Download experiments data.')
+    parser.add_argument('-t', '--Token', type=str, default=None, help='Synapse Token')
+    parser.add_argument('-E', '--Experiment', action = 'store_true', default=False, help='Create experiments data.')
+    parser.add_argument('-s', '--Samples', type=str, default=None, help='Path to samples file.')
+    parser.add_argument('-d', '--Drugs', type=str, default=None, help='Path to drugs file')
+
+    args = parser.parse_args()
+
+
+    ###########################
+
+    if args.Download:
+        if args.Token is None:
+            print("No synpase download tocken was provided. Cannot download data.")
+            exit()
+        else:
+            print("Downloading Files from Synapse.")
+            # download experiments data from synapse, which are split into 2 excel files
+            first_experiments_path = download_experiments_data(synID="syn66401301", save_path="/tmp/", synToken=args.Token)
+            rest_experiments_path = download_experiments_data(synID="syn66401302", save_path="/tmp/", synToken=args.Token)
+    if args.Experiment:
+        if args.Samples is None:
+            print("No path to samples file detected. Cannot generate experiment data.")
+            exit()
+        if args.Drugs is None:
+            print("No path to drugs file detected. Cannot generate experiment data.")
+            exit()
+        else:
+            print("Parsing experiments excel sheets")
+            parsed_experiments_data = parse_experiments_excel_sheets(first_experiments_path, rest_experiments_path)
+            print("Generating experiments data.")
+            experiments_df = merge_improve_samples_drugs(experiment_data = parsed_experiments_data, samples_data_path = args.Samples, improve_drugs_path = args.Drugs, drugs_info_path="/tmp/4_Drug_information.xlsx")
+            output_path = "/tmp/liverpdo_experiments_for_curve_fitting.tsv"
+            print("Experiments data sucessfully generated.  Saving tsv to {}".format(output_path))
+            experiments_df.to_csv(output_path, sep='\t')
