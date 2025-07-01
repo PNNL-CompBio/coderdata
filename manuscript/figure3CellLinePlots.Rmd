@@ -1,0 +1,96 @@
+---
+title: "IMPROVE cell line results"
+author: "Sara gosline"
+date: "2025-03-27"
+output: html_document
+---
+
+This document focuses on results we can glean from the cell line specific analysis using the IMPROVE framework and coderdata
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo  =  TRUE)
+library(tidyverse)
+library(ggplot2)
+source('coderdataResultsFunctions.R')
+
+```
+
+## Collect cross-model performance data and try out plotting
+Currently the cross-model data results have been uploaded to synapse. Please request access on the [synapse team site](https://www.synapse.org/Team:3545388). 
+
+```{r data, message=FALSE, echo=FALSE, warning=FALSE} 
+  cdres <- getModelPerformanceData()
+
+  metrics <- c('pcc','scc')
+  res <- lapply(metrics,function(x) {
+    res <- ridgelineMetricPlots(x,cdres)
+    cowplot::plot_grid(res$src,res$trg)
+    ggsave(paste0('all_',x,'_ridglines.pdf'),height = 12,width = 10)
+    return(res$src)
+})
+
+print(res)
+
+```
+
+## Figure 3A: performance on cell lines
+
+First result: evaluation on cell lines.
+
+```{r model performance, message = FALSE, warning = FALSE}
+#current list of ex vivo datasets. include liverpdo when complete
+
+
+ccdres <- subset(cdres,!trg %in% exvivo)
+
+ccres = lapply(metrics,function(x) {
+  res <- ridgelineMetricPlots(x, ccdres)
+  cowplot::plot_grid(res$src,res$trg)
+  ggsave(paste0('celllines',x,'_ridglines.pdf'),height = 8,width = 10)
+  return(res$src)
+})  
+
+print(ccres)
+
+```
+
+## Figure 3B - training/test set size
+
+## Compare dataset size to performance
+
+We wonder if the dataset size affects the predictive power.
+
+```{r dataset size}
+
+plot <- calcSourceStatistics('scc',ccdres)
+
+ggsave('cellLineSamplePerformanceCorrelation.pdf', plot,height=12,width=5)
+
+```
+
+
+# Dataset prediction parsing
+Now we have to go into the individual predidictions to pull out trends
+
+## Figure 3C
+
+First we can compare actual AUCs to predictive power
+
+```{r auc calculation}
+
+##parse data, plot results
+
+```
+
+
+## Figure 3D
+
+Compare drug sample performance
+
+are there better performing drugs/samples?
+
+```{r sample/drug performance}
+
+```
+
+
+
