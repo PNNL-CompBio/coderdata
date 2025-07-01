@@ -4,6 +4,33 @@ import os
 import math
 import argparse
 
+
+def get_copy_call(a):
+    """
+    Heler Function - Determine copy call for a value.
+    """
+
+    if a is None:
+        return float('nan')
+
+    if math.isnan(a):
+        return float('nan')
+
+    a_val = math.log2(float(a)+0.000001)
+    if a_val < 0.5210507:
+        return 'deep del'
+    elif a_val < 0.7311832:
+        return 'het loss'
+    elif a_val < 1.214125:
+        return 'diploid'
+    elif a_val < 1.422233:
+        return 'gain'
+    else:
+        return 'amp'
+
+    return pd.Series([get_copy_call(a) for a in arr])
+
+
 def download_parse_omics_novPDX(synID:str , save_path:str = None, synToken:str = None):
     """ 
     Download omics data from Synapse at synapseID syn66364488. Requires a synapse token, which requires you to make a Synapse account
@@ -167,4 +194,21 @@ def map_transcriptomics_novPDX(transcriptomics_data, improve_id_data, entrez_dat
     return(sample_entrez_transcriptomics_df)
 
 
+if __name__ == "__main__":
+    print('in main')
+    parser = argparse.ArgumentParser(description="This script handles downloading, processing and formatting of omics data files for the Bladder PDO project")
+    parser.add_argument('-s', '--samples', help='Path to sample file',default=None)
+    parser.add_argument('-g', '--genes', help='Path to genes file', default = None)
+    parser.add_argument('-c', '--copy', help='Flag to capture copy number data', action='store_true', default=False)
+    parser.add_argument('-m', '--mutation', help='Flag to capture mutation data', action='store_true', default=False)
+    parser.add_argument('-e', '--expression', help='Flag to capture transcriptomic data', action='store_true', default=False)
+    parser.add_argument('-t', '--token', help='Synapse token')
 
+    args = parser.parse_args()
+    print("Logging into Synapse")
+    PAT = args.token
+
+    genes=pd.read_csv(args.genes)
+    samples = pd.read_csv(args.samples)
+
+    data =download_parse_omics_novPDX(syn id,savestring, PAT) 

@@ -184,7 +184,12 @@ def AUC(time, volume, time_normalize=True):
     dict: Dictionary containing the AUC value.
     """
     auc = trapz_auc(time, volume)
-    #print(time)
+    print('at line 187')
+    print(time.shape)
+    print(time.dtype)
+    print(np.max(time.astype(int)))
+    print('auc is : ')
+    print(auc)
     if time_normalize:
         auc = auc/np.max(time)
     return {"metric": "auc", "value": auc, 'time':np.max(time)}
@@ -270,10 +275,15 @@ def lmm(time, volume, treatment, drug_name):
         raise ValueError("These columns must be present: 'model_id', 'volume', 'time', 'exp_type'")
     
     data['log_volume'] = np.log(data['volume'])
-    
+    print('drug name is ' + drug_name)
+    data['exp_type'] = data['exp_type'].astype('category')
+    data['exp_type']=pd.Categorical(data['exp_type'],categories = ['control',drug_name], ordered=True)
+    print(data)
+    print(data['exp_type'].cat.categories)
     # Define the formula for mixed linear model
     formula = 'log_volume ~ time*exp_type'
     
+    #print(data['exp_type'].cat.categories)
     # Fit the model
     model = mixedlm(formula, data, groups=data['model_id'])
     fit = model.fit()
@@ -282,8 +292,9 @@ def lmm(time, volume, treatment, drug_name):
     #interaction_term = 'time:exp_type'
 #    if interaction_term in fit.params:
 #    time_coef_value = fit.params['time']
-    #print(fit.params)
+    print(fit.params)
     i_coef_value = fit.params['time:exp_type[T.'+drug_name+']']
+    #i_coef_value = fit.params['time:exp_type['+drug_name+']']
    # else:
    #     coef_value = None  # Handle the case when the interaction term is not present
     
@@ -341,6 +352,7 @@ def get_drug_stats(df, control='control'):
     for name, group in tqdm(groups):
         # Each group contains multiple treatments and a control
         drugs = set(group.treatment) - set([control])
+        print('line 355')
         print(name[0])
         print(drugs)
         mod = list(set(group.model_id))[0]
@@ -348,14 +360,17 @@ def get_drug_stats(df, control='control'):
         ctl_data = group[group.treatment == control]
         ctl_time = np.array(ctl_data.time)
         ctl_volume = np.array(ctl_data.volume)
-
+        if (ctl_volume.shape[0] < 2):
+            continue
         ctl_auc = AUC(ctl_time, ctl_volume)
         for d in drugs:
-            print(d)
-            d_data = group[group.treatment == d]
+            print('is our drug a string or dict?')
+            print(str(d))
+            d_data = group[group.treatment == str(d)]
             treat_time = np.array(d_data.time)
             treat_volume = np.array(d_data.volume)
-
+            if (treat_volume.shape[0] < 2):
+                continue
             # Get ABC for group
             treat_auc = AUC(treat_time, treat_volume)
             treat_abc = ABC(ctl_time, ctl_volume, treat_time, treat_volume)
@@ -368,6 +383,7 @@ def get_drug_stats(df, control='control'):
 
             #llm
             comb = pd.concat([ctl_data, d_data])
+            #print(comb)
             lmm_res = lmm(comb.time, comb.volume, comb.treatment, d)
             lmm_res.update({'sample': mod, 'drug': d, 'time': np.max(treat_time), 'time_unit': 'days'})
             if '+' in d:
