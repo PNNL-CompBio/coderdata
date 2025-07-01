@@ -129,7 +129,7 @@ def merge_improve_samples_drugs(experiment_data:pd.DataFrame, samples_data_path:
     all_merged = all_merged.drop(columns={'drug_id','count', 'sample_name','Catalogue','chem_name','other_id','Drug'})
     all_merged = all_merged.rename(columns={'improve_drug_id':'Drug'})
     all_merged = all_merged[['study','time','DOSE','GROWTH','Drug','improve_sample_id','time_unit','source']]
-    all_merged = all_merged.dropna()
+    all_merged = all_merged.dropna() # drop na's bc that will also cause issues in curve fitting
 
     return(all_merged)
 
