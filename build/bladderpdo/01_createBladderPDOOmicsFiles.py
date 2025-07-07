@@ -104,8 +104,11 @@ def get_bladder_pdo_mutations(synObject, samples, genes):
     final_mutations = merged_mutations_renamed[['entrez_id', "mutation", "variant_classification", "improve_sample_id"]]
     final_mutations['study'] = "Lee etal 2018 Bladder PDOs"
     final_mutations = final_mutations.dropna(subset=["entrez_id"])
-    final_mutations["improve_sample_id"] = final_mutations["improve_sample_id"].astype(int)
-    final_mutations["entrez_id"]         = final_mutations["entrez_id"].astype(int)
+    final_mutations["improve_sample_id"] = final_mutations["improve_sample_id"].astype(int)    
+    #drop entrez_ids equal to zero or N/A. 
+    final_mutations = final_mutations.dropna(subset=["entrez_id"])
+    final_mutations["entrez_id"] = final_mutations["entrez_id"].astype(int)
+    final_mutations = final_mutations[final_mutations["entrez_id"] != 0]
     return final_mutations
 
 def get_bladder_pdo_copynumber(synObject, samples, genes):
@@ -124,7 +127,12 @@ def get_bladder_pdo_copynumber(synObject, samples, genes):
     final_copynumber['study'] = "Lee etal 2018 Bladder PDOs"
     final_copynumber = final_copynumber.dropna(subset=["entrez_id"])
     final_copynumber["improve_sample_id"] = final_copynumber["improve_sample_id"].astype(int)
-    final_copynumber["entrez_id"]         = final_copynumber["entrez_id"].astype(int)
+    #Drop genes that don't map to genes.csv
+    valid_entrez = set(genes['entrez_id'].astype(int))
+    final_copynumber = final_copynumber[
+        final_copynumber['entrez_id'].isin(valid_entrez)
+    ]
+    final_copynumber["entrez_id"] = final_copynumber["entrez_id"].astype(int)
     return final_copynumber
 
 
