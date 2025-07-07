@@ -45,6 +45,13 @@ def hs_response_curve_original(x, einf, ec50, hs):
 HS_BOUNDS = ([0, 0, 0], [1, 12, 4]) 
 #HS_BOUNDS_NEG = ([0, -3,-1],[1,8,0]) ## made hill slope forced to be negative
 HS_BOUNDS_NEG = ([0, -5,-1],[1,3,1]) ## made hill slope forced to be negative  ##20241017 updated to shift EC50 range
+
+
+##BACK TO MOLAR:because the equations require -log10(M) we had to adjust bounds
+# 0 to 12 means that we go from 10e-12 to 10e0 for the ec50 range.
+# -4 to 4 allows for positive and negative hill slope
+HS_BOUNDS_M = ([0, 0, -4], [1, 12, 4])
+
 def response_curve(x, einf, ec50, hs):
     """ transformed the original function with ec50 in -log10(M) instead of M
     """
@@ -118,9 +125,10 @@ def fit_exp(df_exp, title=None, dmin=None, dmax=None, save=False):
     return metrics.to_frame(name='metrics').T
 
 
-def compute_fit_metrics(xdata, ydata, popt, pcov, d1 = -5, d2=3):#d1=4, d2=10):
+def compute_fit_metrics(xdata, ydata, popt, pcov, d1=4, d2=10): #d1 = -5, d2=3):
     '''
-    xdata: dose data in log10(    ydata: range from 0 to 1
+    xdata: dose data in log10(
+    ydata: range from 0 to 1
     popt: fit curve metrics
     pcov: ??
     d1: minimum fixed dose in log10(M) ##updated to uM and  made range larger
@@ -161,7 +169,7 @@ def compute_fit_metrics(xdata, ydata, popt, pcov, d1 = -5, d2=3):#d1=4, d2=10):
 
 
 
-def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS_NEG):
+def response_curve_fit(xdata, ydata, bounds=HS_BOUNDS_M):
     '''
      xdata: log10 molar concetnration
      ydata: value between 0 and 1 for response
@@ -263,7 +271,7 @@ def main():
     #drop nas
     df_all = df_all.dropna()
     ##pharmacoGX data is micromolar, we need log transformed data
-    df_all.DOSE = np.log10(df_all.DOSE)
+    df_all.DOSE = -1.0 * np.log10(df_all.DOSE/1000000.0)
     ##need data to be between 0 and 1, not 0 and 100
     df_all.GROWTH=df_all.GROWTH/100.00
     print(df_all.head)
