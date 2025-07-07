@@ -64,11 +64,11 @@ def download_parse_omics_novPDX(synID:str , save_path:str = None, synToken:str =
     syn.login(authToken=synToken) 
     
     # Obtain a pointer and download the data 
-    syn66364488 = syn.get(entity=synID, downloadLocation = save_path) 
+    all_omics_data = syn.get(entity=synID, downloadLocation = save_path) 
 
     # Get the path to the local copy of the data file 
-    sequencing_filepath = syn66364488.path
-    all_omics_excel = pd.ExcelFile(open(sequencing_filepath, 'rb'))
+    all_omics_data_path = all_omics_data.path
+    all_omics_excel = pd.ExcelFile(open(all_omics_data_path, 'rb'))
     mutations_data = pd.read_excel(all_omics_excel, 'pdxe_mut_and_cn2') # table with somatic mutation information 
     copy_number_data = pd.read_excel(all_omics_excel, 'copy number') # table with copy number information
     rnaseq_data = pd.read_excel(all_omics_excel, 'RNAseq_fpkm')
@@ -140,7 +140,7 @@ def map_transcriptomics_novPDX(transcriptomics_data, improve_id_data, entrez_dat
     
     Parameters
     ----------
-    copy_number_data : pd.Dataframe OR string
+    transcriptomics_data : pd.Dataframe OR string
         Pandas dataframe object with transcriptomics data OR path to csv with transcriptomics data
 
     improve_id_data : pd.Dataframe OR string
@@ -197,16 +197,67 @@ def map_transcriptomics_novPDX(transcriptomics_data, improve_id_data, entrez_dat
 if __name__ == "__main__":
     print('in main')
     parser = argparse.ArgumentParser(description="This script handles downloading, processing and formatting of omics data files for the Bladder PDO project")
-    parser.add_argument('-s', '--samples', help='Path to sample file',default=None)
-    parser.add_argument('-g', '--genes', help='Path to genes file', default = None)
-    parser.add_argument('-c', '--copy', help='Flag to capture copy number data', action='store_true', default=False)
-    parser.add_argument('-m', '--mutation', help='Flag to capture mutation data', action='store_true', default=False)
-    parser.add_argument('-e', '--expression', help='Flag to capture transcriptomic data', action='store_true', default=False)
+
+    # filepath and token args
+    parser.add_argument('-s', '--samples', help='Path to improve sample file',default=None)
+    parser.add_argument('-g', '--genes', help='Path to genes.csv.  Can be obtained using this docker container: https://github.com/PNNL-CompBio/coderdata/blob/0225c52b861dcd6902521228731c54a61768bcd6/build/genes/README.md#L4', default = None)
     parser.add_argument('-t', '--token', help='Synapse token')
 
+    # args for what data to process
+    parser.add_argument('-D', '--download', action = 'store_true', default=False, help='Download excel files with omics data')
+    parser.add_argument('-c', '--copy_number', help='Flag to capture copy number data', action='store_true', default=False)
+    parser.add_argument('-m', '--mutations', help='Flag to capture mutation data', action='store_true', default=False)
+    parser.add_argument('-e', '--transcriptomics', help='Flag to capture transcriptomic data', action='store_true', default=False)
+
     args = parser.parse_args()
-    print("Logging into Synapse")
-    PAT = args.token
+
+    ###########################
+
+    if args.download:
+        print("Parsing excel file.")
+        # Download parse excel file to get mutation data and the copy num data
+        mutation_df, copy_num_df, rnaseq_df = download_parse_omics_novPDX(synID="syn66477971", save_path="/tmp/", synToken=args.token)
+        # Save mutation and copy number data into csv format
+        mutation_df.to_csv("/tmp/mutation_data.csv")
+        copy_num_df.to_csv("/tmp/copy_num_data.csv")
+        rnaseq_df.to_csv("/tmp/rnaseq_data.csv")
+
+    if args.transcriptomics:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting transcriptomics data.")
+            transcriptomics_df = map_transcriptomics_novPDX(transciptomics_data = "/tmp/rnaseq_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df.to_csv("/tmp/crcpdo_transcriptomics.csv", index=False)
+    
+    if args.mutations:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting mutations data.")
+            mutation_df = map_mutations(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/crcpdo_mutations.csv", index=False)
+    
+    if args.copy_number:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting copy number data.")
+            mutation_df = map_copy_number_novPDX(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df.to_csv("/tmp/crcpdo_copy_number.csv", index=False)
+    
 
     genes=pd.read_csv(args.genes)
     samples = pd.read_csv(args.samples)
