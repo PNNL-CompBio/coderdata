@@ -258,8 +258,3 @@ if __name__ == "__main__":
             mutation_df = map_copy_number_novPDX(copy_number_data = "/tmp/copy_num_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
             mutation_df.to_csv("/tmp/crcpdo_copy_number.csv", index=False)
     
-
-    genes=pd.read_csv(args.genes)
-    samples = pd.read_csv(args.samples)
-
-    data =download_parse_omics_novPDX(syn id,savestring, PAT) 
