@@ -1,6 +1,6 @@
 ---
 title: "Figure 4 ex vivo results"
-author: "Sara Gosline"
+author: "Sara Gosline and Yannick Mahlich"
 date: "2025-06-02"
 output: html_document
 ---
@@ -60,8 +60,17 @@ print(plot)
 
 ```
 
-## Create funtion to dive in
+## AUC Study
 
+Does true AUC correlate with how well an algorithm works?
+
+### Multipanel correlation plots
+
+First we evaluate how this hypothesis bears out in CCLE predictions.
+
+Full model predictions are stored on synapse as parquet files. Individual
+datasets can be downloaded via `getModelPredictionData` in
+`coderdataResultsFunctions.R` (sources during the setup process).
 
 ```{r}
 tgt = 'ccle'
@@ -72,10 +81,13 @@ all_preds <- do.call(
     models,
     function(mdl) getModelPredictionData(dset = mdl) |>
       dplyr::filter(target == tgt & source != tgt & source != 'beataml' & source != 'mpnst') |>
+      #dplyr::filter(source != tgt & source != 'beataml' & source != 'mpnst') |>
       collect()
     )
   )
 ```
+
+
 ```{r}
 plot_panel <- function(data, title){
   data <- sample_n(data, 10000)
@@ -90,12 +102,21 @@ plot_panel <- function(data, title){
   )
 }
 ```
+
+We add more statistics to the data here
+
 ```{r}
-all_preds <- all_preds |> mutate(auc_ranges = cut(auc_true, c(-Inf, 0.2, 0.8, Inf), labels = c('auc_true <= 0.2', '0.2 < auc_true <= 0.8', 'auc_true > 0.8')))
+all_preds <- all_preds |> 
+  mutate(auc_ranges = cut(auc_true, c(-Inf, 0.25, 0.75, Inf), labels = c('auc_true <= 0.25', '0.25 < auc_true <= 0.75', 'auc_true > 0.75'))) |>
+  mutate(diff = abs(auc_true - auc_pred)) |>
+  mutate(norm_diff = diff/auc_true)
 
 ```
+
+
+
 ```{r}
-ranges <- list('auc_true <= 0.2', '0.2 < auc_true <= 0.8', 'auc_true > 0.8')
+ranges <- list('auc_true <= 0.25', '0.25 < auc_true <= 0.75', 'auc_true > 0.75')
 plots <- lapply(ranges, function(auc_range){
   data <- all_preds |> filter(auc_ranges == auc_range) |> collect()
   plot_panel(data, auc_range)
@@ -104,9 +125,57 @@ plot <- arrangeGrob(grobs = plots, ncol = 3)
 ggsave('ccle_auc_plot.pdf', plot, dpi=300, width=30, height=10)
 ```
 
-Full model predictions are stored on synapse as parquet files. Individual
-datasets can be downloaded via `getModelPredictionData` in
-`coderdataResultsFunctions.R` (sources during the setup process).
+### Summarize error and plot across all data
+
+First lets see the over all distribution
+```{r error summary ploting}
+
+ggplot(all_preds,aes(x=norm_diff,fill=model))+geom_histogram()+facet_grid(source~auc_ranges)+scale_y_log10()+scale_fill_manual(values=modelcolors)
+```
+
+This is still too much data, since it only represents CCLE preditions, let's try to compute summaries independetly.
+
+```{r summaries}
+
+all_summaries <- do.call(
+  rbind,
+  lapply(
+    models,
+    function(mdl) getModelPredictionData(dset = mdl) |>
+      dplyr::select(auc_true,auc_pred,source,target,model) |> ##remove columsn to consume less memory
+      dplyr::filter(source != 'beataml' & source != 'mpnst') |>
+      dplyr::filter(!target %in% c('beataml','sarcpdo','pancpdo','mpnst','bladderpdo')) |>
+      #dplyr::filter(source != tgt & source != 'beataml' & source != 'mpnst') |>
+      collect() |>
+      mutate(auc_ranges = cut(auc_true, c(-Inf, 0.25, 0.75, Inf), labels = c('auc_true <= 0.25', '0.25 < auc_true <= 0.75', 'auc_true > 0.75'))) |>
+      mutate(diff = abs(auc_true - auc_pred)) |>
+      mutate(norm_diff = diff/auc_true) |>
+      group_by(source, target, auc_ranges,model) |>
+      summarize(`Median Difference` = median(diff))
+    )
+  )
+
+all_summaries |>
+  ggplot(aes(x = auc_ranges,y = `Median Difference`,fill = model)) + 
+  geom_bar(position = 'dodge',stat = 'identity') + 
+  facet_grid(target~source) + 
+  coord_flip() + 
+  scale_fill_manual(values=modelcolors)
+
+ggsave('medianDifferenceCellLine.pdf')
+
+```
+
+
+## Drug panel
+
+Now let's look across different drugs. Filter by drugs that show up in all models/datasets and then evaluate which perform best/worst.
+
+```{r drugs}
+
+```
+
+## MPNST test
 
 Here we download data from all models, subset to only MPNST target predictions
 and combine the individual subsets into one master table.
