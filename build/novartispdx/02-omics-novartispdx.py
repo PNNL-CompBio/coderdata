@@ -3,6 +3,7 @@ import numpy as np
 import os
 import math
 import argparse
+import synapseclient
 
 
 def get_copy_call(a):
@@ -194,6 +195,65 @@ def map_transcriptomics_novPDX(transcriptomics_data, improve_id_data, entrez_dat
     return(sample_entrez_transcriptomics_df)
 
 
+
+def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
+    """
+    Maps transcriptomics data to improved sample id's and entrez gene data. Also does some data formatting.
+    
+    Parameters
+    ----------
+    mutation_data : pd.Dataframe OR string
+        Pandas dataframe object with mutations data OR path to csv with mutations data
+
+    improve_id_data : pd.Dataframe OR string
+        Pandas dataframe object with improve id data OR path to csv with improve id data.  This is one of the outputs of parse_mmc2()
+
+    entrez_data : pd.Dataframe OR string
+        Pandas dataframe object with entrez gene data OR path to csv with entrez gene data.  Use this code to get this file: https://github.com/PNNL-CompBio/coderdata/tree/e65634b99d060136190ec5fba0b7798f8d140dfb/build/genes 
+
+    Returns
+    -------
+    mutations_final : pd.DataFrame
+        A DataFrame containing the mapped mutations data with columns: entrez_id, mutation, variant_classification, improve_sample_id, source, study
+
+    """
+    # read in data
+    if isinstance(mutation_data, pd.DataFrame) == False:
+        mutation_data = pd.read_csv(mutation_data)
+
+    if isinstance(improve_id_data, pd.DataFrame) == False:
+        improve_id_data = pd.read_csv(improve_id_data)
+    
+    if isinstance(entrez_data, pd.DataFrame) == False:
+        entrez_data = pd.read_csv(entrez_data)
+    # include only rows that are mutations (data had both cn and mutations)
+    mutations_only_df = mutations_df[mutations_df['Category'].isin(["MutNovel","MutKnownFunctional","MutLikelyFunctional"])]
+
+    # turn details column into mutation column
+    mutations_only_df['mutation'] = mutations_only_df['Details'].str.split(pat = ",", expand=True).iloc[:,0]
+
+    # create variant classifications with information that we have
+    mutations_only_df['variant_classification'] = np.nan
+    mutations_only_df.loc[mutations_only_df['mutation'].str.contains("-"),['variant_classification']] = "Frame_Shift_Del"
+    mutations_only_df.loc[mutations_only_df['mutation'].str.contains(r'[A-Za-z]\d+[A-Za-z]$', regex=True, na=False),['variant_classification']] = "Missense_Mutation"
+    mutations_only_df['variant_classification'] = mutations_only_df['variant_classification'].fillna("Undetermined")
+    
+    # missing entrex id's are not in genes.csv, so get rid of those rows
+    mutations_only_df =  mutations_only_df[mutations_only_df['Entrez'].notna()]
+
+    # merge improve sample names
+    improve_id_data['to_merge'] = improve_id_data['common_name'].str.replace("NIBR","")
+    mutations_final = pd.merge(mutations_only_df, improve_id_data[['to_merge','improve_sample_id']], how = 'inner', left_on='Sample', right_on='to_merge')
+    
+    # clean up column names and data types
+    mutations_final = mutations_final.rename(columns={'Entrez':'entrez_id'})
+    mutations_final = mutations_final.drop(columns=['Sample','Gene','Category','Details','to_merge'])
+    mutations_final['source'] = "CPDM"
+    mutations_final['study'] = "novartispdx"
+    mutations_final = mutations_final.astype({'entrez_id':'int'})
+
+    return(mutations_final)
+
 if __name__ == "__main__":
     print('in main')
     parser = argparse.ArgumentParser(description="This script handles downloading, processing and formatting of omics data files for the Bladder PDO project")
@@ -243,7 +303,7 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting mutations data.")
-            mutation_df = map_mutations(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df = map_mutations_novPDX(mutation_data = "/tmp/mutation_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
             mutation_df.to_csv("/tmp/crcpdo_mutations.csv", index=False)
     
     if args.copy_number:
