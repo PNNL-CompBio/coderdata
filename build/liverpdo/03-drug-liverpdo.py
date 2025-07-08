@@ -46,13 +46,8 @@ def download_parse_drug_data(synID:str , save_path:str = None, synToken:str = No
 
     # Get the path to the local copy of the data file 
     drugs_filepath = downloaded_data.path
-
-    # Parse the downloaded excel file
-    drugs_excel = pd.ExcelFile(open(drugs_filepath, 'rb'))
-    drugs_data = pd.read_excel(drugs_excel)
-    drugs_data.to_csv("/tmp/raw_druginfo.csv")
     
-    return(drugs_data)
+    return(drugs_filepath)
 
 
 def create_liverpdo_drug_data(drug_info_path:str, prevDrugFilepath:str, output_drug_data_path:str):
@@ -94,17 +89,20 @@ if __name__ == "__main__":
 
     if args.Download:
         if args.Token is None:
-            print("No synpase download tocken was provided. Cannot download data.")
+            print("No synpase download token was provided. Cannot download data.")
             exit()
         else:
             print("Downloading Files from Synapse.")
             # download fitted and raw drug data from synapse
             fitted_drug_data_path = download_parse_drug_data(synID = "syn66401300", save_path = "/tmp/", synToken = args.Token)
+            drug_excel = pd.ExcelFile(open(fitted_drug_data_path, 'rb'))
+            druginfo_df = pd.read_excel(drug_excel)
+            druginfo_df.to_csv("/tmp/raw_druginfo.csv")
     if args.Drug:
         if args.PrevDrugs is None or args.PrevDrugs=='':
             print("No previous drugs file provided.  Starting improve_drug_id from SMI_1. Running drug file generation")
-            create_liverpdo_drug_data(fitted_drug_data_path = "/tmp/raw_druginfo.csv", output_drug_data_path = "/tmp/liverpdo_drugs.tsv", prevDrugFilepath = "")
+            create_liverpdo_drug_data(drug_info_path = "/tmp/raw_druginfo.csv", output_drug_data_path = "/tmp/liverpdo_drugs.tsv", prevDrugFilepath = "")
         else:
             print("Previous drugs file {} detected. Running drugs file generation and checking for duplicate IDs.".format(args.PrevDrugs))
-            create_liverpdo_drug_data(fitted_drug_data_path = "/tmp/raw_druginfo.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/liverpdo_drugs.tsv")
+            create_liverpdo_drug_data(drug_info_path = "/tmp/raw_druginfo.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/liverpdo_drugs.tsv")
 

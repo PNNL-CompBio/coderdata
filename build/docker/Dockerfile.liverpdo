@@ -38,10 +38,6 @@ ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
 
-ADD build/liverpdo/requirements.R .
-# installing r libraries
-RUN Rscript requirements.R
-
 
 
 # installing python libraries
@@ -50,11 +46,9 @@ ADD build/liverpdo/requirements.txt .
 RUN pip3 install -r requirements.txt
 
 RUN python3 --version
-RUN which Rscript
 
 #ENV PATH="/opt/venv/bin:$PATH"
 
-ADD build/liverpdo/CNV-segfile-annotation.R ./
 ADD build/liverpdo/*py ./
 ADD build/liverpdo/*sh ./
 

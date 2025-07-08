@@ -315,7 +315,7 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting transcriptomics data.")
-            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/raw_rnaseq_data.csv", improve_id_data = "/tmp/crcpdo_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/raw_rnaseq_data.csv", improve_id_data = "/tmp/liverpdo_samples.csv", entrez_data = "/tmp/genes.csv")
             transcriptomics_df.to_csv("/tmp/liverpdo_transcriptomics.csv", index=False)
     
     if args.mutations:
@@ -327,7 +327,7 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting mutations data.")
-            mutation_df = map_mutations(mutation_data = "/tmp/raw_mutation_data.csv", improve_id_data = "/tmp/crcpdo_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df = map_mutations(mutation_data = "/tmp/raw_mutation_data.csv", improve_id_data = "/tmp/liverpdo_samples.csv", entrez_data = "/tmp/genes.csv")
             mutation_df.to_csv("/tmp/liverpdo_mutations.csv", index=False)
     
     if args.copy_number:
@@ -339,6 +339,6 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting copy number data.")
-            mutation_df = map_copy_number(copy_number_data = "/tmp/raw_copynum_data.csv", improve_id_data = "/tmp/crcpdo_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df = map_copy_number(copy_number_data = "/tmp/raw_copynum_data.csv", improve_id_data = "/tmp/liverpdo_samples.csv", entrez_data = "/tmp/genes.csv")
             mutation_df.to_csv("/tmp/liverpdo_copy_number.csv", index=False)
     
