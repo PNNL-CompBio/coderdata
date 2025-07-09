@@ -68,7 +68,7 @@ def create_liverpdo_drug_data(drug_info_path:str, prevDrugFilepath:str, output_d
     # get new drug names
     new_drug_names = new_drugs_df['chem_name'].unique()
     # call function that gets info for these drugs
-    update_dataframe_and_write_tsv(new_drug_names,output_drug_data_path)
+    update_dataframe_and_write_tsv(unique_names = new_drug_names,output_filename = output_drug_data_path)
 
     ############################
 
