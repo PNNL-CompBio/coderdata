@@ -24,7 +24,7 @@ names(ecols) <- exvivo
 
 datasetcolors <- c(ccols,ecols)
 
-synapser::synLogin()
+syn <- synapser::synLogin()
 
 getProteomicsData <- function(){
 
