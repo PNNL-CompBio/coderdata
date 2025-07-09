@@ -151,6 +151,7 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     mapped_mutation_data = mapped_mutation_data.rename(columns={'Variant_Classification':'variant_classification'})
     mapped_mutation_data['source'] = "Synapse"
     mapped_mutation_data['study'] = "liverpdo"
+    mapped_mutation_data = mapped_mutation_data.dropna()
     mapped_mutation_data = mapped_mutation_data.astype({'entrez_id':'int','improve_sample_id':'int'})
     mapped_mutation_data = mapped_mutation_data.drop_duplicates()
     mapped_mutation_data = mapped_mutation_data[['entrez_id','mutation','variant_classification','improve_sample_id','study','source']]
@@ -215,6 +216,7 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     improve_mapped_cn_df = improve_mapped_cn_df.drop(columns=['other_id','value'])
     improve_mapped_cn_df['source'] = "Synapse"
     improve_mapped_cn_df['study'] = "liverpdo"
+    improve_mapped_cn_df = improve_mapped_cn_df.dropna()
     improve_mapped_cn_df = improve_mapped_cn_df.rename(columns={'Gene ID':'entrez_id'})
     improve_mapped_cn_df = improve_mapped_cn_df.astype({'entrez_id':'int','improve_sample_id':'int'})
     improve_mapped_cn_df = improve_mapped_cn_df[['entrez_id','copy_number','copy_call','study','source','improve_sample_id']]
