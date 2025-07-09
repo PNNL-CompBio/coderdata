@@ -128,34 +128,34 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
         entrez_data = pd.read_csv(entrez_data)
 
     # create mutation names using chr, position, etc
-    mutations_df.columns = mutations_df.iloc[0]
-    mutations_df = mutations_df.drop([0], axis=0)
-    mutations_df['mutation']  = "g."+ mutations_df['Chromosome'] + ":" + np.where(mutations_df['Start_Position'] == mutations_df['End_Position'], mutations_df['Start_Position'].astype(str), mutations_df['Start_Position'].astype(str) + "_" + mutations_df['End_Position'].astype(str))
-    for index, row in mutations_df.iterrows():
-        if mutations_df.at[index,'Variant_Classification'].__contains__("Ins"):
-            mutations_df.at[index,'mutation'] = mutations_df.at[index,'mutation'] + "ins" + mutations_df.at[index,'Tumor_Seq_Allele2']
-        elif mutations_df.at[index,'Variant_Classification'].__contains__("Del"):
-            mutations_df.at[index,'mutation'] = mutations_df.at[index,'mutation'] + "del" + mutations_df.at[index,'Tumor_Seq_Allele1']
+    mutation_data.columns = mutation_data.iloc[0]
+    mutation_data = mutation_data.drop([0], axis=0)
+    mutation_data['mutation']  = "g."+ mutation_data['Chromosome'] + ":" + np.where(mutation_data['Start_Position'] == mutation_data['End_Position'], mutation_data['Start_Position'].astype(str), mutation_data['Start_Position'].astype(str) + "_" + mutation_data['End_Position'].astype(str))
+    for index, row in mutation_data.iterrows():
+        if mutation_data.at[index,'Variant_Classification'].__contains__("Ins"):
+            mutation_data.at[index,'mutation'] = mutation_data.at[index,'mutation'] + "ins" + mutation_data.at[index,'Tumor_Seq_Allele2']
+        elif mutation_data.at[index,'Variant_Classification'].__contains__("Del"):
+            mutation_data.at[index,'mutation'] = mutation_data.at[index,'mutation'] + "del" + mutation_data.at[index,'Tumor_Seq_Allele1']
         else:
-            mutations_df.at[index,'mutation'] = mutations_df.at[index,'mutation'] + mutations_df.at[index,'Tumor_Seq_Allele1'] + ">" + mutations_df.at[index,'Tumor_Seq_Allele2']
+            mutation_data.at[index,'mutation'] = mutation_data.at[index,'mutation'] + mutation_data.at[index,'Tumor_Seq_Allele1'] + ">" + mutation_data.at[index,'Tumor_Seq_Allele2']
             
     # map columns in mutations data to their improved id
-    sample_mutations_df = pd.merge(mutations_df, samples_df[['other_id','improve_sample_id']], how='inner', left_on="Tumor_Sample_Barcode", right_on="other_id")
+    sample_mutation_data = pd.merge(mutation_data, improve_id_data[['other_id','improve_sample_id']], how='inner', left_on="Tumor_Sample_Barcode", right_on="other_id")
 
     # the data's variant classification matches scheme well, except "Non-coding_Transcript".  let's change those to RNA
-    sample_entrez_mutations_df = pd.merge(sample_mutations_df, entrez_df[['entrez_id','other_id']], how='left', left_on="Hugo_Symbol", right_on="other_id") # merge with our entrez database to see if we have additional matches
+    sample_entrez_mutation_data = pd.merge(sample_mutation_data, entrez_data[['entrez_id','other_id']], how='left', left_on="Hugo_Symbol", right_on="other_id") # merge with our entrez database to see if we have additional matches
 
     # clean up column names and data types
-    columns_to_drop = set(sample_entrez_mutations_df.columns) - set(['entrez_id','mutation','Variant_Classification','improve_sample_id'])
-    mapped_mutations_df = sample_entrez_mutations_df.drop(columns=columns_to_drop)
-    mapped_mutations_df = mapped_mutations_df.rename(columns={'Variant_Classification':'variant_classification'})
-    mapped_mutations_df['source'] = "Synapse"
-    mapped_mutations_df['study'] = "liverpdo"
-    mapped_mutations_df = mapped_mutations_df.astype({'entrez_id':'int','improve_sample_id':'int'})
-    mapped_mutations_df = mapped_mutations_df.drop_duplicates()
-    mapped_mutations_df = mapped_mutations_df[['entrez_id','mutation','variant_classification','improve_sample_id','study','source']]
+    columns_to_drop = set(sample_entrez_mutation_data.columns) - set(['entrez_id','mutation','Variant_Classification','improve_sample_id'])
+    mapped_mutation_data = sample_entrez_mutation_data.drop(columns=columns_to_drop)
+    mapped_mutation_data = mapped_mutation_data.rename(columns={'Variant_Classification':'variant_classification'})
+    mapped_mutation_data['source'] = "Synapse"
+    mapped_mutation_data['study'] = "liverpdo"
+    mapped_mutation_data = mapped_mutation_data.astype({'entrez_id':'int','improve_sample_id':'int'})
+    mapped_mutation_data = mapped_mutation_data.drop_duplicates()
+    mapped_mutation_data = mapped_mutation_data[['entrez_id','mutation','variant_classification','improve_sample_id','study','source']]
 
-    return(mapped_mutations_df)
+    return(mapped_mutation_data)
 
 
 def get_copy_call(a):
@@ -235,8 +235,9 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
         entrez_data = pd.read_csv(entrez_data)
 
     # first, convert genes, which are in ensembl id's to gene names
+    transciptomics_data = transciptomics_data.rename(columns={'Unnamed: 0': 'stable_id'})
     mg = mygene.MyGeneInfo()
-    ensembl_ids = transciptomics_data.iloc[:,0].values
+    ensembl_ids = transciptomics_data['stable_id'].values
     gene_info_list = mg.getgenes(ensembl_ids, fields='symbol')
     gene_df = pd.DataFrame.from_dict(gene_info_list)
     for_tpm = pd.merge(transciptomics_data, gene_df[['query','symbol']], how = 'inner', left_on= "stable_id", right_on= "query")
@@ -266,6 +267,7 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
     mapped_transcriptomics_df = mapped_transcriptomics_df.drop(columns=['stable_id','variable','other_id_x','other_id_y'])
     mapped_transcriptomics_df['source'] = "Synapse"
     mapped_transcriptomics_df['study'] = "liverpdo"
+    mapped_transcriptomics_df = mapped_transcriptomics_df.dropna()
     mapped_transcriptomics_df = mapped_transcriptomics_df.astype({'entrez_id':'int','improve_sample_id':'int'})
     mapped_transcriptomics_df = mapped_transcriptomics_df[['entrez_id','transcriptomics','improve_sample_id','source','study']]
 
@@ -297,10 +299,10 @@ if __name__ == "__main__":
         # Download and parse rnaseq data
         rnaseq_df = download_parse_rna_data(synID="syn68327513", synToken = args.token, save_path="/tmp/")
         # Download rest of omics data
-        mutations_df, copynum_df, proteomics_df= download_parse_omics_data(synID="syn66401303", synToken = args.token, save_path="/tmp/")
+        mutation_data, copynum_df, proteomics_df= download_parse_omics_data(synID="syn66401303", synToken = args.token, save_path="/tmp/")
         # Save mutation and copy number data into csv format
         rnaseq_df.to_csv("/tmp/raw_rnaseq_data.csv")
-        mutations_df.to_csv("/tmp/raw_mutation_data.csv")
+        mutation_data.to_csv("/tmp/raw_mutation_data.csv")
         copynum_df.to_csv("/tmp/raw_copynum_data.csv")
         proteomics_df.to_csv("/tmp/raw_proteomics_data.csv")
 
