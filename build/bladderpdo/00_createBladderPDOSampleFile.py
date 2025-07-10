@@ -31,7 +31,7 @@ def _parse_model_type(sample_id):
     if "_xenoorganoid" in low:
         return "xenograft derived organoid"
     if "_organoid" in low:
-        return "organoid"
+        return "patient derived organoid"
     if "_xenograft" in low:
         return "patient derived xenograft"
     if "_parental" in low:
