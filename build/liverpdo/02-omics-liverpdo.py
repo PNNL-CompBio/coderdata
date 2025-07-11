@@ -143,7 +143,7 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     sample_mutation_data = pd.merge(mutation_data, improve_id_data[['other_id','improve_sample_id']], how='inner', left_on="Tumor_Sample_Barcode", right_on="other_id")
 
     # the data's variant classification matches scheme well, except "Non-coding_Transcript".  let's change those to RNA
-    sample_entrez_mutation_data = pd.merge(sample_mutation_data, entrez_data[['entrez_id','other_id']], how='left', left_on="Hugo_Symbol", right_on="other_id") # merge with our entrez database to see if we have additional matches
+    sample_entrez_mutation_data = pd.merge(sample_mutation_data, entrez_data[['entrez_id','other_id']], how='inner', left_on="Hugo_Symbol", right_on="other_id") # merge with our entrez database to see if we have additional matches
 
     # clean up column names and data types
     columns_to_drop = set(sample_entrez_mutation_data.columns) - set(['entrez_id','mutation','Variant_Classification','improve_sample_id'])
@@ -196,6 +196,7 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
         entrez_data = pd.read_csv(entrez_data)
 
     # get data ready 
+    copy_number_data = copy_number_data.iloc[:,1:]
     copy_number_data.columns = copy_number_data.iloc[0]
     copy_number_data = copy_number_data.drop([0], axis=0)
     copynum_df = copy_number_data.drop(columns=['Hugo_Symbol','Cytoband'])
@@ -206,6 +207,7 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
 
     # do copy_number calculation from score and get copy call column
     long_cn_df = long_cn_df.rename(columns={0:'other_id'})
+    long_cn_df = long_cn_df.astype({'value':'float'})
     long_cn_df['copy_number'] = pow(2,long_cn_df['value'])*2
     long_cn_df['copy_call'] = [get_copy_call(a) for a in long_cn_df['copy_number']]
 
@@ -259,11 +261,11 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
     
 
     # map gene names to entrez id's 
-    mapped_transcriptomics_df = pd.merge(long_transcriptomics_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'left', left_on= "stable_id", right_on= "other_id")
+    mapped_transcriptomics_df = pd.merge(long_transcriptomics_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'inner', left_on= "stable_id", right_on= "other_id")
     mapped_transcriptomics_df = mapped_transcriptomics_df.dropna(subset=['entrez_id'])
 
     # mapping improve sample id'samples_df
-    mapped_transcriptomics_df = pd.merge(mapped_transcriptomics_df, improve_id_data[['other_id','improve_sample_id']].drop_duplicates(), how = 'left', left_on= "variable", right_on= "other_id")
+    mapped_transcriptomics_df = pd.merge(mapped_transcriptomics_df, improve_id_data[['other_id','improve_sample_id']].drop_duplicates(), how = 'inner', left_on= "variable", right_on= "other_id")
         
     # clean up column names and data types
     mapped_transcriptomics_df = mapped_transcriptomics_df.drop(columns=['stable_id','variable','other_id_x','other_id_y'])
