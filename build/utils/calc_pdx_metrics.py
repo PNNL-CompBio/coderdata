@@ -275,11 +275,11 @@ def lmm(time, volume, treatment, drug_name):
         raise ValueError("These columns must be present: 'model_id', 'volume', 'time', 'exp_type'")
     
     data['log_volume'] = np.log(data['volume'])
-    print('drug name is ' + drug_name)
+    #print('drug name is ' + drug_name)
     data['exp_type'] = data['exp_type'].astype('category')
     data['exp_type']=pd.Categorical(data['exp_type'],categories = ['control',drug_name], ordered=True)
-    print(data)
-    print(data['exp_type'].cat.categories)
+    #print(data)
+    #print(data['exp_type'].cat.categories)
     # Define the formula for mixed linear model
     formula = 'log_volume ~ time*exp_type'
     
@@ -327,11 +327,13 @@ def main():
     # source	improve_sample_id	improve_drug_id	study	time	time_unit	dose_response_metric	dose_response_value
 
     combos[['drug1','drug2']]=combos.drug.str.split('+',expand=True)
+    print('COMBOS ARE: ')
+    print(combos[['drug1', 'drug2']])
     combos = combos.rename({'metric':'drug_combination_metric','value':'drug_combination_value','sample':'improve_sample_id'},axis=1).dropna()
 
     expcomb = combos.rename({'drug1':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_1'},axis=1)[['improve_drug_1','drug2','improve_sample_id','time_unit','time','drug_combination_metric','drug_combination_value']]
     expcomb = expcomb.rename({'drug2':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_2'},axis=1)[['improve_drug_1','improve_drug_2','improve_sample_id','time_unit','time','drug_combination_metric','drug_combination_value']]
-
+    print(expcomb[['improve_drug_1', 'improve_drug_2']])
     expcomb[['source']]='Synapse'
     expcomb[['study']]='MPNST PDX in vivo'
 
@@ -352,9 +354,9 @@ def get_drug_stats(df, control='control'):
     for name, group in tqdm(groups):
         # Each group contains multiple treatments and a control
         drugs = set(group.treatment) - set([control])
-        print('line 355')
-        print(name[0])
-        print(drugs)
+        #print('line 355')
+        #print(name[0])
+        #print(drugs)
         mod = list(set(group.model_id))[0]
 
         ctl_data = group[group.treatment == control]
@@ -364,8 +366,8 @@ def get_drug_stats(df, control='control'):
             continue
         ctl_auc = AUC(ctl_time, ctl_volume)
         for d in drugs:
-            print('is our drug a string or dict?')
-            print(str(d))
+            #print('is our drug a string or dict?')
+            #print(str(d))
             d_data = group[group.treatment == str(d)]
             treat_time = np.array(d_data.time)
             treat_volume = np.array(d_data.volume)
