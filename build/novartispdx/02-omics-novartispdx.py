@@ -227,7 +227,7 @@ def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
     if isinstance(entrez_data, pd.DataFrame) == False:
         entrez_data = pd.read_csv(entrez_data)
     # include only rows that are mutations (data had both cn and mutations)
-    mutations_only_df = mutations_df[mutations_df['Category'].isin(["MutNovel","MutKnownFunctional","MutLikelyFunctional"])]
+    mutations_only_df = mutation_data[mutation_data['Category'].isin(["MutNovel","MutKnownFunctional","MutLikelyFunctional"])]
 
     # turn details column into mutation column
     mutations_only_df['mutation'] = mutations_only_df['Details'].str.split(pat = ",", expand=True).iloc[:,0]
