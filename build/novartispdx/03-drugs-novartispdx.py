@@ -15,7 +15,7 @@ def create_novartis_pdx_drugs_file(synObject, prevDrugFilepath, outputPath):
     rawDrugData = pd.read_csv(file.path)
     # split on + operator - there are 2- and one 3- way drug combos in this dataset
     sepDrugNames = pd.Series(rawDrugData['Treatment'].unique()).str.split("+", expand=True)
-    ### NEED TO ALSO remove drug names with different dose info
+    
     
   
     # taking the drug names from the first and second column from the split - there is only one 
