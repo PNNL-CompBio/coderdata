@@ -273,7 +273,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             docker_run.extend(['upload'])
         if 'FIGSHARE_TOKEN' in env and name == 'Figshare':
             docker_run.extend(['-e', f"FIGSHARE_TOKEN={env['FIGSHARE_TOKEN']}", 'upload'])
-        if name == "Map_Drugs" or name == "Map_Samples":
+        if name in ["Map_Drugs", "Map_Samples", "Align_Drug_Descriptors"]:
             docker_run.extend(['upload'])
         if 'GITHUB_TOKEN' in env and name == "GitHub":
             docker_run.extend(['-e', f"GITHUB_TOKEN={env['GITHUB_TOKEN']}", 'upload'])
@@ -445,6 +445,9 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         
         drug_mapping_command = ['python3', 'scripts/map_improve_drug_ids.py', '--local_dir', "/tmp", '--version', args.version]
         run_docker_upload_cmd(drug_mapping_command, 'all_files_dir', 'Map_Drugs', args.version)
+        
+        drug_mapping_command_2 = ['python3', 'scripts/align_drug_descriptors.py', '--local_dir', "/tmp", '--version', args.version]
+        run_docker_upload_cmd(drug_mapping_command_2, 'all_files_dir', 'Align_Drug_Descriptors', args.version)
 
         # Run schema checker - This will always run if uploading data.
         schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
