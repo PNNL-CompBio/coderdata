@@ -262,3 +262,19 @@ datasets:
       file: /tmp/crcpdo_drugs.tsv
     - target_class: Drug Descriptor
       file: /tmp/crcpdo_drug_descriptors.tsv
+
+  novartispdx:
+    - target_class: Sample
+      file: /tmp/novartispdx_samples.csv
+    - target_class: Transcriptomics
+      file: /tmp/novartispdx_transcriptomics.csv
+    - target_class: Mutations
+      file: /tmp/novartispdx_mutations.csv
+    - target_class: Copy Number
+      file: /tmp/novartispdx_copy_number.csv
+    - target_class: Experiments
+      file: /tmp/novartispdx_experiments.tsv
+    - target_class: Drug
+      file: /tmp/novartispdx_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/novartispdx_drug_descriptors.tsv
