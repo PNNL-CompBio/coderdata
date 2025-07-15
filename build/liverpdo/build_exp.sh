@@ -9,5 +9,6 @@ python3 04-experiments-liverpdo.py --Download --Experiment --Token $SYNAPSE_AUTH
 # running the drug descriptor python script
 python3 fit_curve.py --input /tmp/liverpdo_experiments_for_curve_fitting.tsv --output /tmp/liverpdo_experiments.tsv
 
-# change name of script 
+# change name of script and delete intermediate files
 mv /tmp/liverpdo_experiments.tsv.0 /tmp/liverpdo_experiments.tsv
+rm /tmp/liverpdo_experiments_for_curve_fitting.tsv
