@@ -87,7 +87,7 @@ def generate_sample_file(samples_data_path:str = None, prev_samples_path:str = "
     samples_df['cancer_type'] = samples_df['other_id'].apply(lambda x: map_substring(x, ctype_dict))
     samples_df['other_id_source'] = "Synapse"
     samples_df['species'] = "Homo sapiens (Human)"
-    samples_df['model_type'] = "organoid"
+    samples_df['model_type'] = "patient derived organoid"
 
 
     # check other_id doesn't clash with previous sample names
