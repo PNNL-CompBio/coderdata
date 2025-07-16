@@ -184,12 +184,12 @@ def AUC(time, volume, time_normalize=True):
     dict: Dictionary containing the AUC value.
     """
     auc = trapz_auc(time, volume)
-    print('at line 187')
-    print(time.shape)
-    print(time.dtype)
-    print(np.max(time.astype(int)))
-    print('auc is : ')
-    print(auc)
+    #print('at line 187')
+    #print(time.shape)
+    #print(time.dtype)
+    #print(np.max(time.astype(int)))
+    #print('auc is : ')
+    #print(auc)
     if time_normalize:
         auc = auc/np.max(time)
     return {"metric": "auc", "value": auc, 'time':np.max(time)}
@@ -292,7 +292,7 @@ def lmm(time, volume, treatment, drug_name):
     #interaction_term = 'time:exp_type'
 #    if interaction_term in fit.params:
 #    time_coef_value = fit.params['time']
-    print(fit.params)
+    #print(fit.params)
     i_coef_value = fit.params['time:exp_type[T.'+drug_name+']']
     #i_coef_value = fit.params['time:exp_type['+drug_name+']']
    # else:
@@ -312,6 +312,8 @@ def main():
     parser.add_argument('curvefile')
     parser.add_argument('--drugfile')
     parser.add_argument('--outprefix',default='/tmp/')
+    parser.add_argument('--study')
+    parser.add_argument('--source')
     
     args = parser.parse_args()
     
@@ -325,22 +327,21 @@ def main():
     expsing = expsing.dropna()
     
     # source	improve_sample_id	improve_drug_id	study	time	time_unit	dose_response_metric	dose_response_value
+    if combos.shape[0]> 0:
+        combos[['drug1','drug2']]=combos['drug'].str.split('+',expand=True)
+        
+        combos = combos.rename({'metric':'drug_combination_metric','value':'drug_combination_value','sample':'improve_sample_id'},axis=1).dropna()
+        
+        expcomb = combos.rename({'drug1':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_1'},axis=1)[['improve_drug_1','drug2','improve_sample_id','time_unit','time','drug_combination_metric','drug_combination_value']]
+        expcomb = expcomb.rename({'drug2':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_2'},axis=1)[['improve_drug_1','improve_drug_2','improve_sample_id','time_unit','time','drug_combination_metric','drug_combination_value']]
+        expcomb[['source']]=args.source
+        expcomb[['study']]=args.study
+        expcomb.to_csv(args.outprefix+'_combinations.tsv',index=False, sep="\t")
 
-    combos[['drug1','drug2']]=combos.drug.str.split('+',expand=True)
-    print('COMBOS ARE: ')
-    print(combos[['drug1', 'drug2']])
-    combos = combos.rename({'metric':'drug_combination_metric','value':'drug_combination_value','sample':'improve_sample_id'},axis=1).dropna()
-
-    expcomb = combos.rename({'drug1':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_1'},axis=1)[['improve_drug_1','drug2','improve_sample_id','time_unit','time','drug_combination_metric','drug_combination_value']]
-    expcomb = expcomb.rename({'drug2':'chem_name'},axis=1).merge(drugs,on='chem_name',how='left').rename({'improve_drug_id':'improve_drug_2'},axis=1)[['improve_drug_1','improve_drug_2','improve_sample_id','time_unit','time','drug_combination_metric','drug_combination_value']]
-    print(expcomb[['improve_drug_1', 'improve_drug_2']])
-    expcomb[['source']]='Synapse'
-    expcomb[['study']]='MPNST PDX in vivo'
-
-    expsing[['source']]='Synapse'
-    expsing[['study']]='MPNST PDX in vivo'
+    expsing[['source']]=args.source
+    expsing[['study']]=args.study
     expsing.to_csv(args.outprefix+'_experiments.tsv',index=False, sep="\t")
-    expcomb.to_csv(args.outprefix+'_combinations.tsv',index=False, sep="\t")
+    #expcomb.to_csv(args.outprefix+'_combinations.tsv',index=False, sep="\t")
     
 
     
