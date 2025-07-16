@@ -60,7 +60,7 @@ def process_docker(dataset,validate):
         
     datasets_to_build.extend(dataset_map.get(dataset, []))
 
-    compose_command = ['docker-compose', '-f', compose_file, 'build'] + datasets_to_build
+    compose_command = ['docker', 'compose', '-f', compose_file, 'build'] + datasets_to_build
 
     log_file_path = 'local/docker.log'
     env = os.environ.copy()
