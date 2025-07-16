@@ -48,7 +48,8 @@ def process_docker(dataset,validate):
         'genes': ['genes'],
         'upload': ['upload'],
         'crcpdo': ['crcpdo'], 
-        'bladderpdo': ['bladderpdo']
+        'bladderpdo': ['bladderpdo'],
+        'liverpdo': ['liverpdo']
     }
 
     # Collect container names to build based on the dataset provided. Always build 'genes'.
@@ -59,7 +60,7 @@ def process_docker(dataset,validate):
         
     datasets_to_build.extend(dataset_map.get(dataset, []))
 
-    compose_command = ['docker-compose', '-f', compose_file, 'build'] + datasets_to_build
+    compose_command = ['docker', 'compose', '-f', compose_file, 'build'] + datasets_to_build
 
     log_file_path = 'local/docker.log'
     env = os.environ.copy()
@@ -131,7 +132,8 @@ def process_omics(executor, dataset, should_continue):
         'sarcpdo': ['mutations', 'transcriptomics'],
         'pancpdo': ['transcriptomics'],
         'bladderpdo': ['copy_number', 'mutations', 'transcriptomics'],
-        'crcpdo':['copy_number', 'mutations', 'transcriptomics']
+        'crcpdo':['copy_number', 'mutations', 'transcriptomics'],
+        'liverpdo':['copy_number', 'mutations', 'transcriptomics']
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])

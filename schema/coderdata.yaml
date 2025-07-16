@@ -246,6 +246,7 @@ enums:
       tumor:
       patient derived xenograft:
       xenograft derived organoid:
+      patient derived organoid:
       ex vivo:
   Variant:
     permissible_values:
