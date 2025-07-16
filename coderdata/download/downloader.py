@@ -87,7 +87,8 @@ def download(
 
     for file_name, file_data in unique_files.items():
         file_info = file_data['file_info']
-        file_url = file_info['download_url']
+        file_id = str(file_info['id'])
+        file_url = "https://api.figshare.com/v2/file/download/" + file_id
         file_md5sum = file_info['supplied_md5']
         retry_count = 10
         # Download the file
