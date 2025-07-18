@@ -78,7 +78,7 @@ def main(counts_data, genome_link, gene_column, exclude_columns, out_file):
 if __name__=='__main__':
     parser = argparse.ArgumentParser("Quick script to get TPM from counts matrix")
 
-    parser.add_argument('--counts', default=None, help='Transcriptomics counts matrix')
+    parser.add_argument('--counts', default=None, help='Transcriptomics counts matrix where rows represent gene values and columns represent samples')
     parser.add_argument('--genome_build', default="https://ftp.ensembl.org/pub/grch37/release-113/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz", help='Link to human genome build')
     parser.add_argument('--gene_col', default="stable_id", help='Name of column with gene names')
     parser.add_argument('--exclude_col', default="stable_id,display_label,description,biotype", help='Name of column with gene names')

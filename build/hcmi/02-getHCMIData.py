@@ -613,10 +613,13 @@ def write_dataframe_to_csv(dataframe, outname):
     -------
     None
     """
+    dataframe = dataframe.to_pandas()
+    dataframe = dataframe.drop_duplicates()
+
     if('gz' in outname):
-        dataframe.to_pandas().to_csv(outname,compression='gzip',index=False)
+        dataframe.to_csv(outname,compression='gzip',index=False)
     else:
-        dataframe.to_pandas().to_csv(outname,index=False)
+        dataframe.to_csv(outname,index=False)
     return
 
 def main():
