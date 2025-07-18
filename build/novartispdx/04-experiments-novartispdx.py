@@ -20,7 +20,7 @@ def get_novartis_pdx_experiments_file(synObject, samples_df):
     novartispdx_curvefile['treatment']=novartispdx_curvefile['treatment'].str.replace('untreated', 'control')
     novartispdx_curvefile['experiment'] = novartispdx_curvefile.groupby(['model_id']).ngroup()+1
     # remove triple combination(s)
-    novartispdx_curvefile = novartispdx_curvefile[~novartispdx_curvefile['treatment'].str.contains(r'\+.*\+')]
+    novartispdx_curvefile = novartispdx_curvefile[~novartispdx_curvefile['treatment'].str.contains(r'\+')]
     # remove dose information appended to some drugs in the treatment column and include in dose colum
     druganddose = novartispdx_curvefile['treatment'].str.split('-', expand=True)
     druganddose = druganddose.rename({0: 'treatment', 1:'dose'}, axis=1)
@@ -39,12 +39,9 @@ def get_novartis_pdx_experiments_file(synObject, samples_df):
     #merge on drug names done in calc_pdx_metrics.py
     #final_w_drugIDs = finaldf.merge(drug_df, how='left',right_on='chem_name', left_on="treatment")
     final_allIDs = nomissingcontrols.merge(samples_df, how='left', right_on='common_name', left_on='model_id') 
-    print(final_allIDs.head)
     final_allIDs = final_allIDs.drop('model_id', axis=1)
     finalDF = final_allIDs.rename({'improve_sample_id':'model_id'}, axis=1)
-    print(finalDF.head)
     finalcurvefile = finalDF[['model_id', 'time', 'volume', 'treatment', 'experiment', 'dose']]
-    print(finalcurvefile.head)
     return finalcurvefile
 
 
@@ -59,7 +56,6 @@ if __name__ == "__main__":
     print("Logging into Synapse")
     PAT = args.token
     synObject = synapseclient.login(authToken=PAT)
-    #drug_df = pd.read_csv(args.drugfile, sep='\t')
     samples_df = pd.read_csv(args.curSampleFile)
     
     doseresponse_data = get_novartis_pdx_experiments_file(synObject, samples_df)

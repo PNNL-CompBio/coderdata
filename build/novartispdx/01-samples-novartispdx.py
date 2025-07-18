@@ -44,7 +44,6 @@ if __name__ == "__main__":
     print("Logging into Synapse")
     PAT = args.token
     synObject = synapseclient.login(authToken=PAT)
-
     samplesheet = get_complete_novartispdx_sample_sheet(synObject)
 
     if (args.prevSamples):
