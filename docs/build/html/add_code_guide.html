@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Guide to Adding Code to CoderData &#8212; CoderData</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=6e3806b9" />
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CoderData</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Guide to Adding Code to CoderData</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <!-- ---
+layout: default
+title: CoderData
+---
+
+<link rel="stylesheet" href="assets/css/style.css"> -->
+<section id="guide-to-adding-code-to-coderdata">
+<h1>Guide to Adding Code to CoderData<a class="headerlink" href="#guide-to-adding-code-to-coderdata" title="Link to this heading">¶</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
+<p>This guide outlines the steps for contributors looking to add new code functionalities to CoderData, including automation scripts, Docker integration, and continuous integration processes.</p>
+</section>
+<section id="automate-credentials-and-data-pulling">
+<h2>1. Automate Credentials and Data Pulling<a class="headerlink" href="#automate-credentials-and-data-pulling" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><em><strong>Script Development</strong></em>: Write a script to automate credential management and data pulling, ensuring secure handling of API keys or authentication tokens.</p></li>
+<li><p><em><strong>Data Formatting</strong></em>: The script should reformat the pulled data to fit CoderData’s existing schema.</p></li>
+<li><p><em><strong>Environment Variables</strong></em>: Store sensitive information such as API keys in environment variables for security.</p></li>
+</ul>
+</section>
+<section id="writing-tests">
+<h2>2. Writing Tests<a class="headerlink" href="#writing-tests" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><em><strong>Unit Tests</strong></em>: Create unit tests for each function in your script.</p></li>
+<li><p><em><strong>Data Tests</strong></em>: Implement data tests to verify your data is accessing APIs correctly, properly formatted, and matches the schema.</p></li>
+</ul>
+</section>
+<section id="dockerization">
+<h2>3. Dockerization<a class="headerlink" href="#dockerization" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><em><strong>Dockerfile Creation</strong></em>: Write a Dockerfile to containerize your script, specifying dependencies, environment setup, and entry points.</p></li>
+<li><p><em><strong>Local Testing</strong></em>: Test the Docker container locally to confirm correct functionality.</p></li>
+</ul>
+</section>
+<section id="github-actions-for-automation">
+<h2>4. GitHub Actions for Automation<a class="headerlink" href="#github-actions-for-automation" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><em><strong>Workflow Setup</strong></em>: Design a GitHub Actions workflow to automate the script execution. You may directly update our version, or create a seperate workflow and we could join it to ours.  This should include:</p>
+<ul>
+<li><p>Trigger mechanisms (schedule or events).</p></li>
+<li><p>Secret management for credentials.</p></li>
+<li><p>Error logging and handling.</p></li>
+<li><p>Seperate steps for samples file generation and the rest of the data generation.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="updating-documentation">
+<h2>5. Updating Documentation<a class="headerlink" href="#updating-documentation" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><em><strong>Documentation Revision</strong></em>: Update the project documentation to reflect your new script’s purpose and usage.</p></li>
+<li><p><em><strong>Usage Examples</strong></em>: Provide clear examples and usage instructions.</p></li>
+</ul>
+</section>
+<section id="continuous-integration">
+<h2>6. Continuous Integration<a class="headerlink" href="#continuous-integration" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><em><strong>CI Integration</strong></em>: Integrate your script into the existing Continuous Integration pipeline.</p></li>
+<li><p><em><strong>CI Testing</strong></em>: Ensure your script is included in the CI testing process to prevent future breakages.</p></li>
+</ul>
+</section>
+<section id="pull-request-and-code-review">
+<h2>7. Pull Request and Code Review<a class="headerlink" href="#pull-request-and-code-review" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><em><strong>Create a Pull Request</strong></em>: Submit your changes via a pull request to the main CoderData repository.</p></li>
+</ul>
+</section>
+<section id="align-with-repository-standards">
+<h2>8. Align with Repository Standards<a class="headerlink" href="#align-with-repository-standards" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><em><strong>Review Project Guidelines</strong></em>: Familiarize yourself with the CoderData project’s standards and practices to align your contribution accordingly.</p></li>
+</ul>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">¶</a></h2>
+<p>Contributors are encouraged to follow these guidelines closely for effective integration of new code into the CoderData project. We appreciate your contributions and look forward to your innovative enhancements to the project.</p>
+<hr class="docutils" />
+<p>Your contributions are essential to the growth and improvement of CoderData. We look forward to collaborating with you!</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/coderdata_logo3.png" alt="Logo of CoderData"/>
+            </a></p><div  class="sphinxdoc-sidebar">
+    <h3>Resource Links</h3>
+    <ul>
+        <li><a href="https://github.com/PNNL-CompBio/coderdata/" target="_blank">Github</a></li>
+        <li><a href="https://pypi.org/project/coderdata/" target="_blank">PYPI</a></li>
+        <li><a href="https://figshare.com/articles/dataset/CODERData2_1_0/28823159" target="_blank">FigShare</a></li>
+    </ul>
+</div>
+
+<div class="sphinxdoc-sidebar">
+    <h3>Quick Access</h3>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="usage.html">Usage</a></li>
+        <li><a href="APIreference.html">API Reference</a></li>
+        <li><a href="datasets_included.html">Datasets Included</a></li>
+        <li><a href="tutorials.html">Tutorials</a></li>
+        <li><a href="contribution_guide.html">How to Contribute</a></li>
+    </ul>
+</div>
+
+
+<!-- <div class="sphinxdoc-sidebar"> -->
+    <!-- Display Current Page Name -->
+    <!-- <h3>Current Page</h3> -->
+    <!-- <p>add_code_guide</p> -->
+
+    <!-- Previous/Next Page Navigation -->
+    <!-- <h3>Navigation</h3> -->
+    <!-- <ul>
+         -->
+        
+        <!--  -->
+    <!-- </ul> -->
+<!-- </div>    -->
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Guide to Adding Code to CoderData</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#automate-credentials-and-data-pulling">1. Automate Credentials and Data Pulling</a></li>
+<li><a class="reference internal" href="#writing-tests">2. Writing Tests</a></li>
+<li><a class="reference internal" href="#dockerization">3. Dockerization</a></li>
+<li><a class="reference internal" href="#github-actions-for-automation">4. GitHub Actions for Automation</a></li>
+<li><a class="reference internal" href="#updating-documentation">5. Updating Documentation</a></li>
+<li><a class="reference internal" href="#continuous-integration">6. Continuous Integration</a></li>
+<li><a class="reference internal" href="#pull-request-and-code-review">7. Pull Request and Code Review</a></li>
+<li><a class="reference internal" href="#align-with-repository-standards">8. Align with Repository Standards</a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CoderData</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Guide to Adding Code to CoderData</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Sara Gosline.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

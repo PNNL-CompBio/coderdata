@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Usage &#8212; CoderData</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=6e3806b9" />
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CoderData</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <link rel="stylesheet" href="assets/css/style.css">
+<!-- ## Usage of CoderData -->
+<section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
+<!-- ## Introduction
+
+CoderData is a comprehensive package designed for handling cancer benchmark data in Python.\
+It offers functionalities to download datasets, load them into Python environments, and reformat them according to user needs.
+ 
+
+## Installation
+
+`coderdata` requires `python>=3.9` to be installed.
+The installed version can be checked via
+
+``` shell
+$ python --version
+Python 3.13.1
+```
+
+If a Python version older that 3.9 is installed please refer to the instruction at [python.org](https://www.python.org/about/gettingstarted/#installing) on how to install / update Python.
+
+The preferred way to install `coderdata` is via `pip`.
+Executing the command below will install the most recent published version of `coderdata` including all required dependencies.
+
+``` shell
+$ pip install coderdata
+```
+
+To check if the package has been successfully installed open an interactive python terminal and import the package.
+See an example of what to expect below.
+
+``` python
+>>> import coderdata as cd
+>>> cd.__version__
+'2.1.0'
+``` -->
+<!-- ## Usage -->
+<p>CoderData is a comprehensive package designed for handling cancer benchmark data in Python.
+It offers functionalities to download datasets, load them into Python environments, and reformat them according to user needs.
+The primary way to interact with coderdata is through the <code class="docutils literal notranslate"><span class="pre">coderdata</span></code> API.
+Additionally a command line interface with limited functionality (primarily to download data) is also available.</p>
+<section id="cli">
+<h2>CLI<a class="headerlink" href="#cli" title="Link to this heading">¶</a></h2>
+<p>Invoking <code class="docutils literal notranslate"><span class="pre">coderdata</span></code> from the command line will by default print a help / usage message and exit (see below):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>coderdata
+usage:<span class="w"> </span>coderdata<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-l<span class="w"> </span><span class="p">|</span><span class="w"> </span>-v<span class="o">]</span><span class="w"> </span><span class="o">{</span>download<span class="o">}</span><span class="w"> </span>...
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">     </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
+<span class="w">  </span>-l,<span class="w"> </span>--list<span class="w">     </span>prints<span class="w"> </span>list<span class="w"> </span>of<span class="w"> </span>available<span class="w"> </span>datasets<span class="w"> </span>and<span class="w"> </span>exits<span class="w"> </span>program.
+<span class="w">  </span>-v,<span class="w"> </span>--version<span class="w">  </span>prints<span class="w"> </span>the<span class="w"> </span>versions<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>coderdata<span class="w"> </span>API<span class="w"> </span>and<span class="w"> </span>dataset<span class="w"> </span>and<span class="w"> </span>exits<span class="w"> </span>the<span class="w"> </span>program.
+
+commands:
+<span class="w">  </span><span class="o">{</span>download<span class="o">}</span>
+<span class="w">    </span>download<span class="w">     </span>subroutine<span class="w"> </span>to<span class="w"> </span>download<span class="w"> </span>datasets.<span class="w"> </span>See<span class="w"> </span><span class="s2">&quot;coderdata download -h&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>more<span class="w"> </span>options.
+</pre></div>
+</div>
+<p>The primary use case of the CLI is to retrieve dataset from the repository.
+This can be done by invoking the <code class="docutils literal notranslate"><span class="pre">download</span></code> routine of <code class="docutils literal notranslate"><span class="pre">coderdata</span></code>.
+Without defining a specific dataset the whole repository will be downloaded:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>coderdata<span class="w"> </span>download
+Downloaded<span class="w"> </span><span class="s1">&#39;https://ndownloader.figshare.com/files/48032953&#39;</span><span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;/tmp/beataml_drugs.tsv.gz&#39;</span>
+Downloaded<span class="w"> </span><span class="s1">&#39;https://ndownloader.figshare.com/files/48032962&#39;</span><span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;/tmp/mpnst_drugs.tsv.gz&#39;</span>
+...
+</pre></div>
+</div>
+<p>Downloading a specific dataset can be achieved by passing the <code class="docutils literal notranslate"><span class="pre">-n/--name</span></code> argument to the <code class="docutils literal notranslate"><span class="pre">download</span></code> routine:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>coderdata<span class="w"> </span>download<span class="w"> </span>--name<span class="w"> </span>beataml
+Downloaded<span class="w"> </span><span class="s1">&#39;https://ndownloader.figshare.com/files/48032953&#39;</span><span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;beataml_drugs.tsv.gz&#39;</span>
+Downloaded<span class="w"> </span><span class="s1">&#39;https://ndownloader.figshare.com/files/48032959&#39;</span><span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;beataml_samples.csv&#39;</span>
+...
+</pre></div>
+</div>
+<p>A full list of available arguments of the <code class="docutils literal notranslate"><span class="pre">download</span></code> function including a short explanation can be retrieved via the command shown below:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>coderdata<span class="w"> </span>download<span class="w"> </span>-h
+usage:<span class="w"> </span>coderdata<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-n<span class="w"> </span>DATASET_NAME<span class="o">]</span><span class="w"> </span><span class="o">[</span>-p<span class="w"> </span>LOCAL_PATH<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="o">]</span>
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
+<span class="w">  </span>-n,<span class="w"> </span>--name<span class="w"> </span>DATASET_NAME
+<span class="w">                        </span>name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>dataset<span class="w"> </span>to<span class="w"> </span>download<span class="w"> </span><span class="o">(</span>e.g.,<span class="w"> </span><span class="s2">&quot;beataml&quot;</span><span class="o">)</span>.<span class="w"> </span>Alternatively,<span class="w"> </span><span class="s2">&quot;all&quot;</span><span class="w"> </span>will<span class="w"> </span>download<span class="w"> </span>the<span class="w"> </span>full<span class="w"> </span>repository<span class="w"> </span>of<span class="w"> </span>coderdata<span class="w"> </span>datasets.<span class="w"> </span>See<span class="w"> </span><span class="s2">&quot;coderdata --list&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>a
+<span class="w">                        </span><span class="nb">complete</span><span class="w"> </span>list<span class="w"> </span>of<span class="w"> </span>available<span class="w"> </span>datasets.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w"> </span><span class="s2">&quot;all&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>omitted.
+<span class="w">  </span>-p,<span class="w"> </span>--local_path<span class="w"> </span>LOCAL_PATH
+<span class="w">                        </span>defines<span class="w"> </span>the<span class="w"> </span>folder<span class="w"> </span>the<span class="w"> </span>datasets<span class="w"> </span>should<span class="w"> </span>be<span class="w"> </span>stored<span class="w"> </span><span class="k">in</span>.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>current<span class="w"> </span>working<span class="w"> </span>directory<span class="w"> </span><span class="k">if</span><span class="w"> </span>omitted.
+<span class="w">  </span>-o,<span class="w"> </span>--overwrite<span class="w">       </span>allow<span class="w"> </span>dataset<span class="w"> </span>files<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>overwritten<span class="w"> </span><span class="k">if</span><span class="w"> </span>they<span class="w"> </span>already<span class="w"> </span>exist.
+</pre></div>
+</div>
+<p>Additionally to the <code class="docutils literal notranslate"><span class="pre">download</span></code> functionality, the CLI currently supports displaying basic information such as the version numbers of the package and the dataset (see example call below):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>coderdata<span class="w"> </span>--version
+package<span class="w"> </span>version:<span class="w"> </span><span class="m">2</span>.1.0
+dataset<span class="w"> </span>version:<span class="w"> </span><span class="m">2</span>.1.0
+</pre></div>
+</div>
+<p>As well as listing the dataset that are available for download (example output below):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>coderdata<span class="w"> </span>--list
+
+Available<span class="w"> </span>datasets
+------------------
+
+beataml:<span class="w"> </span>Beat<span class="w"> </span>acute<span class="w"> </span>myeloid<span class="w"> </span>leukemia<span class="w"> </span><span class="o">(</span>BeatAML<span class="o">)</span><span class="w"> </span>focuses<span class="w"> </span>on<span class="w"> </span>acute<span class="w"> </span>myeloid<span class="w"> </span>leukemia<span class="w"> </span>tumor<span class="w"> </span>data.<span class="w"> </span>Data<span class="w"> </span>includes<span class="w"> </span>drug<span class="w"> </span>response,<span class="w"> </span>proteomics,<span class="w"> </span>and<span class="w"> </span>transcriptomics<span class="w"> </span>datasets.
+bladderpdo:<span class="w"> </span>Tumor<span class="w"> </span>Evolution<span class="w"> </span>and<span class="w"> </span>Drug<span class="w"> </span>Response<span class="w"> </span><span class="k">in</span><span class="w"> </span>Patient-Derived<span class="w"> </span>Organoid<span class="w"> </span>models<span class="w"> </span>of<span class="w"> </span>Bladder<span class="w"> </span>Cancer<span class="w"> </span>Data<span class="w"> </span>includes<span class="w"> </span>transcriptomics,<span class="w"> </span>mutations,<span class="w"> </span>copy<span class="w"> </span>number,<span class="w"> </span>and<span class="w"> </span>drug<span class="w"> </span>response<span class="w"> </span>data.
+ccle:<span class="w"> </span>Cancer<span class="w"> </span>Cell<span class="w"> </span>Line<span class="w"> </span>Encyclopedia<span class="w"> </span><span class="o">(</span>CCLE<span class="o">)</span>.
+cptac:<span class="w"> </span>The<span class="w"> </span>Clinical<span class="w"> </span>Proteomic<span class="w"> </span>Tumor<span class="w"> </span>Analysis<span class="w"> </span>Consortium<span class="w"> </span><span class="o">(</span>CPTAC<span class="o">)</span><span class="w"> </span>project<span class="w"> </span>is<span class="w"> </span>a<span class="w"> </span>collaborative<span class="w"> </span>network<span class="w"> </span>funded<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>National<span class="w"> </span>Cancer<span class="w"> </span>Institute<span class="w"> </span><span class="o">(</span>NCI<span class="o">)</span><span class="w"> </span>focused<span class="w"> </span>on<span class="w"> </span>improving<span class="w"> </span>our<span class="w"> </span>understanding<span class="w"> </span>of<span class="w"> </span>cancer<span class="w"> </span>biology<span class="w"> </span>through<span class="w"> </span>the<span class="w"> </span>integration<span class="w"> </span>of<span class="w"> </span>transcriptomic,<span class="w"> </span>proteomic,<span class="w"> </span>and<span class="w"> </span>genomic<span class="w"> </span>data.
+ctrpv2:<span class="w"> </span>Cancer<span class="w"> </span>Therapeutics<span class="w"> </span>Response<span class="w"> </span>Portal<span class="w"> </span>version<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">(</span>CTRPv2<span class="o">)</span>.
+fimm:<span class="w"> </span>Institute<span class="w"> </span><span class="k">for</span><span class="w"> </span>Molecular<span class="w"> </span>Medicine<span class="w"> </span>Finland<span class="w"> </span><span class="o">(</span>FIMM<span class="o">)</span><span class="w"> </span>dataset.
+gcsi:<span class="w"> </span>The<span class="w"> </span>Genentech<span class="w"> </span>Cell<span class="w"> </span>Line<span class="w"> </span>Screening<span class="w"> </span>Initiative<span class="w"> </span><span class="o">(</span>gCSI<span class="o">)</span>.
+gdscv1:<span class="w"> </span>Genomics<span class="w"> </span>of<span class="w"> </span>Drug<span class="w"> </span>Sensitivity<span class="w"> </span><span class="k">in</span><span class="w"> </span>Cancer<span class="w"> </span><span class="o">(</span>GDSC<span class="o">)</span><span class="w"> </span>v1.
+gdscv2:<span class="w"> </span>Genomics<span class="w"> </span>of<span class="w"> </span>Drug<span class="w"> </span>Sensitivity<span class="w"> </span><span class="k">in</span><span class="w"> </span>Cancer<span class="w"> </span><span class="o">(</span>GDSC<span class="o">)</span><span class="w"> </span>v2.
+hcmi:<span class="w"> </span>Human<span class="w"> </span>Cancer<span class="w"> </span>Models<span class="w"> </span>Initiative<span class="w"> </span><span class="o">(</span>HCMI<span class="o">)</span><span class="w"> </span>encompasses<span class="w"> </span>numerous<span class="w"> </span>cancer<span class="w"> </span>types<span class="w"> </span>and<span class="w"> </span>includes<span class="w"> </span>cell<span class="w"> </span>line,<span class="w"> </span>organoid,<span class="w"> </span>and<span class="w"> </span>tumor<span class="w"> </span>data.<span class="w"> </span>Data<span class="w"> </span>includes<span class="w"> </span>the<span class="w"> </span>transcriptomics,<span class="w"> </span>somatic<span class="w"> </span>mutation,<span class="w"> </span>and<span class="w"> </span>copy<span class="w"> </span>number<span class="w"> </span>datasets.
+mpnst:<span class="w"> </span>Malignant<span class="w"> </span>Peripheral<span class="w"> </span>Nerve<span class="w"> </span>Sheath<span class="w"> </span>Tumor<span class="w"> </span>is<span class="w"> </span>a<span class="w"> </span>rare,<span class="w"> </span>aggressive<span class="w"> </span>sarcoma<span class="w"> </span>that<span class="w"> </span>affects<span class="w"> </span>peripheral<span class="w"> </span>nerves<span class="w"> </span>throughout<span class="w"> </span>the<span class="w"> </span>body.
+mpnstpdx:<span class="w"> </span>Patient<span class="w"> </span>derived<span class="w"> </span>xenograft<span class="w"> </span>data<span class="w"> </span><span class="k">for</span><span class="w"> </span>MPNST.
+nci60:<span class="w"> </span>National<span class="w"> </span>Cancer<span class="w"> </span>Institute<span class="w"> </span><span class="m">60</span>.
+pancpdo:<span class="w"> </span>Organoid<span class="w"> </span>Profiling<span class="w"> </span>Identifies<span class="w"> </span>Common<span class="w"> </span>Responders<span class="w"> </span>to<span class="w"> </span>Chemotherapy<span class="w"> </span><span class="k">in</span><span class="w"> </span>Pancreatic<span class="w"> </span>Cancer<span class="w"> </span>Data<span class="w"> </span>includes<span class="w"> </span>transcriptomics,<span class="w"> </span>mutations,<span class="w"> </span>copy<span class="w"> </span>number,<span class="w"> </span>and<span class="w"> </span>drug<span class="w"> </span>response<span class="w"> </span>data.
+prism:<span class="w"> </span>Profiling<span class="w"> </span>Relative<span class="w"> </span>Inhibition<span class="w"> </span>Simultaneously<span class="w"> </span><span class="k">in</span><span class="w"> </span>Mixtures.
+sarcpdo:<span class="w"> </span>The<span class="w"> </span>landscape<span class="w"> </span>of<span class="w"> </span>drug<span class="w"> </span>sensitivity<span class="w"> </span>and<span class="w"> </span>resistance<span class="w"> </span><span class="k">in</span><span class="w"> </span>sarcoma<span class="w"> </span>Data<span class="w"> </span>includes<span class="w"> </span>transcriptomics,<span class="w"> </span>mutations,<span class="w"> </span>and<span class="w"> </span>drug<span class="w"> </span>response<span class="w"> </span>data.
+
+------------------
+
+To<span class="w"> </span>download<span class="w"> </span>individual<span class="w"> </span>datasets<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;coderdata download -name DATASET_NAME&quot;</span><span class="w"> </span>where<span class="w"> </span><span class="s2">&quot;DATASET_NAME&quot;</span><span class="w"> </span>is<span class="w"> </span><span class="k">for</span><span class="w"> </span>example<span class="w"> </span><span class="s2">&quot;beataml&quot;</span>.
+</pre></div>
+</div>
+<section id="windows-user">
+<h3>Windows User<a class="headerlink" href="#windows-user" title="Link to this heading">¶</a></h3>
+<p>For Windows different syntax is needed to invoke <code class="docutils literal notranslate"><span class="pre">coderdata</span></code> from the command line. Use python to call a module located within the <code class="docutils literal notranslate"><span class="pre">coderdata</span></code> package using the structure <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">&lt;package&gt;.module</span></code>.
+Refer to instructions at <a class="reference external" href="https://docs.python.org/3/using/cmdline.html">docs.python.org/cmdline</a> for additional support.
+To invoke <code class="docutils literal notranslate"><span class="pre">coderdata</span></code> substitute the command <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">coderdata</span></code> with:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>coderdata.cli
+</pre></div>
+</div>
+<p>Other command options previously demonstrated follow the same syntax but with the substitute for <code class="docutils literal notranslate"><span class="pre">coderdata</span></code> shown above.
+Example of adjusted commands to list available datasets, download a dataset, and view available arguments within the download function respectively:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>coderdata.cli<span class="w"> </span>-l
+
+$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>coderdata.cli<span class="w"> </span>download<span class="w"> </span>-n<span class="w"> </span>beataml
+
+$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>coderdata.cli<span class="w"> </span>download<span class="w"> </span>-h<span class="w"> </span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="api-usage">
+<h2>API Usage<a class="headerlink" href="#api-usage" title="Link to this heading">¶</a></h2>
+<section id="downloading-data">
+<h3>Downloading data <!-- {#downloading-data} --><a class="headerlink" href="#downloading-data" title="Link to this heading">¶</a></h3>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">coderdata</span></code> API, the download process is handled through the <code class="docutils literal notranslate"><span class="pre">download</span></code> function in the downloader module.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">coderdata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cd</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;beataml&#39;</span><span class="p">)</span>
+<span class="go">Downloaded &#39;https://ndownloader.figshare.com/files/48032953&#39; to &#39;beataml_drugs.tsv.gz&#39;</span>
+<span class="go">Downloaded &#39;https://ndownloader.figshare.com/files/48032959&#39; to &#39;beataml_samples.csv&#39;</span>
+<span class="go">Downloaded &#39;https://ndownloader.figshare.com/files/48032965&#39; to &#39;beataml_mutations.csv.gz&#39;</span>
+<span class="go">Downloaded &#39;https://ndownloader.figshare.com/files/48032968&#39; to &#39;beataml_proteomics.csv.gz&#39;</span>
+<span class="go">Downloaded &#39;https://ndownloader.figshare.com/files/48032974&#39; to &#39;beataml_experiments.tsv.gz&#39;</span>
+<span class="go">Downloaded &#39;https://ndownloader.figshare.com/files/48033052&#39; to &#39;beataml_transcriptomics.csv.gz&#39;</span>
+<span class="go">Downloaded &#39;https://ndownloader.figshare.com/files/48033058&#39; to &#39;beataml_drug_descriptors.tsv.gz&#39;</span>
+<span class="go">Downloaded &#39;https://ndownloader.figshare.com/files/48033064&#39; to &#39;genes.csv.gz&#39;</span>
+</pre></div>
+</div>
+<p>As with the CLI download functionality, the local path where to store the downloaded files, as well as a flag that defines whether existing files should be overwritten can be defined in the <code class="docutils literal notranslate"><span class="pre">download()</span></code> function.
+For example the function call below will download all ‘BeatAML’ related datasets to the local path <code class="docutils literal notranslate"><span class="pre">/tmp/coderdata/</span></code> and will overwrite files if they already exist.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cd</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;beataml&#39;</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="s1">&#39;/tmp/coderdata/&#39;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that if <code class="docutils literal notranslate"><span class="pre">exist_ok==False</span></code> (the default if omitted) and a downloaded file already exists a warning will be given and the file won’t be stored.
+Finally, if all datasets should be downloaded the <code class="docutils literal notranslate"><span class="pre">name</span></code> argument can be manually set to <code class="docutils literal notranslate"><span class="pre">name='all'</span></code> or omitted all together as the <code class="docutils literal notranslate"><span class="pre">name</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">'all'</span></code>.</p>
+</section>
+<section id="the-dataset-object">
+<h3>The <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object<a class="headerlink" href="#the-dataset-object" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object is the central data structure in CoderData.
+It automatically initializes attributes for each dataset type like tumor samples, drug response data, as well as associated omics data like proteomics.
+Each datatype in a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> is internally stored in a <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a>.</p>
+<section id="loading-data-into-a-dataset-object">
+<h4>Loading data into a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object <!-- {#loading-data-into-a-dataset-object} --><a class="headerlink" href="#loading-data-into-a-dataset-object" title="Link to this heading">¶</a></h4>
+<p>The code snippet will load the <a class="reference internal" href="#downloading-data"><span class="std std-ref">previously downloaded</span></a> ‘BeatAML’ dataset into a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object called <code class="docutils literal notranslate"><span class="pre">beataml</span></code>.</p>
+<p>:ref:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">beataml</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;beataml&#39;</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="s1">&#39;/tmp/coderdata&#39;</span><span class="p">)</span>
+<span class="go">Importing raw data ...</span>
+<span class="go">Importing &#39;transcriptomics&#39; from /tmp/coderdata/beataml_transcriptomics.csv.gz ... DONE</span>
+<span class="go">Importing &#39;drugs&#39; from /tmp/coderdata/beataml_drugs.tsv.gz ... DONE</span>
+<span class="go">Importing &#39;proteomics&#39; from /tmp/coderdata/beataml_proteomics.csv.gz ... DONE</span>
+<span class="go">Importing &#39;drug_descriptors&#39; from /tmp/coderdata/beataml_drug_descriptors.tsv.gz ... DONE</span>
+<span class="go">Importing &#39;mutations&#39; from /tmp/coderdata/beataml_mutations.csv.gz ... DONE</span>
+<span class="go">Importing &#39;samples&#39; from /tmp/coderdata/beataml_samples.csv ... DONE</span>
+<span class="go">Importing &#39;experiments&#39; from /tmp/coderdata/beataml_experiments.tsv.gz ... DONE</span>
+<span class="go">Importing &#39;genes&#39; from /tmp/coderdata/genes.csv.gz ... DONE</span>
+<span class="go">Importing raw data ... DONE</span>
+</pre></div>
+</div>
+<p>Additionally, the <code class="docutils literal notranslate"><span class="pre">load()</span></code> function also allows for loading data from a previously pickled <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object (see [Saving manipulated <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> objects] <!-- (#saving-manipulated-dataset-objects)).> --></p>
+</section>
+<section id="displaying-the-datatypes-in-a-dataset-object">
+<h4>Displaying the datatypes in a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object<a class="headerlink" href="#displaying-the-datatypes-in-a-dataset-object" title="Link to this heading">¶</a></h4>
+<p>The data types associated with a dataset can be displayed via the <code class="docutils literal notranslate"><span class="pre">Dataset.types()</span></code> function.
+The function will return a simple list of available datatypes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">beataml</span><span class="o">.</span><span class="n">types</span><span class="p">()</span>
+<span class="go">[&#39;transcriptomics&#39;, &#39;proteomics&#39;, &#39;mutations&#39;, &#39;samples&#39;, &#39;drugs&#39;, &#39;experiments&#39;, &#39;genes&#39;]</span>
+</pre></div>
+</div>
+<p>Individual datatypes can be addressed and manipulated by subscripting the dataset.
+For example extracting the underlying <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> that contains drug response values for ‘BeatAML’ can be done via the command below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">beataml</span><span class="o">.</span><span class="n">experiments</span>
+<span class="go">         source  improve_sample_id improve_drug_id    study  time time_unit dose_response_metric  dose_response_value</span>
+<span class="go">0       synapse               3909        SMI_3871  BeatAML    72       hrs              fit_auc               0.8004</span>
+<span class="go">1       synapse               3909        SMI_4862  BeatAML    72       hrs              fit_auc               0.8718</span>
+<span class="go">2       synapse               3909       SMI_11493  BeatAML    72       hrs              fit_auc               0.4916</span>
+<span class="go">3       synapse               3909       SMI_23048  BeatAML    72       hrs              fit_auc               0.7600</span>
+<span class="go">4       synapse               3909       SMI_51801  BeatAML    72       hrs              fit_auc               0.5468</span>
+<span class="go">...         ...                ...             ...      ...   ...       ...                  ...                  ...</span>
+<span class="go">236615  synapse               3628       SMI_13100  BeatAML    72       hrs                  dss               0.2715</span>
+<span class="go">236616  synapse               3628       SMI_40233  BeatAML    72       hrs                  dss               0.1521</span>
+<span class="go">236617  synapse               3628       SMI_16810  BeatAML    72       hrs                  dss               0.2663</span>
+<span class="go">236618  synapse               3628       SMI_35928  BeatAML    72       hrs                  dss               0.1946</span>
+<span class="go">236619  synapse               3628       SMI_32922  BeatAML    72       hrs                  dss               0.2500</span>
+
+<span class="go">[236620 rows x 8 columns]</span>
+</pre></div>
+</div>
+</section>
+<section id="reformatting-and-exporting-datatypes">
+<h4>Reformatting and exporting datatypes<a class="headerlink" href="#reformatting-and-exporting-datatypes" title="Link to this heading">¶</a></h4>
+<p>Internally all data is stored in long format.
+If different formats are needed for further analysis or as input for the training of machine learning models, the <code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type,</span> <span class="pre">**kwargs)</span></code> function is able to return individual data types in altered formats.</p>
+<p>For example the drug response data can be reformatted into wide format via the following command:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">beataml</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_type</span><span class="o">=</span><span class="s1">&#39;experiments&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s1">&#39;wide&#39;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;fit_auc&#39;</span><span class="p">,</span> <span class="s1">&#39;dss&#39;</span><span class="p">])</span>
+<span class="go">        source  improve_sample_id improve_drug_id    study  time time_unit     dss  fit_auc</span>
+<span class="go">0      synapse               3192       SMI_10197  BeatAML    72       hrs  0.0000   0.8013</span>
+<span class="go">1      synapse               3192       SMI_10282  BeatAML    72       hrs  0.0000   0.7837</span>
+<span class="go">2      synapse               3192       SMI_10376  BeatAML    72       hrs  0.3403   0.6893</span>
+<span class="go">3      synapse               3192       SMI_11493  BeatAML    72       hrs  0.0000   0.7933</span>
+<span class="go">4      synapse               3192       SMI_11502  BeatAML    72       hrs  0.2797   0.6160</span>
+<span class="go">...        ...                ...             ...      ...   ...       ...     ...      ...</span>
+<span class="go">23657  synapse               3918       SMI_56594  BeatAML    72       hrs  0.0000   0.8086</span>
+<span class="go">23658  synapse               3918       SMI_56596  BeatAML    72       hrs  0.0000   0.8136</span>
+<span class="go">23659  synapse               3918        SMI_6419  BeatAML    72       hrs  0.0000   0.8103</span>
+<span class="go">23660  synapse               3918        SMI_7971  BeatAML    72       hrs  0.2662   0.7069</span>
+<span class="go">23661  synapse               3918        SMI_8294  BeatAML    72       hrs  0.2355   0.6617  </span>
+
+<span class="go">[23662 rows x 8 columns]</span>
+</pre></div>
+</div>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type,</span> <span class="pre">**kwargs)</span></code> function behaves slightly different for different <code class="docutils literal notranslate"><span class="pre">data_type</span></code> values.
+For example for <code class="docutils literal notranslate"><span class="pre">data_type='experiments'</span></code> accepted keyword arguments are <code class="docutils literal notranslate"><span class="pre">shape</span></code> &amp; <code class="docutils literal notranslate"><span class="pre">metrics</span></code>.
+<code class="docutils literal notranslate"><span class="pre">shape</span></code> defines which format the resulting <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> should be in (e.g. <code class="docutils literal notranslate"><span class="pre">long</span></code>, <code class="docutils literal notranslate"><span class="pre">wide</span></code> or <code class="docutils literal notranslate"><span class="pre">matrix</span></code>).
+<code class="docutils literal notranslate"><span class="pre">metrics</span></code> defines the drug response metrics that should be filtered for.</p>
+<p>A full list of parameters for the individual data types can be found below:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type='transcriptomics')</span></code> returns a <code class="docutils literal notranslate"><span class="pre">matrix</span></code> like <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> where each cell contains the measured transcriptomics value for a gene (row - <code class="docutils literal notranslate"><span class="pre">entrez_id</span></code>) in a specific cancer sample (column - <code class="docutils literal notranslate"><span class="pre">improve_sample_id</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type='mutations',</span> <span class="pre">mutation_type=...)</span></code> will return a binary <code class="docutils literal notranslate"><span class="pre">matrix</span></code> like <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> with rows representing genes and columns representing samples.
+<code class="docutils literal notranslate"><span class="pre">mutation_type</span></code> can be any of the recorded mutation types available (e.g. <code class="docutils literal notranslate"><span class="pre">'Frame_Shift_Del'</span></code>,<code class="docutils literal notranslate"><span class="pre">'Frame_Shift_Ins'</span></code>,<code class="docutils literal notranslate"><span class="pre">'Missense_Muation'</span></code> or <code class="docutils literal notranslate"><span class="pre">'Start_Codon_SNP'</span></code> among others).
+Cells contain the value of <code class="docutils literal notranslate"><span class="pre">1</span></code> if a mutation in given gene/sample falls into the category defined by <code class="docutils literal notranslate"><span class="pre">mutation_type</span></code>.
+To explore <code class="docutils literal notranslate"><span class="pre">mutation_type</span></code> options for a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> use <code class="docutils literal notranslate"><span class="pre">Dataset.mutations.variant_classification.unique()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type='copy_number',</span> <span class="pre">copy_call=False)</span></code> returns a <code class="docutils literal notranslate"><span class="pre">matrix</span></code> like <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> where cells report the <code class="docutils literal notranslate"><span class="pre">mean</span></code> copy number value for each combination of gene (row - <code class="docutils literal notranslate"><span class="pre">entrez_id</span></code>) and cancer sample (column - <code class="docutils literal notranslate"><span class="pre">improve_sample_id</span></code>).
+If <code class="docutils literal notranslate"><span class="pre">copy_call=True</span></code> cells report the discretized measurement (‘deep del’, ‘het loss’, ‘diploid’, ‘gain’, ‘amp’) of copy number provided by the schema.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.format('data_type=proteomics')</span></code> returns a <code class="docutils literal notranslate"><span class="pre">matrix</span></code> like <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> where each cell contains the measured proteomics value for a gene (row - <code class="docutils literal notranslate"><span class="pre">entrez_id</span></code>) in a specific cancer sample (column - <code class="docutils literal notranslate"><span class="pre">improve_sample_id</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type='experiments',</span> <span class="pre">shape=...,</span> <span class="pre">metrics=...)</span></code>, returns a formatted <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> according to defined <code class="docutils literal notranslate"><span class="pre">shape</span></code> (<code class="docutils literal notranslate"><span class="pre">shape</span></code> can be of values <code class="docutils literal notranslate"><span class="pre">'long'</span></code>, <code class="docutils literal notranslate"><span class="pre">'wide'</span></code> and <code class="docutils literal notranslate"><span class="pre">'matrix'</span></code>).
+<code class="docutils literal notranslate"><span class="pre">metrics</span></code> further defines which drug response metrics the resulting output <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> should be filtered for.
+Examples are <code class="docutils literal notranslate"><span class="pre">'fit_auc'</span></code>, <code class="docutils literal notranslate"><span class="pre">'fit_ec50</span></code> or <code class="docutils literal notranslate"><span class="pre">'dss'</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">shape=wide</span></code>, a list can be passed to <code class="docutils literal notranslate"><span class="pre">metric</span></code> containing more than one value.
+To explore <code class="docutils literal notranslate"><span class="pre">metrics</span></code> options for a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> use <code class="docutils literal notranslate"><span class="pre">Dataset.experiments.dose_response_metric.unique()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type='drug_descriptor',</span> <span class="pre">shape=...,</span> <span class="pre">drug_descriptor_type=...)</span></code> returns a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> formatted either in <code class="docutils literal notranslate"><span class="pre">long</span></code> or <code class="docutils literal notranslate"><span class="pre">wide</span></code> (depending on the <code class="docutils literal notranslate"><span class="pre">shape</span></code> argument).
+<code class="docutils literal notranslate"><span class="pre">drug_descriptor_type</span></code> can be defined as a list of desired <code class="docutils literal notranslate"><span class="pre">structural_descriptors</span></code> in conjunction with <code class="docutils literal notranslate"><span class="pre">shape=wide</span></code>, to limit the resulting <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> to only list the desired <code class="docutils literal notranslate"><span class="pre">structual_descriptors</span></code> as columns.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type='drugs')</span></code> is equal to <code class="docutils literal notranslate"><span class="pre">Dataset.drugs</span></code>.
+It returns the underlying <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> containing the drug information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type='genes')</span></code> is equal to <code class="docutils literal notranslate"><span class="pre">Dataset.genes</span></code>.
+It returns the underlying <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> containing the gene information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.format(data_type='samples')</span></code> is equal to <code class="docutils literal notranslate"><span class="pre">Dataset.samples</span></code>.
+It returns the underlying <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> containing the cancer sample data information.</p></li>
+</ul>
+</section>
+<section id="creating-training-testing-and-validation-splits-with-coderdata">
+<h4>Creating training / testing and validation splits with <code class="docutils literal notranslate"><span class="pre">coderdata</span></code><a class="headerlink" href="#creating-training-testing-and-validation-splits-with-coderdata" title="Link to this heading">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">coderdata</span></code> provides two functions to generate dataset splits.
+<code class="docutils literal notranslate"><span class="pre">Dataset.split_train_other()</span></code> for a “two-way” split (useful if no validation in machine learning needs to be done) and <code class="docutils literal notranslate"><span class="pre">Dataset.split_train_test_validate()</span></code> for a “three-way” split.
+Both functions return <code class="docutils literal notranslate"><span class="pre">&#64;dataclass</span></code> objects, that contain either <code class="docutils literal notranslate"><span class="pre">.train</span></code> &amp; <code class="docutils literal notranslate"><span class="pre">.other</span></code> (<code class="docutils literal notranslate"><span class="pre">.split_train_other()</span></code>) or <code class="docutils literal notranslate"><span class="pre">.train</span></code>, <code class="docutils literal notranslate"><span class="pre">.test</span></code> and <code class="docutils literal notranslate"><span class="pre">.validate</span></code> (<code class="docutils literal notranslate"><span class="pre">.split_train_test_validate()</span></code>) attributes which reference <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> objects.</p>
+<p>Example uses of <code class="docutils literal notranslate"><span class="pre">.split_train_test_validate()</span></code> follow below.
+Note that both splitting functions share the same arguments with only <code class="docutils literal notranslate"><span class="pre">ratio</span></code> differing in so far that <code class="docutils literal notranslate"><span class="pre">.split_train_test_validate()</span></code> expects a tuple with 3 elements whereas <code class="docutils literal notranslate"><span class="pre">.split_train_other</span></code> expects a 2 element tuple.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">split</span> <span class="o">=</span> <span class="n">beataml</span><span class="o">.</span><span class="n">split_train_test_validate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">experiments</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(189290, 8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">experiments</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(23660, 8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">validate</span><span class="o">.</span><span class="n">experiments</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(23670, 8)</span>
+</pre></div>
+</div>
+<p>By default the returned splits will be <code class="docutils literal notranslate"><span class="pre">mixed-set</span></code> (drugs and cancer samples can appear in all three folds), with a ratio of 8:1:1, no stratification and no set random state (seed).
+This behavior can be changed by passing <code class="docutils literal notranslate"><span class="pre">split_type</span></code>, <code class="docutils literal notranslate"><span class="pre">ratio</span></code>, <code class="docutils literal notranslate"><span class="pre">stratified_by</span></code> and <code class="docutils literal notranslate"><span class="pre">random_state</span></code> to the function.</p>
+<p><code class="docutils literal notranslate"><span class="pre">split_type</span></code> can be either <code class="docutils literal notranslate"><span class="pre">'mixed-set'</span></code>, <code class="docutils literal notranslate"><span class="pre">'drug-blind'</span></code> or <code class="docutils literal notranslate"><span class="pre">'cancer-blind'</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mixed-set</span></code>: Splits randomly independent of drug / cancer association of the samples. Individual drugs or cancer types can appear in all three splits.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drug-blind</span></code>: Splits according to drug association. Any sample associated with a drug will be unique to one of the splits. For example samples with association to drug A will only be present in the train split, but never in test or validate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cancer-blind</span></code>: Splits according to cancer association.Equivalent to drug-blind, except cancer types will be unique to splits.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">ratio</span></code> can be used to adjust the split ratios using a 3 item tuple containing integers (2 items for <code class="docutils literal notranslate"><span class="pre">.split_train_other</span></code>).
+For example <code class="docutils literal notranslate"><span class="pre">ratio=(5:3:2)</span></code> would result in a split where train, test and validate contain roughly 50%, 30% and 20% of the original data respectively.</p>
+<p><code class="docutils literal notranslate"><span class="pre">random_state</span></code> defines a seed values for the random number generator.
+Defining a <code class="docutils literal notranslate"><span class="pre">random_state</span></code> will guarantee reproducability as two runs with the same <code class="docutils literal notranslate"><span class="pre">random_state</span></code> will result in the same splits.</p>
+<p><code class="docutils literal notranslate"><span class="pre">stratify_by</span></code> Defines if the training, testing, and validation sets should be stratified.
+Stratification tries to maintain a similar distribution of feature classes across different splits.
+For example assuming a drug responses value threshold that defines positive and negative classes (e.g. reduced vs. no change in cancer cell viability) the splitting algorithm could attempt to assign the same amount of positive class instances as negative class instances to each split.
+Stratification is performed by <code class="docutils literal notranslate"><span class="pre">drug_response_value</span></code>.
+Any value other than <code class="docutils literal notranslate"><span class="pre">None</span></code> indicates stratification and defines which <code class="docutils literal notranslate"><span class="pre">drug_response_value</span></code> should be used as basis for the stratification.
+<code class="docutils literal notranslate"><span class="pre">None</span></code> indicates that no stratification should be performed.
+Which type of stratification should be performed can further be customized with keyword arguments (<code class="docutils literal notranslate"><span class="pre">thresh</span></code>, <code class="docutils literal notranslate"><span class="pre">num_classes</span></code>, <code class="docutils literal notranslate"><span class="pre">quantiles</span></code>).</p>
+<p>An example call to create a 70/20/10 drug-blind split that is stratified by <code class="docutils literal notranslate"><span class="pre">fit_auc</span></code> could look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">split</span> <span class="o">=</span> <span class="n">beataml</span><span class="o">.</span><span class="n">split_train_test_validate</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">split_type</span><span class="o">=</span><span class="s1">&#39;drug-blind&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ratio</span><span class="o">=</span><span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">stratify_by</span><span class="o">=</span><span class="s1">&#39;fit_auc&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">thresh</span><span class="o">=</span><span class="mf">0.8</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">experiments</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(180080, 8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">experiments</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(28520, 8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">validate</span><span class="o">.</span><span class="n">experiments</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(28080, 8)</span>
+</pre></div>
+</div>
+</section>
+<section id="saving-manipulated-dataset-objects-e-g-saving-splits">
+<h4>Saving manipulated <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> objects (e.g. saving splits) <!-- {#saving-manipulated-dataset-objects} --><a class="headerlink" href="#saving-manipulated-dataset-objects-e-g-saving-splits" title="Link to this heading">¶</a></h4>
+<p>In order to save a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> for later use, the <code class="docutils literal notranslate"><span class="pre">Dataset.save()</span></code> function can be used.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;/tmp/coderdata/beataml_train.pickle&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;/tmp/coderdata/beataml_test.pickle&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">validate</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;/tmp/coderdata/beataml_validate.pickle&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This function can be used to either save the individual splits (as demonstrated above), or raw <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> that was the basis for the splits for example if any modifications of the dataset were performed.</p>
+<p>To reload the splits (or the full dataset) the <code class="docutils literal notranslate"><span class="pre">coderdata.load()</span></code> function (see also <a class="reference internal" href="#loading-data-into-a-dataset-object"><span class="std std-ref">Loading data into a Dataset object</span></a>) can be used.
+To load a pickled <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>, the argument <code class="docutils literal notranslate"><span class="pre">from_pickle=True</span></code> must be passed to the function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">beataml_train</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;beataml_train&#39;</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="s1">&#39;/tmp/coderdata/&#39;</span><span class="p">,</span> <span class="n">from_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">Importing pickled data ... DONE</span>
+</pre></div>
+</div>
+<p>If experiencing the error below with <code class="docutils literal notranslate"><span class="pre">save()</span></code> or <code class="docutils literal notranslate"><span class="pre">load()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;SyntaxError: (unicode error) &#39;unicodeescape&#39; codec can&#39;t decode bytes in position 0-1: truncated \UXXXXXXXX escape&quot;</span>
+</pre></div>
+</div>
+<p>Adjust the syntax for the functions (example below):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">split</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;\...&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beataml_train</span> <span class="o">=</span> <span class="n">cd</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;beataml_train&#39;</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;\...&#39;</span><span class="p">,</span> <span class="n">from_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that only individual splits (e.g. only train) can be saved and loaded and not the full <code class="docutils literal notranslate"><span class="pre">Split</span></code> object.
+To learn more about pickling refer to the page <a class="reference external" href="https://docs.python.org/3/library/pickle.html#consumer-api">docs.python.org/pickle</a>.</p>
+<!-- ## Conclusion
+
+CoderData provides a robust and flexible way to work with cancer benchmark data.\
+By using these functionalities, researchers and data scientists can easily manipulate and analyze complex datasets in their Python environments. -->
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/coderdata_logo3.png" alt="Logo of CoderData"/>
+            </a></p><div  class="sphinxdoc-sidebar">
+    <h3>Resource Links</h3>
+    <ul>
+        <li><a href="https://github.com/PNNL-CompBio/coderdata/" target="_blank">Github</a></li>
+        <li><a href="https://pypi.org/project/coderdata/" target="_blank">PYPI</a></li>
+        <li><a href="https://figshare.com/articles/dataset/CODERData2_1_0/28823159" target="_blank">FigShare</a></li>
+    </ul>
+</div>
+
+<div class="sphinxdoc-sidebar">
+    <h3>Quick Access</h3>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="#">Usage</a></li>
+        <li><a href="APIreference.html">API Reference</a></li>
+        <li><a href="datasets_included.html">Datasets Included</a></li>
+        <li><a href="tutorials.html">Tutorials</a></li>
+        <li><a href="contribution_guide.html">How to Contribute</a></li>
+    </ul>
+</div>
+
+
+<!-- <div class="sphinxdoc-sidebar"> -->
+    <!-- Display Current Page Name -->
+    <!-- <h3>Current Page</h3> -->
+    <!-- <p>usage</p> -->
+
+    <!-- Previous/Next Page Navigation -->
+    <!-- <h3>Navigation</h3> -->
+    <!-- <ul>
+         -->
+        
+        <!--  -->
+    <!-- </ul> -->
+<!-- </div>    -->
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#cli">CLI</a><ul>
+<li><a class="reference internal" href="#windows-user">Windows User</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-usage">API Usage</a><ul>
+<li><a class="reference internal" href="#downloading-data">Downloading data <!-- {#downloading-data} --></a></li>
+<li><a class="reference internal" href="#the-dataset-object">The <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object</a><ul>
+<li><a class="reference internal" href="#loading-data-into-a-dataset-object">Loading data into a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object <!-- {#loading-data-into-a-dataset-object} --></a></li>
+<li><a class="reference internal" href="#displaying-the-datatypes-in-a-dataset-object">Displaying the datatypes in a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object</a></li>
+<li><a class="reference internal" href="#reformatting-and-exporting-datatypes">Reformatting and exporting datatypes</a></li>
+<li><a class="reference internal" href="#creating-training-testing-and-validation-splits-with-coderdata">Creating training / testing and validation splits with <code class="docutils literal notranslate"><span class="pre">coderdata</span></code></a></li>
+<li><a class="reference internal" href="#saving-manipulated-dataset-objects-e-g-saving-splits">Saving manipulated <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> objects (e.g. saving splits) <!-- {#saving-manipulated-dataset-objects} --></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">CoderData</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Sara Gosline.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>
