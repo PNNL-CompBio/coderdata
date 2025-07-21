@@ -2,10 +2,7 @@ API Reference
 =============
 .. toctree::
    :maxdepth: 2
-
-.. Test 
-   ^^^^
-.. .. autoclass:: pandas._version.get_keywords 
+ 
 
 
 CoderData Object
@@ -14,7 +11,7 @@ CoderData Object
 .. automodule:: coderdata.download.downloader
    :members: download
    :undoc-members:
-   :show-inheritance:
+
 
 .. automodule:: coderdata.utils.utils
       :members: version, list_datasets

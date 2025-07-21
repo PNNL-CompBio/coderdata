@@ -13,8 +13,11 @@
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://pnnl-compbio.github.io/coderdata/APIreference.html" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Datasets Included" href="datasets_included.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
@@ -25,6 +28,12 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="datasets_included.html" title="Datasets Included"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CoderData</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
       </ul>
@@ -43,7 +52,7 @@
 <span id="coderdata-object"></span><h2>CoderData Object<a class="headerlink" href="#module-coderdata.download.downloader" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="coderdata.download.downloader.download">
-<span class="sig-prename descclassname"><span class="pre">coderdata.download.downloader.</span></span><span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WindowsPath('C:/Users/andr307/Desktop/coderdata/docs/source')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exist_ok</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#coderdata.download.downloader.download" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">coderdata.download.downloader.</span></span><span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WindowsPath('C:/Path')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exist_ok</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#coderdata.download.downloader.download" title="Link to this definition">¶</a></dt>
 <dd><p>Download the most recent version of files from a Figshare dataset,
 filtered by a specific prefix or all files.</p>
 <p>This function queries the Figshare API to retrieve details of a
@@ -159,7 +168,7 @@ datasets depending on the arguments in <code class="docutils literal notranslate
 
 <dl class="py function">
 <dt class="sig sig-object py" id="coderdata.dataset.dataset.load">
-<span class="sig-prename descclassname"><span class="pre">coderdata.dataset.dataset.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WindowsPath('C:/Users/andr307/Desktop/coderdata/docs/source')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_pickle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#coderdata.dataset.dataset.Dataset" title="coderdata.dataset.dataset.Dataset"><span class="pre">Dataset</span></a></span></span><a class="headerlink" href="#coderdata.dataset.dataset.load" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">coderdata.dataset.dataset.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WindowsPath('C:/Path')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_pickle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#coderdata.dataset.dataset.Dataset" title="coderdata.dataset.dataset.Dataset"><span class="pre">Dataset</span></a></span></span><a class="headerlink" href="#coderdata.dataset.dataset.load" title="Link to this definition">¶</a></dt>
 <dd><p>_summary_</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -281,7 +290,7 @@ attributes (<code class="docutils literal notranslate"><span class="pre">Split.t
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/coderdata_logo3.png" alt="Logo of CoderData"/>
+              <img class="logo" src="_static/coderdata_logo3.jpg" alt="Logo of CoderData"/>
             </a></p><div  class="sphinxdoc-sidebar">
     <h3>Resource Links</h3>
     <ul>
@@ -302,21 +311,6 @@ attributes (<code class="docutils literal notranslate"><span class="pre">Split.t
         <li><a href="contribution_guide.html">How to Contribute</a></li>
     </ul>
 </div>
-
-
-<!-- <div class="sphinxdoc-sidebar"> -->
-    <!-- Display Current Page Name -->
-    <!-- <h3>Current Page</h3> -->
-    <!-- <p>APIreference</p> -->
-
-    <!-- Previous/Next Page Navigation -->
-    <!-- <h3>Navigation</h3> -->
-    <!-- <ul>
-         -->
-        
-        <!--  -->
-    <!-- </ul> -->
-<!-- </div>    -->
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
@@ -366,6 +360,12 @@ attributes (<code class="docutils literal notranslate"><span class="pre">Split.t
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="datasets_included.html" title="Datasets Included"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">CoderData</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
       </ul>

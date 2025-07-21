@@ -21,7 +21,7 @@
    contribution_guide
 
 
-.. image:: _static/coderdata_header3.png   
+.. image:: _static/coderdata_header3.jpg   
 		:align: center
 		:height: 200px
 		:width: 600px
@@ -52,7 +52,7 @@
  	</div>
 
 
-.. image:: _static/home_page_graphic3.png   
+.. image:: _static/home_page_graphic3.jpg   
 		:align: center
 		:scale: 100%
 
@@ -109,62 +109,3 @@ To check if the package has been successfully installed open an interactive pyth
 	>>> import coderdata as cd
 	>>> cd.__version__
 	'2.1.0'
-
-
-.. Usage
-.. -----
-
-.. The Usage section provides a comprehensive guide on interacting with the package via both the Command-Line Interface (CLI) and the CoderData API. 
-.. It includes clearly illustrated examples for key functionalities such as downloading datasets, saving manipulated dataset objects and utilizing formatting options to tailor datasets and data types to specific requirements.
-.. Additionally, users are guided on creating training, testing, and validation splits to streamline data preparation.
-..
- .. toctree::
-..    :maxdepth: 3
-
-..    usage
-
-.. API Reference
-.. -------------
-
-.. The API Reference page includes a complete list of all objects and their associated functions used throughout the API. 
-.. For each function, it provides a summary, parameter list (including descriptions and data types) and explanation of the return values. 
-..
- .. toctree::
-..    :maxdepth: 2
-
-..    APIreference
-
-.. Datasets Included
-.. -----------------
-
-.. An overview of the databases and outsourced datasets, including navigation links to the sources for each database, dataset, and datatype reference. 
-.. Also including further information on the datatypes, cancer types, and model types available in each dataset.
-..
- .. toctree::
-..    :maxdepth: 3
-
-..    beataml
-
-.. Tutorials
-.. ---------
-
-.. Learn how to utilize coderdata with the following tutorials basics, deep learning, drug response and data exploration. 
-.. The tutorials provide full coding and output examples within an IDE. 
-..
-	.. toctree::
-..    :maxdepth: 2
-
-..    tutorials
-
-.. How to Contribute
-.. -----------------
-
-.. Contribution page is focused on how to contribute to and augment CoderData, either for use by the community or your own purposes.
-.. If you have specific requests or bugs, please file an issue on our `GitHub page <https://github.com/PNNL-CompBio/coderdata/>`_ and we will begin a conversation about details and how to fix the issue. 
-.. If you would like to create a new feature to address the issue, you are welcome to fork the repository and create a pull request to discuss it in more detail. 
-.. These will be triaged by the CoderData team as they are received.
-..
-	.. toctree::
-..    :maxdepth: 3
-
-..    contribution

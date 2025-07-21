@@ -39,9 +39,7 @@ Because our sample and drug identifiers are unique, we must
 finish the generation of one dataset before we move to the next. This
 process is depicted below. 
 
-
-`![Coderdata Build](coderDataBuild.jpg?raw=true "Modular build
-process")` 
+<img src="_static/coderDataBuild.jpg" alt="Coderdata Build" title="Modular build process" />
 
 The build process is slow, partially due to our querying of PubChem,
 and also because of our extensive curve fitting. However, it can be
