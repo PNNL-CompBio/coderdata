@@ -1,5 +1,4 @@
-# This script generate a new sample table based on pervious beatAML improved sample ID
-# It will take the maximum value of beatAML improved sample ID and continue from ID count from there
+# This script generate a new sample table based on previous dataset's sample file (taking the max improve_sample_id)
 # Load required libraries
 library(data.table)
 library(synapser)
