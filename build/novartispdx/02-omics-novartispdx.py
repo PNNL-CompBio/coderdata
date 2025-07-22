@@ -120,7 +120,7 @@ def map_copy_number_novPDX(copy_number_data, improve_id_data, entrez_data):
     
     # get improve sample id
     improve_id_data['to_merge'] = improve_id_data['common_name'].str.replace("NIBR","")
-    sample_entrez_cn_df = pd.merge(entrez_cn_df.drop_duplicates(), improve_id_data[['to_merge','improve_sample_id']].drop_duplicates(), how = 'left', left_on= "variable", right_on= "to_merge")
+    sample_entrez_cn_df = pd.merge(entrez_cn_df.drop_duplicates(), improve_id_data[['to_merge','improve_sample_id']].drop_duplicates(), how = 'inner', left_on= "variable", right_on= "to_merge")
 
     # clean up columns and data types
     sample_entrez_cn_df = sample_entrez_cn_df.drop(columns=['Sample','variable','other_id','to_merge'])
