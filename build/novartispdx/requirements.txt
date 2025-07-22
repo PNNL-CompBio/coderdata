@@ -9,3 +9,4 @@ mordred
 tqdm
 scikit-learn
 openpyxl
+statsmodels
