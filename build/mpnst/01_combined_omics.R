@@ -37,9 +37,6 @@ mt_samps    <- filter(samples_df, model_type == "xenograft derived organoid")  #
 manifest <- synTableQuery("select * from syn53503360")$asDataFrame() %>%
   rename(common_name = Sample)
 
-print("manifest")
-print(manifest)
-
 # Build sample tables
 pdx_data <- manifest %>%
   select(common_name, starts_with("PDX")) %>%
@@ -51,7 +48,6 @@ pdx_data <- manifest %>%
          Proteomics = PDX_Proteomics) %>%
   filter(!is.na(improve_sample_id))
 
-
 tumor_data <- manifest %>%
   select(common_name, starts_with("Tumor")) %>%
   left_join(tumor_samps, by = "common_name") %>%
@@ -62,7 +58,7 @@ tumor_data <- manifest %>%
   mutate(Proteomics = "") %>%
   filter(!is.na(improve_sample_id))
 
-mt_data <- manifest %>%                     #Note, this is the same as pdx_data but I think we default to "xenograft derived organoid" if present.
+mt_data <- manifest %>%                     #Note, this is the same as pdx_data but I think we default to "xenograft derived organoid" if present (based on original files)
   select(common_name, starts_with("PDX")) %>%
   left_join(mt_samps, by = "common_name") %>%
   select(improve_sample_id, common_name, model_type,
@@ -89,7 +85,7 @@ study_label <- function(type) {
 
 # Helper to pick metadata based on sample ID and column
 pick_meta <- function(id, column) {
-  # column  {"Proteomics","RNASeq","Mutations","CopyNumber"}
+  # columns are  {"Proteomics","RNASeq","Mutations","CopyNumber"}
   if (any(tumor_data[[column]] == id, na.rm = TRUE)) {
     sdf <- tumor_data %>% filter(.data[[column]] == id) %>% slice(1)
   } else if (any(mt_data[[column]] == id, na.rm = TRUE)) {
