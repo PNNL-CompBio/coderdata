@@ -75,7 +75,7 @@ def download_parse_omics_novPDX(synID:str , save_path:str = None, synToken:str =
     rnaseq_data = pd.read_excel(all_omics_excel, 'RNAseq_fpkm')
 
 
-    return(rnaseq_data, copy_number_data, mutations_data)
+    return(mutations_data, copy_number_data, rnaseq_data)
 
 
 def map_copy_number_novPDX(copy_number_data, improve_id_data, entrez_data):
@@ -279,8 +279,8 @@ if __name__ == "__main__":
         mutation_df, copy_num_df, rnaseq_df = download_parse_omics_novPDX(synID="syn66477971", save_path="/tmp/", synToken=args.token)
         # Save mutation and copy number data into csv format
         mutation_df.to_csv("/tmp/raw_mutation_data.csv")
-        copy_num_df.to_csv("/tmp/copy_num_data.csv")
-        rnaseq_df.to_csv("/tmp/rnaseq_data.csv")
+        copy_num_df.to_csv("/tmp/raw_copy_num_data.csv")
+        rnaseq_df.to_csv("/tmp/raw_rnaseq_data.csv")
 
     if args.transcriptomics:
         if args.genes is None or args.genes=='':
@@ -291,8 +291,8 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting transcriptomics data.")
-            transcriptomics_df = map_transcriptomics_novPDX(transciptomics_data = "/tmp/raw_rnaseq_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
-            transcriptomics_df.to_csv("/tmp/novartispdx_transcriptomics.csv", index=False)
+            transcriptomics_df_final = map_transcriptomics_novPDX(transciptomics_data = "/tmp/raw_rnaseq_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df_final.to_csv("/tmp/novartispdx_transcriptomics.csv", index=False)
     
     if args.mutations:
         if args.genes is None or args.genes=='':
@@ -303,8 +303,8 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting mutations data.")
-            mutation_df = map_mutations_novPDX(mutation_data = "/tmp/raw_mutation_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
-            mutation_df.to_csv("/tmp/novartispdx_mutations.csv", index=False)
+            mutation_df_final = map_mutations_novPDX(mutation_data = "/tmp/raw_mutation_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df_final.to_csv("/tmp/novartispdx_mutations.csv", index=False)
     
     if args.copy_number:
         if args.genes is None or args.genes=='':
@@ -315,6 +315,6 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting copy number data.")
-            mutation_df = map_copy_number_novPDX(copy_number_data = "/tmp/raw_copy_num_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
-            mutation_df.to_csv("/tmp/novartispdx_copy_number.csv", index=False)
+            cn_df_final = map_copy_number_novPDX(copy_number_data = "/tmp/raw_copy_num_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
+            cn_df_final.to_csv("/tmp/novartispdx_copy_number.csv", index=False)
     
