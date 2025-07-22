@@ -286,7 +286,7 @@ if __name__ == "__main__":
         if args.genes is None or args.genes=='':
             print("No genes data provided. Exiting script.")
             exit()
-        if args.ids is None or args.ids=='':
+        if args.samples is None or args.samples=='':
             print("No samples data provided. Exiting script.")
             exit()
         else:
@@ -298,7 +298,7 @@ if __name__ == "__main__":
         if args.genes is None or args.genes=='':
             print("No genes data provided. Exiting script.")
             exit()
-        if args.ids is None or args.ids=='':
+        if args.samples is None or args.samples=='':
             print("No samples data provided. Exiting script.")
             exit()
         else:
@@ -310,7 +310,7 @@ if __name__ == "__main__":
         if args.genes is None or args.genes=='':
             print("No genes data provided. Exiting script.")
             exit()
-        if args.ids is None or args.ids=='':
+        if args.samples is None or args.samples=='':
             print("No samples data provided. Exiting script.")
             exit()
         else:
