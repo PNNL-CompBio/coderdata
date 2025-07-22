@@ -43,24 +43,6 @@ datasets:
     - target_class: Drug Descriptor
       file: /tmp/mpnst_drug_descriptors.tsv
 
-  mpnstpdx:
-    - target_class: Sample
-      file: /tmp/mpnstpdx_samples.csv
-    - target_class: Transcriptomics
-      file: /tmp/mpnstpdx_transcriptomics.csv
-    - target_class: Proteomics
-      file: /tmp/mpnstpdx_proteomics.csv
-    - target_class: Mutations
-      file: /tmp/mpnstpdx_mutations.csv
-    - target_class: Copy Number
-      file: /tmp/mpnstpdx_copy_number.csv
-    - target_class: Experiments
-      file: /tmp/mpnstpdx_experiments.tsv
-    - target_class: Drug
-      file: /tmp/mpnstpdx_drugs.tsv
-    - target_class: Drug Descriptor
-      file: /tmp/mpnstpdx_drug_descriptors.tsv
-
   cptac:
     - target_class: Sample
       file: /tmp/cptac_samples.csv
