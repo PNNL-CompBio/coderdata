@@ -167,8 +167,8 @@ def map_transcriptomics_novPDX(transcriptomics_data, improve_id_data, entrez_dat
         entrez_data = pd.read_csv(entrez_data)
     
     # melt dataframe so that there is gene name and improve_sample_id per row
-    rnaseq_df = rnaseq_df.rename(columns={'Sample':'stable_id'})
-    rnaseq_df.to_csv("/tmp/counts_for_tpm_conversion.tsv", sep='\t')
+    transcriptomics_data = transcriptomics_data.rename(columns={'Sample':'stable_id'})
+    transcriptomics_data.to_csv("/tmp/counts_for_tpm_conversion.tsv", sep='\t')
 
     # run tpmFromCounts.py to convert counts to tpm
     os.system("python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.tsv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
