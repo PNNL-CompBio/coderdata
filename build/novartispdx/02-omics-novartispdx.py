@@ -291,7 +291,7 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting transcriptomics data.")
-            transcriptomics_df_final = map_transcriptomics_novPDX(transciptomics_data = "/tmp/raw_rnaseq_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df_final = map_transcriptomics_novPDX(transcriptomics_data = "/tmp/raw_rnaseq_data.csv", improve_id_data = "/tmp/novartispdx_samples.csv", entrez_data = "/tmp/genes.csv")
             transcriptomics_df_final.to_csv("/tmp/novartispdx_transcriptomics.csv", index=False)
     
     if args.mutations:
