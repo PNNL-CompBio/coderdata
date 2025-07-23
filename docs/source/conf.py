@@ -15,7 +15,7 @@ release = '1.0.0'
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../coderdata')) 
+sys.path.insert(0, os.path.abspath('../../coderdata')) #Our src path is coderdata 
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.abspath('../../coderdata'))
 extensions = ["sphinx.ext.autodoc", # used to pull documentation
               "sphinx.ext.coverage",
               "sphinx.ext.extlinks",
-              "sphinx.ext.napoleon",
+              "sphinx.ext.napoleon", # altering 
               "sphinx.ext.doctest", # reads test documentation
               "sphinx.ext.autosectionlabel",
               # Above extensions are all built-in Sphinx
@@ -73,7 +73,7 @@ html_sidebars = {
 
 
 #ignore header warnings and non-referenced documents that does not interefere with the build
-suppress_warnings = ["myst.header", "myst.reference", "toc.not_readable"] 
+suppress_warnings = ["myst.header", "myst.reference", "toc.not_readable", "docutils", "autosectionlabel"] 
 nitpicky= False
 
 
