@@ -12,4 +12,6 @@ python3 03-drugs-novartispdx.py --token $SYNAPSE_AUTH_TOKEN -d $1 -o /tmp/novart
 echo "Running build_drug_desc.py..."
 #for running locally: 
 python3 build_drug_desc.py --drugtable /tmp/novartispdx_drugs.tsv --desctable /tmp/novartispdx_drug_descriptors.tsv.gz
+
+gunzip /tmp/novartispdx_drug_descriptors.tsv.gz
 #python3 build_drug_desc.py --drugtable /tmp/novartispdx_drugs.tsv --desctable /tmp/novartispdx_drug_descriptors.tsv.gz
