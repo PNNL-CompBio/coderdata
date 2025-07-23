@@ -113,7 +113,7 @@ def map_copy_number_novPDX(copy_number_data, improve_id_data, entrez_data):
     long_cn_df = pd.melt(copy_number_data, id_vars=['Sample'], value_vars=copy_number_data.columns[copy_number_data.columns != 'Sample'])
 
     # get entrez id's from Sample
-    entrez_cn_df = pd.merge(long_cn_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'left', left_on= "Sample", right_on= "other_id")
+    entrez_cn_df = pd.merge(long_cn_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'inner', left_on= "Sample", right_on= "other_id")
 
     # get copy call from value column (aka copy number)
     entrez_cn_df['copy_call'] = [get_copy_call(a) for a in entrez_cn_df['value']]

@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 import os
 # for testing locally
-from utils.pubchem_retrieval import update_dataframe_and_write_tsv
+from pubchem_retrieval import update_dataframe_and_write_tsv
 # for building in docker
 #from pubchem_retrieval import update_dataframe_and_write_tsv
 
