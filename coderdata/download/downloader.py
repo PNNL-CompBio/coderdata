@@ -1,6 +1,7 @@
 # coderdata/download/downloader.py
 
 from importlib import resources
+from hashlib import md5
 from pathlib import Path
 from os import PathLike
 import os
@@ -86,22 +87,40 @@ def download(
 
     for file_name, file_data in unique_files.items():
         file_info = file_data['file_info']
-        file_url = file_info['download_url']
-
+        file_id = str(file_info['id'])
+        file_url = "https://api.figshare.com/v2/file/download/" + file_id
+        file_md5sum = file_info['supplied_md5']
+        retry_count = 10
         # Download the file
-        with requests.get(file_url, stream=True) as r:
-            r.raise_for_status()
-            if file_name.exists() and not exist_ok:
+        while retry_count > 0:
+            with requests.get(file_url, stream=True) as r:
+                r.raise_for_status()
+                if file_name.exists() and not exist_ok:
+                    warnings.warn(
+                        f"{file_name} already exists. Use argument 'exist_ok=True'"
+                        "to overwrite existing file."
+                        )
+                else:
+                    with open(file_name, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=8192): 
+                            f.write(chunk)
+            with open(file_name, 'rb') as f:
+                check_md5sum = md5(f.read()).hexdigest()
+            if file_md5sum == check_md5sum:
+                break
+            elif retry_count > 0:
                 warnings.warn(
-                    f"{file_name} already exists. Use argument 'exist_ok=True'"
-                    "to overwrite existing file."
-                    )
-            else:
-                with open(file_name, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192): 
-                        f.write(chunk)
-
-        print(f"Downloaded '{file_url}' to '{file_name}'")
+                    f"{file_name} could not be downloaded successfully. "
+                    f"(expected md5sum: {file_md5sum} - "
+                    f"calculated md5sum: {check_md5sum})... retrying..."
+                )
+                retry_count = retry_count - 1
+        if retry_count == 0:
+            warnings.warn(
+                f"{file_name} could not be downloaded. Try again."
+                )
+        else:
+            print(f"Downloaded '{file_url}' to '{file_name}'")
 
     return
 

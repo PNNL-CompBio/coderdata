@@ -114,6 +114,15 @@ services:
     platform: linux/amd64
     image: crcpdo:latest
 
+  liverpdo:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.liverpdo
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: liverpdo:latest
+
   novartispdx:
     build:
       context: ../../

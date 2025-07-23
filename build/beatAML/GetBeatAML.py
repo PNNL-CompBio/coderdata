@@ -424,6 +424,9 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
         mapped_df.rename(columns={"hgvsc": "mutation"}, inplace=True)
         mapped_df.rename(columns={"labId": "sample_id"}, inplace=True)
         mapped_df.rename(columns={"Entrez_Gene_Id": "entrez_id"}, inplace=True)
+        
+        #remove (gene) information preceeding the colon - this formats it like other datasets.
+        mapped_df["mutation"] = mapped_df["mutation"].astype(str).str.split(":", n=1).str[-1]
 
         variant_mapping = {
             'frameshift_variant': 'Frameshift_Variant',
@@ -662,6 +665,7 @@ if __name__ == "__main__":
             print(improve_map_file)
             t_df = map_and_combine(t_df, "transcriptomics", args.genes, improve_map_file, sample_mapping_file)
             t_df = t_df[t_df.entrez_id.notna()]
+            t_df = t_df[t_df.entrez_id != 0]
             t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]].drop_duplicates()
             t_df.to_csv("/tmp/beataml_transcriptomics.csv.gz",index=False,compression='gzip')
 
@@ -673,14 +677,15 @@ if __name__ == "__main__":
             p_df = pd.melt(p_df, id_vars=['Protein'], var_name='id', value_name='proteomics')
             p_df = map_and_combine(p_df, "proteomics", args.genes, improve_map_file, proteomics_map)
             p_df = p_df[["improve_sample_id","proteomics","entrez_id","source","study"]]
+            p_df = p_df[p_df.entrez_id != 0]
             p_df.to_csv("/tmp/beataml_proteomics.csv.gz",index=False,compression='gzip')
         
             # New Mutation Data
             print("Starting Mutation Data")
             m_df = pd.read_csv(mutations_file, sep = '\t')
-            
             m_df = map_and_combine(m_df, "mutations", args.genes,improve_map_file, mutation_map_file)
             m_df = m_df[["improve_sample_id","mutation", "entrez_id","variant_classification","source","study"]]
+            m_df = m_df[m_df.entrez_id != 0]
             m_df.to_csv("/tmp/beataml_mutations.csv.gz",index=False,compression='gzip')
         
     if args.exp:

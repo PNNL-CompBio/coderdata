@@ -34,7 +34,7 @@ samples_df <- fread(patients)|>
 
 pdx_samps<-subset(samples_df,model_type=='patient derived xenograft')
 tumor_samps<-subset(samples_df,model_type=='tumor')
-mt_samps<-subset(samples_df,model_type=='organoid')
+mt_samps<-subset(samples_df,model_type=='xenograft derived organoid')
 
 ##now get the manifest from synapse
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>

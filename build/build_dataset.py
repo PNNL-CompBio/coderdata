@@ -49,6 +49,7 @@ def process_docker(dataset,validate):
         'upload': ['upload'],
         'crcpdo': ['crcpdo'], 
         'bladderpdo': ['bladderpdo'],
+        'liverpdo': ['liverpdo'],
         'novartispdx': ['novartispdx']
     }
 
@@ -60,7 +61,7 @@ def process_docker(dataset,validate):
         
     datasets_to_build.extend(dataset_map.get(dataset, []))
 
-    compose_command = ['docker-compose', '-f', compose_file, 'build'] + datasets_to_build
+    compose_command = ['docker', 'compose', '-f', compose_file, 'build'] + datasets_to_build
 
     log_file_path = 'local/docker.log'
     env = os.environ.copy()
@@ -133,7 +134,8 @@ def process_omics(executor, dataset, should_continue):
         'pancpdo': ['transcriptomics'],
         'bladderpdo': ['copy_number', 'mutations', 'transcriptomics'],
         'crcpdo':['copy_number', 'mutations', 'transcriptomics'],
-        'novartispdx':['copy_number', 'mutations', 'transcriptomics']
+        'novartispdx':['copy_number', 'mutations', 'transcriptomics'],
+        'liverpdo':['copy_number', 'mutations', 'transcriptomics']
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])
