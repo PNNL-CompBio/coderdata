@@ -240,11 +240,13 @@ fwrite(pdx_data, file.path("/tmp", paste0(out_prefix, "_pdx_curve_data.tsv")), s
 message("Wrote PDX curve data")
 
 system(sprintf(
-  "/opt/venv/bin/python calc_pdx_metrics.py %s --drugfile %s --outprefix %s",
- paste0("/tmp/", out_prefix, "_pdx_curve_data.tsv"),
- drugfile,
- paste0("/tmp/", out_prefix, "_pdx")
+  "/opt/venv/bin/python calc_pdx_metrics.py %s --drugfile %s --outprefix %s --source 'NF Data Portal' --study 'MPNST PDX'",
+  paste0("/tmp/", out_prefix, "_pdx_curve_data.tsv"),
+  drugfile,
+  paste0("/tmp/", out_prefix, "_pdx")
 ))
+
+
 
 message("Wrote PDX experiments to ", "/tmp/",  out_prefix, "_pdx_experiments.tsv and combinations")
 
