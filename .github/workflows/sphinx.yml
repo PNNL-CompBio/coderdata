@@ -10,7 +10,15 @@ jobs:
   pages:
     runs-on: ubuntu-latest
     steps:
-    - id: deployment
+    - uses: actions/checkout@v4
+    - name: Build HTML
+      uses: ammaraskar/sphinx-action@master
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-docs
+        path: docs/build/html/
+    - name: Deploy
       uses: sphinx-notes/pages@v3
       with:
         publish: true
