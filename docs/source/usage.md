@@ -7,39 +7,6 @@
 
 <!-- ## Usage of CoderData -->
 # Usage
-<!-- ## Introduction
-
-CoderData is a comprehensive package designed for handling cancer benchmark data in Python.\
-It offers functionalities to download datasets, load them into Python environments, and reformat them according to user needs.
- 
-
-## Installation
-
-`coderdata` requires `python>=3.9` to be installed.
-The installed version can be checked via
-
-``` shell
-$ python --version
-Python 3.13.1
-```
-
-If a Python version older that 3.9 is installed please refer to the instruction at [python.org](https://www.python.org/about/gettingstarted/#installing) on how to install / update Python.
-
-The preferred way to install `coderdata` is via `pip`.
-Executing the command below will install the most recent published version of `coderdata` including all required dependencies.
-
-``` shell
-$ pip install coderdata
-```
-
-To check if the package has been successfully installed open an interactive python terminal and import the package.
-See an example of what to expect below.
-
-``` python
->>> import coderdata as cd
->>> cd.__version__
-'2.1.0'
-``` -->
 
 <!-- ## Usage -->
 CoderData is a comprehensive package designed for handling cancer benchmark data in Python.

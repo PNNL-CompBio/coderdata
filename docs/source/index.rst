@@ -39,7 +39,7 @@
     	</div>
 
 		<div class="clickable-box" onclick="window.location.href='datasets_included.html';">
-        	<h4>Datasets Included</h4>
+        	<h4>Datasets</h4>
     	</div>
 
 		<div class="clickable-box" onclick="window.location.href='tutorials.html';">
@@ -47,14 +47,14 @@
     	</div>
 
 		<div class="clickable-box" onclick="window.location.href='contribution_guide.html';">
-        	<h4>How to Contribute</h4>
+        	<h4>Contributing</h4>
     	</div>
  	</div>
 
 
-.. image:: _static/home_page_graphic3.jpg   
+.. image:: _static/coderdata_1.jpg   
 		:align: center
-		:scale: 100%
+		:scale: 20%
 
 Introduction
 ============

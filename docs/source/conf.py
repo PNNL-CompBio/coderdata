@@ -73,7 +73,7 @@ html_sidebars = {
 
 
 #ignore header warnings and non-referenced documents that does not interefere with the build
-suppress_warnings = ["myst.header", "myst.reference", "toc.not_readable"] 
+suppress_warnings = ["myst.header", "myst.reference", "toc.not_readable","autosectionlabel"] 
 nitpicky= False
 
 
