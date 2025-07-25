@@ -14,7 +14,9 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
     - name: Build HTML
-      run: sphinx-build -b html docs/source docs/build/html
+      uses: ammaraskar/sphinx-action@master
+      with:
+        source_directory: docs/source
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
