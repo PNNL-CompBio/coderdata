@@ -209,7 +209,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='###')
 
     # arguments for file paths
-    parser.add_argument('-g', '--genes', type=str, default=None, help='Path to transcriptomics genes.csv.  Can be obtained using this docker container: https://github.com/PNNL-CompBio/coderdata/blob/0225c52b861dcd6902521228731c54a61768bcd6/build/genes/README.md#L4')
+    parser.add_argument('-g', '--genes', type=str, default=None, help='Path to genes.csv.  Can be obtained using this docker container: https://github.com/PNNL-CompBio/coderdata/blob/0225c52b861dcd6902521228731c54a61768bcd6/build/genes/README.md#L4')
     parser.add_argument('-i', '--ids', type=str, default=None, help='Path to sample Ids')
 
     # arguments for what data to process

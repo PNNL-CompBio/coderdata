@@ -48,7 +48,8 @@ def process_docker(dataset,validate):
         'upload': ['upload'],
         'crcpdo': ['crcpdo'], 
         'bladderpdo': ['bladderpdo'],
-        'liverpdo': ['liverpdo']
+        'liverpdo': ['liverpdo'],
+        'novartispdx': ['novartispdx']
     }
 
     # Collect container names to build based on the dataset provided. Always build 'genes'.
@@ -131,6 +132,7 @@ def process_omics(executor, dataset, should_continue):
         'pancpdo': ['transcriptomics'],
         'bladderpdo': ['copy_number', 'mutations', 'transcriptomics'],
         'crcpdo':['copy_number', 'mutations', 'transcriptomics'],
+        'novartispdx':['copy_number', 'mutations', 'transcriptomics'],
         'liverpdo':['copy_number', 'mutations', 'transcriptomics']
     }
 
