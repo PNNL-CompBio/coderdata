@@ -231,6 +231,7 @@ def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
 
     # turn details column into mutation column
     mutations_only_df['mutation'] = mutations_only_df['Details'].str.split(pat = ",", expand=True).iloc[:,0]
+    mutations_only_df[~mutations_only_df['mutation'].str.contains(r'\?')] # 1866 rows have a "?" in them. remove
 
     # create variant classifications with information that we have
     mutations_only_df['variant_classification'] = np.nan
@@ -246,11 +247,12 @@ def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
     mutations_final = pd.merge(mutations_only_df, improve_id_data[['to_merge','improve_sample_id']], how = 'inner', left_on='Sample', right_on='to_merge')
     
     # clean up column names and data types
+    mutations_final = mutations_final.drop(columns={'Unnamed: 0'})
     mutations_final = mutations_final.rename(columns={'Entrez':'entrez_id'})
     mutations_final = mutations_final.drop(columns=['Sample','Gene','Category','Details','to_merge'])
     mutations_final['source'] = "CPDM"
     mutations_final['study'] = "novartispdx"
-    mutations_final = mutations_final.astype({'entrez_id':'int'})
+    mutations_final = mutations_final.astype({'entrez_id':'int', 'mutation':'str'})
 
     return(mutations_final)
 
