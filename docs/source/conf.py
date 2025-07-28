@@ -6,8 +6,6 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import coderdata 
-
 project = 'CoderData'
 copyright = '2025, Sara Gosline'
 author = 'Sara Gosline'
