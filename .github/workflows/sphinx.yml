@@ -13,11 +13,12 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: pip install -r docs/requirements.txt
 
     - name: Build HTML
       run: python -m sphinx.cmd.build -M html docs/source docs/build
-
+      # - name: Build HTML
+      # uses: ammaraskar/sphinx-action@master
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -25,10 +26,11 @@ jobs:
         path: docs/build/html/
 
     - name: Deploy
-      # uses: sphinx-notes/pages@v3
-      # with:
-      #   publish: true
-      
+      uses: sphinx-notes/pages@v3
+      with:
+        publish: true
+    
+    - name: Deploy2
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.DOCSITE_TOKEN }}
