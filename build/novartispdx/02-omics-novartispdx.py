@@ -253,6 +253,7 @@ def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
     mutations_final['source'] = "CPDM"
     mutations_final['study'] = "novartispdx"
     mutations_final = mutations_final.astype({'entrez_id':'int', 'mutation':'str'})
+    mutations_final['mutation'] = mutations_final['mutation'].astype('|S')
 
     return(mutations_final)
 
