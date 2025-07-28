@@ -28,7 +28,7 @@ jobs:
       # uses: sphinx-notes/pages@v3
       # with:
       #   publish: true
-
+      
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.DOCSITE_TOKEN }}

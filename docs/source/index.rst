@@ -18,13 +18,13 @@
    APIreference
    datasets_included
    tutorials
-   contribution_guide
+   contribution
 
 
 .. image:: _static/coderdata_header3.jpg   
 		:align: center
-		:height: 200px
-		:width: 600px
+		:height: 170px
+		:width: 500px
 
 
 .. raw:: html

@@ -27,6 +27,8 @@ Dataset Object
 
 .. autoclass:: coderdata.dataset.dataset.Dataset
 
+.. autofunction:: coderdata.dataset.dataset.Dataset.save
+
 .. automodule:: coderdata.dataset.dataset
    :members: load, format, train_test_validate, split_train_other, split_train_test_validate
    :undoc-members:

@@ -39,7 +39,9 @@ extensions = ["sphinx.ext.autodoc", # used to pull documentation
 
 
 # this is also to allow for md files 
-source_suffix = ['.rst','.md']
+source_suffix = {'.rst': 'restructuredtext',
+                 '.md': 'markdown',
+}
 
 autosummary_generate = True
 autodoc_typehints = ["none"]
@@ -72,7 +74,7 @@ html_sidebars = {
 # searchbox = Quick search
 
 
-#ignore header warnings and non-referenced documents that does not interefere with the build
+#ignore header warnings and non-referenced documents that does not interfer with the build process.
 suppress_warnings = ["myst.header", "myst.reference", "toc.not_readable","autosectionlabel"] 
 nitpicky= False
 
