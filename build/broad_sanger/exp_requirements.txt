@@ -1,9 +1,0 @@
-pandas
-matplotlib
-numpy
-argparse
-tqdm
-scikit-learn
-scipy
-requests
-openpyxl

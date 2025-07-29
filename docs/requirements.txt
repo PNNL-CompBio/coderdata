@@ -1,6 +1,0 @@
-sphinx
-myst-parser
-sphinx-design
-nbsphinx
-sphinx_tabs
-numpy
