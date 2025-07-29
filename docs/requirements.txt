@@ -4,3 +4,7 @@ sphinx-design
 nbsphinx
 sphinx_tabs
 numpy
+pandas
+requests
+scikit-learn
+pyyaml
