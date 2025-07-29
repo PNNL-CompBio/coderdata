@@ -122,3 +122,12 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: liverpdo:latest
+
+  novartispdx:
+    build:
+      context: ../../
+      dockerfile: build/docker/Dockerfile.novartispdx
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: novartispdx:latest
