@@ -8,26 +8,8 @@ import numpy as np
 import subprocess
 import argparse
 import time
+import pubchem_retrieval as pr
 
-# def download_from_github(raw_url, save_path):
-#     """
-#     Download a file from a raw GitHub URL and save to the specified path.
-
-#     Parameters
-#     ----------
-#     raw_url : str
-#         The raw GitHub URL pointing to the file to be downloaded.
-#     save_path : str
-#         The local path where the downloaded file will be saved.
-
-#     Returns
-#     -------
-#     None
-#     """
-#     response = requests.get(raw_url)
-#     with open(save_path, 'wb') as f:
-#         f.write(response.content)
-#     return
 
 def retrieve_figshare_data(url):
     """
@@ -145,208 +127,6 @@ def generate_samples_file(prev_samples_path):
     all_samples.to_csv("/tmp/beataml_samples.csv", index=False)
     return all_samples
 
-    
-def retrieve_drug_info(compound_name):
-    """
-    Retrieve detailed information for a given compound name using the PubChem API.
-
-    Parameters
-    ----------
-    compound_name : str
-        The name of the compound for which detailed information is needed.
-
-    Returns
-    -------
-    tuple
-        A tuple containing pubchem_id, CanonicalSMILES, IsomericSMILES, InChIKey,
-        MolecularFormula, and MolecularWeight of the compound.
-    """
-    if pd.isna(compound_name):
-        return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
-
-    ##limit is 1 call per 5 seconds. add in wait call.
-    
-    url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound_name}/property/CanonicalSMILES,IsomericSMILES,InChIKey,MolecularFormula,MolecularWeight/JSON"
-    response = requests.get(url)
-
-    if response.status_code != 200:
-        print(response.text)
-        return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
-    
-    data = response.json()
-    if "PropertyTable" in data:
-        properties = data["PropertyTable"]["Properties"][0]
-        pubchem_id = properties.get('CID',np.nan)
-        canSMILES = properties.get("CanonicalSMILES", np.nan)
-        # isoSMILES = properties.get("IsomericSMILES", np.nan)
-        InChIKey = properties.get("InChIKey", np.nan)
-        formula = properties.get("MolecularFormula", np.nan)
-        weight = properties.get("MolecularWeight", np.nan)
-
-        return pubchem_id, canSMILES, InChIKey, formula, weight
-    else:
-        return np.nan, np.nan, np.nan, np.nan, np.nan
-    
-
-def update_dataframe_with_pubchem(d_df):
-    """
-    Update the provided dataframe with drug information from PubChem.
-
-    For each chem_name in the dataframe, retrieve drug details using the PubChem API 
-    and update the dataframe columns with the fetched information.
-
-    Parameters
-    ----------
-    d_df : pd.DataFrame
-        The dataframe containing a 'chem_name' column which will be used to fetch information.
-
-    Returns
-    -------
-    pd.DataFrame
-        Updated dataframe with drug details from PubChem.
-    """
-    # Get unique chem_name values and retrieve their data
-    chem_names = d_df['chem_name'].dropna().unique()
-    chem_data_dict = {}
-    for name in chem_names:
-        print("Attempting to call pubchem API for chem_name: ", name)
-        chem_data_dict[name] = retrieve_drug_info(name)
-        time.sleep(0.2)
-    failed_chem_names = {k for k, v in chem_data_dict.items() if all(pd.isna(val) for val in v)}
-    other_names = d_df[d_df['chem_name'].isin(failed_chem_names)]['other_name'].dropna().unique()
-    other_data_dict = {}
-    for name in other_names:
-        print("Attempting to call pubchem API for other_name: ", name)
-        other_data_dict[name] = retrieve_drug_info(name)
-        time.sleep(0.2)
-
-    # Combine both dictionaries for easy lookup
-    data_dict = {**chem_data_dict, **other_data_dict}
-
-    #print(data_dict)
-#    print(data_dict['isoSMILES'])
-    # Update the DataFrame using the data dictionary
-    for idx, row in d_df.iterrows():
-        if row['chem_name'] in data_dict and not all(pd.isna(val) for val in data_dict[row['chem_name']]):
-            values = data_dict[row['chem_name']]
-        else:
-            values = data_dict.get(row['other_name'], (np.nan, np.nan, np.nan, np.nan, np.nan))
-
-        d_df.at[idx, 'pubchem_id'] = values[0]
-        d_df.at[idx, "canSMILES"] = values[1]
-        # d_df.at[idx, "isoSMILES"] = values[2]
-        d_df.at[idx, "InChIKey"] = values[2]
-        d_df.at[idx, "formula"] = values[3]
-        d_df.at[idx, "weight"] = values[4]
-    
-    return d_df
-
-def merge_drug_info(d_df,drug_map):
-    """
-    Merge drug information from a given drug mapping dataframe to the main drug dataframe.
-
-    Parameters
-    ----------
-    d_df : pd.DataFrame
-        Main drug dataframe containing drug-related columns.
-    drug_map : pd.DataFrame
-        Mapping dataframe containing drug information and the column 'canSMILES'.
-
-    Returns
-    -------
-    pd.DataFrame
-        The merged dataframe containing combined drug information.
-    """
-    # print(d_df['isoSMILES'].dtype, drug_map['isoSMILES'].dtype)
-    d_df['canSMILES'] = d_df['canSMILES'].astype(str)
-    drug_map['canSMILES'] = drug_map['canSMILES'].astype(str)
-    result_df = d_df.merge(drug_map[['canSMILES', 'improve_drug_id']], on='canSMILES', how='left')
-    return result_df
-
-def format_drug_map(drug_map_path):
-    """
-    Format and clean up the drug mapping file.
-
-    Reads a drug map file, removes duplicates based on the 'canSMILES' column,
-    and returns the cleaned dataframe.
-
-    Parameters
-    ----------
-    drug_map_path : str
-        Path to the drug mapping file.
-
-    Returns
-    -------
-    pd.DataFrame
-        Formatted and cleaned drug mapping dataframe.
-    """
-    if drug_map_path:
-        drug_map = pd.read_csv(drug_map_path, sep = "\t")
-        drug_map = drug_map.drop_duplicates(subset='canSMILES', keep='first')
-    else:
-        drug_map = pd.DataFrame(columns=[
-            'improve_drug_id', 'chem_name', 'pubchem_id',
-            'canSMILES', 'InChIKey', 'formula', 'weight'
-        ])
-    return drug_map
-
-#Drug Response
-def format_drug_df(drug_path):
-    """
-    Format and process the drug dataframe from a given CSV file path.
-
-    Reads a CSV file, processes its content, extracts chem_name and other_name 
-    from the 'inhibitor' column, and returns the modified dataframe.
-
-    Parameters
-    ----------
-    drug_path : str
-        Path to the drug CSV file.
-
-    Returns
-    -------
-    pd.DataFrame
-        Formatted drug dataframe.
-    """
-    d_df = pd.read_csv(drug_path, index_col=None,sep="\t")
-    d_df[['chem_name', 'other_name']] = d_df['inhibitor'].str.extract(r'^(.*?)\s*(?:\((.+)\))?$')
-    d_df["chem_name"] = d_df["chem_name"].str.replace('\s-\s', ':',regex=True)
-    d_df['chem_name'] = [a.lower() for a in d_df['chem_name']]
-    return d_df
-
-def add_improve_id(previous_df, new_df):
-    """
-    Add 'improve_drug_id' to the new dataframe based on unique 'canSMILES' not present in the previous dataframe.
-
-    Parameters
-    ----------
-    previous_df : pd.DataFrame
-        Dataframe containing previously mapped drug ids.
-    new_df : pd.DataFrame
-        Dataframe where new ids need to be added.
-
-    Returns
-    -------
-    pd.DataFrame
-        New dataframe with 'improve_drug_id' added.
-    """
-    if not previous_df.empty and 'improve_drug_id' in previous_df.columns:
-        id_list = [int(val.replace('SMI_', '')) for val in previous_df['improve_drug_id'].tolist() if pd.notnull(val) and val.startswith('SMI_')]
-        max_id = max(id_list) if id_list else 0
-    else:
-        max_id = 0
-    # Identify canSMILES in the new dataframe that don't exist in the old dataframe
-    unique_new_smiles = set(new_df['canSMILES']) - set(previous_df['canSMILES'])
-    # Identify rows in the new dataframe with canSMILES that are unique and where improve_drug_id is NaN
-    mask = (new_df['canSMILES'].isin(unique_new_smiles)) & (new_df['improve_drug_id'].isna())
-    id_map = {}
-    for smiles in unique_new_smiles:
-        max_id += 1
-        id_map[smiles] = f"SMI_{max_id}"
-    # Apply the mapping to the new dataframe for rows with unique canSMILES and NaN improve_drug_id
-    new_df.loc[mask, 'improve_drug_id'] = new_df['canSMILES'].map(id_map)
-    return new_df
-
 
 def map_exp_to_improve(exp_path):#df,improve_map_file):
     """
@@ -368,7 +148,6 @@ def map_exp_to_improve(exp_path):#df,improve_map_file):
     mapped_df['source'] = 'synapse'
     mapped_df['study'] = 'BeatAML'
     return mapped_df
-
 
 
 def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=None):
@@ -534,52 +313,102 @@ def generate_raw_drug_file(original_drug_file, sample_mapping_file, updated_raw_
     drug_mod = drug_mod.groupby(['DRUG', 'CELL']).filter(lambda x: len(x) >= 5)
     drug_mod['time'] = 72
     drug_mod['time_unit'] ='hrs'
+    print("Drug Raw Complete: drug_mod")
+    print(drug_mod)
     drug_mod.to_csv(updated_raw_drug_file, index=False, sep="\t")
     return
 
-def generate_drug_list(drug_map_path,drug_path):
-    '''
-    generates mapping of AML files to drugs
-    '''
-    # Drug and Experiment Data
-    print("Starting Drug Data")
-    drug_map = format_drug_map(drug_map_path) ##read in original/prior drugs in db
-    d_df = format_drug_df(drug_path) ##format new drug data from beataml
-    d_df = update_dataframe_with_pubchem(d_df)
-    d_res = merge_drug_info(d_df, drug_map)
-    d_res = add_improve_id(drug_map, d_res)
-    #Drug Data
-    #print(d_res)
-    drug_res = d_res[["improve_drug_id","chem_name","pubchem_id","formula","weight","InChIKey","canSMILES"]]
-    drug_res = drug_res.drop_duplicates()
-    drug_res.to_csv("/tmp/beataml_drugs.tsv",sep="\t", index=False)
 
-    
+
+def create_beataml_drug_data(raw_drug_info_path: str,
+                             prev_drug_file: str,
+                             output_drug_tsv: str):
+    """
+    raw_drug_info_path: path to BeatAML raw inhibitor TSV (has an 'inhibitor' column)
+    prev_drug_file:     existing beataml_drugs.tsv (could be CCLE/NCI60 full file)
+    output_drug_tsv:    where to write only the current‐BeatAML drugs + synonyms
+    """
+    # --- 1) parse current BeatAML drug names + any parens‐synonym ---
+    df = pd.read_csv(raw_drug_info_path, sep="\t")
+    df[['chem_name','other_name']] = (
+        df['inhibitor']
+          .str.extract(r'^(.*?)\s*(?:\((.+)\))?$')
+          .fillna('')
+    )
+    df['chem_name']  = df['chem_name'].str.lower()
+    df['other_name'] = df['other_name'].str.lower()
+    raw_names = set(df['chem_name']) | set(df['other_name'].replace('', pd.NA).dropna())
+
+    # --- 2) load full previous file to get max SMI_## and its synonyms for current drugs ---
+    max_old = 0
+    prev_df = pd.DataFrame()
+    if prev_drug_file and os.path.exists(prev_drug_file):
+        prev_df = pd.read_csv(prev_drug_file, sep="\t")
+        # extract numeric part of SMI_#
+        prev_df['SMI_num'] = (
+            prev_df['improve_drug_id']
+                   .str.extract(r'SMI_(\d+)').astype(int)
+        )
+        max_old = int(prev_df['SMI_num'].max())
+    # find which old rows belong to our current BeatAML drugs
+    hit_ids = set()
+    if not prev_df.empty:
+        mask_hit = prev_df['chem_name'].str.lower().isin(raw_names)
+        hit_ids = set(prev_df.loc[mask_hit, 'improve_drug_id'])
+    # we’ll prime with the entire prev_df—so helper’s counter = max_old+1
+    og_file = output_drug_tsv.replace('.tsv','_prime.tsv')
+    prev_df.drop(columns=['SMI_num'], inplace=True)
+    prev_df.to_csv(og_file, sep="\t", index=False)
+
+    # --- 3) figure out which names we STILL need to fetch ---
+    seen_names = set(prev_df['chem_name'].str.lower())
+    new_names  = [n for n in raw_names if n not in seen_names]
+
+    # --- 4) call helper to append only the new ones under SMI_{max_old+1…} ---
+    if new_names:
+        pr.update_dataframe_and_write_tsv(
+            unique_names=new_names,
+            output_filename=og_file,
+            batch_size=50,
+            ignore_chems="ignore_chems.txt"
+        )
+        print(f"Searched PubChem for {len(new_names)} new BeatAML drugs")
+    else:
+        print("No new BeatAML drugs to retrieve")
+
+    # --- 5) load back the primed+appended file, keep only our current drugs’ IDs ---
+    combined = pd.read_csv(og_file, sep="\t")
+    # capture numeric IDs > max_old as “new IDs”
+    nums = combined['improve_drug_id'].str.extract(r'SMI_(\d+)').astype(int)
+    combined['SMI_num'] = nums
+    new_ids = set(combined.loc[combined['SMI_num'] > max_old, 'improve_drug_id'])
+
+    keep_ids = hit_ids.union(new_ids)
+    final_df = combined[combined['improve_drug_id'].isin(keep_ids)]\
+                   .drop(columns=['SMI_num'])
+
+    final_df.to_csv(output_drug_tsv, sep="\t", index=False)
+    os.remove(og_file)
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='This script handles all aspects of the beat AML data but was designed to be fun in four modes (samples, drugs, omics, exp). If no argument is provided it will try to run all four at once.')
+    parser = argparse.ArgumentParser(description='This script handles all aspects of the beatAML data but was designed for four modes (samples, drugs, omics, exp). If no argument is provided it will try to run all four at once.')
     parser.add_argument('-t', '--token', type=str, help='Synapse Token')
     ##the next three arguments determine what we'll do
 
     parser.add_argument('-s', '--samples', action = 'store_true', help='Only generate samples, requires previous samples',default=False)
     parser.add_argument('-p', '--prevSamples', nargs='?',type=str, default='', const='', help='Use this to provide previous sample file, will run sample file generation')
-    
     parser.add_argument('-d', '--drugs',action='store_true', default=False,help='Query drugs only, requires drug file')
     parser.add_argument('-r', '--drugFile',nargs='?',type=str, default='', const='',help='Path to existing drugs.tsv file to query')
-    
     parser.add_argument('-o', '--omics',action='store_true',default=False,help='Set this flag to query omics, requires current samples')
     parser.add_argument('-c', '--curSamples', type=str, help='Add path if you want to generate data')
     parser.add_argument('-g', '--genes',type=str, help='Path to gene file, required for omics processing')
-    
     parser.add_argument('-e', '--exp', action='store_true', default=False,help='Set this to generate dose response curves. requires drug file and sample file')
-
-
 
     args = parser.parse_args()
 
     #######
     
-
     print("Logging into Synapse")
     syn = synapseclient.Synapse()
     PAT = args.token
@@ -627,15 +456,20 @@ if __name__ == "__main__":
             print("Previous Samples File Provided. Running BeatAML Sample File Generation")
         #Generate Samples File
         generate_samples_file(args.prevSamples)
+        
     if args.drugs:
-        if args.drugFile is None or args.drugFile=='':
-            print("Prior Drug File not provided. Data will not align with other datasets. Use ONLY for testing purposes.")
+        if not args.drugFile:
+            print("No prior drugFile provided. Results may not align with existing data.")
         else:
-            print("Drug File Provided. Proceeding with build.")
+            print("Using existing drugFile:", args.drugFile)
+
         original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-        # original_drug_url = "https://github.com/biodev/beataml2.0_data/raw/main/beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
-        # download_from_github(original_drug_url, original_drug_file)
-        generate_drug_list(args.drugFile, original_drug_file) 
+        create_beataml_drug_data(
+            raw_drug_info_path=original_drug_file,
+            prev_drug_file=args.drugFile,
+            output_drug_tsv="/tmp/beataml_drugs.tsv"
+        )
+
     if args.omics:
         if args.genes is None or args.curSamples is None:
             print('Cannot process omics without sample mapping and gene mapping files')
@@ -658,7 +492,7 @@ if __name__ == "__main__":
             ##first run conversion tool
             os.system("python tpmFromCounts.py --counts {} --out_file {}".format(transcriptomics_file,'tpm_'+transcriptomics_file))
             
-            
+            # Transcriptomic Data
             t_df = pd.read_csv('tpm_'+transcriptomics_file, sep = '\t')
             t_df = t_df.reset_index().rename(columns={'stable_id': 'Gene'})
             t_df = pd.melt(t_df, id_vars=['Gene'], var_name='sample_id', value_name='transcriptomics')
@@ -669,7 +503,7 @@ if __name__ == "__main__":
             t_df = t_df[["improve_sample_id","transcriptomics","entrez_id","source","study"]].drop_duplicates()
             t_df.to_csv("/tmp/beataml_transcriptomics.csv.gz",index=False,compression='gzip')
 
-            # New Proteomics Data
+            # Proteomics Data
             print("Starting Proteomics Data")
             proteomics_map = "Data Available for Proteomic Samples.xlsx"
             p_df = pd.read_csv("ptrc_ex10_crosstab_global_gene_corrected.txt", sep = '\t')
@@ -680,7 +514,7 @@ if __name__ == "__main__":
             p_df = p_df[p_df.entrez_id != 0]
             p_df.to_csv("/tmp/beataml_proteomics.csv.gz",index=False,compression='gzip')
         
-            # New Mutation Data
+            # Mutation Data
             print("Starting Mutation Data")
             m_df = pd.read_csv(mutations_file, sep = '\t')
             m_df = map_and_combine(m_df, "mutations", args.genes,improve_map_file, mutation_map_file)

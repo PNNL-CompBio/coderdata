@@ -85,13 +85,14 @@ def main():
     morgs = smiles_to_fingerprint(cansmiles)
 
     ids = pd.DataFrame(tab[['improve_drug_id','canSMILES']]).drop_duplicates()
-
+    print("IDS columns:", ids.columns.tolist())
+    print("MORGS columns:", morgs.columns.tolist())
     id_morg = ids.rename({"canSMILES":'smile'},axis=1).merge(morgs)[['improve_drug_id','structural_descriptor','descriptor_value']]
 
     mords = smiles_to_mordred(cansmiles,nproc=ncors)
     
     id_mord = ids.rename({'canSMILES':'smile'},axis=1).merge(mords)[['improve_drug_id','structural_descriptor','descriptor_value']]
-    
+
     full = pd.concat([id_morg,id_mord],axis=0)    
     
     # Convert any values that contain the following strings to NA. I think this covers all of the cases, but add here if more are found.
