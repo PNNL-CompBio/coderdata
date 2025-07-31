@@ -372,142 +372,141 @@ def update_dataframe_and_write_tsv(unique_names,
 
     print(f"Starting with {len(raw_names)} provided {'names' if isname else 'IDs'}; restricting output to {len(restrict_set)} of them.")
 
-    try:
-        # --- 1) read existing output to bootstrap state ---
-        print(f"Reading existing data from {output_filename}")
-        # capture existing output file (if any) to include in base
-        existing_output_df = pd.DataFrame()
-        if os.path.exists(output_filename):
-            try:
-                existing_output_df = pd.read_csv(output_filename, sep="\t", quoting=3)
-            except Exception:
-                existing_output_df = pd.read_csv(output_filename, sep="\t")
-        # read_existing_data populates globals (synonyms, pubchemids, and sets improve_drug_id based on output)
-        read_existing_data(output_filename)
-        existing_output_max = improve_drug_id - 1  # because improve_drug_id was set to last+1
+    # --- 1) read existing output to bootstrap state ---
+    print(f"Reading existing data from {output_filename}")
+    # capture existing output file (if any) to include in base
+    existing_output_df = pd.DataFrame()
+    if os.path.exists(output_filename):
+        try:
+            existing_output_df = pd.read_csv(output_filename, sep="\t", quoting=3)
+        except Exception:
+            existing_output_df = pd.read_csv(output_filename, sep="\t")
+    # read_existing_data populates globals (synonyms, pubchemids, and sets improve_drug_id based on output)
+    read_existing_data(output_filename)
+    existing_output_max = improve_drug_id - 1  # because improve_drug_id was set to last+1
 
-        # --- 2) load previous union and incorporate its names/IDs into seen sets ---
-        prev_union_df = _load_prev_drugs_union(prev_drug_filepaths)
-        prev_union_max = _max_smi_in_df(prev_union_df)
+    # --- 2) load previous union and incorporate its names/IDs into seen sets ---
+    prev_union_df = _load_prev_drugs_union(prev_drug_filepaths)
+    prev_union_max = _max_smi_in_df(prev_union_df)
 
-        # adjust improve_drug_id to be max of existing output and previous union, so new IDs start after both
-        desired_start = max(existing_output_max, prev_union_max) + 1
-        if improve_drug_id < desired_start:
-            improve_drug_id = desired_start
-        print(f"SMI numbering will start from {improve_drug_id} (max prior was {desired_start - 1})")
+    # adjust improve_drug_id to be max of existing output and previous union, so new IDs start after both
+    desired_start = max(existing_output_max, prev_union_max) + 1
+    if improve_drug_id < desired_start:
+        improve_drug_id = desired_start
+    print(f"SMI numbering will start from {improve_drug_id} (max prior was {desired_start - 1})")
 
-        # build seen names/IDs (to avoid re-query)
-        seen_names = set(existing_synonyms)
-        seen_pubchemids = set(existing_pubchemids)
-        if not prev_union_df.empty:
-            if "chem_name" in prev_union_df.columns:
-                seen_names.update({str(n).strip().lower() for n in prev_union_df["chem_name"].astype(str)})
-            if "pubchem_id" in prev_union_df.columns:
-                seen_pubchemids.update({str(n).strip() for n in prev_union_df["pubchem_id"].astype(str)})
+    # build seen names/IDs (to avoid re-query)
+    seen_names = set(existing_synonyms)
+    seen_pubchemids = set(existing_pubchemids)
+    if not prev_union_df.empty:
+        if "chem_name" in prev_union_df.columns:
+            seen_names.update({str(n).strip().lower() for n in prev_union_df["chem_name"].astype(str)})
+        if "pubchem_id" in prev_union_df.columns:
+            seen_pubchemids.update({str(n).strip() for n in prev_union_df["pubchem_id"].astype(str)})
 
-        # --- 3) determine new candidates to query ---
-        if isname:
-            candidates = raw_names - seen_names
-            print(f"{len(raw_names)} raw names provided; {len(seen_names)} already seen; {len(candidates)} new to fetch.")
-        else:
-            candidates = raw_names - seen_pubchemids
-            print(f"{len(raw_names)} raw IDs provided; {len(seen_pubchemids)} already seen; {len(candidates)} new to fetch.")
+    # --- 3) determine new candidates to query ---
+    if isname:
+        candidates = raw_names - seen_names
+        print(f"{len(raw_names)} raw names provided; {len(seen_names)} already seen; {len(candidates)} new to fetch.")
+    else:
+        candidates = raw_names - seen_pubchemids
+        print(f"{len(raw_names)} raw IDs provided; {len(seen_pubchemids)} already seen; {len(candidates)} new to fetch.")
 
-        # apply ignore_chems filtering
-        ignore_chem_set = set()
-        if os.path.exists(ignore_chems):
-            with open(ignore_chems, "r") as file:
-                for line in file:
-                    ignore_chem_set.add(line.strip())
-        candidates = set(candidates) - ignore_chem_set
-        print(f"{len(candidates)} candidates remain after removing ignored.")
+    # apply ignore_chems filtering
+    ignore_chem_set = set()
+    if os.path.exists(ignore_chems):
+        with open(ignore_chems, "r") as file:
+            for line in file:
+                ignore_chem_set.add(line.strip())
+    candidates = set(candidates) - ignore_chem_set
+    print(f"{len(candidates)} candidates remain after removing ignored.")
 
-        # --- 4) prime a temp union file with previous union + existing output ---
-        prime_file = output_filename.replace(".tsv", "_prime.tsv")
-        base_dfs = []
-        if not prev_union_df.empty:
-            base_dfs.append(prev_union_df)
-        if not existing_output_df.empty:
-            base_dfs.append(existing_output_df)
-        if base_dfs:
-            base_union = pd.concat(base_dfs, ignore_index=True).drop_duplicates()
-        else:
-            base_union = pd.DataFrame()
-        # Write that primed base for appending
-        if not base_union.empty:
-            with open(prime_file, "w") as f:
-                header_written = False
-                for _, row in base_union.iterrows():
-                    if not header_written:
-                        cols = row.index.tolist()
-                        f.write("\t".join(cols) + "\n")
-                        header_written = True
-                    f.write("\t".join(str(row[col]) if pd.notna(row[col]) else "" for col in row.index) + "\n")
-        else:
-            # create empty prime file so fetch logic can append headers
-            open(prime_file, "a").close()
+    # --- 4) prime a temp union file with previous union + existing output ---
+    prime_file = output_filename.replace(".tsv", "_prime.tsv")
+    base_dfs = []
+    if not prev_union_df.empty:
+        base_dfs.append(prev_union_df)
+    if not existing_output_df.empty:
+        base_dfs.append(existing_output_df)
+    if base_dfs:
+        base_union = pd.concat(base_dfs, ignore_index=True).drop_duplicates()
+    else:
+        base_union = pd.DataFrame()
+    # Write that primed base for appending
+    if not base_union.empty:
+        with open(prime_file, "w") as f:
+            header_written = False
+            for _, row in base_union.iterrows():
+                if not header_written:
+                    cols = row.index.tolist()
+                    f.write("\t".join(cols) + "\n")
+                    header_written = True
+                f.write("\t".join(str(row[col]) if pd.notna(row[col]) else "" for col in row.index) + "\n")
+    else:
+        # create empty prime file so fetch logic can append headers
+        open(prime_file, "a").close()
 
-        # --- 5) fetch new ones in batches and append to prime_file ---
-        candidates_list = list(candidates)
-        for i in range(0, len(candidates_list), batch_size):
-            if not should_continue:
-                break
-            batch = candidates_list[i : i + batch_size]
-            data = fetch_data_for_batch(batch, ignore_chems, isname)
-            if data:
-                file_exists = os.path.isfile(prime_file)
-                mode = "a" if file_exists else "w"
-                with open(prime_file, mode) as f:
-                    if os.path.getsize(prime_file) == 0:
-                        f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tInChIKey\tformula\tweight\n")
-                    for entry in data:
-                        f.write(
-                            f"{entry['improve_drug_id']}\t{entry['name']}\t{entry.get('CID', '')}\t"
-                            f"{entry['SMILES']}\t{entry['InChIKey']}\t"
-                            f"{entry['MolecularFormula']}\t{entry['MolecularWeight']}\n"
-                        )
-                with open(ignore_chems, "a") as ig_f:
-                    for entry in data:
-                        if isname:
-                            ig_f.write(f"{entry['name']}\n")
-                        else:
-                            ig_f.write(f"{entry.get('CID', '')}\n")
+    # --- 5) fetch new ones in batches and append to prime_file ---
+    candidates_list = list(candidates)
+    for i in range(0, len(candidates_list), batch_size):
+        if not should_continue:
+            break
+        batch = candidates_list[i : i + batch_size]
+        data = fetch_data_for_batch(batch, ignore_chems, isname)
+        if data:
+            file_exists = os.path.isfile(prime_file)
+            mode = "a" if file_exists else "w"
+            with open(prime_file, mode) as f:
+                if os.path.getsize(prime_file) == 0:
+                    f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tInChIKey\tformula\tweight\n")
+                for entry in data:
+                    f.write(
+                        f"{entry['improve_drug_id']}\t{entry['name']}\t{entry.get('CID', '')}\t"
+                        f"{entry['SMILES']}\t{entry['InChIKey']}\t"
+                        f"{entry['MolecularFormula']}\t{entry['MolecularWeight']}\n"
+                    )
+            with open(ignore_chems, "a") as ig_f:
+                for entry in data:
+                    if isname:
+                        ig_f.write(f"{entry['name']}\n")
+                    else:
+                        ig_f.write(f"{entry.get('CID', '')}\n")
 
-        # --- 6) load combined prime results ---
-        combined = pd.read_csv(prime_file, sep="\t")
+    # --- 6) load combined prime results ---
+    combined = pd.read_csv(prime_file, sep="\t")
 
-        # Determine previous max (before new fetches) to identify newly assigned SMI IDs
-        previous_max = desired_start - 1  # desired_start was max(existing_output_max, prev_union_max) + 1
+    # Determine previous max (before new fetches) to identify newly assigned SMI IDs
+    previous_max = desired_start - 1  # desired_start was max(existing_output_max, prev_union_max) + 1
 
-        # --- 7) compute hit improve_drug_id(s) from restrict_set (preserves all synonyms) ---
-        hit_ids = set()
-        if isname:
-            mask_hit = combined["chem_name"].astype(str).str.lower().isin(restrict_set)
+    # --- 7) compute hit improve_drug_id(s) from restrict_set (preserves all synonyms) ---
+    hit_ids = set()
+    if isname:
+        mask_hit = combined["chem_name"].astype(str).str.lower().isin(restrict_set)
+        hit_ids = set(combined.loc[mask_hit, "improve_drug_id"])
+    else:
+        if "pubchem_id" in combined.columns:
+            mask_hit = combined["pubchem_id"].astype(str).isin(restrict_set)
             hit_ids = set(combined.loc[mask_hit, "improve_drug_id"])
-        else:
-            if "pubchem_id" in combined.columns:
-                mask_hit = combined["pubchem_id"].astype(str).isin(restrict_set)
-                hit_ids = set(combined.loc[mask_hit, "improve_drug_id"])
 
-        # --- 8) identify newly assigned improve_drug_id(s) ---
-        new_ids = set()
-        if "improve_drug_id" in combined.columns:
-            extracted_comb = combined["improve_drug_id"].astype(str).str.extract(r"SMI_(\d+)", expand=False)
-            nums_comb = pd.to_numeric(extracted_comb, errors="coerce")
-            if not nums_comb.empty:
-                new_ids = set(combined.loc[nums_comb > previous_max, "improve_drug_id"])
-                if new_ids:
-                    print(f"Newly assigned improve_drug_id(s): {new_ids}")
+    # --- 8) identify newly assigned improve_drug_id(s) ---
+    new_ids = set()
+    if "improve_drug_id" in combined.columns:
+        extracted_comb = combined["improve_drug_id"].astype(str).str.extract(r"SMI_(\d+)", expand=False)
+        nums_comb = pd.to_numeric(extracted_comb, errors="coerce")
+        if not nums_comb.empty:
+            new_ids = set(combined.loc[nums_comb > previous_max, "improve_drug_id"])
+            if new_ids:
+                print(f"Newly assigned improve_drug_id(s): {new_ids}")
 
-        # --- 9) union and filter final DataFrame by improve_drug_id(s) ---
-        keep_ids = hit_ids.union(new_ids)
-        if keep_ids:
-            final_df = combined[combined["improve_drug_id"].isin(keep_ids)].copy()
-        else:
-            print("Warning: no relevant drugs were retained/fetched for the restriction set.")
-            final_df = pd.DataFrame(columns=combined.columns)
+    # --- 9) union and filter final DataFrame by improve_drug_id(s) ---
+    keep_ids = hit_ids.union(new_ids)
+    if keep_ids:
+        final_df = combined[combined["improve_drug_id"].isin(keep_ids)].copy()
+    else:
+        print("Warning: no relevant drugs were retained/fetched for the restriction set.")
+        final_df = pd.DataFrame(columns=combined.columns)
 
-        # --- 10) write final filtered output ---
-        final_df.to_csv(output_filename, sep="\t", index=False)
+    # --- 10) write final filtered output ---
+    final_df.to_csv(output_filename, sep="\t", index=False)
 
-        return final_df
+    return final_df
