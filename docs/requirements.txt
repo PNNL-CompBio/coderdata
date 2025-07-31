@@ -1,6 +1,7 @@
 sphinx
 myst-parser
 sphinx-design
+nbconvert
 nbsphinx
 sphinx_tabs
 numpy

@@ -5,6 +5,7 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+import coderdata #fixes issues when calling functions in the API reference
 
 project = 'CoderData'
 copyright = '2025, Sara Gosline'
@@ -36,11 +37,15 @@ extensions = ["sphinx.ext.autodoc", # used to pull documentation
 ] 
 
 
-# this is also to allow for md files 
+exclude_patterns= ['_notebooks']
+nbsphinx_allow_errors= True
+
+# this allows for md files 
 source_suffix = {'.rst': 'restructuredtext',
                  '.md': 'markdown',
 }
 
+# docstrings changes
 autosummary_generate = True
 autodoc_typehints = ["none"]
 
@@ -73,8 +78,40 @@ html_sidebars = {
 
 
 #ignore header warnings and non-referenced documents that does not interfer with the build process.
-suppress_warnings = ["myst.header", "myst.reference", "toc.not_readable","autosectionlabel"] 
+suppress_warnings = ["myst.header", "myst.reference", "toc.not_readable","autosectionlabel","docutils"] 
 nitpicky= False
+
+
+# -----------process to convert notebook files to html-----------------
+
+import os
+import subprocess
+
+# Directory where the Jupyter notebooks are located
+notebook_dir = os.path.abspath('./_notebooks')  # Adjust path as needed
+
+# Directory to store the converted HTML files
+output_dir = os.path.abspath('../build/html')  # Adjust path as needed
+
+def convert_notebooks_to_html():
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    for notebook in os.listdir(notebook_dir):
+        if notebook.endswith('.ipynb'):
+            input_path = os.path.join(notebook_dir, notebook)
+            output_path = os.path.join(output_dir, notebook.replace('.ipynb', '.html'))
+            cmd = [
+                'jupyter', 'nbconvert',
+                '--to', 'html',
+                '--output', output_path,
+                input_path
+            ]
+            subprocess.run(cmd, check=True)
+
+# Run the conversion before Sphinx builds the documentation
+convert_notebooks_to_html()
+
 
 
  

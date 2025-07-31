@@ -43,7 +43,7 @@
     	</div>
 
 		<div class="clickable-box" onclick="window.location.href='tutorials.html';">
-      		<h4>Tutorials</h4>
+      		<h4>Tutorial</h4>
     	</div>
 
 		<div class="clickable-box" onclick="window.location.href='contribution_guide.html';">
