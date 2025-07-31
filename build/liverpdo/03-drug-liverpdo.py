@@ -9,6 +9,29 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
+def _get_max_old_smi(prev_df: pd.DataFrame) -> int:
+    """
+    Extract the numeric part from the improve_drug_id column like 'SMI_999' and return the max val.
+    Returns 0 if nothing parseable is found.
+    """
+    if "improve_drug_id" not in prev_df.columns:
+        return 0
+    # pull digits out of SMI_###, ignore malformed
+    extracted = (
+        prev_df["improve_drug_id"]
+        .astype(str)
+        .str.extract(r"SMI_(\d+)", expand=False)
+        .dropna()
+    )
+    if extracted.empty:
+        return 0
+    try:
+        nums = extracted.astype(int)
+        return int(nums.max())
+    except ValueError:
+        return 0
+    
+
 def _load_prev_drugs(prevDrugFilepath: str) -> pd.DataFrame:
     """
     Accepts a comma-separated list of previous drug file paths, reads each if it exists,
@@ -48,6 +71,7 @@ def _load_prev_drugs(prevDrugFilepath: str) -> pd.DataFrame:
         combined = pd.DataFrame(columns=["chem_name"])
 
     return combined
+
 
 
 # function for loading data
@@ -90,31 +114,56 @@ def download_parse_drug_data(synID:str , save_path:str = None, synToken:str = No
     
     return(drugs_filepath)
 
-
-def create_liverpdo_drug_data(drug_info_path:str, prevDrugFilepath:str, output_drug_data_path:str):
+def create_liverpdo_drug_data(drug_info_path: str, prevDrugFilepath: str, output_drug_data_path: str):
     """
-    Using a list of (or single) previous drug file and the current liverpdo drug information
-    format and write the liverpdo drug data to a tsv file using pubchem_retrival.py.
+    Using one or more previous drug files and the current liverpdo drug information,
+    keep all prior entries, append only new drugs (with incremented SMI IDs), and
+    write the full union to output_drug_data_path.
     """
-    # import fitted drug data and get drug names from DRUG_NAME column
+    # Parse current liverpdo drug names (normalize to lowercase for matching) 
     drug_info_df = pd.read_csv(drug_info_path)
-    liverpdo_drugs_df = pd.DataFrame({"chem_name":drug_info_df['Drug'].unique()})
-    # if there is are prev drug files, check for new drugs
-    if prevDrugFilepath and prevDrugFilepath.strip() != "":
-        prev_drug_df = _load_prev_drugs(prevDrugFilepath)
-        # get drugs that are only in the crcpdo_drugs_df (aka new drugs only)
-        new_drugs_df = liverpdo_drugs_df[
-            ~liverpdo_drugs_df.chem_name.isin(prev_drug_df.get("chem_name", []))
-        ]
-    else:
-        # if there's no prev drugs, then all drugs are new
-        new_drugs_df = liverpdo_drugs_df
-    # get new drug names
-    new_drug_names = new_drugs_df['chem_name'].unique()
-    # call function that gets info for these drugs
-    update_dataframe_and_write_tsv(unique_names = new_drug_names,output_filename = output_drug_data_path)
+    liverpdo_drugs_df = pd.DataFrame({
+        "chem_name": drug_info_df["Drug"].astype(str).str.lower().unique()
+    })
+    raw_names = set(liverpdo_drugs_df["chem_name"])
 
-    ############################
+    # Load prior drug data union and determine max existing SMI index 
+    prev_df = _load_prev_drugs(prevDrugFilepath)
+    max_old = _get_max_old_smi(prev_df)
+    print(f"Current max existing SMI index: {max_old}")
+
+    # Determine which current names are already seen (case-insensitive) 
+    seen_names = set()
+    if not prev_df.empty and "chem_name" in prev_df.columns:
+        seen_names = set(prev_df["chem_name"].astype(str).str.lower())
+    new_names = [n for n in raw_names if n not in seen_names]
+
+    # Prime temp file with full previous union 
+    prime_file = output_drug_data_path.replace(".tsv", "_prime.tsv")
+    # write previous entries (if any) into prime file
+    to_write = prev_df.copy()
+    to_write.to_csv(prime_file, sep="\t", index=False)
+
+    # Append only new drugs 
+    if new_names:
+        update_dataframe_and_write_tsv(
+            unique_names=new_names,
+            output_filename=prime_file
+        )
+        print(f"Searched PubChem for {len(new_names)} new liverPDO drugs")
+    else:
+        print("No new liverPDO drugs to retrieve; only prior entries will be kept.")
+
+    # Load back combined (prior + appended) and emit final union 
+    combined = pd.read_csv(prime_file, sep="\t")
+    combined.to_csv(output_drug_data_path, sep="\t", index=False)
+
+    # cleanup
+    try:
+        os.remove(prime_file)
+    except OSError:
+        pass
+
 
 
 if __name__ == "__main__":
@@ -149,4 +198,3 @@ if __name__ == "__main__":
         else:
             print("Previous drugs file {} detected. Running drugs file generation and checking for duplicate IDs.".format(args.PrevDrugs))
             create_liverpdo_drug_data(drug_info_path = "/tmp/raw_druginfo.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/liverpdo_drugs.tsv")
-
