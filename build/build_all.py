@@ -191,13 +191,13 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             else:
                 break
         for da in datasets:
-                di = 'broad_sanger_omics' if da == 'broad_sanger' else da
-                if not os.path.exists(f'local/{da}_samples.csv'):
-                    if last_sample_future:
-                        last_sample_future.result() 
-                    last_sample_future = executor.submit(run_docker_cmd, [di, 'bash', 'build_samples.sh', sf], f'{da} samples')
-                    sf = f'/tmp/{da}_samples.csv'
-                    
+            di = 'broad_sanger_omics' if da == 'broad_sanger' else da
+            if not os.path.exists(f'local/{da}_samples.csv'):
+                if last_sample_future:
+                    last_sample_future.result() 
+                last_sample_future = executor.submit(run_docker_cmd, [di, 'bash', 'build_samples.sh', sf], f'{da} samples')
+                sf = f'/tmp/{da}_samples.csv'
+                
     def process_omics(executor, datasets,high_mem):
         '''
         Build all omics files concurrently

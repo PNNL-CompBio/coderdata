@@ -9,6 +9,47 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
+def _load_prev_drugs(prevDrugFilepath: str) -> pd.DataFrame:
+    """
+    Accepts a comma-separated list of previous drug file paths, reads each if it exists,
+    and returns a deduplicated concatenated DataFrame. If none are readable, returns an
+    empty DataFrame with a 'chem_name' column to avoid key errors.
+    """
+    if not prevDrugFilepath or prevDrugFilepath.strip() == "":
+        return pd.DataFrame(columns=["chem_name"])
+
+    paths = [p.strip() for p in prevDrugFilepath.split(",") if p.strip()]
+    dfs = []
+    for p in paths:
+        if not os.path.exists(p):
+            print(f"Warning: previous drug file '{p}' not found; skipping.")
+            continue
+        try:
+            if p.lower().endswith(".tsv"):
+                df = pd.read_csv(p, sep="\t")
+            else:
+                df = pd.read_csv(p)
+            dfs.append(df)
+        except Exception as e:
+            print(f"Warning: failed to read previous drug file '{p}': {e}; skipping.")
+
+    if not dfs:
+        return pd.DataFrame(columns=["chem_name"])
+
+    combined = pd.concat(dfs, ignore_index=True)
+    # Drop exact duplicate rows to avoid inflated counts
+    combined = combined.drop_duplicates()
+    # Report what was loaded for debugging
+    if "chem_name" in combined.columns:
+        unique_prev = combined["chem_name"].nunique()
+        print(f"Loaded {len(paths)} previous file(s); {unique_prev} unique previous drug names found.")
+    else:
+        print(f"Loaded {len(paths)} previous file(s), but 'chem_name' column missing in combined. Proceeding with empty previous set.")
+        combined = pd.DataFrame(columns=["chem_name"])
+
+    return combined
+
+
 # function for loading data
 def download_parse_drug_data(synID:str , save_path:str = None, synToken:str = None):
     """ 
@@ -51,17 +92,20 @@ def download_parse_drug_data(synID:str , save_path:str = None, synToken:str = No
 
 
 def create_liverpdo_drug_data(drug_info_path:str, prevDrugFilepath:str, output_drug_data_path:str):
+    """
+    Using a list of (or single) previous drug file and the current liverpdo drug information
+    format and write the liverpdo drug data to a tsv file using pubchem_retrival.py.
+    """
     # import fitted drug data and get drug names from DRUG_NAME column
     drug_info_df = pd.read_csv(drug_info_path)
     liverpdo_drugs_df = pd.DataFrame({"chem_name":drug_info_df['Drug'].unique()})
-    # if there is a prev drug file, check for new drugs
-    if prevDrugFilepath != "":
-        if prevDrugFilepath.__contains__(".tsv"):
-            prev_drug_df = pd.read_csv(prevDrugFilepath, sep='\t')
-        else:
-            prev_drug_df = pd.read_csv(prevDrugFilepath)
+    # if there is are prev drug files, check for new drugs
+    if prevDrugFilepath and prevDrugFilepath.strip() != "":
+        prev_drug_df = _load_prev_drugs(prevDrugFilepath)
         # get drugs that are only in the crcpdo_drugs_df (aka new drugs only)
-        new_drugs_df = liverpdo_drugs_df[~liverpdo_drugs_df.chem_name.isin(prev_drug_df.chem_name)]
+        new_drugs_df = liverpdo_drugs_df[
+            ~liverpdo_drugs_df.chem_name.isin(prev_drug_df.get("chem_name", []))
+        ]
     else:
         # if there's no prev drugs, then all drugs are new
         new_drugs_df = liverpdo_drugs_df
