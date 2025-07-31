@@ -12,28 +12,30 @@ from pubchem_retrieval import update_dataframe_and_write_tsv
 def create_bladder_pdo_drugs_file(synObject, prevDrugFilepath, outputPath):
     bladder_dir = synObject.get('syn64765430')
     filenames = list(synObject.getChildren(parent='syn64765430', includeTypes=['file']))
-    bladder_drugs = pd.DataFrame({'drugNames' : [str]})
-    # '-4' - there are 4 nondrug files in this directory. 
-    for i in range(len(filenames)-4):
-        bladder_drugs.loc[i,'drugNames'] = filenames[i]['name'].split(")")[1].split("(")[0].split(".")[0].strip()
 
-    # get unique drugs 
-    newdrugnames = bladder_drugs['drugNames'].unique()
-    # use helper functions in pubchem_retrieval.py 
-    alldrugs = []
-    if prevDrugFilepath is not None and prevDrugFilepath is not "":
-        prevdrugs = [pd.read_csv(t,sep='\t') for t in prevDrugFilepath.split(',')]
-        alldrugs = pd.concat(prevdrugs).drop_duplicates()
+    # '-4' - there are 4 nondrug files in this directory.
+    bladder_drugs = pd.DataFrame({'drugNames': [str]})
+    for i in range(len(filenames) - 4):
+        bladder_drugs.loc[i, 'drugNames'] = filenames[i]['name'].split(")")[1].split("(")[0].split(".")[0].strip()
 
-        imps = alldrugs[alldrugs.chem_name.isin(newdrugnames)]
-        newdrugs = alldrugs[alldrugs.improve_drug_id.isin(imps.improve_drug_id)]
-        
-        ##write drugs
-        newdrugs.to_csv(outputPath, sep='\t', index=False)
+    # get unique drug names
+    raw_names = [str(n) for n in bladder_drugs['drugNames'].dropna().unique() if str(n).strip()]
 
-    if len(alldrugs)==0 or len(newdrugnames)>len(set(newdrugs.improve_drug_id)): #we have more names we didn't match
-        print('Missing drugs in existing file, querying pubchem')
-        update_dataframe_and_write_tsv(newdrugnames,outputPath)
+    if not raw_names:
+        print("No bladderPDO drug names extracted; exiting.")
+        return
+
+    print(f"BladderPDO raw drug names: {raw_names}")
+
+    #New pubchem call
+    update_dataframe_and_write_tsv(
+        unique_names=raw_names,
+        output_filename=outputPath,
+        prev_drug_filepaths=prevDrugFilepath if prevDrugFilepath else None,
+        isname=True,
+        batch_size=50,
+        restrict_to_raw_names=raw_names
+    )
 
 
 if __name__ == "__main__":
