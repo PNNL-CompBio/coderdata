@@ -117,52 +117,74 @@ def download_parse_drug_data(synID:str , save_path:str = None, synToken:str = No
 def create_liverpdo_drug_data(drug_info_path: str, prevDrugFilepath: str, output_drug_data_path: str):
     """
     Using one or more previous drug files and the current liverpdo drug information,
-    keep all prior entries, append only new drugs (with incremented SMI IDs), and
-    write the full union to output_drug_data_path.
+    keep prior entries *only for liverpdo drugs*, append only new liverpdo drugs
+    (with incremented SMI IDs based on the global max), and write that subset to output.
     """
-    # Parse current liverpdo drug names (normalize to lowercase for matching) 
     drug_info_df = pd.read_csv(drug_info_path)
     liverpdo_drugs_df = pd.DataFrame({
         "chem_name": drug_info_df["Drug"].astype(str).str.lower().unique()
     })
     raw_names = set(liverpdo_drugs_df["chem_name"])
 
-    # Load prior drug data union and determine max existing SMI index 
     prev_df = _load_prev_drugs(prevDrugFilepath)
     max_old = _get_max_old_smi(prev_df)
-    print(f"Current max existing SMI index: {max_old}")
+    print(f"Current max existing SMI index (from all prev files): {max_old}")
 
-    # Determine which current names are already seen (case-insensitive) 
+    hit_ids = set()
+    if not prev_df.empty and "chem_name" in prev_df.columns and "improve_drug_id" in prev_df.columns:
+        mask_hit = prev_df["chem_name"].astype(str).str.lower().isin(raw_names)
+        hit_ids = set(prev_df.loc[mask_hit, "improve_drug_id"])
+        print(f"Found {len(hit_ids)} existing liverpdo-related improve_drug_id(s) in previous files.")
+
     seen_names = set()
-    if not prev_df.empty and "chem_name" in prev_df.columns:
+    if "chem_name" in prev_df.columns:
         seen_names = set(prev_df["chem_name"].astype(str).str.lower())
     new_names = [n for n in raw_names if n not in seen_names]
+    if new_names:
+        print(f"{len(new_names)} new liverpdo drug name(s) to fetch: {new_names}")
+    else:
+        print("No new liverpdo drug names to retrieve from PubChem.")
 
-    # Prime temp file with full previous union 
     prime_file = output_drug_data_path.replace(".tsv", "_prime.tsv")
-    # write previous entries (if any) into prime file
-    to_write = prev_df.copy()
-    to_write.to_csv(prime_file, sep="\t", index=False)
+    prev_df.to_csv(prime_file, sep="\t", index=False)
 
-    # Append only new drugs 
     if new_names:
         update_dataframe_and_write_tsv(
             unique_names=new_names,
             output_filename=prime_file
         )
-        print(f"Searched PubChem for {len(new_names)} new liverPDO drugs")
-    else:
-        print("No new liverPDO drugs to retrieve; only prior entries will be kept.")
 
-    # Load back combined (prior + appended) and emit final union 
     combined = pd.read_csv(prime_file, sep="\t")
-    combined.to_csv(output_drug_data_path, sep="\t", index=False)
 
-    # cleanup
+    new_ids = set()
+    if "improve_drug_id" in combined.columns:
+        extracted = (
+            combined["improve_drug_id"]
+            .astype(str)
+            .str.extract(r"SMI_(\d+)", expand=False)
+        )
+        # safe coercion to numeric, invalid become NaN
+        nums = pd.to_numeric(extracted, errors="coerce")
+        if not nums.empty:
+            new_ids = set(
+                combined.loc[nums > max_old, "improve_drug_id"]
+            )
+            print(f"Newly assigned liverpdo improve_drug_id(s): {new_ids}")
+
+    keep_ids = hit_ids.union(new_ids)
+    final_df = pd.DataFrame()
+    if keep_ids:
+        final_df = combined[combined["improve_drug_id"].isin(keep_ids)].copy()
+    else:
+        print("Warning: no liverpdo drugs were retained. Output will be empty.")
+        final_df = pd.DataFrame(columns=combined.columns)
+
+    final_df.to_csv(output_drug_data_path, sep="\t", index=False)
     try:
         os.remove(prime_file)
     except OSError:
         pass
+
 
 
 
