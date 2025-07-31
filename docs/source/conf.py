@@ -5,7 +5,6 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-import coderdata #fixes issues when calling functions in the API reference
 
 project = 'CoderData'
 copyright = '2025, Sara Gosline'
