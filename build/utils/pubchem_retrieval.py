@@ -335,7 +335,7 @@ def update_dataframe_and_write_tsv(unique_names,
     Updates the data frame with drug information and writes it to a TSV file.
 
     New features:
-    - Accepts previous drug file(s) via `prev_drug_filepaths` (comma-separated) to prime existing entries and
+    - Accepts previous drug file(s) via `prev_drug_filepaths` (comma-separated) to temp existing entries and
       continue SMI numbering from the global max across those and the existing output.
     - Only retains drugs relevant to `restrict_to_raw_names` (e.g., liverpdo/bladderpdo raw drug names).
     - Avoids re-querying names/IDs already present in either previous files or existing output.
@@ -421,8 +421,8 @@ def update_dataframe_and_write_tsv(unique_names,
     candidates = set(candidates) - ignore_chem_set
     print(f"{len(candidates)} candidates remain after removing ignored.")
 
-    # --- 4) prime a temp union file with previous union + existing output ---
-    prime_file = output_filename.replace(".tsv", "_prime.tsv")
+    # --- 4) make a temp union file with previous union + existing output ---
+    temp_file = output_filename.replace(".tsv", "_temp.tsv")
     base_dfs = []
     if not prev_union_df.empty:
         base_dfs.append(prev_union_df)
@@ -432,9 +432,9 @@ def update_dataframe_and_write_tsv(unique_names,
         base_union = pd.concat(base_dfs, ignore_index=True).drop_duplicates()
     else:
         base_union = pd.DataFrame()
-    # Write that primed base for appending
+    # Write that tempd base for appending
     if not base_union.empty:
-        with open(prime_file, "w") as f:
+        with open(temp_file, "w") as f:
             header_written = False
             for _, row in base_union.iterrows():
                 if not header_written:
@@ -443,10 +443,10 @@ def update_dataframe_and_write_tsv(unique_names,
                     header_written = True
                 f.write("\t".join(str(row[col]) if pd.notna(row[col]) else "" for col in row.index) + "\n")
     else:
-        # create empty prime file so fetch logic can append headers
-        open(prime_file, "a").close()
+        # create empty temp file so fetch logic can append headers
+        open(temp_file, "a").close()
 
-    # --- 5) fetch new ones in batches and append to prime_file ---
+    # --- 5) fetch new ones in batches and append to temp_file ---
     candidates_list = list(candidates)
     for i in range(0, len(candidates_list), batch_size):
         if not should_continue:
@@ -454,10 +454,10 @@ def update_dataframe_and_write_tsv(unique_names,
         batch = candidates_list[i : i + batch_size]
         data = fetch_data_for_batch(batch, ignore_chems, isname)
         if data:
-            file_exists = os.path.isfile(prime_file)
+            file_exists = os.path.isfile(temp_file)
             mode = "a" if file_exists else "w"
-            with open(prime_file, mode) as f:
-                if os.path.getsize(prime_file) == 0:
+            with open(temp_file, mode) as f:
+                if os.path.getsize(temp_file) == 0:
                     f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tInChIKey\tformula\tweight\n")
                 for entry in data:
                     f.write(
@@ -472,8 +472,8 @@ def update_dataframe_and_write_tsv(unique_names,
                     else:
                         ig_f.write(f"{entry.get('CID', '')}\n")
 
-    # --- 6) load combined prime results ---
-    combined = pd.read_csv(prime_file, sep="\t")
+    # --- 6) load combined temp results ---
+    combined = pd.read_csv(temp_file, sep="\t")
 
     # Determine previous max (before new fetches) to identify newly assigned SMI IDs
     previous_max = desired_start - 1  # desired_start was max(existing_output_max, prev_union_max) + 1
@@ -508,5 +508,12 @@ def update_dataframe_and_write_tsv(unique_names,
 
     # --- 10) write final filtered output ---
     final_df.to_csv(output_filename, sep="\t", index=False)
+
+    if os.path.exists(temp_file):
+        try:
+            os.remove(temp_file)
+        except OSError as e:
+            print(f"Warning: failed to delete temp file {temp_file}: {e}")
+
 
     return final_df

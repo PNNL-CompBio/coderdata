@@ -115,11 +115,19 @@ use_python("/opt/venv/bin/python3", required=TRUE)
 
 # source_python("build/utils/pubchem_retrieval.py")
 source_python("pubchem_retrieval.py")
+
+# prepare prev_drug_filepaths argument for python helper (NULL if none)
+prev_paths <- if (!is.na(olddrugfiles)) olddrugfiles else NULL
 update_dataframe_and_write_tsv(
-  unique_names    = all_drugs,
-  output_filename = newdrugfile,
-  ignore_chems    = ignore_file
+  unique_names           = all_drugs,
+  output_filename        = newdrugfile,
+  ignore_chems           = ignore_file,
+  batch_size             = as.integer(50),
+  isname                 = TRUE,
+  prev_drug_filepaths    = prev_paths,
+  restrict_to_raw_names  = all_drugs
 )
+
 
 # 8) Final filter & save
 tab       <- fread(newdrugfile, sep="\t", header=TRUE)

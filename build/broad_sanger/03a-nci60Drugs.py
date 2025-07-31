@@ -90,7 +90,16 @@ def main():
         arr = set(pubchems['CID'])
         
     print("Querying pubchem from CIDs")
-    pr.update_dataframe_and_write_tsv(arr,opts.output,'/tmp/ignore_chems.txt',batch_size=400,isname=False,time_limit=10*60*60)
+    pr.update_dataframe_and_write_tsv(
+        unique_names=arr,
+        output_filename=opts.output,
+        ignore_chems="/tmp/ignore_chems.txt",
+        batch_size=400,
+        isname=False,
+        time_limit=10*60*60,
+        prev_drug_filepaths=None,
+        restrict_to_raw_names=arr
+    )
     
     ##then make sure to paste `nsc` in front of all nsc idds
     res = pl.read_csv(opts.output,separator='\t')

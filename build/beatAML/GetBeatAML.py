@@ -324,71 +324,36 @@ def create_beataml_drug_data(raw_drug_info_path: str,
                              prev_drug_file: str,
                              output_drug_tsv: str):
     """
-    raw_drug_info_path: path to BeatAML raw inhibitor TSV (has an 'inhibitor' column)
-    prev_drug_file:     existing beataml_drugs.tsv (could be CCLE/NCI60 full file)
-    output_drug_tsv:    where to write only the current‐BeatAML drugs + synonyms
+    Parse current BeatAML drug names and any synonyms and delegate to the
+    PubChem retrieval script, restricting output to only BeatAML drugs.
     """
-    # --- 1) parse current BeatAML drug names + any parens‐synonym ---
     df = pd.read_csv(raw_drug_info_path, sep="\t")
-    df[['chem_name','other_name']] = (
+    df[['chem_name', 'other_name']] = (
         df['inhibitor']
           .str.extract(r'^(.*?)\s*(?:\((.+)\))?$')
           .fillna('')
     )
-    df['chem_name']  = df['chem_name'].str.lower()
+    df['chem_name'] = df['chem_name'].str.lower()
     df['other_name'] = df['other_name'].str.lower()
     raw_names = set(df['chem_name']) | set(df['other_name'].replace('', pd.NA).dropna())
 
-    # --- 2) load full previous file to get max SMI_## and its synonyms for current drugs ---
-    max_old = 0
-    prev_df = pd.DataFrame()
-    if prev_drug_file and os.path.exists(prev_drug_file):
-        prev_df = pd.read_csv(prev_drug_file, sep="\t")
-        # extract numeric part of SMI_#
-        prev_df['SMI_num'] = (
-            prev_df['improve_drug_id']
-                   .str.extract(r'SMI_(\d+)').astype(int)
-        )
-        max_old = int(prev_df['SMI_num'].max())
-    # find which old rows belong to our current BeatAML drugs
-    hit_ids = set()
-    if not prev_df.empty:
-        mask_hit = prev_df['chem_name'].str.lower().isin(raw_names)
-        hit_ids = set(prev_df.loc[mask_hit, 'improve_drug_id'])
-    # we’ll prime with the entire prev_df—so helper’s counter = max_old+1
-    og_file = output_drug_tsv.replace('.tsv','_prime.tsv')
-    prev_df.drop(columns=['SMI_num'], inplace=True)
-    prev_df.to_csv(og_file, sep="\t", index=False)
+    final_df = pr.update_dataframe_and_write_tsv(
+        unique_names=raw_names,
+        output_filename=output_drug_tsv,
+        batch_size=50,
+        isname=True,
+        prev_drug_filepaths=prev_drug_file if prev_drug_file else None,
+        restrict_to_raw_names=raw_names
+    )
 
-    # --- 3) figure out which names we STILL need to fetch ---
-    seen_names = set(prev_df['chem_name'].str.lower())
-    new_names  = [n for n in raw_names if n not in seen_names]
-
-    # --- 4) call helper to append only the new ones under SMI_{max_old+1…} ---
-    if new_names:
-        pr.update_dataframe_and_write_tsv(
-            unique_names=new_names,
-            output_filename=og_file,
-            batch_size=50,
-            ignore_chems="ignore_chems.txt"
-        )
-        print(f"Searched PubChem for {len(new_names)} new BeatAML drugs")
+    if final_df.empty:
+        print("Warning: no BeatAML drugs were retained/fetched.")
     else:
-        print("No new BeatAML drugs to retrieve")
+        unique_ids = set(final_df['improve_drug_id'])
+        print(f"Retained {len(final_df)} rows covering {len(unique_ids)} improve_drug_id(s).")
 
-    # --- 5) load back the primed+appended file, keep only our current drugs’ IDs ---
-    combined = pd.read_csv(og_file, sep="\t")
-    # capture numeric IDs > max_old as “new IDs”
-    nums = combined['improve_drug_id'].str.extract(r'SMI_(\d+)').astype(int)
-    combined['SMI_num'] = nums
-    new_ids = set(combined.loc[combined['SMI_num'] > max_old, 'improve_drug_id'])
+    return final_df
 
-    keep_ids = hit_ids.union(new_ids)
-    final_df = combined[combined['improve_drug_id'].isin(keep_ids)]\
-                   .drop(columns=['SMI_num'])
-
-    final_df.to_csv(output_drug_tsv, sep="\t", index=False)
-    os.remove(og_file)
 
 
 if __name__ == "__main__":
@@ -456,17 +421,19 @@ if __name__ == "__main__":
             print("Previous Samples File Provided. Running BeatAML Sample File Generation")
         #Generate Samples File
         generate_samples_file(args.prevSamples)
-        
+
     if args.drugs:
         if not args.drugFile:
             print("No prior drugFile provided. Results may not align with existing data.")
+            prev = None
         else:
             print("Using existing drugFile:", args.drugFile)
+            prev = args.drugFile
 
         original_drug_file = "beataml_wv1to4_raw_inhibitor_v4_dbgap.txt"
         create_beataml_drug_data(
             raw_drug_info_path=original_drug_file,
-            prev_drug_file=args.drugFile,
+            prev_drug_file=prev,
             output_drug_tsv="/tmp/beataml_drugs.tsv"
         )
 

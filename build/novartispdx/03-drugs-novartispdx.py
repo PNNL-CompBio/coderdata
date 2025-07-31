@@ -3,10 +3,7 @@ import pandas as pd
 import numpy as np
 import argparse
 import os
-# for testing locally
-from pubchem_retrieval import update_dataframe_and_write_tsv
-# for building in docker
-#from pubchem_retrieval import update_dataframe_and_write_tsv
+import pubchem_retrieval as pr
 
 
 def create_novartis_pdx_drugs_file(synObject, prevDrugFilepath, outputPath):
@@ -15,8 +12,6 @@ def create_novartis_pdx_drugs_file(synObject, prevDrugFilepath, outputPath):
     rawDrugData = pd.read_csv(file.path)
     # split on + operator - there are 2- and one 3- way drug combos in this dataset
     sepDrugNames = pd.Series(rawDrugData['Treatment'].unique()).str.split("+", expand=True)
-    
-    
   
     # taking the drug names from the first and second column from the split - there is only one 
     # drug name in the 3rd column (onen 3-way combo) that is replicated in other treatments as well
@@ -26,28 +21,27 @@ def create_novartis_pdx_drugs_file(synObject, prevDrugFilepath, outputPath):
     finalDrugNames = pd.Series(alldrugnames.unique()).str.strip().unique()
     # get unique drugs
     newdrugnames = finalDrugNames[finalDrugNames != 'untreated']
-
-    #print(finalDrugNames.tolist) 
-    #newdrugnames = finalDrugNames.remove('untreated')
-    print(2)
-    print(newdrugnames)
+    
+    raw_names = {str(n).strip() for n in finalDrugNames if str(n).strip().lower() != 'untreated'}
 
 
-    # use helper functions in pubchem_retrieval.py 
-    alldrugs = []
-    if prevDrugFilepath is not None and prevDrugFilepath is not "":
-        prevdrugs = [pd.read_csv(t,sep='\t') for t in prevDrugFilepath.split(',')]
-        alldrugs = pd.concat(prevdrugs).drop_duplicates()
+    print(f"Novartis PDX raw drug names ({len(raw_names)}): {sorted(raw_names)}")
 
-        imps = alldrugs[alldrugs.chem_name.isin(newdrugnames)]
-        newdrugs = alldrugs[alldrugs.improve_drug_id.isin(imps.improve_drug_id)]
-        
-        ##write drugs
-        newdrugs.to_csv(outputPath, sep='\t', index=False)
-
-    if len(alldrugs)==0 or len(newdrugnames)>len(set(newdrugs.improve_drug_id)): #we have more names we didn't match
-        print('Missing drugs in existing file, querying pubchem')
-        update_dataframe_and_write_tsv(newdrugnames,outputPath)
+    # delegate to unified PubChem retrieval, restricting to only these drugs
+    final_df = pr.update_dataframe_and_write_tsv(
+        unique_names=raw_names,
+        output_filename=outputPath,
+        batch_size=50,
+        isname=True,
+        prev_drug_filepaths=prevDrugFilepath if prevDrugFilepath and str(prevDrugFilepath).strip() else None,
+        restrict_to_raw_names=raw_names
+    )
+    
+    if final_df is None or final_df.empty:
+        print("Warning: no Novartis PDX drugs were found.")
+    else:
+        kept_ids = set(final_df.get('improve_drug_id', []))
+        print(f"Retained {len(final_df)} rows across {len(kept_ids)} improve_drug_id(s).")
 
 
 if __name__ == "__main__":

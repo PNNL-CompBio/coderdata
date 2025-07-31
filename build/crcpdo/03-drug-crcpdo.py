@@ -4,7 +4,7 @@ import os
 import math
 import argparse
 import synapseclient 
-from pubchem_retrieval import update_dataframe_and_write_tsv
+import pubchem_retrieval as pr
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -46,22 +46,21 @@ def download_synapse_data(synID:str, save_path:str = None, synToken:str = None):
 def create_crcpdo_drug_data(fitted_drug_data_path:str, prevDrugFilepath:str, output_drug_data_path:str):
     # import fitted drug data and get drug names from DRUG_NAME column
     fitted_drug_df = pd.read_csv(fitted_drug_data_path)
-    crcpdo_drugs_df = pd.DataFrame({"chem_name":fitted_drug_df['DRUG_NAME'].unique()})
-    # if there is a prev drug file, check for new drugs
-    if prevDrugFilepath != "":
-        if prevDrugFilepath.__contains__(".tsv"):
-            prev_drug_df = pd.read_csv(prevDrugFilepath, sep='\t')
-        else:
-            prev_drug_df = pd.read_csv(prevDrugFilepath)
-        # get drugs that are only in the crcpdo_drugs_df (aka new drugs only)
-        new_drugs_df = crcpdo_drugs_df[~crcpdo_drugs_df.chem_name.isin(prev_drug_df.chem_name)]
-    else:
-        # if there's no prev drugs, then all drugs are new
-        new_drugs_df = crcpdo_drugs_df
-    # get new drug names
-    new_drug_names = new_drugs_df['chem_name'].unique()
-    # call function that gets info for these drugs
-    update_dataframe_and_write_tsv(new_drug_names,output_drug_data_path)
+    raw_names = fitted_drug_df['DRUG_NAME'].unique()
+
+    # prepare prev_drug_filepaths argument (None if empty)
+    prev_arg = prevDrugFilepath if prevDrugFilepath and str(prevDrugFilepath).strip() != "" else None
+
+    # call updated helper to fetch/merge and restrict to current CRC PDO drugs
+    final_df = pr.update_dataframe_and_write_tsv(
+        unique_names=raw_names,
+        output_filename=output_drug_data_path,
+        batch_size=50,
+        isname=True,
+        prev_drug_filepaths=prev_arg,
+        restrict_to_raw_names=raw_names
+    )
+    return final_df
 
 
 ############################
@@ -90,10 +89,13 @@ if __name__ == "__main__":
             # download fitted and raw drug data from synapse
             fitted_drug_data_path = download_synapse_data(synID = "syn65452841", save_path = "/tmp/", synToken = args.Token)
     if args.Drug:
-        if args.PrevDrugs is None or args.PrevDrugs=='':
-            print("No previous drugs file provided.  Starting improve_drug_id from SMI_1. Running drug file generation")
-            create_crcpdo_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", output_drug_data_path = "/tmp/crcpdo_drugs.tsv", prevDrugFilepath = "")
+        prev_arg = args.PrevDrugs if args.PrevDrugs else None
+        if not prev_arg:
+            print("No previous drugs file provided. Starting improve_drug_id from SMI_1. Running drug file generation")
         else:
-            print("Previous drugs file {} detected. Running drugs file generation and checking for duplicate IDs.".format(args.PrevDrugs))
-            create_crcpdo_drug_data(fitted_drug_data_path = "/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv", prevDrugFilepath = args.PrevDrugs, output_drug_data_path = "/tmp/crcpdo_drugs.tsv")
-
+            print(f"Previous drugs file {args.PrevDrugs} detected. Running drugs file generation and checking for duplicate IDs.")
+        create_crcpdo_drug_data(
+            fitted_drug_data_path="/tmp/fitted_data_GDSC_Org_restricted_11Mar25.csv",
+            prevDrugFilepath=prev_arg if prev_arg is not None else "",
+            output_drug_data_path="/tmp/crcpdo_drugs.tsv"
+        )
