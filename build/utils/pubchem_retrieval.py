@@ -473,29 +473,41 @@ def update_dataframe_and_write_tsv(unique_names,
                         else:
                             ig_f.write(f"{entry.get('CID', '')}\n")
 
-        # --- 6) load combined prime results and filter to relevant subset ---
+        # --- 6) load combined prime results ---
         combined = pd.read_csv(prime_file, sep="\t")
+
+        # Determine previous max (before new fetches) to identify newly assigned SMI IDs
+        previous_max = desired_start - 1  # desired_start was max(existing_output_max, prev_union_max) + 1
+
+        # --- 7) compute hit improve_drug_id(s) from restrict_set (preserves all synonyms) ---
+        hit_ids = set()
         if isname:
-            keep_mask = combined["chem_name"].astype(str).str.lower().isin(restrict_set)
+            mask_hit = combined["chem_name"].astype(str).str.lower().isin(restrict_set)
+            hit_ids = set(combined.loc[mask_hit, "improve_drug_id"])
         else:
-            keep_mask = combined["pubchem_id"].astype(str).isin(restrict_set)
-        final_df = combined.loc[keep_mask].copy()
+            if "pubchem_id" in combined.columns:
+                mask_hit = combined["pubchem_id"].astype(str).isin(restrict_set)
+                hit_ids = set(combined.loc[mask_hit, "improve_drug_id"])
 
-        if final_df.empty:
+        # --- 8) identify newly assigned improve_drug_id(s) ---
+        new_ids = set()
+        if "improve_drug_id" in combined.columns:
+            extracted_comb = combined["improve_drug_id"].astype(str).str.extract(r"SMI_(\d+)", expand=False)
+            nums_comb = pd.to_numeric(extracted_comb, errors="coerce")
+            if not nums_comb.empty:
+                new_ids = set(combined.loc[nums_comb > previous_max, "improve_drug_id"])
+                if new_ids:
+                    print(f"Newly assigned improve_drug_id(s): {new_ids}")
+
+        # --- 9) union and filter final DataFrame by improve_drug_id(s) ---
+        keep_ids = hit_ids.union(new_ids)
+        if keep_ids:
+            final_df = combined[combined["improve_drug_id"].isin(keep_ids)].copy()
+        else:
             print("Warning: no relevant drugs were retained/fetched for the restriction set.")
+            final_df = pd.DataFrame(columns=combined.columns)
 
-        # --- 7) write final filtered output ---
+        # --- 10) write final filtered output ---
         final_df.to_csv(output_filename, sep="\t", index=False)
 
         return final_df
-
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return pd.DataFrame()
-    finally:
-        signal.alarm(0)
-        try:
-            if "prime_file" in locals():
-                os.remove(prime_file)
-        except OSError:
-            pass
