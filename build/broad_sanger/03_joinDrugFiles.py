@@ -6,7 +6,7 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser(description="Merge drug TSVs, dedupe, and write single output.")
-    parser.add_argument("inputs", nargs="", help="Input TSV file(s) to merge (must share same header).")
+    parser.add_argument("inputs", nargs="+", help="Input TSV file(s) to merge (must share same header).")
     parser.add_argument("-o", "--output", required=True, help="Output TSV path.")
     args = parser.parse_args()
 
