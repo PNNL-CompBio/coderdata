@@ -135,9 +135,11 @@ def retrieve_drug_info(compound, ignore_chems, isname=True):
             print(f'Found structure for {compound}')
             SMI_assignment = existing_structures[properties['SMILES']]
         else:
-            improve_drug_id += 1
+            if improve_drug_id == 0:
+                improve_drug_id = 1
             SMI_assignment = f"SMI_{improve_drug_id}"
             existing_structures[properties['SMILES']] = SMI_assignment
+            improve_drug_id += 1
         
         #print(new_syns)
         data_for_tsv = [{
