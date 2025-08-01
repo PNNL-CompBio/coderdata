@@ -63,6 +63,13 @@ getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','
             if (!is.null(existing_ids)) {
                 chem_list <- setdiff(chem_list, existing_ids$chem_name)
             }
+
+            # testing: only keep first 10 per PSet
+            # -------
+            chem_list <- head(chem_list, 10)
+            print(paste('Testing mode: using', length(chem_list), 'chemicals for dataset', cel))
+            # -------
+
             print(paste('Found',length(chem_list),'chemicals for dataset',cel))
 
 
@@ -78,7 +85,7 @@ getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','
                 unique_names           = chem_list,
                 output_filename        = temp_out,
                 ignore_chems           = ignore_file_path,
-                batch_size             = 50,
+                batch_size             = 50L,
                 isname                 = TRUE,
                 prev_drug_filepaths    = prev_drug_filepaths,
                 restrict_to_raw_names  = chem_list

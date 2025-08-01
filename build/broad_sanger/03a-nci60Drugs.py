@@ -69,8 +69,10 @@ def main():
         os.system('unzip doseresp.zip')
     dose_resp = pl.read_csv("DOSERESP.csv",quote_char='"',infer_schema_length=10000000,ignore_errors=True)
     pubchems = pubchems.filter(pl.col('NSC').is_in(dose_resp['NSC']))
-    smiles = smiles.filter(pl.col("NSC").is_in(dose_resp['NSC']))
+    smiles = smiles.filter(pl.col("NSC").is_in(dose_resp['NSC'])
+                           )
     ##first retreive pubchem data
+    
     if opts.test:
         arr = rand.sample(list(pubchems['CID']),100)
     else:
@@ -94,7 +96,7 @@ def main():
         unique_names=arr,
         output_filename=opts.output,
         ignore_chems="/tmp/ignore_chems.txt",
-        batch_size=400,
+        batch_size=400L,
         isname=False,
         time_limit=10*60*60,
         prev_drug_filepaths=None,

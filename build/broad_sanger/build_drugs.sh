@@ -4,7 +4,7 @@ set -euo pipefail
 trap 'echo "Error on or near line $LINENO while executing: $BASH_COMMAND"; exit 1' ERR
 
 echo "Running 03a-nci60Drugs.py..."
-/opt/venv/bin/python 03a-nci60Drugs.py --output /tmp/nci60_drugs.tsv
+/opt/venv/bin/python 03a-nci60Drugs.py --output /tmp/nci60_drugs.tsv --test
 
 echo "Running 03-createDrugFile.R..."
 Rscript 03-createDrugFile.R CTRPv2,GDSC,gCSI,PRISM,CCLE,FIMM /tmp/nci60_drugs.tsv
