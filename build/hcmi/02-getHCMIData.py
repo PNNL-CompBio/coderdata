@@ -371,7 +371,6 @@ def get_clean_files(data_type):
         
     return all_dataframes
 
-#old
 def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     """
     Map and combine dataframes based on their data type, and merge with provided metadata
@@ -396,67 +395,71 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     pl.DataFrame
         A dataframe containing the combined, mapped, and merged data.
     """
-    
-    # Initialize the list to hold mapped dataframes
-    final_dataframe = pl.DataFrame()  # Initialize an empty DataFrame
-
-    # Load mapping files using Polars
-    genes = pl.read_csv(entrez_map_file)  # Map gene_name to entrez_id
+    genes = pl.read_csv(entrez_map_file)
     valid_entrez = genes["entrez_id"].cast(pl.Int64).unique().to_list()
-    # Process each dataframe based on its data_type
-    while dataframe_list:
-        df = dataframe_list.pop()
-        if data_type == "transcriptomics":
-            mapped_df = df.join(genes, left_on='gene_name', right_on='gene_symbol', how='left')
-            mapped_df = mapped_df.select(['gene_id', 'gene_name', 'gene_type', 'tpm_unstranded', 'entrez_id', 'file_id'])
-            mapped_df = mapped_df.rename({'tpm_unstranded': 'transcriptomics'})
-            mapped_df = mapped_df.with_columns([pl.lit('GDC').alias('source'),
-                                               pl.lit('HCMI').alias('study')])
-            
-        elif data_type == "copy_number":
-            joined_df = df.join(genes, left_on='gene_name', right_on='gene_symbol', how='left')
-            selected_df = joined_df.select(['entrez_id', 'copy_number', 'file_id'])
-            copy_call_series = copy_num(selected_df['copy_number'])
-            mapped_df = selected_df.with_columns([
-                copy_call_series.alias('copy_call'), 
-                pl.lit('GDC').alias('source'),
-                pl.lit('HCMI').alias('study')
-            ])
-            
-        elif data_type == "mutations":
-            mapped_df = df.rename({'Entrez_Gene_Id': 'entrez_id', 'HGVSc': 'mutation'})
-            mapped_df = mapped_df.select(['entrez_id', 'mutation', 'Variant_Classification', 'file_id'])
-            mapped_df = mapped_df.with_columns([pl.lit('GDC').alias('source'),
-                                               pl.lit('HCMI').alias('study')])
-            mapped_df = mapped_df.with_columns([
-                pl.col("entrez_id").cast(pl.Int64),
-                pl.lit('GDC' ).alias('source'),
-                pl.lit('HCMI').alias('study'),
-            ])
-            #drop genes not in genes file.
-            mapped_df = mapped_df.filter(
-                (pl.col("entrez_id") != 0) &
-                pl.col("entrez_id").is_in(valid_entrez)
-            )
-        final_dataframe = pl.concat([final_dataframe, mapped_df])
-        del df, mapped_df
-        gc.collect()
 
-    
-    # Convert the metadata into a DataFrame
+    mapped_frames = []
+
+    for df in dataframe_list:
+        if data_type == "transcriptomics":
+            mapped_df = (
+                df.join(genes, left_on="gene_name", right_on="gene_symbol", how="left")
+                  .select(["gene_id", "gene_name", "gene_type", "tpm_unstranded", "entrez_id", "file_id"])
+                  .rename({"tpm_unstranded": "transcriptomics"})
+                  .with_columns([
+                      pl.lit("GDC").alias("source"),
+                      pl.lit("HCMI").alias("study"),
+                  ])
+            )
+        elif data_type == "copy_number":
+            joined_df = df.join(genes, left_on="gene_name", right_on="gene_symbol", how="left")
+            selected_df = joined_df.select(["entrez_id", "copy_number", "file_id"])
+            copy_call_series = copy_num(selected_df["copy_number"])  
+            mapped_df = selected_df.with_columns([
+                copy_call_series.alias("copy_call"),
+                pl.lit("GDC").alias("source"),
+                pl.lit("HCMI").alias("study"),
+            ])
+        elif data_type == "mutations":
+            mapped_df = (
+                df.rename({"Entrez_Gene_Id": "entrez_id", "HGVSc": "mutation"})
+                  .select(["entrez_id", "mutation", "Variant_Classification", "file_id"])
+                  .with_columns([
+                      pl.col("entrez_id").cast(pl.Int64),
+                      pl.lit("GDC").alias("source"),
+                      pl.lit("HCMI").alias("study"),
+                  ])
+                  .filter(
+                      (pl.col("entrez_id") != 0)
+                      & pl.col("entrez_id").is_in(valid_entrez)
+                  )
+            )
+        else:
+            raise ValueError(f"Unsupported data_type: {data_type!r}")
+
+        mapped_frames.append(mapped_df)
+
+    # Concatenate once, guard empty
+    if mapped_frames:
+        final_dataframe = pl.concat(mapped_frames, how="vertical")
+    else:
+        final_dataframe = pl.DataFrame()
+
+    # Build metadata DataFrame
     metadata_dict = {
-    'file_id': [item['id'] for item in metadata['data']['hits']],
-    'case_id': [item['cases'][0]['case_id'] for item in metadata['data']['hits']],
-    'sample_id': [item['cases'][0]['samples'][0]['sample_id'] for item in metadata['data']['hits']],
-    'aliquot_id': [item['cases'][0]['samples'][0]["portions"][0]["analytes"][0]['aliquots'][0]['aliquot_id'] for item in metadata['data']['hits']]
+        "file_id": [item["id"] for item in metadata["data"]["hits"]],
+        "case_id": [item["cases"][0]["case_id"] for item in metadata["data"]["hits"]],
+        "sample_id": [item["cases"][0]["samples"][0]["sample_id"] for item in metadata["data"]["hits"]],
+        "aliquot_id": [
+            item["cases"][0]["samples"][0]["portions"][0]["analytes"][0]["aliquots"][0]["aliquot_id"]
+            for item in metadata["data"]["hits"]
+        ],
     }
     df_metadata = pl.DataFrame(metadata_dict)
-    
-    # Merge the metadata DataFrame with the final dataframe based on 'file_id'
-    print(df_metadata)
-    print(final_dataframe)
-    final_dataframe = final_dataframe.join(df_metadata, on='file_id', how='left')
-    
+
+    # Merge metadata
+    final_dataframe = final_dataframe.join(df_metadata, on="file_id", how="left")
+
     return final_dataframe
 
 def retrieve_figshare_data(url):
