@@ -96,7 +96,7 @@ def main():
         unique_names=arr,
         output_filename=opts.output,
         ignore_chems="/tmp/ignore_chems.txt",
-        batch_size=400L,
+        batch_size=400,
         isname=False,
         time_limit=10*60*60,
         prev_drug_filepaths=None,
