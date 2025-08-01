@@ -6,7 +6,7 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser(description="Merge drug TSVs, dedupe, and write single output.")
-    parser.add_argument("inputs", nargs="+", help="Input TSV file(s) to merge (must share same header).")
+    parser.add_argument("inputs", nargs="", help="Input TSV file(s) to merge (must share same header).")
     parser.add_argument("-o", "--output", required=True, help="Output TSV path.")
     args = parser.parse_args()
 
@@ -14,16 +14,17 @@ def main():
         print("Need at least one input file.", file=sys.stderr)
         sys.exit(1)
 
-    dfs = []
+    dfs = [] 
     for p in args.inputs:
         if not Path(p).exists():
             print(f"Input file '{p}' does not exist; skipping.", file=sys.stderr)
             continue
         try:
-            df = pl.read_csv(p, sep="\t", ignore_errors=True)
+            df = pl.read_csv(p, separator="\t", ignore_errors=True)
             dfs.append(df)
         except Exception as e:
             print(f"Failed to read '{p}': {e}", file=sys.stderr)
+
 
     if not dfs:
         print("No input dataframes could be read. Exiting.", file=sys.stderr)
