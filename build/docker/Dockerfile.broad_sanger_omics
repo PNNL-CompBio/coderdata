@@ -30,7 +30,17 @@ RUN mkdir -p /app/tmp/matplotlib
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 
-# Add application files.
+# Add requirements files
+ADD build/broad_sanger/requirements.txt .
+ADD build/broad_sanger/omics_requirements.r .
+
+# Install R libraries.
+RUN Rscript omics_requirements.r
+
+# Install Python libraries.
+RUN /opt/venv/bin/pip install -r requirements.txt
+
+# Add these later so caching is already done for the R and Python libraries.
 ADD build/broad_sanger/01-broadSangerSamples.R ./
 ADD build/broad_sanger/02-broadSangerOmics.R ./
 ADD build/broad_sanger/02a-broad_sanger_proteomics.py ./
@@ -40,12 +50,3 @@ ADD build/utils/* ./
 ADD build/broad_sanger/build_misc.sh ./
 ADD build/broad_sanger/05a_remove_problem_drugs.py ./
 ADD build/broad_sanger/05b_separate_datasets.py ./
-
-ADD build/broad_sanger/requirements.txt .
-ADD build/broad_sanger/omics_requirements.r .
-
-# Install R libraries.
-RUN Rscript omics_requirements.r
-
-# Install Python libraries.
-RUN /opt/venv/bin/pip install -r requirements.txt

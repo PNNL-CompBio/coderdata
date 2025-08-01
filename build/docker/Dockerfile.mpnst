@@ -41,14 +41,16 @@ RUN mkdir -p /app/tmp/matplotlib
 # Add necessary files to the container
 ADD build/mpnst/requirements.txt .
 ADD build/mpnst/requirements.r .
-ADD build/mpnst/* ./
-ADD build/utils/* ./
 
 # installing python libraries
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
 # Install all R libraries from requirements.r
 RUN Rscript requirements.r
+
+# Add these later so caching is already done for the R and Python libraries.
+ADD build/mpnst/* ./
+ADD build/utils/* ./
 
 # Set up volume for temporary storage
 VOLUME ["/tmp"]
