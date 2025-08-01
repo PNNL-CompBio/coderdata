@@ -66,7 +66,7 @@ getDepMapDrugData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC','
 
             # testing: only keep first 10 per PSet
             # -------
-            chem_list <- head(chem_list, 10)
+            chem_list <- sample(chem_list, min(10, length(chem_list)))
             print(paste('Testing mode: using', length(chem_list), 'chemicals for dataset', cel))
             # -------
 
