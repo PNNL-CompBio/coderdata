@@ -40,6 +40,7 @@ RUN Rscript exp_requirements.r
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
 # Add these later so caching is already done for the R and Python libraries.
+ADD build/broad_sanger/03_joinDrugFiles.py ./
 ADD build/broad_sanger/03-createDrugFile.R ./
 ADD build/broad_sanger/04a-drugResponseData.R ./
 ADD build/broad_sanger/*py ./
