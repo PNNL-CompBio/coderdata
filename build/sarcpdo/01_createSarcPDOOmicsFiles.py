@@ -49,9 +49,13 @@ def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTabl
     mutationDF = mutationQuery.asDataFrame()
     mutationDF['Sample_ID_Tumor'] = mutationDF['Sample_ID'] + "_Tumor"
     # left join with genes table 
-    mutation_merged = mutationDF.merge(genes, left_on='Gene', right_on='gene_symbol', how='left')
-   # drop null entrez_ids
-    mutation_merged[mutation_merged['entrez_id'].isna()]
+    mutation_merged = mutationDF.merge(genesTable, left_on='Gene', right_on='gene_symbol', how='left')
+   # drop null entrez_ids    
+    missing_entrez = mutation_merged['entrez_id'].isna()
+    if missing_entrez.any():
+        print(f"Dropping {missing_entrez.sum()} rows with missing entrez_id")
+        mutation_merged = mutation_merged.loc[~missing_entrez].copy()
+    
     #split gene name to include portion without exon
     mutation_merged["Name"] = mutation_merged["Name"].str.split("[ \(|]", expand=True)[0]
     # reformat variant classification column to be accepted by linkML and correct
@@ -72,8 +76,8 @@ def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTabl
 
     mutation_merged_select = mutation_merged[['entrez_id', 'Sample_ID_Tumor', 'Name', 'variant_classification']]
     #merge with improve_ids 
-    samples['other_id_no_dash'] = samples['other_id'].str.replace("-2", "_2")
-    mutation_merged_2 = mutation_merged_select.merge(samples, left_on='Sample_ID_Tumor', right_on='other_id_no_dash', how='left')
+    samplesTable['other_id_no_dash'] = samplesTable['other_id'].str.replace("-2", "_2")
+    mutation_merged_2 = mutation_merged_select.merge(samplesTable, left_on='Sample_ID_Tumor', right_on='other_id_no_dash', how='left')
     # select desired columns - entrez_id, improve_sample_id, mutation, variant_classificaton, source, study
     mutation_merged_2['other_id_source'] = "Synapse"
     mutation_merged_2['study'] = "Landscape of Sarcoma"

@@ -50,6 +50,6 @@ if __name__ == "__main__":
     final_experiment.loc[:,['dose_response_metric']] = 'published_auc' 
     final_experiment.loc[:,['dose_response_value']] = final_experiment['Viability_Score'] / 100
 
-    toReturn = final_experiment[['source', 'improve_sample_id', 'improve_drug_id', 'study', 'time', 'time_unit', 'dose_response_metric', 'dose_response_value']]
-
+    toReturn = final_experiment[['source', 'improve_sample_id', 'improve_drug_id', 'study', 'time', 'time_unit', 'dose_response_metric', 'dose_response_value']].dropna()
+    # write to tsv
     toReturn.to_csv('/tmp/sarcpdo_experiments.tsv', sep='\t', index=False)
