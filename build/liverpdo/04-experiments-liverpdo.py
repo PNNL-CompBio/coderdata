@@ -60,9 +60,9 @@ def download_experiments_data(synID:str , save_path:str = None, synToken:str = N
 ### Parse Data Function
 def parse_experiments_excel_sheets(first_file_path, second_file_path):
     # read in the excel files
-    first_exp_excel = pd.ExcelFile(open(first_experiments_path, 'rb'))
+    first_exp_excel = pd.ExcelFile(open(first_file_path, 'rb'))
     first_experiments_dict = pd.read_excel(first_exp_excel, sheet_name=None, header=None)
-    rest_exp_excel = pd.ExcelFile(open(rest_experiments_path, 'rb'))
+    rest_exp_excel = pd.ExcelFile(open(second_file_path, 'rb'))
     rest_experiments_dict = pd.read_excel(rest_exp_excel, sheet_name=None, header=None)
     list_of_exp_excels = [first_experiments_dict,rest_experiments_dict]
     full_df_list = []
@@ -128,7 +128,20 @@ def merge_improve_samples_drugs(experiment_data:pd.DataFrame, samples_data_path:
     all_merged['source'] = "synapse"
     all_merged = all_merged.drop(columns={'drug_id','count', 'sample_name','Catalogue','chem_name','other_id','Drug'})
     all_merged = all_merged.rename(columns={'improve_drug_id':'Drug'})
-    all_merged = all_merged.astype({'improve_sample_id':'int'})
+    
+    # identify rows where improve_sample_id is NaN or non-finite
+    all_merged['improve_sample_id'] = pd.to_numeric(all_merged['improve_sample_id'], errors='coerce')
+    bad_mask = all_merged['improve_sample_id'].isna() | np.isinf(all_merged['improve_sample_id'])
+
+    print(f"Rows before dropping bad improve_sample_id: {len(all_merged)}")
+    if bad_mask.any():
+        print(f"{bad_mask.sum()} rows with missing/non-finite improve_sample_id will be dropped")
+        # drop and report after
+        all_merged = all_merged.loc[~bad_mask].copy()
+        print(f"Rows after dropping: {len(all_merged)}")
+
+    # now safe to cast
+    all_merged['improve_sample_id'] = all_merged['improve_sample_id'].astype(int)
     all_merged = all_merged[['study','time','DOSE','GROWTH','Drug','improve_sample_id','time_unit','source']]
     all_merged = all_merged.dropna() # drop na's bc that will also cause issues in curve fitting
 
