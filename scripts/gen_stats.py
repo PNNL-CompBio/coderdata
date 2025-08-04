@@ -1,22 +1,22 @@
-import coderdata.load.DatasetLoader as cd
+import coderdata as cd
 import yaml
 
 class DatasetStatistics:
     def __init__(self, dataset_type):
-        self.dataset_loader = cd.DatasetLoader(dataset_type)
+        self.data = cd.load(dataset_type)
 
     def count_unique(self, attribute, unique_field):
-        if hasattr(self.dataset_loader, attribute):
-            dataset = getattr(self.dataset_loader, attribute)
+        if getattr(self.data, attribute) is not None:
+            dataset = getattr(self.data, attribute)
             if unique_field in dataset.columns:
                 return len(dataset[unique_field].unique())
         return 0
 
     def count_unique_genes(self):
         gene_ids = set()
-        for data_type in ['transcriptomics', 'proteomics', 'mutations', 'copy_number', 'methylation']:
-            if hasattr(self.dataset_loader, data_type):
-                dataset = getattr(self.dataset_loader, data_type)
+        for data_type in ['transcriptomics', 'proteomics', 'mutations', 'copy_number']:
+            if getattr(self.data, data_type) is not None:
+                dataset = getattr(self.data, data_type)
                 if 'entrez_id' in dataset.columns:
                     gene_ids.update(dataset.entrez_id.unique().tolist())
         return len(gene_ids)
@@ -41,5 +41,5 @@ def calculate_stats_for_datasets(dataset_types):
         yaml.dump(stats, file)
 
 # Dataset types
-dataset_types = ['broad_sanger', 'cptac', 'beataml', 'hcmi','mpnst']
+dataset_types = cd.list_datasets(raw=True).keys()
 calculate_stats_for_datasets(dataset_types)
