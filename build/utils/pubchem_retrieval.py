@@ -205,79 +205,6 @@ def timeout_handler(signum, frame):
     should_continue = False
 
 
-# def update_dataframe_and_write_tsv(unique_names, output_filename="drugs.tsv", ignore_chems="ignore_chems.txt",
-#                                    batch_size=1, isname=True, time_limit=48 * 60 * 60):
-#     """
-#     Updates the data frame with drug information and writes it to a TSV file.
-
-#     Parameters:
-#     - unique_names (iterable): List of unique compound names or CIDs.
-#     - output_filename (str): File path to the output TSV file.
-#     - ignore_chems (str): File path to log ignored compounds.
-#     - batch_size (int): Number of compounds to process in each batch.
-#     - isname (bool): True if unique_names are names, False if they're CIDs.
-#     - time_limit (int): Time limit for the script in seconds. This is a remnant of the GitHub Action CI.
-    
-#     Returns:
-#     - None
-#     """
-#     global should_continue, existing_synonyms, existing_pubchemids
-#     signal.signal(signal.SIGALRM, timeout_handler)
-#     signal.alarm(time_limit)
-#     print(f'Starting with {len(unique_names)} unique drug names/IDs')
-
-#     try:
-#         print(f'Reading existing data from {output_filename}')
-#         read_existing_data(output_filename)
-#         if isname:
-#             unique_names = set([str(name).lower() for name in unique_names if not pd.isna(name)])
-#             unique_names = set(unique_names) - set(existing_synonyms)
-#             print(f'Looking at {len(unique_names)} names')
-#         else:
-#             unique_names = set([str(name) for name in unique_names if not pd.isna(name)])
-#             unique_names = set(unique_names) - set(existing_pubchemids)
-#             print(f'Looking at {len(unique_names)} IDs')
-#         ignore_chem_set = set()
-#         if os.path.exists(ignore_chems):
-#             with open(ignore_chems, 'r') as file:
-#                 for line in file:
-#                     ignore_chem_set.add(line.strip())
-#         unique_names = list(set(unique_names) - ignore_chem_set)
-
-#         print(f"{len(unique_names)} Drugs to search")
-#         for i in range(0, len(unique_names), batch_size):
-#             if not should_continue:
-#                 break
-#             if unique_names[i] in existing_synonyms or unique_names[i] in existing_pubchemids:
-#                 continue
-
-#             batch = unique_names[i:i + batch_size]
-#             data = fetch_data_for_batch(batch, ignore_chems, isname)
-#             if data:
-#                 file_exists = os.path.isfile(output_filename)
-#                 mode = 'a' if file_exists else 'w'
-#                 with open(output_filename, mode) as f:
-#                     if not file_exists:
-#                         f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tInChIKey\tformula\tweight\n")
-#                     for entry in data:
-#                         f.write(f"{entry['improve_drug_id']}\t{entry['name']}\t{entry.get('CID', '')}\t"
-#                                 f"{entry['SMILES']}\t{entry['InChIKey']}\t"
-#                                 f"{entry['MolecularFormula']}\t{entry['MolecularWeight']}\n")
-
-#                 with open(ignore_chems, "a") as ig_f:
-#                     for entry in data:
-#                         if isname:
-#                             ig_f.write(f"{entry['name']}\n")
-#                         else:
-#                             ig_f.write(f"{entry.get('CID', '')}\n")
-
-#     except Exception as e:
-#         print(f"An unexpected error occurred: {e}")
-#     finally:
-#         signal.alarm(0)
-
-
-
 
 
 def _load_prev_drugs_union(prevDrugFilepath: str) -> pd.DataFrame:
@@ -497,8 +424,8 @@ def update_dataframe_and_write_tsv(unique_names,
         nums_comb = pd.to_numeric(extracted_comb, errors="coerce")
         if not nums_comb.empty:
             new_ids = set(combined.loc[nums_comb > previous_max, "improve_drug_id"])
-            if new_ids:
-                print(f"Newly assigned improve_drug_id(s): {new_ids}")
+            # if new_ids:
+            #     print(f"Newly assigned improve_drug_id(s): {new_ids}")
 
     # --- 9) union and filter final DataFrame by improve_drug_id(s) ---
     keep_ids = hit_ids.union(new_ids)

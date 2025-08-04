@@ -76,8 +76,8 @@ def main():
 
     cores = multiprocessing.cpu_count()
     ncors = cores-1
-    print("Running with "+str(ncors)+' out of '+str(cores)+' processors')
-    print('Adding drug table for '+args.drugtable)
+    # print("Running with "+str(ncors)+' out of '+str(cores)+' processors')
+    # print('Adding drug table for '+args.drugtable)
     tab = pd.read_csv(args.drugtable,sep='\t')
 
     cansmiles = [a for a in set(tab.canSMILES) if str(a)!='nan']
@@ -85,8 +85,8 @@ def main():
     morgs = smiles_to_fingerprint(cansmiles)
 
     ids = pd.DataFrame(tab[['improve_drug_id','canSMILES']]).drop_duplicates()
-    print("IDS columns:", ids.columns.tolist())
-    print("MORGS columns:", morgs.columns.tolist())
+    # print("IDS columns:", ids.columns.tolist())
+    # print("MORGS columns:", morgs.columns.tolist())
     id_morg = ids.rename({"canSMILES":'smile'},axis=1).merge(morgs)[['improve_drug_id','structural_descriptor','descriptor_value']]
 
     mords = smiles_to_mordred(cansmiles,nproc=ncors)
@@ -105,8 +105,8 @@ def main():
     full['improve_drug_id'] = full['improve_drug_id'].astype(str).str.strip()
     mask = full['improve_drug_id'].str.match(r'^SMI_\d+$')
     n_dropped = (~mask).sum()
-    if n_dropped:
-        print(f"Dropping {n_dropped} malformed improve_drug_id rows.")
+    # if n_dropped:
+    #     print(f"Dropping {n_dropped} malformed improve_drug_id rows.")
     full = full[mask].copy()
 
 

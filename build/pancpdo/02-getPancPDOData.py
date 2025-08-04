@@ -415,8 +415,8 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     df_metadata = pl.DataFrame(metadata_dict)
     
     # Merge the metadata DataFrame with the final dataframe based on 'file_id'
-    print(df_metadata)
-    print(final_dataframe)
+    # print(df_metadata)
+    # print(final_dataframe)
     final_dataframe = final_dataframe.join(df_metadata, on='file_id', how='left')
     
     return final_dataframe
@@ -540,14 +540,14 @@ def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samp
 
     # Process in chunks
     merged_data = pl.DataFrame()
-    print(f"merged_data:\n {merged_data}")
+    # print(f"merged_data:\n {merged_data}")
     
     for i in range(0, len(data), chunksize):
         chunk = data[i:i + chunksize]
         if data_type == "mutations":
             chunk = chunk.rename({"Variant_Classification": "variant_classification"})
         chunk = chunk.select(selected_columns)
-        print(f"chunk: \n{chunk}")
+        # print(f"chunk: \n{chunk}")
         merged_chunk = samples.join(chunk, left_on='other_names', right_on='aliquot_id', how='inner')
         merged_chunk = merged_chunk.drop(["aliquot_id", "other_names"])
 
