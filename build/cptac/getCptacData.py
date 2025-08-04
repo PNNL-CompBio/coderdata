@@ -129,7 +129,7 @@ def buildTumorSampleTable(sample_names, cancer_type, samples, maxval):
     samples = samples.reset_index(drop=True)
     return samples, maxval
 
-def formatMutData(df, dtype, ctype, samp_names, source, samples):
+def formatMutData(df, dtype, ctype, samp_names, source, genes, samples):
     '''
     Formats mutational data.
     '''
@@ -159,6 +159,10 @@ def formatMutData(df, dtype, ctype, samp_names, source, samples):
         'Mutation': 'mutation'
     })
     blongdf = blongdf[['improve_sample_id', 'entrez_id', 'mutation', 'variant_classification', 'source', 'study']]
+
+    #Ensure that genes that don't map to genes_file are dropped.
+    valid = set(genes['entrez_id'].astype(int))
+    blongdf = blongdf[blongdf.entrez_id.isin(valid)]
     return blongdf
 
 
@@ -288,8 +292,9 @@ def main():
         exit()
         
     # Remove the old values in samples (from prev file)
-    samples.drop(samples.index,inplace=True)
-    
+    if 'other_id_source' in samples.columns:
+        samples = samples[samples['other_id_source'] == 'CPTAC3'].copy()
+        
     # Create new samples
     if build_samples:
         # Loop through the cancer types to build samples
@@ -365,7 +370,7 @@ def main():
                 df.dropna(how='all', axis=0, inplace=True)
                 print(cancertype + ' ' + dtype)
                 if dtype == 'somatic_mutation':
-                    fdf = formatMutData(df, 'mutation', cancertype, tumor_samps, all_sources[dtype], samples)
+                    fdf = formatMutData(df, 'mutation', cancertype, tumor_samps, all_sources[dtype], genes, samples)
                     fdf = fdf.reset_index(drop=True)
                     dtype_key = 'mutations'
                 elif dtype == 'CNV':
@@ -392,6 +397,7 @@ def main():
             print(df.to_string())
             df['entrez_id'] = df['entrez_id'].fillna(0)
             df['entrez_id'] = df['entrez_id'].astype(int)
+            df = df[df.entrez_id != 0]
             df.to_csv("/tmp/" + "cptac_" + dtype_key + '.csv.gz', sep=',', index=False, compression='gzip')
 
 if __name__ == '__main__':

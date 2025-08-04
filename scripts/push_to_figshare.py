@@ -199,7 +199,7 @@ def upload_to_figshare(token, title, directory, project_id, publish, version, ar
             data = yaml.safe_load(f)
         data["figshare"] = f"https://api.figshare.com/v2/articles/{article_id}"
         data["version"] = version
-        with open("tmp/dataset.yml", "w") as f:
+        with open('/tmp/dataset.yml', 'w') as f:
             yaml.safe_dump(data, f, sort_keys=False)       
              
         
@@ -256,7 +256,7 @@ def upload_to_figshare(token, title, directory, project_id, publish, version, ar
         print("Files uploaded successfully but not published.")
         
     if all_files_uploaded:
-        write_figshare_details_to_yaml(article_id, project_id,title, version)
+        write_figshare_details_to_yaml(article_id, project_id, title, version)
 
 def main():
     parser = argparse.ArgumentParser(description='Upload files to Figshare.')

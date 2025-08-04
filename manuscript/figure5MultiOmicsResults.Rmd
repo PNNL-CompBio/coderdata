@@ -1,0 +1,37 @@
+---
+title: "Figure 5 protein comparison"
+output: html_notebook
+---
+
+The last figure is what we want to do to compare multiple omics measurements
+
+```{r}
+knitr::opts_chunk$set(echo  =  TRUE)
+library(tidyverse)
+library(ggplot2)
+source('coderdataResultsFunctions.R')
+
+```
+
+
+
+Now we can evaluate the proteomics data across models
+```{r get data}
+  pres = getProteomicsData()
+
+```
+
+## Figure 5A
+
+
+```{r}
+metrics <- c('scc','pcc')
+exres = lapply(metrics,function(x) {
+  res<-ridgelineMetricPlots(x, pres,'cellline')
+  cowplot::plot_grid(res$src,res$trg)
+  ggsave(paste0('proteomics',x,'_ridglines.pdf'),height = 8,width = 10)
+  return(res$src)
+  })
+
+print(exres)
+```

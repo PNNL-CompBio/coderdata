@@ -41,11 +41,15 @@ def process_docker(dataset,validate):
         'hcmi': ['hcmi'],
         'beataml': ['beataml'],
         'mpnst': ['mpnst'],
-        'mpnstpdx': ['mpnstpdx'],
         'pancpdo': ['pancpdo'],
         'cptac': ['cptac'],
+        'sarcpdo': ['sarcpdo'],
         'genes': ['genes'],
-        'upload': ['upload']
+        'upload': ['upload'],
+        'crcpdo': ['crcpdo'], 
+        'bladderpdo': ['bladderpdo'],
+        'liverpdo': ['liverpdo'],
+        'novartispdx': ['novartispdx']
     }
 
     # Collect container names to build based on the dataset provided. Always build 'genes'.
@@ -56,7 +60,7 @@ def process_docker(dataset,validate):
         
     datasets_to_build.extend(dataset_map.get(dataset, []))
 
-    compose_command = ['docker','compose', '-f', compose_file, 'build'] + datasets_to_build
+    compose_command = ['docker', 'compose', '-f', compose_file, 'build'] + datasets_to_build
 
     log_file_path = 'local/docker.log'
     env = os.environ.copy()
@@ -124,8 +128,12 @@ def process_omics(executor, dataset, should_continue):
         'broad_sanger': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'cptac': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'hcmi': ['mutations', 'transcriptomics'],
+        'sarcpdo': ['mutations', 'transcriptomics'],
         'pancpdo': ['transcriptomics'],
-        'mpnstpdx':['copy_number', 'mutations', 'proteomics', 'transcriptomics']
+        'bladderpdo': ['copy_number', 'mutations', 'transcriptomics'],
+        'crcpdo':['copy_number', 'mutations', 'transcriptomics'],
+        'novartispdx':['copy_number', 'mutations', 'transcriptomics'],
+        'liverpdo':['copy_number', 'mutations', 'transcriptomics']
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])

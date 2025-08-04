@@ -402,7 +402,7 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
 
     # Load mapping files using Polars
     genes = pl.read_csv(entrez_map_file)  # Map gene_name to entrez_id
-
+    valid_entrez = genes["entrez_id"].cast(pl.Int64).unique().to_list()
     # Process each dataframe based on its data_type
     while dataframe_list:
         df = dataframe_list.pop()
@@ -428,8 +428,16 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
             mapped_df = mapped_df.select(['entrez_id', 'mutation', 'Variant_Classification', 'file_id'])
             mapped_df = mapped_df.with_columns([pl.lit('GDC').alias('source'),
                                                pl.lit('HCMI').alias('study')])
-            mapped_df = mapped_df.with_columns(mapped_df["entrez_id"].cast(str))
-
+            mapped_df = mapped_df.with_columns([
+                pl.col("entrez_id").cast(pl.Int64),
+                pl.lit('GDC' ).alias('source'),
+                pl.lit('HCMI').alias('study'),
+            ])
+            #drop genes not in genes file.
+            mapped_df = mapped_df.filter(
+                (pl.col("entrez_id") != 0) &
+                pl.col("entrez_id").is_in(valid_entrez)
+            )
         final_dataframe = pl.concat([final_dataframe, mapped_df])
         del df, mapped_df
         gc.collect()
@@ -605,10 +613,13 @@ def write_dataframe_to_csv(dataframe, outname):
     -------
     None
     """
+    dataframe = dataframe.to_pandas()
+    dataframe = dataframe.drop_duplicates()
+
     if('gz' in outname):
-        dataframe.to_pandas().to_csv(outname,compression='gzip',index=False)
+        dataframe.to_csv(outname,compression='gzip',index=False)
     else:
-        dataframe.to_pandas().to_csv(outname,index=False)
+        dataframe.to_csv(outname,index=False)
     return
 
 def main():

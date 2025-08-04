@@ -405,6 +405,7 @@ depmap_files<-function(fi,value){
 
         res<-exp_file|>
           mutate(entrez_id=as.numeric(EntrezGeneID))|>
+            filter(entrez_id %in% genes$entrez_id) |>
             left_join(as.data.frame(depmap_vtab))
 
               ##now many variants are missing???
@@ -442,7 +443,8 @@ depmap_files<-function(fi,value){
         print("wide to long")
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
                                   names_to='gene_entrez',values_to='transcriptomics',
-                                  values_transform=list(expression=as.numeric))
+                                  values_transform=list(transcriptomics=as.numeric))|>
+                                  dplyr::mutate(transcriptomics = 2^transcriptomics - 1)
         colnames(res)[1]<-'other_id'
 
         print('fixing gene names')
@@ -566,8 +568,11 @@ main<-function(){
     lapply(alltypes,function(dt){
         print(dt)
         temps<-sanger_files(sanger_filenames[[dt]],dt)|>tidyr::drop_na()
+        readr::write_csv(temps,file=paste0('/tmp/sanger_',dt,'.csv.gz'))
         tempd<-depmap_files(depmap_filenames[[dt]],dt)|>tidyr::drop_na()
-        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv.gz'))
+        readr::write_csv(tempd,file=paste0('/tmp/broad_',dt,'.csv.gz'))
+
+#        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv.gz'))
         rm(tempd)
         rm(temps)
     })
@@ -575,3 +580,4 @@ main<-function(){
 }
 
 main()
+

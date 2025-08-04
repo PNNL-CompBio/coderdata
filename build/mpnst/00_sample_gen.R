@@ -1,5 +1,4 @@
-# This script generate a new sample table based on pervious beatAML improved sample ID
-# It will take the maximum value of beatAML improved sample ID and continue from ID count from there
+# This script generate a new sample table based on previous dataset's sample file (taking the max improve_sample_id)
 # Load required libraries
 library(data.table)
 library(synapser)
@@ -11,13 +10,11 @@ if(length(args) > 1 ){
     stop("Up to one argument is allowed. This is the filepath to the previously run samples file.")
 }
 
-
 if (length(args) == 0 || is.na(args[1]) || args[1] == "" || !file.exists(args[1])) {
     orig_samples <- ""
 } else {
     orig_samples <- fread(args[1])
 }
-
 
 # Check if Synapse token is available from the environment
 synapse_token <- Sys.getenv("SYNAPSE_AUTH_TOKEN")
@@ -28,6 +25,10 @@ if (synapse_token == "") {
 synapser::synLogin(authToken=synapse_token)
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
                                                              as.data.frame()
+
+#Drop contaminated sample JH-2-009
+manifest <- manifest %>% 
+  filter(Sample != "JH-2-009")
 
 
 ###sample file has a strict schema
@@ -55,15 +56,12 @@ sampTable<-manifest|>
 
 ##third, generate a sample for the MTs if they were generated
 pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
-pdxmt$model_type=rep('organoid',nrow(pdxmt))
+pdxmt$model_type=rep('xenograft derived organoid',nrow(pdxmt))
 print(pdxmt)
 
 main<-rbind(sampTable,pdxmt)|>
     dplyr::select(-MicroTissueDrugFolder)|>
     rbind(tumorTable)
-
-#main <- fread("mpnst/NF_MPNST_samples.csv")
-#previous_aml <- fread(args[1])#"beatAML/beataml_samples.csv")
 
 # If there is no previous samples file - start at 1, else, continue where the previous one left off.
 if (identical(orig_samples, "")) {
@@ -72,21 +70,6 @@ if (identical(orig_samples, "")) {
     max_id <- max(orig_samples$improve_sample_id, na.rm = TRUE)
 }
 
-
 main$improve_sample_id <- seq(from = max_id + 1, length.out = nrow(main))
 
-#synapse_main <- fread("mpnst/synapse_NF-MPNST_samples.csv")
-# Step 1: Create a dictionary from 'main'
-#id_dict <- setNames(main$improve_sample_id, main$other_id)
-
-# Step 2: Update 'ID' in 'synapse_main'
-#synapse_main$ID <- id_dict[synapse_main$Sample]
-
-# Handling NA values if any mismatch occurs (Optional based on your data integrity)
-# If there are NAs generated, you might need to check for unmatched keys
-# synapse_main$ID[is.na(synapse_main$ID)] <- -1  # Assign a placeholder like -1 for unmatched rows
-
-# Step 3: Save the updated 'synapse_main'
-#fwrite(synapse_main, "mpnst/synapse_NF-MPNST_samples.csv")
-#fwrite(main, "mpnst/NF_MPNST_samples.csv") # updated sample file
 fwrite(main,'/tmp/mpnst_samples.csv')

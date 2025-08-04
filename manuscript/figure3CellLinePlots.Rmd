@@ -1,0 +1,244 @@
+---
+title: "IMPROVE cell line results"
+author: "Sara Gosline and Yannick Mahlich"
+date: "2025-03-27"
+output: html_document
+---
+
+This document focuses on results we can glean from the cell line specific analysis using the IMPROVE framework and coderdata
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo  =  TRUE)
+library(tidyverse)
+library(ggplot2)
+source('coderdataResultsFunctions.R')
+
+```
+
+## Collect cross-model performance data and try out plotting
+Currently the cross-model data results have been uploaded to synapse. Please request access on the [synapse team site](https://www.synapse.org/Team:3545388). 
+
+```{r data, message=FALSE, echo=FALSE, warning=FALSE} 
+  cdres <- getModelPerformanceData()
+
+  metrics <- c('pcc','scc')
+  res <- lapply(metrics,function(x) {
+    res <- ridgelineMetricPlots(x,cdres)
+    cowplot::plot_grid(res$src,res$trg)
+    ggsave(paste0('all_',x,'_ridglines.pdf'),height = 12,width = 10)
+    return(res$src)
+})
+
+print(res)
+
+```
+
+## Figure 3A: performance on cell lines
+
+First result: evaluation on cell lines.
+
+```{r model performance, message = FALSE, warning = FALSE}
+#current list of ex vivo datasets. include liverpdo when complete
+
+
+ccdres <- subset(cdres,!trg %in% exvivo)
+
+ccres = lapply(metrics,function(x) {
+  res <- ridgelineMetricPlots(x, ccdres)
+  cowplot::plot_grid(res$src,res$trg)
+  ggsave(paste0('celllines',x,'_ridglines.pdf'),height = 8,width = 10)
+  return(res$src)
+})  
+
+print(ccres)
+
+```
+
+## Figure 3B - training/test set size
+
+## Compare dataset size to performance
+
+We wonder if the dataset size affects the predictive power.
+
+```{r dataset size}
+
+plot <- calcSourceStatistics('scc',ccdres)
+
+ggsave('cellLineSamplePerformanceCorrelation.pdf', plot,height=12,width=5)
+
+```
+
+
+# Dataset prediction parsing
+Now we have to go into the individual predidictions to pull out trends
+
+## Figure 3C - AUC Study 
+
+First we can compare actual AUCs to predictive power. Does true AUC correlate with how well an algorithm works?
+
+### Multipanel correlation plots for CCLE predictions
+
+First we evaluate how this hypothesis bears out in CCLE predictions.
+
+Full model predictions are stored on synapse as parquet files. Individual
+datasets can be downloaded via `getModelPredictionData` in
+`coderdataResultsFunctions.R` (sources during the setup process).
+
+```{r}
+tgt = 'ccle'
+
+all_preds <- do.call(
+  rbind,
+  lapply(
+    models,
+    function(mdl) getModelPredictionData(dset = mdl) |>
+      dplyr::filter(target == tgt & source != tgt & source != 'beataml' & source != 'mpnst') |>
+      #dplyr::filter(source != tgt & source != 'beataml' & source != 'mpnst') |>
+      collect()
+    )
+  )
+```
+
+
+```{r}
+plot_panel <- function(data, title){
+  data <- sample_n(data, 10000)
+  plot <- (
+    ggplot(data, aes(x=auc_pred, y=auc_true))
+    + geom_point()
+    + geom_smooth(method=lm)
+    + facet_grid(source ~ model)
+    + ggtitle(title)
+    # + xlim(0, 1)
+    # + ylim(0, 1.25)
+  )
+}
+```
+
+We add more statistics to the data here
+
+```{r}
+all_preds <- all_preds |> 
+  mutate(auc_ranges = cut(auc_true, c(-Inf, 0.25, 0.75, Inf), labels = c('auc_true <= 0.25', '0.25 < auc_true <= 0.75', 'auc_true > 0.75'))) |>
+  mutate(diff = abs(auc_true - auc_pred)) |>
+  mutate(norm_diff = diff/auc_true)
+
+```
+
+
+
+```{r}
+ranges <- list('auc_true <= 0.25', '0.25 < auc_true <= 0.75', 'auc_true > 0.75')
+plots <- lapply(ranges, function(auc_range){
+  data <- all_preds |> filter(auc_ranges == auc_range) |> collect()
+  plot_panel(data, auc_range)
+})
+plot <- arrangeGrob(grobs = plots, ncol = 3)
+ggsave('ccle_auc_plot.pdf', plot, dpi=300, width=30, height=10)
+
+ggplot(all_preds,aes(x=diff,fill=model))+geom_histogram()+facet_grid(source~auc_ranges)+scale_y_log10()+scale_fill_manual(values=modelcolors)
+
+```
+
+### Summarize error and plot across all data
+
+This is still too much data, since it only represents CCLE preditions, let's try to compute summaries independently and visualize those
+
+```{r summaries}
+
+all_stats <- do.call(
+  rbind,
+  lapply(
+    models,
+    function(mdl) getModelPredictionData(dset = mdl) |>
+      dplyr::select(auc_true,auc_pred,source,target,model) |> ##remove columsn to consume less memory
+      dplyr::filter(!target %in% c('beataml','sarcpdo','pancpdo','mpnst','bladderpdo')) |>
+      dplyr::filter(source != 'beataml' & source != 'mpnst') |>
+      dplyr::filter(source != target) |>
+      collect() |>
+      mutate(diff = abs(auc_true - auc_pred)) |>
+      mutate(auc_ranges = cut(auc_true, c(-Inf, 0.25, 0.75, Inf),
+                              labels = c('auc_true <= 0.25', '0.25 < auc_true <= 0.75', 'auc_true > 0.75'))) |>
+      group_by(source, target, auc_ranges,model) |>
+      summarize(`Median Difference` = median(diff))
+    ))
+
+ggplot(all_stats,aes(x = `Median Difference`,fill = model)) + geom_histogram() + facet_grid(~auc_ranges)+scale_y_log10()+scale_fill_manual(values=modelcolors)
+
+ggsave('medianDifferenceCellLine.pdf')
+
+all_stats |>
+  ggplot(aes(x = auc_ranges,y = `Median Difference`,fill = model)) + 
+  geom_bar(position = 'dodge',stat = 'identity') + 
+  facet_grid(target~source) + 
+  coord_flip() + 
+  scale_fill_manual(values = modelcolors)
+ggsave('medianDifferenceCellLine_byDataset.pdf')
+
+
+```
+
+
+## Figure 3D - Drug panel
+
+Now let's look across different drugs. Filter by drugs that show up in all models/datasets and then evaluate which perform best/worst.
+
+```{r drugs}
+drug_meds <- do.call(
+  rbind,
+  lapply(
+    models,
+    function(mdl) getModelPredictionData(dset = mdl) |>
+      dplyr::select(auc_true,auc_pred,improve_chem_id,source,target,model) |> ##remove columsn to consume less memory
+      dplyr::filter(source != 'beataml' & source != 'mpnst') |>
+      dplyr::filter(source != target)|>
+      dplyr::filter(!target %in% c('beataml','sarcpdo','pancpdo','mpnst','bladderpdo')) |>
+      #dplyr::filter(source != tgt & source != 'beataml' & source != 'mpnst') |>
+      collect() |>
+      mutate(diff = abs(auc_true - auc_pred)) |>
+      mutate(norm_diff = diff/auc_true) |>
+      group_by(source, target, improve_chem_id, model) |>
+      summarize(`Median Difference` = median(diff))
+    )
+  )
+
+drug_aucs <- do.call(
+  rbind,
+  lapply(
+    models,
+    function(mdl) getModelPredictionData(dset = mdl) |>
+      dplyr::select(auc_true,improve_chem_id,source,target) |> ##remove columsn to consume less memory
+      dplyr::filter(source != 'beataml' & source != 'mpnst') |>
+      dplyr::filter(!target %in% c('beataml','sarcpdo','pancpdo','mpnst','bladderpdo')) |>
+      #dplyr::filter(source != tgt & source != 'beataml' & source != 'mpnst') |>
+      collect() |>
+      distinct()
+    )
+  )
+
+
+
+
+##further filter the drugs to only includet hose that show up in all datasets
+dcounts <- drug_aucs|>group_by(source,target)|>summarize(drugs=n_distinct(improve_chem_id))|>arrange(drugs)
+
+print(dcounts)
+##there are 23 drugs thats how up in all datasets
+mindrugs <- drug_aucs |>
+  subset(source == 'ccle') |>
+  subset(target == 'ccle') |>
+  ungroup() |>
+  select(improve_chem_id) |>
+  distinct()
+
+diff <- drug_meds |>
+       subset(improve_chem_id %in% mindrugs$improve_chem_id)|>
+       ggplot(aes(x=reorder(improve_chem_id,`Median Difference`),y=`Median Difference`,fill=model))+geom_boxplot()+scale_fill_manual(values=modelcolors) +
+  coord_flip()
+
+ggsave('diffBySharedDrugs.pdf',diff)
+
+
+```
+
+
+
