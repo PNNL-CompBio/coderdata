@@ -23,14 +23,13 @@ def plot_2d_respones_metric(
         **kwargs: dict
     ) -> None:
 
-    data_plot = prepare_2d_hist_data(
-        data=data,
-        metric1=metric1,
-        metric2=metric2,
+    data_plot = _prepare_2d_hist_data(
+        data=data.experiments,
+        metrics = [metric1, metric2],
         )
     
-    joint_bins = kwargs.get('joint_bins', default=50)
-    marginal_bins = kwargs.get('marginal_bins', default=50)
+    joint_bins = kwargs.get('joint_bins', 50)
+    marginal_bins = kwargs.get('marginal_bins', 50)
 
     sns.jointplot(
         data=data_plot,
@@ -318,7 +317,7 @@ def _filter(
     return data_ret
 
 
-def prepare_2d_hist_data(
+def _prepare_2d_hist_data(
         data: pd.DataFrame,
         metrics: list[str]=[
             "aac", "auc", "dss",
