@@ -2,11 +2,37 @@ import pandas as pd
 import argparse
 from zipfile import ZipFile
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+
+def robust_download(url, dest_path, max_retries=5):
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=max_retries,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods={"GET", "HEAD"},
+        raise_on_status=False,
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+
+    try:
+        with session.get(url, stream=True, timeout=(5, 60)) as r:
+            r.raise_for_status()
+            with open(dest_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=1024 * 1024):
+                    if chunk:  # filter out keep-alive chunks
+                        f.write(chunk)
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Failed to download {url}: {e}") from e
+
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--sample',dest='samplefile',default=None,help='DepMap sample file')
-    parser.add_argument('--gene',dest='genefile',default=None,help='DepMap sample file')
+    parser.add_argument('--sample', dest='samplefile', default=None, help='DepMap sample file')
+    parser.add_argument('--gene', dest='genefile', default=None, help='Gene file')
 
     opts = parser.parse_args()
 
@@ -53,15 +79,27 @@ def main():
     full.to_csv('/tmp/broad_proteomics.csv.gz', index=False, compression='gzip')
 
 
+    #old download, (was failing too much)
+    # sanger_protfile='https://cog.sanger.ac.uk/cmp/download/Proteomics_20221214.zip'
+    # r = requests.get(sanger_protfile)
+    # sanger_loc ='/tmp/sp.zip'
+    # open(sanger_loc , 'wb').write(r.content)
+    # zf = ZipFile(sanger_loc,'r')
+    # zf.extractall(path='/tmp/')
+    # pdat = pd.read_csv('/tmp/Protein_matrix_averaged_zscore_20221214.tsv',sep='\t',skiprows=[0])
+    
     ##now get sanger
-    sanger_protfile='https://cog.sanger.ac.uk/cmp/download/Proteomics_20221214.zip'
-    r = requests.get(sanger_protfile)
-    sanger_loc ='/tmp/sp.zip'
-    open(sanger_loc , 'wb').write(r.content)
-
-    zf = ZipFile(sanger_loc,'r')
-    zf.extractall(path='/tmp/')
-    pdat = pd.read_csv('/tmp/Protein_matrix_averaged_zscore_20221214.tsv',sep='\t',skiprows=[0])
+    sanger_protfile = "https://cog.sanger.ac.uk/cmp/download/Proteomics_20221214.zip"
+    sanger_loc = "/tmp/sp.zip"
+    robust_download(sanger_protfile, sanger_loc)
+    with ZipFile(sanger_loc, "r") as zf:
+        zf.extractall(path="/tmp/")
+    pdat = pd.read_csv(
+        "/tmp/Protein_matrix_averaged_zscore_20221214.tsv",
+        sep="\t",
+        skiprows=[0],
+    )
+    
     vv=pdat.columns[2:]
     plong = pd.melt(pdat,id_vars='symbol',value_vars=vv)
     pres = plong.rename({'symbol':'other_names','variable':'gene_symbol','value':'proteomics'},axis=1)

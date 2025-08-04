@@ -5,8 +5,45 @@ library(readr)
 library(tidyr)
 library(dplyr)
 library(rio)
+library(httr2)
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
+
+
+# Robust download with retry and optional content-length validation
+robust_download_httr2 <- function(url, dest, max_tries = 5, timeout_secs = 120) {
+  req <- request(url) |>
+    req_timeout(timeout_secs) |>
+    req_retry(max_tries = max_tries, retry_on_failure = TRUE)
+
+  resp <- req |> req_perform(path = dest)  # streams to dest; errors on 4xx/5xx automatically
+
+  # Validate content length if provided
+  hdrs <- resp |> resp_headers()
+  if (!is.null(hdrs$`content-length`)) {
+    expected <- as.numeric(hdrs$`content-length`)
+    actual <- file.info(dest)$size
+    if (is.na(actual) || actual != expected) {
+      stop(sprintf("Incomplete download for %s: expected %d bytes but got %d", url, expected, actual))
+    }
+  }
+
+  invisible(dest)
+}
+
+# Helper to download a ZIP and extract it safely
+download_and_extract_zip_httr2 <- function(url, dest_zip, extract_dir, max_tries = 5, timeout_secs = 120) {
+  robust_download_httr2(url, dest_zip, max_tries = max_tries, timeout_secs = timeout_secs)
+  if (!file.exists(dest_zip)) stop(sprintf("Download failed, %s missing", dest_zip))
+  tryCatch({
+    utils::unzip(dest_zip, exdir = extract_dir)
+  }, error = function(e) {
+    file.remove(dest_zip)
+    stop(sprintf("Failed to unzip %s: %s", dest_zip, e$message))
+  })
+}
+
+
 
 ##### DEPMAP FILES
 
@@ -79,8 +116,11 @@ sanger_files<-function(fi,value){
     ##and mapping to get it into a unified 3 column schema
     if(value=='copy_number'){
       #read in file
-      exp_file <- readr::read_csv(fi) ##already in long form <3 <3 <3
-      file.remove(fi)
+      local_cn <- file.path(tempdir(), "sanger_copy_number.csv.gz")
+      robust_download_httr2(fi, local_cn)
+      exp_file <- readr::read_csv(local_cn)
+      # exp_file <- readr::read_csv(fi) ##already in long form <3 <3 <3
+      # file.remove(fi)
       smap<-sanger_samples|>
           subset(other_id_source=='Sanger')|>
           subset(other_id%in%exp_file$model_id)|>
@@ -149,17 +189,22 @@ sanger_files<-function(fi,value){
 
 
     }else if(value=='mutations'){ ####IF DATA REPRESENTS MUTATIONS#####
-      res=download.file(fi,'/tmp/tmp.zip')
-      filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
-      fi= "/tmp/mutations_all_20230202.csv"
-      if(file.exists("/tmp/tmp.zip"))
-          file.remove('/tmp/tmp.zip')
+      # res=download.file(fi,'/tmp/tmp.zip')
+      # filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
+      # fi= "/tmp/mutations_all_20230202.csv"
+      zip_path <- file.path(tempdir(), "sanger_mutations_20230202.zip")
+      download_and_extract_zip_httr2(fi, zip_path, "/tmp")
+      csv_path <- file.path("/tmp", "mutations_all_20230202.csv")
+      if (!file.exists(csv_path)) stop("Expected mutations CSV not found after unzip")
 
-      exp_file <- readr::read_csv(fi)|>
-        dplyr::select(gene_symbol,other_id='model_id',effect,mutation='cdna_mutation',source)|>
-          distinct()
-      if(file.exists(fi))
-          file.remove(fi)
+    
+      exp_file <- readr::read_csv(csv_path) |>
+        dplyr::select(gene_symbol, other_id = 'model_id', effect, mutation = 'cdna_mutation', source) |>
+        distinct()
+
+
+      file.remove(csv_path)
+      if (file.exists(zip_path)) file.remove(zip_path)
 
       smap<-sanger_samples|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
@@ -193,12 +238,14 @@ sanger_files<-function(fi,value){
       print(head(res))
       return(res)
     }else if(value=='transcriptomics'){ #if gene expression
-      res=download.file(fi,'/tmp/tmp.zip')
-      filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
-      fi= "/tmp/rnaseq_tpm_20220624.csv"
-      if(file.exists("/tmp/tmp.zip"))
-         file.remove('/tmp/tmp.zip')
-         exp_file <- readr::read_csv(fi)
+      # res=download.file(fi,'/tmp/tmp.zip')
+      # filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
+
+      zip_path <- "/tmp/rnaseq_all_20220624.zip"
+      download_and_extract_zip_httr2(fi, zip_path, "/tmp")
+      csv_path <- file.path("/tmp", "rnaseq_tpm_20220624.csv")
+      if (!file.exists(csv_path)) stop("Expected transcriptomics CSV not found after unzip")
+      exp_file <- readr::read_csv(csv_path)
 
       ##the rows have metadata
       samps<-t(exp_file[1:3,])
@@ -238,7 +285,11 @@ sanger_files<-function(fi,value){
       full<-res|>
         left_join(smap)
       rm(res)
-      file.remove(fi)
+
+      file.remove(csv_path)
+      if (file.exists(zip_path)) file.remove(zip_path)
+
+
     }else if(value=='miRNA'){ #if mirna expression
       exp_file <- readr::read_csv(fi)
 
@@ -279,13 +330,20 @@ sanger_files<-function(fi,value){
       full<-res
 
     }else if(value=='proteomics'){
-      res=download.file(fi,'/tmp/tmp.zip')
-      filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
+      # res=download.file(fi,'/tmp/tmp.zip')
+      # filist<-unzip('/tmp/tmp.zip',exdir='/tmp')
 
-      fi='/tmp/Protein_matrix_averaged_zscore_20221214.tsv'
-      exp_file <- readr::read_tsv(fi,skip=1)[-1,-1]
+      zip_path <- "/tmp/Proteomics_20221214.zip"
+      download_and_extract_zip_httr2(fi, zip_path, "/tmp")
+      tsv_path <- file.path("/tmp", "Protein_matrix_averaged_zscore_20221214.tsv")
+      if (!file.exists(tsv_path)) stop("Expected proteomics TSV not found after unzip")
+
+      exp_file <- readr::read_tsv(tsv_path,skip=1)[-1,-1]
       colnames(exp_file)[1]<-'other_id'
-      file.remove(fi)
+
+      file.remove(tsv_path)
+      if (file.exists(zip_path)) file.remove(zip_path)
+
       smap<-sanger_samples|>
         dplyr::select(improve_sample_id,other_id)|>distinct()
 
@@ -339,7 +397,11 @@ depmap_files<-function(fi,value){
     ##now every data type is parsed slightly differently, so we need to change our formatting
     ##and mapping to get it into a unified 3 column schema
     if(value=='copy_number'){
-      exp_file <- readr::read_csv(fi)
+      # exp_file <- readr::read_csv(fi)
+      local_path <- "/tmp/depmap_copy_number.csv.gz"
+      robust_download_httr2(fi, local_path)
+      exp_file <- readr::read_csv(local_path)
+
 
       print('Long to wide')
       res = exp_file|>
@@ -399,7 +461,11 @@ depmap_files<-function(fi,value){
 
 
       }else if(value=='mutations'){ ####IF DATA REPRESENTS MUTATIONS#####
-        exp_file <- readr::read_csv(fi)|>
+
+        local_mut <- file.path(tempdir(), "depmap_mutations.csv.gz")
+        robust_download_httr2(fi, local_mut)
+
+        exp_file <- readr::read_csv(local_mut)|>
           dplyr::select(EntrezGeneID,HgncName,other_id='ModelID',VariantInfo,mutation='DNAChange')|>
           distinct()
 
@@ -439,7 +505,11 @@ depmap_files<-function(fi,value){
         print(head(full))
         return(full)
       }else if(value=='transcriptomics'){ #if gene expression
-        exp_file <- readr::read_csv(fi)
+        # exp_file <- readr::read_csv(fi)
+        local_tx <- file.path(tempdir(), "depmap_transcriptomics.csv.gz")
+        robust_download_httr2(fi, local_tx)
+        exp_file <- readr::read_csv(local_tx)
+
         print("wide to long")
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
                                   names_to='gene_entrez',values_to='transcriptomics',

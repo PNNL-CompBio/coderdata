@@ -13,3 +13,4 @@ rdkit
 coderdata==0.1.40
 psutil
 polars
+urllib3

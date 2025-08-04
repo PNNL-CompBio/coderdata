@@ -1,3 +1,4 @@
 pandas
 numpy
 requests
+urllib3
