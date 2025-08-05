@@ -38,17 +38,18 @@ WORKDIR /app
 ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
-# Add necessary files to the container
-ADD build/mpnstpdx/requirements.txt .
+# Install all R libraries from requirements.r
 ADD build/mpnstpdx/requirements.r .
-ADD build/mpnstpdx/* ./
-ADD build/utils/* ./
+RUN Rscript requirements.r
 
 # installing python libraries
+ADD build/mpnstpdx/requirements.txt .
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
-# Install all R libraries from requirements.r
-RUN Rscript requirements.r
+
+# Add necessary files to the container
+ADD build/mpnstpdx/* ./
+ADD build/utils/* ./
 
 # Set up volume for temporary storage
 VOLUME ["/tmp"]

@@ -72,7 +72,7 @@ mts_drugs <- unique(unlist(lapply(mts_ids, get_mts_drugs)))
 # 4) Combine and fix bad names
 all_drugs <- unique(c(pdx_drugs, mts_drugs))
 all_drugs[all_drugs == "pd901"] <- "pd-0325901"
-message("Combined drug list: ", paste(all_drugs, collapse=", "))
+# message("Combined drug list: ", paste(all_drugs, collapse=", "))
 
 # 5) Read old‑drug files or initialize empty
 if (!is.na(olddrugfiles)) {

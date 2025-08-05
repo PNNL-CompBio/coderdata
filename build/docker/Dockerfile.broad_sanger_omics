@@ -30,14 +30,13 @@ RUN mkdir -p /app/tmp/matplotlib
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 
-# Add requirements files
-ADD build/broad_sanger/requirements.txt .
-ADD build/broad_sanger/omics_requirements.r .
 
 # Install R libraries.
+ADD build/broad_sanger/omics_requirements.r .
 RUN Rscript omics_requirements.r
 
 # Install Python libraries.
+ADD build/broad_sanger/requirements.txt .
 RUN /opt/venv/bin/pip install -r requirements.txt
 
 # Add these later so caching is already done for the R and Python libraries.

@@ -10,29 +10,60 @@ library(httr2)
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 
 
-# Robust download with retry and optional content-length validation
-robust_download_httr2 <- function(url, dest, max_tries = 5, timeout_secs = 120) {
+
+robust_download_httr2 <- function(url, dest,
+                                 max_tries   = 5,
+                                 timeout_secs = 1500) {
+  # browser-style User-Agent
+  message("Downloading: ", url)
+  ua <- "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+
   req <- request(url) |>
+    req_headers(
+      `User-Agent` = ua,
+      Accept       = "application/octet-stream"
+    ) |>
     req_timeout(timeout_secs) |>
-    req_retry(max_tries = max_tries, retry_on_failure = TRUE)
+    req_retry(max_tries = max_tries, retry_on_failure = TRUE) |>
+    req_verbose()   # ← turn on full curl logging
 
-  resp <- req |> req_perform(path = dest)  # streams to dest; errors on 4xx/5xx automatically
+  resp <- tryCatch(
+    {
+      req |> req_perform(path = dest)
+    },
+    error = function(e) {
+      message("🚨 Download failed for: ", url)
+      message("  • curl error: ", e$message)
+      if (file.exists(dest)) {
+        message("  • partial file size: ",
+                file.info(dest)$size, " bytes")
+      }
+      stop(e)  # re-throw so your script still aborts
+    }
+  )
 
-  # Validate content length if provided
+  # if we get here, the download succeeded; sanity-check length
   hdrs <- resp |> resp_headers()
   if (!is.null(hdrs$`content-length`)) {
     expected <- as.numeric(hdrs$`content-length`)
-    actual <- file.info(dest)$size
-    if (is.na(actual) || actual != expected) {
-      stop(sprintf("Incomplete download for %s: expected %d bytes but got %d", url, expected, actual))
+    actual   <- file.info(dest)$size
+    if (actual != expected) {
+      stop(sprintf(
+        "Incomplete download for %s: expected %d bytes but got %d",
+        url, expected, actual
+      ))
     }
   }
 
   invisible(dest)
 }
 
+
+
+
+
 # Helper to download a ZIP and extract it safely
-download_and_extract_zip_httr2 <- function(url, dest_zip, extract_dir, max_tries = 5, timeout_secs = 120) {
+download_and_extract_zip_httr2 <- function(url, dest_zip, extract_dir, max_tries = 5, timeout_secs = 1500) {
   robust_download_httr2(url, dest_zip, max_tries = max_tries, timeout_secs = timeout_secs)
   if (!file.exists(dest_zip)) stop(sprintf("Download failed, %s missing", dest_zip))
   tryCatch({

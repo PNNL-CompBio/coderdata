@@ -2,6 +2,14 @@ FROM python:3.9
 
 WORKDIR /usr/src/app
 
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+COPY build/beatAML/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# CMD python GetBeatAML.py --token ${SYNAPSE_TOKEN}
 
 COPY build/beatAML/GetBeatAML.py . 
 COPY build/utils/fit_curve.py .
@@ -9,12 +17,6 @@ COPY build/utils/build_drug_desc.py .
 COPY build/utils/pubchem_retrieval.py .
 COPY build/utils/tpmFromCounts.py .
 COPY build/beatAML/*sh ./
-COPY build/beatAML/requirements.txt .
 
-# Set MPLCONFIGDIR to a writable directory
-ENV MPLCONFIGDIR=/app/tmp/matplotlib
-RUN mkdir -p /app/tmp/matplotlib
 
-RUN pip install --no-cache-dir -r requirements.txt
 VOLUME ['/tmp']
-# CMD python GetBeatAML.py --token ${SYNAPSE_TOKEN}

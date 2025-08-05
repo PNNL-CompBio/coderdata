@@ -8,16 +8,22 @@ build drug descriptor table from drug table
 import argparse
 from rdkit import Chem
 from rdkit.Chem import AllChem
-#from rdkit.Chem import rdFingerprintGenerator
+from rdkit.Chem import rdFingerprintGenerator
+from rdkit.DataStructs import ConvertToNumpyArray
 import pandas as pd
 import numpy as np
 from mordred import Calculator, descriptors
 import multiprocessing
 
+# Remove all of the Deprecation warnings. There is a github issue to update the code and 50k lines of warnings in the build log so I'm hiding them for now. 
+from rdkit import RDLogger
+RDLogger.DisableLog('rdApp.*')
+# If this script suddently stops working, it is likely due to a change in rdkit. Unhide the warnings to see the error.
+
 
 def smiles_to_fingerprint(smiles):
     '''
-    takes smiles nad create morgan fingerprint
+    Takes all SMILES and create morgan fingerprints for them
     '''
     fdict = []
     ##get morgan fingerprint

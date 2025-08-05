@@ -7,4 +7,4 @@ scikit-learn
 scipy
 requests
 openpyxl
-polars
+polars-lts-cpu

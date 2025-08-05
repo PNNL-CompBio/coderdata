@@ -37,11 +37,9 @@ WORKDIR /app
 ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
-
-ADD build/crcpdo/requirements.R .
 # installing r libraries
+ADD build/crcpdo/requirements.R .
 RUN Rscript requirements.R
-
 
 
 # installing python libraries

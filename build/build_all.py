@@ -79,30 +79,6 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             print(filename+' retrieved')
         
     
-    # def process_docker():
-    #     '''
-    #     Build all docker images using docker compose
-    #     All output and errors are logged at local/docker.log
-    #     '''
-    #     compose_file = 'build/docker/docker-compose.yml'
-    #     compose_command = ['docker', 'compose', '-f', compose_file, 'build', '--parallel']
-    #     log_file_path = 'local/docker.log'
-    #     env = os.environ.copy()
-    #     print(f"Docker-compose is building all images. View output in {log_file_path}.")
-    #     with open(log_file_path, 'w') as log_file:
-    #         # Execute the docker-compose command
-    #         res = subprocess.run(compose_command,  env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    #         # Log both stdout and stderr to the log file
-    #         log_file.write(res.stdout)
-    #         if res.returncode != 0:
-    #             log_file.write("Docker compose build failed.\n")
-    #             print(f"Docker compose build failed. See {log_file_path} for details.")
-    #             exit(1)
-    #         else:
-    #             log_file.write("Docker images built successfully.\n")
-    #             print(f"Docker images built successfully. Details logged in {log_file_path}")
-
-
     def process_docker(datasets):
         '''
         Build specific docker images using docker-compose based on the dataset argument.
