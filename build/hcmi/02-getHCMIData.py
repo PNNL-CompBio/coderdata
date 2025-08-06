@@ -36,30 +36,6 @@ def download_tool(url):
     # Download the file
     print("Downloading tool...")
     filename = wget.download(url)
-##commented due to merge conflict
-#    files_before = os.listdir()
-#    # shutil.unpack_archive(filename)
-#    ##there are two files to unpack
-#    print('Unpacking platform-specific path')
-#    shutil.unpack_archive(os.path.basename(url))
-#    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
-#    print('Unpacking secondary zip')
-#    fnames={
-#        'Darwin':"gdc-client_2.3_OSX_x64.zip",
-#        'Linux':"gdc-client_2.3_Ubuntu_x64.zip",
-#        'Windows':"gdc-client_2.3_Windows_x64.zip"
-#        }
-#    shutil.unpack_archive(fnames[platform.system()]) 
-#    #This is just set for AWS to debug. This will have to be mapped to OS.  They changed their file structure. This should be updated.
-#    shutil.unpack_archive("gdc-client_2.3_Ubuntu_x64.zip") 
-#    if not os.path.exists('gdc-client'):
-#        raise FileNotFoundError("gdc-client executable not found after extraction.")
-#    # Ensure 'gdc-client' is executable
-#    st = os.stat('gdc-client')
-#    os.chmod('gdc-client', st.st_mode | stat.S_IEXEC)
-#    # Return the path to the executable
-#    return './gdc-client'
-
     
     # First extraction
     print(f"\nExtracting {filename}...")
@@ -242,7 +218,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
         # Initial download attempt
         print("Starting secondary download...")
-        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'new_manifest.txt'])
+        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'new_manifest.txt'],stdout=subprocess.DEVNULL)
         print("Secondary download complete.")
 
         # Check for missing or corrupt files and retry if necessary
@@ -291,7 +267,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
             # Retry download
             print(f"Starting retry {retries} download...")
-            subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'retry_manifest.txt'])
+            subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'retry_manifest.txt'],stdout=subprocess.DEVNULL)
             print(f"Retry {retries} complete.")
 
         if missing_or_corrupt_ids:
@@ -308,68 +284,139 @@ def use_gdc_tool(manifest_data, data_type, download_data):
     return metadata
 
 
-def get_clean_files(data_type):
-    """
-    Extract clean files of a specified data type from manifest folders.
+# def get_clean_files(data_type):
+#     """
+#     Extract clean files of a specified data type from manifest folders.
     
-    Given a specific data type, this function looks through manifest folders to find 
-    matching files and process them accordingly.
+#     Given a specific data type, this function looks through manifest folders to find 
+#     matching files and process them accordingly.
     
-    Parameters
-    ----------
-    data_type : string
-        The type of data being processed, e.g., "transcriptomics", "copy_number", or "mutations".
+#     Parameters
+#     ----------
+#     data_type : string
+#         The type of data being processed, e.g., "transcriptomics", "copy_number", or "mutations".
     
-    Returns
-    -------
-    list of pl.DataFrame
-        A list of polars dataframes containing cleaned data extracted from the manifest folders.
-    """
+#     Returns
+#     -------
+#     list of pl.DataFrame
+#         A list of polars dataframes containing cleaned data extracted from the manifest folders.
+#     """
     
    
-    data_suffixes = {
-        "transcriptomics": "rna_seq.augmented_star_gene_counts.tsv",
-        "copy_number": "copy_number_variation.tsv",
-        "mutations": "ensemble_masked.maf.gz"
-    }
+#     data_suffixes = {
+#         "transcriptomics": "rna_seq.augmented_star_gene_counts.tsv",
+#         "copy_number": "copy_number_variation.tsv",
+#         "mutations": "ensemble_masked.maf.gz"
+#     }
 
-    suffix = data_suffixes.get(data_type)
-    manifest = 'full_manifest_files'
-    manifest_folders = [folder for folder in os.listdir(manifest) if folder != '.DS_Store']
-    all_dataframes = []
+#     suffix = data_suffixes.get(data_type)
+#     manifest = 'full_manifest_files'
+#     manifest_folders = [folder for folder in os.listdir(manifest) if folder != '.DS_Store']
+#     all_dataframes = []
 
-    for folder_name in manifest_folders:
-        folder_path = os.path.join(manifest, folder_name)
-        folder_files = os.listdir(folder_path)
+#     for folder_name in manifest_folders:
+#         folder_path = os.path.join(manifest, folder_name)
+#         folder_files = os.listdir(folder_path)
 
-        sample_filenames = [x for x in folder_files if suffix in x and '.ipynb_checkpoints' not in x]
+#         sample_filenames = [x for x in folder_files if suffix in x and '.ipynb_checkpoints' not in x]
 
-        for sample in sample_filenames:
-            filepath = os.path.join(manifest, folder_name, sample)
-            #gzipped data is mutation data
-            if ".gz" in filepath:
-                with gzip.open(filepath, 'rt') as f:
-                    # Read into pandas DataFrame then convert. This is the only time pandas is used.
-                    dataframe_pd = pd.read_csv(f, sep='\t', skiprows=7,low_memory=False)
-                    dataframe = pl.DataFrame(dataframe_pd)
-            else:
-                if data_type == "transcriptomics":
-                    dataframe = pl.read_csv(filepath, separator='\t',skip_rows=1)
-                else: 
-                    dataframe = pl.read_csv(filepath, separator='\t')
+#         for sample in sample_filenames:
+#             filepath = os.path.join(manifest, folder_name, sample)
+#             #gzipped data is mutation data
+#             if ".gz" in filepath:
+#                 with gzip.open(filepath, 'rt') as f:
+#                     # Read into pandas DataFrame then convert. This is the only time pandas is used.
+#                     dataframe_pd = pd.read_csv(f, sep='\t', skiprows=7,low_memory=False)
+#                     dataframe = pl.DataFrame(dataframe_pd)
+#             else:
+#                 if data_type == "transcriptomics":
+#                     dataframe = pl.read_csv(filepath, separator='\t',skip_rows=1)
+#                 else: 
+#                     dataframe = pl.read_csv(filepath, separator='\t')
 
-            dataframe = dataframe.with_columns(pl.lit(folder_name).alias('file_id'))
+#             dataframe = dataframe.with_columns(pl.lit(folder_name).alias('file_id'))
 
-            if data_type == "transcriptomics":
-                dataframe = dataframe[4:]
-                if 'tpm_unstranded' in dataframe.columns:
-                    new_columns = ['gene_id', 'gene_name', 'gene_type', 'tpm_unstranded', 'file_id']
-                    dataframe = dataframe.select(new_columns)
-                    dataframe = dataframe.filter(dataframe['gene_type'] == 'protein_coding')
+#             if data_type == "transcriptomics":
+#                 dataframe = dataframe[4:]
+#                 if 'tpm_unstranded' in dataframe.columns:
+#                     new_columns = ['gene_id', 'gene_name', 'gene_type', 'tpm_unstranded', 'file_id']
+#                     dataframe = dataframe.select(new_columns)
+#                     dataframe = dataframe.filter(dataframe['gene_type'] == 'protein_coding')
 
-            all_dataframes.append(dataframe)
+#             all_dataframes.append(dataframe)
         
-    return all_dataframes
+#     return all_dataframes
+
+def stream_clean_files(data_type: str, manifest_dir: str, out_path: str):
+    """
+    Read each sample file of the given data_type from manifest_dir,
+    apply filtering/transformation, and append to out_path in CSV,
+    so you never hold all samples in RAM at once.
+    """
+    suffix_map = {
+        "transcriptomics": "rna_seq.augmented_star_gene_counts.tsv",
+        "copy_number":     "copy_number_variation.tsv",
+        "mutations":       "ensemble_masked.maf.gz",
+    }
+    suffix = suffix_map[data_type]
+    header_written = False
+
+    # If the output file already exists, remove it so we start fresh
+    if os.path.exists(out_path):
+        os.remove(out_path)
+
+    # Iterate over each sample folder
+    for folder_name in os.listdir(manifest_dir):
+        folder_path = os.path.join(manifest_dir, folder_name)
+        if not os.path.isdir(folder_path):
+            continue
+
+        # Look for the right file suffix in this folder
+        for fname in os.listdir(folder_path):
+            if suffix not in fname or fname.startswith('.'):
+                continue
+            fpath = os.path.join(folder_path, fname)
+
+            # Load the file (gzipped for mutations, plain TSV otherwise)
+            if fpath.endswith('.gz'):
+                with gzip.open(fpath, 'rt') as f:
+                    df = pl.read_csv(f, separator='\t', skip_rows=7)
+            else:
+                skip = 1 if data_type == "transcriptomics" else 0
+                df = pl.read_csv(fpath, separator='\t', skip_rows=skip)
+
+            # Trim off the header rows for transcriptomics
+            if data_type == "transcriptomics":
+                df = df[4:]
+
+            # Apply per-type filters and rename
+            if data_type == "transcriptomics":
+                df = (
+                    df
+                    .filter(pl.col("gene_type") == "protein_coding")
+                    .select(["gene_id", "gene_name", "tpm_unstranded"])
+                    .rename({"tpm_unstranded": "transcriptomics"})
+                )
+
+            # Add identifying columns
+            df = df.with_columns([
+                pl.lit(folder_name).alias("file_id"),
+                pl.lit("GDC").alias("source"),
+                pl.lit("HCMI").alias("study"),
+            ])
+
+            # Append to disk
+            mode = 'a' if header_written else 'w'
+            with open(out_path, mode) as f:
+                df.write_csv(f, has_header=not header_written)
+
+            header_written = True
+
+            # Free memory immediately
+            del df
+            gc.collect()
+
+
 
 def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     """
@@ -461,27 +508,6 @@ def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
     final_dataframe = final_dataframe.join(df_metadata, on="file_id", how="left")
 
     return final_dataframe
-
-def retrieve_figshare_data(url):
-    """
-    Download data from a given Figshare URL.
-    
-    Parameters
-    ----------
-    url : string
-        The Figshare URL to download data from.
-    
-    Returns
-    -------
-    string
-        Name of the downloaded file.
-    """
-    
-    files_0 = os.listdir()
-    wget.download(url)
-    files_1 = os.listdir()
-    new_file = str(next(iter(set(files_1) - set(files_0))))
-    return new_file
 
 def copy_num(arr):
     """
@@ -707,12 +733,24 @@ def main():
     metadata = use_gdc_tool(args.manifest, args.type, download_data=download_option)
     # Extract data files
     print("Running 'get_clean_files' function")
-    data_files = get_clean_files(args.type)
+    # data_files = get_clean_files(args.type)
+    
+    intermediate_csv = f"/tmp/hcmi_{args.type}_cleaned.csv"
+    print(f"Streaming cleaned files for {args.type} → {intermediate_csv}")
+    stream_clean_files(
+        args.type,
+        args.manifestfolder or "full_manifest_files",
+        intermediate_csv
+    )
+
+    # Load that cleaned CSV lazily, then collect into one DataFrame for mapping
+    print("Loading cleaned data for mapping …")
+    df_clean = pl.scan_csv(intermediate_csv).collect(streaming=True)
+    data_files = [df_clean]
+    
 
     # Retrieve figshare gene data for entrez map
-    print("Running 'retrieve_figshare_data' function")
-    gene_url = "https://figshare.com/ndownloader/files/40576109?private_link=525f7777039f4610ef47"
-    entrez_map_file = args.genes #retrieve_figshare_data(gene_url)
+    entrez_map_file = args.genes 
     gc.collect()
     
     # Combine the data

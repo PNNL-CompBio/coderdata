@@ -59,6 +59,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         '''
         Essentially a wrapper for 'docker run'. Also provides output.
         '''
+        retries=3
         print('running...'+filename)
         env = os.environ.copy()
         if 'SYNAPSE_AUTH_TOKEN' not in env.keys():
@@ -66,17 +67,34 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             docker_run = ['docker','run','--rm','-v',env['PWD']+'/local/:/tmp/','--platform=linux/amd64']
         else:
             docker_run = ['docker','run','--rm','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'],'--platform=linux/amd64']
-            
-            
         cmd = docker_run+cmd_arr
         print(cmd)
-        # res = subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        res = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
-        if res.returncode !=0:
-            print(res.stderr)
-            exit(filename+' file failed')
-        else:
-            print(filename+' retrieved')
+            
+        attempt = 1
+        while attempt <= retries:
+            print(f"[{filename}] Attempt {attempt}/{retries}: {' '.join(cmd)}")
+            res = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
+            if res.returncode == 0:
+                print(f"[{filename}] succeeded on attempt {attempt}.")
+                return
+            else:
+                print(f"[{filename}] failed (exit {res.returncode}).")
+                if attempt < retries:
+                    print("Retrying...")
+                    print(cmd)
+            attempt += 1
+        raise RuntimeError(f"{filename} failed after {retries} attempts")
+                
+            
+        # cmd = docker_run+cmd_arr
+        # print(cmd)
+        # # res = subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        # res = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
+        # if res.returncode !=0:
+        #     print(res.stderr)
+        #     exit(filename+' file failed')
+        # else:
+        #     print(filename+' retrieved')
         
     
     def process_docker(datasets):
