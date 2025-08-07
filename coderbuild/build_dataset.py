@@ -41,15 +41,15 @@ def process_docker(dataset,validate):
         'hcmi': ['hcmi'],
         'beataml': ['beataml'],
         'mpnst': ['mpnst'],
-        'pancpdo': ['pancpdo'],
+        'pancreatic': ['pancreatic'],
         'cptac': ['cptac'],
-        'sarcpdo': ['sarcpdo'],
+        'sarcoma': ['sarcoma'],
         'genes': ['genes'],
         'upload': ['upload'],
         'colorectal': ['colorectal'], 
-        'bladderpdo': ['bladderpdo'],
-        'liverpdo': ['liverpdo'],
-        'novartispdx': ['novartispdx']
+        'bladder': ['bladder'],
+        'liver': ['liver'],
+        'novartis': ['novartis']
     }
 
     # Collect container names to build based on the dataset provided. Always build 'genes'.
@@ -128,12 +128,12 @@ def process_omics(executor, dataset, should_continue):
         'broad_sanger': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'cptac': ['copy_number', 'mutations', 'proteomics', 'transcriptomics'],
         'hcmi': ['mutations', 'transcriptomics'],
-        'sarcpdo': ['mutations', 'transcriptomics'],
-        'pancpdo': ['transcriptomics'],
-        'bladderpdo': ['copy_number', 'mutations', 'transcriptomics'],
+        'sarcoma': ['mutations', 'transcriptomics'],
+        'pancreatic': ['transcriptomics'],
+        'bladder': ['copy_number', 'mutations', 'transcriptomics'],
         'colorectal':['copy_number', 'mutations', 'transcriptomics'],
-        'novartispdx':['copy_number', 'mutations', 'transcriptomics'],
-        'liverpdo':['copy_number', 'mutations', 'transcriptomics']
+        'novartis':['copy_number', 'mutations', 'transcriptomics'],
+        'liver':['copy_number', 'mutations', 'transcriptomics']
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])

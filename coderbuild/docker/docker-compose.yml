@@ -26,14 +26,14 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: hcmi:latest
-  pancpdo:
+  pancreatic:
     build:
       context: ../../
-      dockerfile: coderbuild/docker/Dockerfile.pancpdo
+      dockerfile: coderbuild/docker/Dockerfile.pancreatic
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
-    image: pancpdo:latest
+    image: pancreatic:latest
 
   beataml:
     build:
@@ -70,22 +70,22 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: cptac:latest
-  sarcpdo:
+  sarcoma:
     build:
       context: ../../
-      dockerfile: coderbuild/docker/Dockerfile.sarcpdo
+      dockerfile: coderbuild/docker/Dockerfile.sarcoma
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
-    image: sarcpdo:latest
-  bladderpdo:
+    image: sarcoma:latest
+  bladder:
     build:
       context: ../../
-      dockerfile: coderbuild/docker/Dockerfile.bladderpdo
+      dockerfile: coderbuild/docker/Dockerfile.bladder
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
-    image: bladderpdo:latest
+    image: bladder:latest
 
   genes:
     build:
@@ -105,29 +105,29 @@ services:
     platform: linux/amd64
     image: upload:latest
 
-  crcpdo:
+  colorectal:
     build:
       context: ../../
-      dockerfile: coderbuild/docker/Dockerfile.crcpdo
+      dockerfile: coderbuild/docker/Dockerfile.colorectal
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
-    image: crcpdo:latest
+    image: colorectal:latest
 
-  liverpdo:
+  liver:
     build:
       context: ../../
-      dockerfile: coderbuild/docker/Dockerfile.liverpdo
+      dockerfile: coderbuild/docker/Dockerfile.liver
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
-    image: liverpdo:latest
+    image: liver:latest
 
-  novartispdx:
+  novartis:
     build:
       context: ../../
-      dockerfile: coderbuild/docker/Dockerfile.novartispdx
+      dockerfile: coderbuild/docker/Dockerfile.novartis
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
-    image: novartispdx:latest
+    image: novartis:latest
