@@ -31,7 +31,7 @@ The other data is stored [on synapse](https://www.synapse.org/Synapse:syn6459787
 ## Build Docker
 
 ```
-docker build -f build/docker/Dockerfile.pancpdo -t pancpdo . 
+docker build -f coderbuild/docker/Dockerfile.pancpdo -t pancpdo . 
 ```
 
 ## Run build command

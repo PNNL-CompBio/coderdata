@@ -6,7 +6,7 @@ figure below shows a brief description of the process, which is
 designed to be run serially, as new identifiers are generated as data
 are added.
 
-![Build process](coderDataBuild.jpg?raw=true "Build process")
+![CoderBuild process](coderDataBuild.jpg?raw=true "CoderBuild process")
 
 ## build_all.py script
 
@@ -37,13 +37,13 @@ It requires the following authorization tokens to be set in the local environmen
 - Build all datasets and upload to Figshare and GitHub.  
 Required tokens for the following command: `SYNAPSE_AUTH_TOKEN`, `FIGSHARE_TOKEN`, `GITHUB_TOKEN`.  
 ```bash
-python build/build_all.py --all --high_mem --validate --figshare --version 0.1.41 --github-username jjacobson95 --github-email jeremy.jacobson3402@gmail.com
+python coderbuild/build_all.py --all --high_mem --validate --figshare --version 0.1.41 --github-username jjacobson95 --github-email jeremy.jacobson3402@gmail.com
 ```
   
 - Build only the experiment files.  
 **Note**: Preceding steps will not automatically be run. This assumes that docker images, samples, omics, and drugs were all previously built. Ensure all required tokens are set.   
 ```bash
-python build/build_all.py --exp
+python coderbuild/build_all.py --exp
 ```
 
 ## build_dataset.py script
@@ -63,19 +63,19 @@ Example usage:
 
 Build the broad_sanger dataset:
 ```bash
-python build/build_dataset.py --build --dataset broad_sanger
+python coderbuild/build_dataset.py --build --dataset broad_sanger
 ```
 Build the mpnst dataset continuing from broad_sanger sample and drug IDs:
 ```bash
-python build/build_dataset.py --build --dataset mpnst --use_prev_dataset broad_sanger
+python coderbuild/build_dataset.py --build --dataset mpnst --use_prev_dataset broad_sanger
 ```
 Build run schema validation on hcmi dataset:
 ```bash
-python build/build_dataset.py --dataset hcmi --validate
+python coderbuild/build_dataset.py --dataset hcmi --validate
 ```
 Build the broad_sanger dataset but skip previously built files in "local" directory:
 ```bash
-python build/build_dataset.py --dataset broad_sanger --continue
+python coderbuild/build_dataset.py --dataset broad_sanger --continue
 ```
 
 

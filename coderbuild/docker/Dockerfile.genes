@@ -6,12 +6,12 @@ RUN apt-get install -y --fix-missing --allow-unauthenticated build-essential pyt
 WORKDIR /app
 
 # installing r libraries
-ADD build/genes/requirements.r .
+ADD coderbuild/genes/requirements.r .
 RUN Rscript requirements.r
 
 # Add files last to optimize Docker caching
-ADD build/genes/*.R ./
-ADD build/genes/*sh ./
+ADD coderbuild/genes/*.R ./
+ADD coderbuild/genes/*sh ./
 
 
 

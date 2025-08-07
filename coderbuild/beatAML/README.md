@@ -4,7 +4,7 @@ This directory builds the data for the BeatAML samples. To build and
 test this module, run the following commands from the root directory.
 
 ## Build with test data
-Build commands should be similar to every other coderdata build
+Build commands should be similar to every other coderbuild
 module.
 
 
@@ -13,7 +13,7 @@ First we need to build the gene table
 
 1. Build genes docker
 ```
-   docker build -f build/docker/Dockerfile.genes -t genes . --build-arg HTTPS_PROXY=$HTTPS_PROXY 
+   docker build -f coderbuild/docker/Dockerfile.genes -t genes . --build-arg HTTPS_PROXY=$HTTPS_PROXY 
 ```
 
 2. Build gene file
@@ -24,7 +24,7 @@ First we need to build the gene table
 ### Build AML data
 1. Build the Docker image:
    ```
-   docker build -f build/docker/Dockerfile.beataml -t beataml . --build-arg HTTPS_PROXY=$HTTPS_PROXY 
+   docker build -f coderbuild/docker/Dockerfile.beataml -t beataml . --build-arg HTTPS_PROXY=$HTTPS_PROXY 
    ```
 
 2. Generate new identifiers for these samples to create a

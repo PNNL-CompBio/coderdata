@@ -14,14 +14,14 @@ export SYNAPSE_AUTH_TOKEN="Your Synapse Token"
 
 This quick build process does not map sample identifers with previous data versions and is only for personal use.
 ```
-python build/build_dataset.py --dataset mpnst --build 
+python coderbuild/build_dataset.py --dataset mpnst --build 
 ```
 ---
 ### Option 2: Build the test dataset using build_dataset.py with a previous dataset.
 
 This build process assumes you already built or have access to a previously built dataset. This previous dataset must be located in `$PWD/local`. The validate argument ensures the output aligns with the schema.
 ```
-python build/build_dataset.py --dataset mpnst --build --validate --use_prev_dataset beataml
+python coderbuild/build_dataset.py --dataset mpnst --build --validate --use_prev_dataset beataml
 ```
 ---
 ### Option 3: Build each test file one at a time.
@@ -33,7 +33,7 @@ This process does not map sample identifers with previous data versions and is o
    ```
 2. Build the Docker image with the optional HTTPS_PROXY argument:
    ```
-   docker build -f build/docker/Dockerfile.mpnst -t mpnst . --build-arg HTTPS_PROXY=$HTTPS_PROXY
+   docker build -f coderbuild/docker/Dockerfile.mpnst -t mpnst . --build-arg HTTPS_PROXY=$HTTPS_PROXY
    ```
 
 3. Generate new identifiers for these samples to create a

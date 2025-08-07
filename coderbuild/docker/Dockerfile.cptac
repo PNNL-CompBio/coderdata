@@ -12,11 +12,11 @@ ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 
 # installing python libraries
-COPY build/cptac/requirements.txt .
+COPY coderbuild/cptac/requirements.txt .
 RUN /opt/venv/bin/pip3 install -r requirements.txt
 
-COPY build/cptac/*.py ./
-COPY build/cptac/*sh ./
+COPY coderbuild/cptac/*.py ./
+COPY coderbuild/cptac/*sh ./
 
 # Set MPLCONFIGDIR to a writable directory
 ENV MPLCONFIGDIR=/app/tmp/matplotlib

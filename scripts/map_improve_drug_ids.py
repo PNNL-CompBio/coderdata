@@ -383,7 +383,7 @@ so their TSV files are properly rewritten.
     # Set build_date
     build_date = args.build_date or datetime.utcnow().strftime("%Y-%m-%d")
     # Mapping file path
-    mapping_file = 'build/improve_drug_mapping.json'
+    mapping_file = 'coderbuild/improve_drug_mapping.json'
 
     # Load or initialize improve_drug_mapping.json
     mapping_data, had_prior = load_mapping(mapping_file)

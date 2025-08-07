@@ -1,5 +1,6 @@
-FROM r-base:4.4.1
+FROM r-base:4.3.2
 
+# Set environment to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Update package list and install required packages
@@ -25,29 +26,30 @@ RUN ln -s /usr/local/bin/python3.10 /usr/bin/python3 && \
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/python3.10.conf && ldconfig
 
 # Create a Python virtual environment
-#RUN python3 -m venv /opt/venv
-#RUN /opt/venv/bin/pip install --upgrade pip
+RUN python3 -m venv /opt/venv
+RUN /opt/venv/bin/pip install --upgrade pip
 
 # Set environment variables for reticulate
-#ENV RETICULATE_PYTHON="/opt/venv/bin/python3"
+ENV RETICULATE_PYTHON="/opt/venv/bin/python3"
 ENV PYTHONPATH=/app#"${PYTHONPATH}:/app"
 WORKDIR /app
 
-# Set MPLCONFIGDIR to a writable directory and create it.
+# Set MPLCONFIGDIR to a writable directory
 ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
+# Install all R libraries from requirements.r
+ADD coderbuild/mpnstpdx/requirements.r .
+RUN Rscript requirements.r
 
 # installing python libraries
-ADD build/novartispdx/requirements.txt .
-#RUN /opt/venv/bin/pip3 install -r requirements.txt
-RUN pip3 install -r requirements.txt
+ADD coderbuild/mpnstpdx/requirements.txt .
+RUN /opt/venv/bin/pip3 install -r requirements.txt
 
-RUN python3 --version
 
-#ENV PATH="/opt/venv/bin:$PATH"
+# Add necessary files to the container
+ADD coderbuild/mpnstpdx/* ./
+ADD coderbuild/utils/* ./
 
-ADD build/novartispdx/*py ./
-ADD build/novartispdx/*sh ./
-
-ADD build/utils/* ./
+# Set up volume for temporary storage
+VOLUME ["/tmp"]

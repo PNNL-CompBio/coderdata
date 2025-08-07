@@ -37,15 +37,13 @@ WORKDIR /app
 ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
-
-ADD build/bladderpdo/requirements.R .
 # installing r libraries
+ADD coderbuild/crcpdo/requirements.R .
 RUN Rscript requirements.R
 
 
-
 # installing python libraries
-ADD build/bladderpdo/requirements.txt .
+ADD coderbuild/crcpdo/requirements.txt .
 #RUN /opt/venv/bin/pip3 install -r requirements.txt
 RUN pip3 install -r requirements.txt
 
@@ -54,10 +52,8 @@ RUN which Rscript
 
 #ENV PATH="/opt/venv/bin:$PATH"
 
-ADD build/bladderpdo/obtainGSMidLink.R ./
-ADD build/bladderpdo/CNV-segfile-annotation.R ./
-ADD build/bladderpdo/*py ./
-ADD build/bladderpdo/*sh ./
+ADD coderbuild/crcpdo/CNV-segfile-annotation.R ./
+ADD coderbuild/crcpdo/*py ./
+ADD coderbuild/crcpdo/*sh ./
 
-ADD build/utils/* ./
-
+ADD coderbuild/utils/* ./

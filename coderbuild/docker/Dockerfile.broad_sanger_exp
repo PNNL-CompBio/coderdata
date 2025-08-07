@@ -31,21 +31,24 @@ ENV PYTHONPATH "${PYTHONPATH}:/app"
 WORKDIR /app
 
 
-# Install R libraries.
-ADD build/broad_sanger/omics_requirements.r .
-RUN Rscript omics_requirements.r
-
-# Install Python libraries.
-ADD build/broad_sanger/requirements.txt .
-RUN /opt/venv/bin/pip install -r requirements.txt
+# installing r libraries
+ADD coderbuild/broad_sanger/exp_requirements.r .
+RUN Rscript exp_requirements.r
+# installing python libraries
+ADD coderbuild/broad_sanger/requirements.txt .
+RUN /opt/venv/bin/pip3 install -r requirements.txt
 
 # Add these later so caching is already done for the R and Python libraries.
-ADD build/broad_sanger/01-broadSangerSamples.R ./
-ADD build/broad_sanger/02-broadSangerOmics.R ./
-ADD build/broad_sanger/02a-broad_sanger_proteomics.py ./
-ADD build/broad_sanger/build_samples.sh ./
-ADD build/broad_sanger/build_omics.sh ./
-ADD build/utils/* ./
-ADD build/broad_sanger/build_misc.sh ./
-ADD build/broad_sanger/05a_remove_problem_drugs.py ./
-ADD build/broad_sanger/05b_separate_datasets.py ./
+ADD coderbuild/broad_sanger/03_joinDrugFiles.py ./
+ADD coderbuild/broad_sanger/03-createDrugFile.R ./
+ADD coderbuild/broad_sanger/04a-drugResponseData.R ./
+ADD coderbuild/broad_sanger/*py ./
+ADD coderbuild/broad_sanger/build_drugs.sh ./
+ADD coderbuild/broad_sanger/build_exp.sh ./
+ADD coderbuild/utils/* ./
+
+
+
+
+
+

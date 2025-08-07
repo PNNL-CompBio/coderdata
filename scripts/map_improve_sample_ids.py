@@ -422,7 +422,7 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
     # Set build_date
     build_date = args.build_date or datetime.utcnow().strftime("%Y-%m-%d")
     # Load or initialize improve_sample_mapping.json
-    mapping_file = "build/improve_sample_mapping.json"
+    mapping_file = "coderbuild/improve_sample_mapping.json"
     mapping_data, had_prior = load_mapping(mapping_file)
     # Insert current build metadata
     current_build_metadata = get_current_build_metadata(build_date, args.version)

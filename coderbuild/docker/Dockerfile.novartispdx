@@ -37,9 +37,8 @@ WORKDIR /app
 ENV MPLCONFIGDIR=/app/tmp/matplotlib
 RUN mkdir -p /app/tmp/matplotlib
 
-
 # installing python libraries
-ADD build/liverpdo/requirements.txt .
+ADD coderbuild/novartispdx/requirements.txt .
 #RUN /opt/venv/bin/pip3 install -r requirements.txt
 RUN pip3 install -r requirements.txt
 
@@ -47,7 +46,7 @@ RUN python3 --version
 
 #ENV PATH="/opt/venv/bin:$PATH"
 
-ADD build/liverpdo/*py ./
-ADD build/liverpdo/*sh ./
+ADD coderbuild/novartispdx/*py ./
+ADD coderbuild/novartispdx/*sh ./
 
-ADD build/utils/* ./
+ADD coderbuild/utils/* ./

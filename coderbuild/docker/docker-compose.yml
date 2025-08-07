@@ -3,7 +3,7 @@ services:
   broad_sanger_exp:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.broad_sanger_exp
+      dockerfile: coderbuild/docker/Dockerfile.broad_sanger_exp
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -12,7 +12,7 @@ services:
   broad_sanger_omics:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.broad_sanger_omics
+      dockerfile: coderbuild/docker/Dockerfile.broad_sanger_omics
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -21,7 +21,7 @@ services:
   hcmi:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.hcmi
+      dockerfile: coderbuild/docker/Dockerfile.hcmi
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -29,7 +29,7 @@ services:
   pancpdo:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.pancpdo
+      dockerfile: coderbuild/docker/Dockerfile.pancpdo
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -38,7 +38,7 @@ services:
   beataml:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.beataml
+      dockerfile: coderbuild/docker/Dockerfile.beataml
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -47,7 +47,7 @@ services:
   mpnst:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.mpnst
+      dockerfile: coderbuild/docker/Dockerfile.mpnst
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -56,7 +56,7 @@ services:
   mpnstpdx:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.mpnstpdx
+      dockerfile: coderbuild/docker/Dockerfile.mpnstpdx
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -65,7 +65,7 @@ services:
   cptac:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.cptac
+      dockerfile: coderbuild/docker/Dockerfile.cptac
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -73,7 +73,7 @@ services:
   sarcpdo:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.sarcpdo
+      dockerfile: coderbuild/docker/Dockerfile.sarcpdo
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -81,7 +81,7 @@ services:
   bladderpdo:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.bladderpdo
+      dockerfile: coderbuild/docker/Dockerfile.bladderpdo
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -90,7 +90,7 @@ services:
   genes:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.genes
+      dockerfile: coderbuild/docker/Dockerfile.genes
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -99,7 +99,7 @@ services:
   upload:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.upload
+      dockerfile: coderbuild/docker/Dockerfile.upload
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -108,7 +108,7 @@ services:
   crcpdo:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.crcpdo
+      dockerfile: coderbuild/docker/Dockerfile.crcpdo
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -117,7 +117,7 @@ services:
   liverpdo:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.liverpdo
+      dockerfile: coderbuild/docker/Dockerfile.liverpdo
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
@@ -126,7 +126,7 @@ services:
   novartispdx:
     build:
       context: ../../
-      dockerfile: build/docker/Dockerfile.novartispdx
+      dockerfile: coderbuild/docker/Dockerfile.novartispdx
       args:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64

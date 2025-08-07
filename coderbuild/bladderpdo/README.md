@@ -18,7 +18,7 @@ For these data, we had complete drug dose-response data to recalculate curves, a
 
 ## To Run Code 
 
-### First sample and omics steps are the same, by hand locally or in full build process
+### First sample and omics steps are the same, by hand locally or in full coderbuild process
 ```
 python3 00_createBladderPDOSampleFile.py --token $SYNAPSE_AUTH_TOKEN -p prevSamples
 
@@ -32,12 +32,12 @@ python3 01_createBladderPDOOmicsFiles.py --token $SYNAPSE_AUTH_TOKEN -s curSampl
 
 ### For drug and experiment steps, command depends on location of helper scripts
 ```
-# for running locally (from build directory):
+# for running locally (from coderbuild directory):
 python3 -m bladderpdo.02_createBladderPDODrugsFile --token $SYNAPSE_AUTH_TOKEN -d prevDrugFilePath -o ./bladderpdo/bladderpdo_drugs.tsv
 # for running in Docker as part of full build
 python3 02_createBladderPDODrugsFile.py --token $SYNAPSE_AUTH_TOKEN -d prevDrugFilePath -o /tmp/bladderpdo_drugs.tsv
 
-# for running locally (from build directory): 
+# for running locally (from coderbuild directory): 
 python3 utils/build_drug_desc.py --drugtable ./bladderpdo/bladderpdo_drugs.tsv --desctable ./bladderpdo/bladderpdo_drug_descriptors.tsv.gz
 # for running in docker as part of full build
 python3 build_drug_desc.py --drugtable /tmp/bladderpdo_drugs.tsv --desctable /tmp/bladderpdo_drug_descriptors.tsv.gz

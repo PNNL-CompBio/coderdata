@@ -1,0 +1,27 @@
+FROM python:3.9
+
+WORKDIR /usr/src/app
+
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+# Install requirements
+COPY coderbuild/pancpdo/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Add files last to optimize Docker caching
+COPY coderbuild/pancpdo/01-createPancPDOSamplesFile.py .
+COPY coderbuild/pancpdo/02-getPancPDOData.py .
+COPY coderbuild/pancpdo/02a-getPancPDODataFromSynapse.py .
+COPY coderbuild/pancpdo/03-getPancPDODrugs.py .
+COPY coderbuild/pancpdo/04-getPancPDOExperiments.py .
+COPY coderbuild/pancpdo/05-addPrecalcAUC.py .
+COPY coderbuild/pancpdo/full_manifest.txt .
+COPY coderbuild/pancpdo/requirements.txt .
+COPY coderbuild/pancpdo/*sh ./
+COPY coderbuild/pancpdo/pancpdo_cancer_types.csv ./
+COPY coderbuild/utils/* ./
+
+VOLUME ['/tmp']
