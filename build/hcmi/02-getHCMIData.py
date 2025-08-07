@@ -18,7 +18,8 @@ import polars as pl
 import gc
 import hashlib
 from pathlib import Path
-    
+import tempfile
+
 def download_tool(url):
     """
     Download, extract, and prepare the GDC client tool.
@@ -64,6 +65,29 @@ def download_tool(url):
     os.chmod(gdc_client_path, st.st_mode | stat.S_IEXEC)
 
     return gdc_client_path
+
+
+def _append_to_csv(df: pl.DataFrame, out_path: str, header_written: bool) -> bool:
+    """
+    Append a Polars frame to CSV (optionally gzip-compressed) without loading
+    prior data.  Returns True once the header is on disk so we know to skip it.
+    """
+    # Polars write_csv cannot append, so fall back to pandas for the last hop.
+    df_pd = df.to_pandas()
+
+    mode   = "a" if header_written else "w"
+    header = not header_written
+    compression = "gzip" if out_path.endswith(".gz") else None
+
+    df_pd.to_csv(
+        out_path,
+        mode=mode,
+        header=header,
+        index=False,
+        compression=compression
+    )
+    return True  # header now written
+
 
 
 def is_tool(name):
@@ -218,7 +242,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
         # Initial download attempt
         print("Starting secondary download...")
-        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'new_manifest.txt'],stdout=subprocess.DEVNULL)
+        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'new_manifest.txt'])
         print("Secondary download complete.")
 
         # Check for missing or corrupt files and retry if necessary
@@ -267,7 +291,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
             # Retry download
             print(f"Starting retry {retries} download...")
-            subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'retry_manifest.txt'],stdout=subprocess.DEVNULL)
+            subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'retry_manifest.txt'])
             print(f"Retry {retries} complete.")
 
         if missing_or_corrupt_ids:
@@ -347,167 +371,234 @@ def use_gdc_tool(manifest_data, data_type, download_data):
         
 #     return all_dataframes
 
-def stream_clean_files(data_type: str, manifest_dir: str, out_path: str):
+
+# --- streaming readers ----------------------------------------------
+def stream_clean_files(data_type: str):
     """
-    Read each sample file of the given data_type from manifest_dir,
-    apply filtering/transformation, and append to out_path in CSV,
-    so you never hold all samples in RAM at once.
+    Yield one cleaned Polars DataFrame per source file instead of returning a
+    giant list.  Down-stream steps can iterate over this generator.
     """
-    suffix_map = {
+    data_suffixes = {
         "transcriptomics": "rna_seq.augmented_star_gene_counts.tsv",
         "copy_number":     "copy_number_variation.tsv",
         "mutations":       "ensemble_masked.maf.gz",
     }
-    suffix = suffix_map[data_type]
-    header_written = False
+    suffix   = data_suffixes[data_type]
+    manifest = "full_manifest_files"
+    folders  = [f for f in os.listdir(manifest) if f != ".DS_Store"]
 
-    # If the output file already exists, remove it so we start fresh
-    if os.path.exists(out_path):
-        os.remove(out_path)
+    for folder in folders:
+        for fname in os.listdir(os.path.join(manifest, folder)):
+            if (suffix in fname) and (".ipynb_checkpoints" not in fname):
+                fpath = os.path.join(manifest, folder, fname)
 
-    # Iterate over each sample folder
-    for folder_name in os.listdir(manifest_dir):
-        folder_path = os.path.join(manifest_dir, folder_name)
-        if not os.path.isdir(folder_path):
-            continue
+                # ---- read single file ------------------------------
+                if fpath.endswith(".gz"):                     # mutation data
+                    with gzip.open(fpath, "rt") as fh:
+                        df = pl.read_csv(fh, separator="\t", skip_rows=7)
+                else:                                        # copy-number / tx
+                    skip = 1 if data_type == "transcriptomics" else 0
+                    df   = pl.read_csv(fpath, separator="\t", skip_rows=skip)
 
-        # Look for the right file suffix in this folder
-        for fname in os.listdir(folder_path):
-            if suffix not in fname or fname.startswith('.'):
-                continue
-            fpath = os.path.join(folder_path, fname)
+                df = df.with_columns(pl.lit(folder).alias("file_id"))
 
-            # Load the file (gzipped for mutations, plain TSV otherwise)
-            if fpath.endswith('.gz'):
-                with gzip.open(fpath, 'rt') as f:
-                    df = pl.read_csv(f, separator='\t', skip_rows=7)
-            else:
-                skip = 1 if data_type == "transcriptomics" else 0
-                df = pl.read_csv(fpath, separator='\t', skip_rows=skip)
-
-            # Trim off the header rows for transcriptomics
-            if data_type == "transcriptomics":
-                df = df[4:]
-
-            # Apply per-type filters and rename
-            if data_type == "transcriptomics":
-                df = (
-                    df
-                    .filter(pl.col("gene_type") == "protein_coding")
-                    .select(["gene_id", "gene_name", "tpm_unstranded"])
-                    .rename({"tpm_unstranded": "transcriptomics"})
-                )
-
-            # Add identifying columns
-            df = df.with_columns([
-                pl.lit(folder_name).alias("file_id"),
-                pl.lit("GDC").alias("source"),
-                pl.lit("HCMI").alias("study"),
-            ])
-
-            # Append to disk
-            mode = 'a' if header_written else 'w'
-            with open(out_path, mode) as f:
-                df.write_csv(f, has_header=not header_written)
-
-            header_written = True
-
-            # Free memory immediately
-            del df
-            gc.collect()
+                if data_type == "transcriptomics":
+                    df = df[4:]  # drop non-gene rows
+                    if "tpm_unstranded" in df.columns:
+                        df = (
+                            df.select(
+                                ["gene_id", "gene_name",
+                                 "gene_type", "tpm_unstranded", "file_id"]
+                            )
+                            .filter(pl.col("gene_type") == "protein_coding")
+                        )
+                yield df
 
 
 
-def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
+#old
+# def map_and_combine(dataframe_list, data_type, metadata, entrez_map_file):
+#     """
+#     Map and combine dataframes based on their data type, and merge with provided metadata
+#     using Polars.
+    
+#     Parameters
+#     ----------
+#     dataframe_list : list of pl.DataFrame
+#         List of dataframes containing data to be mapped and combined.
+        
+#     data_type : string
+#         The type of data being processed.
+        
+#     metadata : dict
+#         Metadata to be merged with the processed data.
+        
+#     entrez_map_file : string
+#         File path to the CSV file mapping gene names to Entrez IDs.
+    
+#     Returns
+#     -------
+#     pl.DataFrame
+#         A dataframe containing the combined, mapped, and merged data.
+#     """
+    
+#     # Initialize the list to hold mapped dataframes
+#     final_dataframe = pl.DataFrame()  # Initialize an empty DataFrame
+
+#     # Load mapping files using Polars
+#     genes = pl.read_csv(entrez_map_file)  # Map gene_name to entrez_id
+#     valid_entrez = genes["entrez_id"].cast(pl.Int64).unique().to_list()
+#     # Process each dataframe based on its data_type
+#     while dataframe_list:
+#         df = dataframe_list.pop()
+#         if data_type == "transcriptomics":
+#             mapped_df = df.join(genes, left_on='gene_name', right_on='gene_symbol', how='left')
+#             mapped_df = mapped_df.select(['gene_id', 'gene_name', 'gene_type', 'tpm_unstranded', 'entrez_id', 'file_id'])
+#             mapped_df = mapped_df.rename({'tpm_unstranded': 'transcriptomics'})
+#             mapped_df = mapped_df.with_columns([pl.lit('GDC').alias('source'),
+#                                                pl.lit('HCMI').alias('study')])
+            
+#         elif data_type == "copy_number":
+#             joined_df = df.join(genes, left_on='gene_name', right_on='gene_symbol', how='left')
+#             selected_df = joined_df.select(['entrez_id', 'copy_number', 'file_id'])
+#             copy_call_series = copy_num(selected_df['copy_number'])
+#             mapped_df = selected_df.with_columns([
+#                 copy_call_series.alias('copy_call'), 
+#                 pl.lit('GDC').alias('source'),
+#                 pl.lit('HCMI').alias('study')
+#             ])
+            
+#         elif data_type == "mutations":
+#             mapped_df = df.rename({'Entrez_Gene_Id': 'entrez_id', 'HGVSc': 'mutation'})
+#             mapped_df = mapped_df.select(['entrez_id', 'mutation', 'Variant_Classification', 'file_id'])
+#             mapped_df = mapped_df.with_columns([pl.lit('GDC').alias('source'),
+#                                                pl.lit('HCMI').alias('study')])
+#             mapped_df = mapped_df.with_columns([
+#                 pl.col("entrez_id").cast(pl.Int64),
+#                 pl.lit('GDC' ).alias('source'),
+#                 pl.lit('HCMI').alias('study'),
+#             ])
+#             #drop genes not in genes file.
+#             mapped_df = mapped_df.filter(
+#                 (pl.col("entrez_id") != 0) &
+#                 pl.col("entrez_id").is_in(valid_entrez)
+#             )
+#         final_dataframe = pl.concat([final_dataframe, mapped_df])
+#         del df, mapped_df
+#         gc.collect()
+
+    
+#     # Convert the metadata into a DataFrame
+#     metadata_dict = {
+#     'file_id': [item['id'] for item in metadata['data']['hits']],
+#     'case_id': [item['cases'][0]['case_id'] for item in metadata['data']['hits']],
+#     'sample_id': [item['cases'][0]['samples'][0]['sample_id'] for item in metadata['data']['hits']],
+#     'aliquot_id': [item['cases'][0]['samples'][0]["portions"][0]["analytes"][0]['aliquots'][0]['aliquot_id'] for item in metadata['data']['hits']]
+#     }
+#     df_metadata = pl.DataFrame(metadata_dict)
+    
+#     # Merge the metadata DataFrame with the final dataframe based on 'file_id'
+#     print(df_metadata)
+#     print(final_dataframe)
+#     final_dataframe = final_dataframe.join(df_metadata, on='file_id', how='left')
+    
+#     return final_dataframe
+
+def map_and_combine_stream(
+        dataframe_iter,
+        data_type: str,
+        metadata: dict,
+        entrez_map_file: str
+):
     """
-    Map and combine dataframes based on their data type, and merge with provided metadata
-    using Polars.
-    
-    Parameters
-    ----------
-    dataframe_list : list of pl.DataFrame
-        List of dataframes containing data to be mapped and combined.
-        
-    data_type : string
-        The type of data being processed.
-        
-    metadata : dict
-        Metadata to be merged with the processed data.
-        
-    entrez_map_file : string
-        File path to the CSV file mapping gene names to Entrez IDs.
-    
-    Returns
-    -------
-    pl.DataFrame
-        A dataframe containing the combined, mapped, and merged data.
+    Accepts a generator/iterable of raw-cleaned frames, enriches each with gene
+    mapping & metadata, and yields the result immediately.
     """
     genes = pl.read_csv(entrez_map_file)
     valid_entrez = genes["entrez_id"].cast(pl.Int64).unique().to_list()
 
-    mapped_frames = []
+    # materialize tiny metadata once
+    md_hits = metadata["data"]["hits"]
+    meta_df = pl.DataFrame({
+        "file_id":  [h["id"]                               for h in md_hits],
+        "case_id":  [h["cases"][0]["case_id"]              for h in md_hits],
+        "sample_id":[h["cases"][0]["samples"][0]["sample_id"] for h in md_hits],
+        "aliquot_id":[h["cases"][0]["samples"][0]["portions"][0]
+                         ["analytes"][0]["aliquots"][0]["aliquot_id"]
+                      for h in md_hits],
+    })
 
-    for df in dataframe_list:
+    for df in dataframe_iter:
         if data_type == "transcriptomics":
-            mapped_df = (
+            df = (
                 df.join(genes, left_on="gene_name", right_on="gene_symbol", how="left")
-                  .select(["gene_id", "gene_name", "gene_type", "tpm_unstranded", "entrez_id", "file_id"])
+                  .select(["gene_id", "gene_name", "gene_type",
+                           "tpm_unstranded", "entrez_id", "file_id"])
                   .rename({"tpm_unstranded": "transcriptomics"})
                   .with_columns([
                       pl.lit("GDC").alias("source"),
-                      pl.lit("HCMI").alias("study"),
+                      pl.lit("HCMI").alias("study")
                   ])
             )
+
         elif data_type == "copy_number":
-            joined_df = df.join(genes, left_on="gene_name", right_on="gene_symbol", how="left")
-            selected_df = joined_df.select(["entrez_id", "copy_number", "file_id"])
-            copy_call_series = copy_num(selected_df["copy_number"])  
-            mapped_df = selected_df.with_columns([
-                copy_call_series.alias("copy_call"),
-                pl.lit("GDC").alias("source"),
-                pl.lit("HCMI").alias("study"),
-            ])
-        elif data_type == "mutations":
-            mapped_df = (
-                df.rename({"Entrez_Gene_Id": "entrez_id", "HGVSc": "mutation"})
-                  .select(["entrez_id", "mutation", "Variant_Classification", "file_id"])
-                  .with_columns([
-                      pl.col("entrez_id").cast(pl.Int64),
-                      pl.lit("GDC").alias("source"),
-                      pl.lit("HCMI").alias("study"),
-                  ])
-                  .filter(
-                      (pl.col("entrez_id") != 0)
-                      & pl.col("entrez_id").is_in(valid_entrez)
-                  )
+            df = (
+                df.join(genes, left_on="gene_name", right_on="gene_symbol", how="left")
+                  .with_columns(pl.col("copy_number").cast(pl.Float64))          # <- cast once
+                  .select(["entrez_id", "copy_number", "file_id"])
             )
-        else:
-            raise ValueError(f"Unsupported data_type: {data_type!r}")
 
-        mapped_frames.append(mapped_df)
+            # build categorical copy_call from the concrete Series, not Expr
+            copy_call_series = copy_num(df["copy_number"])
 
-    # Concatenate once, guard empty
-    if mapped_frames:
-        final_dataframe = pl.concat(mapped_frames, how="vertical")
-    else:
-        final_dataframe = pl.DataFrame()
+            df = df.with_columns([
+                    copy_call_series.alias("copy_call"),
+                    pl.lit("GDC").alias("source"),
+                    pl.lit("HCMI").alias("study")
+            ])
 
-    # Build metadata DataFrame
-    metadata_dict = {
-        "file_id": [item["id"] for item in metadata["data"]["hits"]],
-        "case_id": [item["cases"][0]["case_id"] for item in metadata["data"]["hits"]],
-        "sample_id": [item["cases"][0]["samples"][0]["sample_id"] for item in metadata["data"]["hits"]],
-        "aliquot_id": [
-            item["cases"][0]["samples"][0]["portions"][0]["analytes"][0]["aliquots"][0]["aliquot_id"]
-            for item in metadata["data"]["hits"]
-        ],
-    }
-    df_metadata = pl.DataFrame(metadata_dict)
+        elif data_type == "mutations":
+            df = (
+                df.rename({"Entrez_Gene_Id": "entrez_id", "HGVSc": "mutation"})
+                  .select(["entrez_id", "mutation", "Variant_Classification",
+                           "file_id"])
+                  .with_columns([
+                      pl.lit("GDC").alias("source"),
+                      pl.lit("HCMI").alias("study")
+                  ])
+                  .with_columns(pl.col("entrez_id").cast(pl.Int64))
+                  .filter(
+                      (pl.col("entrez_id") != 0) &
+                      pl.col("entrez_id").is_in(valid_entrez)
+                  )
+                  .rename({"Variant_Classification": "variant_classification"})
+            )
 
-    # Merge metadata
-    final_dataframe = final_dataframe.join(df_metadata, on="file_id", how="left")
+        # add metadata (small broadcast join → streaming-friendly)
+        df = df.join(meta_df, on="file_id", how="left")
+        yield df
+        
 
-    return final_dataframe
+def retrieve_figshare_data(url):
+    """
+    Download data from a given Figshare URL.
+    
+    Parameters
+    ----------
+    url : string
+        The Figshare URL to download data from.
+    
+    Returns
+    -------
+    string
+        Name of the downloaded file.
+    """
+    
+    files_0 = os.listdir()
+    wget.download(url)
+    files_1 = os.listdir()
+    new_file = str(next(iter(set(files_1) - set(files_0))))
+    return new_file
 
 def copy_num(arr):
     """
@@ -575,54 +666,95 @@ def download_from_github(raw_url, save_path):
     return
 
 
-def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samples.csv'):
-    """
-    Modify the data match the CANDLE schema based on its type, using Polars for processing.
-    Essentially just adding improve_sample_id
+# def align_to_schema(data, data_type, chunksize=7500,samples_path='/tmp/hcmi_samples.csv'):
+#     """
+#     Modify the data match the CANDLE schema based on its type, using Polars for processing.
+#     Essentially just adding improve_sample_id
     
-    Parameters
-    ----------
-    data : pl.DataFrame
-        The data to be aligned.
+#     Parameters
+#     ----------
+#     data : pl.DataFrame
+#         The data to be aligned.
         
-    data_type : string
-        The type of data being processed.
+#     data_type : string
+#         The type of data being processed.
     
-    Returns
-    -------
-    pl.DataFrame
-        The final form of the dataframe.
-    """
-#    samples_path = "/tmp/hcmi_samples.csv"
-    samples = pl.read_csv(samples_path)
-    samples = samples.drop(["cancer_type", "common_name", "other_id", "model_type", "species","other_id_source"]).unique()
+#     Returns
+#     -------
+#     pl.DataFrame
+#         The final form of the dataframe.
+#     """
+# #    samples_path = "/tmp/hcmi_samples.csv"
+#     samples = pl.read_csv(samples_path)
+#     samples = samples.drop(["cancer_type", "common_name", "other_id", "model_type", "species","other_id_source"]).unique()
 
-    # Determine columns to select based on data_type
-    columns = {
-        "transcriptomics": ["entrez_id", "transcriptomics", "source", "study", "aliquot_id"],
-        "copy_number": ["entrez_id", "copy_number", "copy_call", "source", "study", "aliquot_id"],
-        "mutations": ["entrez_id", "mutation", "variant_classification", "source", "study", "aliquot_id"]
-    }
-    selected_columns = columns.get(data_type, [])
+#     # Determine columns to select based on data_type
+#     columns = {
+#         "transcriptomics": ["entrez_id", "transcriptomics", "source", "study", "aliquot_id"],
+#         "copy_number": ["entrez_id", "copy_number", "copy_call", "source", "study", "aliquot_id"],
+#         "mutations": ["entrez_id", "mutation", "variant_classification", "source", "study", "aliquot_id"]
+#     }
+#     selected_columns = columns.get(data_type, [])
 
-    # Process in chunks
-    merged_data = pl.DataFrame()
-    # print(f"merged_data:\n {merged_data}")
+#     # Process in chunks
+#     merged_data = pl.DataFrame()
+#     print(f"merged_data:\n {merged_data}")
     
-    for i in range(0, len(data), chunksize):
-        chunk = data[i:i + chunksize]
-        if data_type == "mutations":
-            chunk = chunk.rename({"Variant_Classification": "variant_classification"})
-        chunk = chunk.select(selected_columns)
-        # print(f"chunk: \n{chunk}")
-        merged_chunk = samples.join(chunk, left_on='other_names', right_on='aliquot_id', how='inner')
-        merged_chunk = merged_chunk.drop(["aliquot_id", "other_names"])
+#     for i in range(0, len(data), chunksize):
+#         chunk = data[i:i + chunksize]
+#         if data_type == "mutations":
+#             chunk = chunk.rename({"Variant_Classification": "variant_classification"})
+#         chunk = chunk.select(selected_columns)
+#         print(f"chunk: \n{chunk}")
+#         merged_chunk = samples.join(chunk, left_on='other_names', right_on='aliquot_id', how='inner')
+#         merged_chunk = merged_chunk.drop(["aliquot_id", "other_names"])
 
-        # Append the processed chunk
-        merged_data = pl.concat([merged_data, merged_chunk])
-        gc.collect()
-    merged_data = merged_data.drop_nulls()
-    return merged_data
+#         # Append the processed chunk
+#         merged_data = pl.concat([merged_data, merged_chunk])
+#         gc.collect()
+#     merged_data = merged_data.drop_nulls()
+#     return merged_data
+
+def align_to_schema_stream(
+        dataframe_iter,
+        data_type: str,
+        out_path: str,
+        samples_path: str = "/tmp/hcmi_samples.csv",
+        chunksize: int = 7_500
+):
+    samples = (
+        pl.read_csv(samples_path)
+          .drop(["cancer_type", "common_name", "other_id",
+                 "model_type", "species", "other_id_source"])
+          .unique()
+    )
+
+    keep = {
+        "transcriptomics": ["entrez_id", "transcriptomics",
+                            "source", "study", "aliquot_id"],
+        "copy_number":     ["entrez_id", "copy_number", "copy_call",
+                            "source", "study", "aliquot_id"],
+        "mutations":       ["entrez_id", "mutation",
+                            "variant_classification",
+                            "source", "study", "aliquot_id"],
+    }[data_type]
+
+    header_written = False
+    for df in dataframe_iter:
+        # split big DataFrame into smaller slices (defensive)
+        for offset in range(0, len(df), chunksize):
+            chunk = df[offset: offset + chunksize].select(keep)
+            merged = (
+                samples.join(chunk,
+                             left_on="other_names",
+                             right_on="aliquot_id",
+                             how="inner")
+                        .drop(["aliquot_id", "other_names"])
+                        .drop_nulls()
+            )
+            merged = merged.drop_nulls().unique() # drop duplicates
+            header_written = _append_to_csv(merged, out_path, header_written)
+            gc.collect()
 
 
 def write_dataframe_to_csv(dataframe, outname):
@@ -650,6 +782,49 @@ def write_dataframe_to_csv(dataframe, outname):
     else:
         dataframe.to_csv(outname,index=False)
     return
+
+
+
+def deduplicate_final_csv(csv_path, subset=None):
+    """
+    Re-open the finished CSV in streaming mode, drop duplicate rows (optionally
+    only on a subset of columns), and atomically replace the file.
+
+    Parameters
+    ----------
+    csv_path : str
+        Full path to the written CSV (gzip OK; .gz recognised automatically).
+    subset : list[str] | None
+        Columns to consider when identifying duplicates.
+        None = all columns (same behaviour as df.drop_duplicates()).
+
+    Returns
+    -------
+    None  (file is overwritten in-place)
+    """
+    # Clear everything from memory except what is needed here
+    globals_to_clear = [k for k in globals() if not k.startswith("__")]
+    for k in globals_to_clear:
+        if k not in ("deduplicate_final_csv", "tempfile", "pl", "gc", "os"):
+            del globals()[k]
+    gc.collect()
+
+    is_gz   = csv_path.endswith(".gz")
+    fd, tmp = tempfile.mkstemp(suffix=".csv.gz" if is_gz else ".csv")
+    os.close(fd)              
+
+    (
+        pl.scan_csv(csv_path)
+          .unique(subset=subset, maintain_order=True)
+          .sink_csv(tmp, has_header=True,
+                    compression="gzip" if is_gz else None,
+                    separator=",")
+    )
+
+    os.replace(tmp, csv_path)
+    print(f"De-duplicated rows written back to {csv_path}")
+
+
 
 def main():
     """
@@ -732,45 +907,63 @@ def main():
     print("Using gdc tool and retrieving get metadata...")
     metadata = use_gdc_tool(args.manifest, args.type, download_data=download_option)
     # Extract data files
-    print("Running 'get_clean_files' function")
-    # data_files = get_clean_files(args.type)
     
-    intermediate_csv = f"/tmp/hcmi_{args.type}_cleaned.csv"
-    print(f"Streaming cleaned files for {args.type} → {intermediate_csv}")
-    stream_clean_files(
+    print("Streaming cleaned source files...")
+    raw_stream = stream_clean_files(args.type)
+
+    # 2 · map + combine on the fly
+    print("Mapping / combining...")
+    mapped_stream = map_and_combine_stream(
+        raw_stream,
         args.type,
-        args.manifestfolder or "full_manifest_files",
-        intermediate_csv
+        metadata,
+        args.genes
     )
 
-    # Load that cleaned CSV lazily, then collect into one DataFrame for mapping
-    print("Loading cleaned data for mapping …")
-    df_clean = pl.scan_csv(intermediate_csv).collect(streaming=True)
-    data_files = [df_clean]
-    
+    # 3 · align to schema and write incrementally
+    print("Aligning to schema & writing chunks...")
+    align_to_schema_stream(
+        mapped_stream,
+        args.type,
+        args.outname,
+        samples_path=args.samples,
+        chunksize=7_500         
+    )
 
-    # Retrieve figshare gene data for entrez map
-    entrez_map_file = args.genes 
-    gc.collect()
+    print(f"Done. Dataset written to {args.outname}")
     
-    # Combine the data
-    print("Running 'map_and_combine' function")
-    combined_data = map_and_combine(data_files, args.type, metadata, entrez_map_file)
-    gc.collect()
-    data_files = None
-    metadata = None
+    print("Running global de-duplication pass …")
+    deduplicate_final_csv(args.outname)         # subset=None  ⇒ all columns
+    print("All done.")
     
-    # Final formatting
-    print("Aligning to Schema")
-    final_data = align_to_schema(combined_data,args.type,7500,args.samples)
-    gc.collect()
-    combined_data = None
     
-    print(f"final data:\n{final_data}")
+    # print("Running 'get_clean_files' function")
+    # data_files = get_clean_files(args.type)
 
-    # Save to CSV
-    print("Running 'write_dataframe_to_csv' function")
-    write_dataframe_to_csv(final_data, args.outname)
+    # # Retrieve figshare gene data for entrez map
+    # print("Running 'retrieve_figshare_data' function")
+    # gene_url = "https://figshare.com/ndownloader/files/40576109?private_link=525f7777039f4610ef47"
+    # entrez_map_file = args.genes #retrieve_figshare_data(gene_url)
+    # gc.collect()
+    
+    # # Combine the data
+    # print("Running 'map_and_combine' function")
+    # combined_data = map_and_combine(data_files, args.type, metadata, entrez_map_file)
+    # gc.collect()
+    # data_files = None
+    # metadata = None
+    
+    # # Final formatting
+    # print("Aligning to Schema")
+    # final_data = align_to_schema(combined_data,args.type,7500,args.samples)
+    # gc.collect()
+    # combined_data = None
+    
+    # print(f"final data:\n{final_data}")
+
+    # # Save to CSV
+    # print("Running 'write_dataframe_to_csv' function")
+    # write_dataframe_to_csv(final_data, args.outname)
     
 if __name__ == "__main__":
     main()
