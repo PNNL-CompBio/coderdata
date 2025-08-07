@@ -35,7 +35,7 @@ def process_docker(dataset,validate):
     '''
     Build Docker images required for the specified dataset.
     '''
-    compose_file = 'build/docker/docker-compose.yml'
+    compose_file = 'coderbuild/docker/docker-compose.yml'
     dataset_map = {
         'broad_sanger': ['broad_sanger_exp', 'broad_sanger_omics'],
         'hcmi': ['hcmi'],

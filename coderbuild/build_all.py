@@ -19,16 +19,16 @@ def main():
         epilog="""Examples of usage:
 
 Build all datasets in a high memory environment, validate them, and upload to Figshare:
-  python build/build_all.py --all --high_mem --validate --figshare --version 0.1.29
+  python coderbuild/build_all.py --all --high_mem --validate --figshare --version 0.1.29
 
 Build only experiment files. This assumes preceding steps (docker images, samples, omics, and drugs) have already been completed:
-  python build/build_all.py --exp
+  python coderbuild/build_all.py --exp
 
 Validate all local files without building or uploading. These files must be located in ./local. Includes compression/decompression steps.
-  python build/build_all.py --validate
+  python coderbuild/build_all.py --validate
 
 Upload the latest data to Figshare (ensure tokens are set in the local environment):
-  python build/build_all.py --figshare --version 0.1.30
+  python coderbuild/build_all.py --figshare --version 0.1.30
         """
     )
     parser.add_argument('--docker',dest='docker',default=False,action='store_true', help="Build all docker images.")
@@ -98,7 +98,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         Parameters:
         - datasets: list of datasets to process (e.g., ['broad_sanger', 'hcmi', 'mpnst'])
         '''
-        compose_file = 'build/docker/docker-compose.yml'
+        compose_file = 'coderbuild/docker/docker-compose.yml'
         
         # Map datasets to corresponding Docker Containers
         dataset_map = {
@@ -474,10 +474,10 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
                         f'&& git checkout -b testing-auto-build-pr-{args.version} '
                         
                         # Copy and add the necessary files
-                        f'&& cp /tmp/improve_sample_mapping.json.gz /usr/src/app/coderdata/build/improve_sample_mapping.json.gz '
-                        f'&& cp /tmp/improve_drug_mapping.json.gz /usr/src/app/coderdata/build/improve_drug_mapping.json.gz '
-                        f'&& gunzip /usr/src/app/coderdata/build/*.gz '
-                        f'&& git add -f build/improve_sample_mapping.json build/improve_drug_mapping.json '
+                        f'&& cp /tmp/improve_sample_mapping.json.gz /usr/src/app/coderdata/coderbuild/improve_sample_mapping.json.gz '
+                        f'&& cp /tmp/improve_drug_mapping.json.gz /usr/src/app/coderdata/coderbuild/improve_drug_mapping.json.gz '
+                        f'&& gunzip /usr/src/app/coderdata/coderbuild/*.gz '
+                        f'&& git add -f coderbuild/improve_sample_mapping.json coderbuild/improve_drug_mapping.json '
                         f'&& cp /tmp/figshare_latest.yml /usr/src/app/coderdata/docs/_data/figshare_latest.yml '
                         f'&& cp /tmp/dataset.yml /usr/src/app/coderdata/coderdata/dataset.yml '
                         f'&& git add -f docs/_data/figshare_latest.yml coderdata/dataset.yml'
