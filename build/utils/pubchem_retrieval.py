@@ -55,9 +55,10 @@ def fetch_url(url, retries=3, backoff_factor=1):
         try:
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
-                return response.json()
-            else:
-                raise Exception(f"Failed to fetch {url}, Status Code: {response.status_code}")
+              return response.json()
+            if response.status_code == 404:          # permanent, no existing CID/name
+                raise FileNotFoundError("404")
+            raise Exception(f"Failed to fetch {url}, Status Code: {response.status_code}")
         except Exception as exc:
             if attempt < retries:
                 wait = backoff_factor * (2 ** attempt)
@@ -104,10 +105,14 @@ def retrieve_drug_info(compound, ignore_chems, isname=True):
             try:
                 data = future.result()
                 results[key] = data
-            except Exception as exc:
-                print(f'{compound} generated an exception: {exc}')
+                
+            except FileNotFoundError:                # only 404s are added
+                print(f"{compound} not found in PubChem. Adding to ignore list.")
                 with open(ignore_chems, "a") as f:
                     f.write(f"{compound}\n")
+                return None
+            except Exception as exc:                 # transient error, don't blacklist
+                print(f"{compound} generated a transient exception: {exc}")
                 return None
 
     if all(key in results for key in ["properties", "synonyms"]):

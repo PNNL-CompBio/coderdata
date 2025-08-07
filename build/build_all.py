@@ -60,6 +60,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         Essentially a wrapper for 'docker run'. Also provides output.
         '''
         retries=3
+        delays = [3 * 60, 10 * 60]  # 3 minutes, 10 minutes
         print('running...'+filename)
         env = os.environ.copy()
         if 'SYNAPSE_AUTH_TOKEN' not in env.keys():
@@ -80,21 +81,13 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             else:
                 print(f"[{filename}] failed (exit {res.returncode}).")
                 if attempt < retries:
-                    print("Retrying...")
+                    delay = delays[attempt - 1]
+                    print(f"[{filename}] waiting {delay//60} minutes before retrying...")
                     print(cmd)
+                    time.sleep(delay)
             attempt += 1
         raise RuntimeError(f"{filename} failed after {retries} attempts")
-                
-            
-        # cmd = docker_run+cmd_arr
-        # print(cmd)
-        # # res = subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        # res = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
-        # if res.returncode !=0:
-        #     print(res.stderr)
-        #     exit(filename+' file failed')
-        # else:
-        #     print(filename+' retrieved')
+
         
     
     def process_docker(datasets):
