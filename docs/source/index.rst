@@ -17,7 +17,6 @@
    usage
    APIreference
    datasets_included
-   tutorials
    contribution
 
 
@@ -42,7 +41,7 @@
         	<h4>Datasets</h4>
     	</div>
 
-		<div class="clickable-box" onclick="window.location.href='tutorials.html';">
+		<div class="clickable-box" onclick="window.location.href='docsite_tutorial.html';">
       		<h4>Tutorial</h4>
     	</div>
 
