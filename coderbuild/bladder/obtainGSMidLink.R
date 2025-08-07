@@ -1,3 +1,11 @@
+if (!requireNamespace("BiocManager", quietly=TRUE)) {
+  install.packages("BiocManager", repos="https://cloud.r-project.org")
+}
+if (!requireNamespace("GEOquery", quietly=TRUE)) {
+  BiocManager::install("GEOquery")
+}
+library(GEOquery)
+
 gse <- GEOquery::getGEO("GSE103990",GSEMatrix=FALSE)
 GEOquery::Meta(gse)
 GSMs <- GEOquery::Meta(gse)$sample_id
