@@ -21,7 +21,7 @@ COPY coderbuild/pancreatic/05-addPrecalcAUC.py .
 COPY coderbuild/pancreatic/full_manifest.txt .
 COPY coderbuild/pancreatic/requirements.txt .
 COPY coderbuild/pancreatic/*sh ./
-COPY coderbuild/pancreatic/pancpdo_cancer_types.csv ./
+COPY coderbuild/pancreatic/pancreatic_cancer_types.csv ./
 COPY coderbuild/utils/* ./
 
 VOLUME ['/tmp']
