@@ -13,6 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install Pandoc
+      uses: pandoc/actions/setup@v1
+      with:
+        version: 3.5
+
     - name: Install dependencies
       run: pip install -r docs/requirements.txt
 
