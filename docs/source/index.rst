@@ -18,6 +18,8 @@
    APIreference
    datasets_included
    contribution
+   _notebooks/docsite_tutorial
+   tutorials
 
 
 .. image:: _static/coderdata_header3.jpg   
@@ -41,7 +43,7 @@
         	<h4>Datasets</h4>
     	</div>
 
-		<div class="clickable-box" onclick="window.location.href='docsite_tutorial.html';">
+		<div class="clickable-box" onclick="window.location.href='_notebooks/docsite_tutorial.html';">
       		<h4>Tutorial</h4>
     	</div>
 
