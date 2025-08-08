@@ -802,27 +802,33 @@ def deduplicate_final_csv(csv_path, subset=None):
     -------
     None  (file is overwritten in-place)
     """
-    # Clear everything from memory except what is needed here
-    globals_to_clear = [k for k in globals() if not k.startswith("__")]
-    for k in globals_to_clear:
-        if k not in ("deduplicate_final_csv", "tempfile", "pl", "gc", "os"):
-            del globals()[k]
-    gc.collect()
+    # 1. build a temp file with .csv.gz suffix
+    fd, tmp = tempfile.mkstemp(suffix=".csv.gz")
+    os.close(fd)
 
-    is_gz   = csv_path.endswith(".gz")
-    fd, tmp = tempfile.mkstemp(suffix=".csv.gz" if is_gz else ".csv")
-    os.close(fd)              
-
+    # 2. lazy-scan original CSV, drop dupes, write compressed
     (
         pl.scan_csv(csv_path)
           .unique(subset=subset, maintain_order=True)
-          .sink_csv(tmp, has_header=True,
-                    compression="gzip" if is_gz else None,
+          .sink_csv(tmp,
+                    has_header=True,
+                    compression="gzip",
                     separator=",")
     )
 
-    os.replace(tmp, csv_path)
-    print(f"De-duplicated rows written back to {csv_path}")
+    # 3. define the final output name
+    out_path = csv_path + ".gz"
+
+    # 4. atomically move temp → final
+    os.replace(tmp, out_path)
+
+    # 5. remove the old uncompressed CSV
+    os.remove(csv_path)
+
+    print(f"De-duplicated and gzipped file written to: {out_path}")
+
+    # 6. free memory
+    gc.collect()
 
 
 
