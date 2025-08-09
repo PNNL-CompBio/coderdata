@@ -1,0 +1,51 @@
+FROM r-base:4.4.1
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update and upgrade packages, then install required packages.
+RUN apt-get update --fix-missing && \
+    apt-get upgrade -y && \
+    apt-get install -y --fix-missing --allow-unauthenticated \
+      build-essential \
+      python3-pip \
+      python3-setuptools \
+      python3-dev \
+      python3-venv \
+      libcurl4-openssl-dev \
+      libglpk-dev \
+      libxml2-dev \
+      libpq-dev \
+      ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Create and upgrade the Python virtual environment.
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip
+
+# Set MPLCONFIGDIR to a writable directory and create it.
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+# Set Python path and working directory.
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+WORKDIR /app
+
+
+# Install R libraries.
+ADD coderbuild/broad_sanger/omics_requirements.r .
+RUN Rscript omics_requirements.r
+
+# Install Python libraries.
+ADD coderbuild/broad_sanger/requirements.txt .
+RUN /opt/venv/bin/pip install -r requirements.txt
+
+# Add these later so caching is already done for the R and Python libraries.
+ADD coderbuild/broad_sanger/01-broadSangerSamples.R ./
+ADD coderbuild/broad_sanger/02-broadSangerOmics.R ./
+ADD coderbuild/broad_sanger/02a-broad_sanger_proteomics.py ./
+ADD coderbuild/broad_sanger/build_samples.sh ./
+ADD coderbuild/broad_sanger/build_omics.sh ./
+ADD coderbuild/utils/* ./
+ADD coderbuild/broad_sanger/build_misc.sh ./
+ADD coderbuild/broad_sanger/05a_remove_problem_drugs.py ./
+ADD coderbuild/broad_sanger/05b_separate_datasets.py ./

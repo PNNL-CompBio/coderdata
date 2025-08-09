@@ -1,0 +1,22 @@
+FROM python:3.9
+
+WORKDIR /usr/src/app
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+#install requirements
+COPY coderbuild/sarcoma/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Add files last to optimize Docker caching
+COPY coderbuild/sarcoma/00_createSarcomaSampleFile.py .
+COPY coderbuild/sarcoma/01_createSarcomaOmicsFiles.py .
+COPY coderbuild/sarcoma/02_createSarcomaDrugsFile.py .
+COPY coderbuild/sarcoma/03_createSarcomaExperimentFile.py . 
+COPY coderbuild/sarcoma/*sh ./
+COPY coderbuild/utils/* ./
+
+VOLUME  ['/tmp']
+
