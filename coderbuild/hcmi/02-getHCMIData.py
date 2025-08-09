@@ -802,11 +802,8 @@ def deduplicate_final_csv(csv_path, subset=None):
     -------
     None  (file is overwritten in-place)
     """
-    # 1. build a temp file with .csv.gz suffix
     fd, tmp = tempfile.mkstemp(suffix=".csv.gz")
     os.close(fd)
-
-    # 2. lazy-scan original CSV, drop dupes, write compressed
     (
         pl.scan_csv(csv_path)
           .unique(subset=subset, maintain_order=True)
@@ -816,17 +813,10 @@ def deduplicate_final_csv(csv_path, subset=None):
                     separator=",")
     )
 
-    # 3. define the final output name
     out_path = csv_path + ".gz"
-
-    # 4. atomically move temp → final
     os.replace(tmp, out_path)
-
-    # 5. remove the old uncompressed CSV
     os.remove(csv_path)
-
     print(f"De-duplicated and gzipped file written to: {out_path}")
-
     # 6. free memory
     gc.collect()
 
