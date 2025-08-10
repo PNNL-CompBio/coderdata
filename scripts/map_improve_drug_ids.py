@@ -369,7 +369,7 @@ so their TSV files are properly rewritten.
                         help='Build date in YYYY-MM-DD. Default=now.')
     parser.add_argument('--version', required=True,
                         help='Build version. Must be unique per build.')
-    parser.add_argument('--datasets', default='gdscv1,ccle,ctrpv2,fimm,gcsi,gdscv2,nci60,prism,beataml,pancpdo,bladderpdo,sarcpdo,liverpdo,novartispdx,mpnst',
+    parser.add_argument('--datasets', default='gdscv1,ccle,ctrpv2,fimm,gcsi,gdscv2,nci60,prism,beataml,pancreatic,bladder,sarcoma,liver,novartis,colorectal,mpnst',
                         help='Comma-separated list of datasets.')
     parser.add_argument('--local_dir', default='data',
                         help='Directory containing TSV files.')

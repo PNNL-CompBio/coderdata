@@ -19,6 +19,8 @@ import gc
 import hashlib
 from pathlib import Path
 import tempfile
+import shlex
+
 
 def download_tool(url):
     """
@@ -784,41 +786,68 @@ def write_dataframe_to_csv(dataframe, outname):
     return
 
 
-
-def deduplicate_final_csv(csv_path, subset=None):
+def deduplicate_final_csv(csv_path: str, subset=None):
     """
-    Re-open the finished CSV in streaming mode, drop duplicate rows (optionally
-    only on a subset of columns), and atomically replace the file.
-
-    Parameters
-    ----------
-    csv_path : str
-        Full path to the written CSV (gzip OK; .gz recognised automatically).
-    subset : list[str] | None
-        Columns to consider when identifying duplicates.
-        None = all columns (same behaviour as df.drop_duplicates()).
-
-    Returns
-    -------
-    None  (file is overwritten in-place)
+    Very low-RAM dedup via external sort+uniq.
+    - Preserves header.
+    - Full-line dedupe (subset ignored).
+    - Writes gz output; replaces input if it was .gz, else creates <input>.gz and removes the original.
     """
-    fd, tmp = tempfile.mkstemp(suffix=".csv.gz")
-    os.close(fd)
-    (
-        pl.scan_csv(csv_path)
-          .unique(subset=subset, maintain_order=True)
-          .sink_csv(tmp,
-                    has_header=True,
-                    compression="gzip",
-                    separator=",")
-    )
+    if subset is not None:
+        print("Warning: 'subset' is ignored by sort/uniq dedup (full-line dedupe).")
 
-    out_path = csv_path + ".gz"
-    os.replace(tmp, out_path)
-    os.remove(csv_path)
-    print(f"De-duplicated and gzipped file written to: {out_path}")
-    # 6. free memory
-    gc.collect()
+    is_gz = csv_path.endswith(".gz")
+    out_path = csv_path if is_gz else f"{csv_path}.gz"
+    # temp gz path
+    tmp_fd, tmp_path = tempfile.mkstemp(suffix=".csv.gz")
+    os.close(tmp_fd)
+    # Decompressor
+    src_cmd = f"gzip -cd {shlex.quote(csv_path)}" if is_gz else f"cat {shlex.quote(csv_path)}"
+
+    # Detect sort verion
+    def _has_gnu_sort():
+        try:
+            out = subprocess.run(["sort", "--version"], capture_output=True, text=True)
+            return out.returncode == 0 and "GNU coreutils" in (out.stdout + out.stderr)
+        except Exception:
+            return False
+
+    gnu = _has_gnu_sort()
+    sort_opts = []
+    if gnu:
+        # Safe defaults
+        sort_opts += ["-S", "1G", "--temporary-directory", "."]
+
+    sort_cmd = " ".join(["sort"] + [shlex.quote(o) for o in sort_opts])
+
+    try:
+        # Grab header first
+        header = subprocess.check_output(
+            f"{src_cmd} | head -n 1",
+            shell=True,
+            executable="/bin/bash",
+            text=True
+        ).rstrip("\n")
+
+        # Print header, then stream body,sort,uniq, then gzip
+        cmd = (
+            "{ "
+            f"printf %s\\\\n {shlex.quote(header)}; "
+            f"LC_ALL=C {src_cmd} | tail -n +2 | {sort_cmd} | uniq; "
+            f"}} | gzip -c > {shlex.quote(tmp_path)}"
+        )
+
+        subprocess.run(cmd, shell=True, check=True, executable="/bin/bash")
+        os.replace(tmp_path, out_path)
+        if not is_gz and os.path.exists(csv_path):
+            os.remove(csv_path)
+        print(f"De-duplicated and gzipped file written to: {out_path}")
+    except subprocess.CalledProcessError as e:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+        raise RuntimeError(f"Deduplication failed with exit code {e.returncode}") from e
+    finally:
+        gc.collect()
 
 
 
@@ -929,7 +958,7 @@ def main():
     print(f"Done. Dataset written to {args.outname}")
     
     print("Running global de-duplication pass …")
-    deduplicate_final_csv(args.outname)         # subset=None  ⇒ all columns
+    deduplicate_final_csv(args.outname)      
     print("All done.")
     
     
