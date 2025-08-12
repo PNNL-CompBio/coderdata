@@ -25,7 +25,7 @@ def create_bladder_drugs_file(synObject, prevDrugFilepath, outputPath):
         print("No bladder drug names extracted; exiting.")
         return
 
-    print(f"bladder raw drug names: {raw_names}")
+    # print(f"bladder raw drug names: {raw_names}")
 
     #New pubchem call
     update_dataframe_and_write_tsv(

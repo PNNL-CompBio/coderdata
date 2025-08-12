@@ -68,6 +68,14 @@ def download_tool(url):
 
     return gdc_client_path
 
+def _df_chunks(df, size):
+    """
+    Helper function to yield chunks of a DataFrame.
+    This is so the GDC tool can process smaller batches of data.
+    """
+    for i in range(0, len(df), size):
+        yield df.iloc[i:i+size]
+
 
 def _append_to_csv(df: pl.DataFrame, out_path: str, header_written: bool) -> bool:
     """
@@ -210,8 +218,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
         # Read the list of expected file IDs, their MD5 checksums, and filenames
         expected_files = newfm[['id', 'md5', 'filename']].values.tolist()
-        total_files = len(expected_files)
-        print(f"Total files to download: {total_files}")
+        print(f"Total files to download: {len(expected_files)}")
 
         # Initialize retry variables
         retries = 0
@@ -243,9 +250,19 @@ def use_gdc_tool(manifest_data, data_type, download_data):
                 return False
 
         # Initial download attempt
-        print("Starting secondary download...")
-        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'new_manifest.txt'])
-        print("Secondary download complete.")
+        print("Starting to download batches of files through the GDC Client...")
+        
+        batch_size = 150
+        print(f"Starting batched download ({batch_size} per batch)...")
+        for bi, batch_df in enumerate(_df_chunks(newfm, batch_size), start=1):
+            tmp_manifest = f"manifest_batch_{bi:04d}.txt"
+            batch_df.to_csv(tmp_manifest, sep="\t", index=False)
+            print(f"  Batch {bi}: downloading {len(batch_df)} files …")
+            subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', tmp_manifest])
+            os.remove(tmp_manifest)
+        print("Batched download complete.")
+
+        print("All download batches complete.")
 
         # Check for missing or corrupt files and retry if necessary
         while retries <= max_retries:
@@ -287,14 +304,16 @@ def use_gdc_tool(manifest_data, data_type, download_data):
                 shutil.rmtree(file_dir, ignore_errors=True)
                 print(f"  Removed corrupt file: {file_id}")
 
-            # Create a new manifest with missing or corrupt IDs
-            retry_manifest = newfm[newfm['id'].isin(missing_or_corrupt_ids)]
-            retry_manifest.to_csv('retry_manifest.txt', sep='\t', index=False)
-
-            # Retry download
-            print(f"Starting retry {retries} download...")
-            subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'retry_manifest.txt'])
+            retry_df = newfm[newfm['id'].isin(missing_or_corrupt_ids)]
+            print(f"Starting retry {retries} in batches of {batch_size} …")
+            for bi, batch_df in enumerate(_df_chunks(retry_df, batch_size), start=1):
+                tmp_manifest = f"retry_{retries:02d}_batch_{bi:04d}.txt"
+                batch_df.to_csv(tmp_manifest, sep="\t", index=False)
+                print(f"  Retry {retries} · Batch {bi}: {len(batch_df)} files")
+                subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', tmp_manifest])
+                os.remove(tmp_manifest)
             print(f"Retry {retries} complete.")
+
 
         if missing_or_corrupt_ids:
             print(f"\nFailed to download or verify {len(missing_or_corrupt_ids)} files after {max_retries} retries.")
@@ -395,13 +414,16 @@ def stream_clean_files(data_type: str):
                 fpath = os.path.join(manifest, folder, fname)
 
                 # ---- read single file ------------------------------
-                if fpath.endswith(".gz"):                     # mutation data
-                    with gzip.open(fpath, "rt") as fh:
-                        df = pl.read_csv(fh, separator="\t", skip_rows=7)
+                if fpath.endswith(".gz"):  # mutation data is always gzipped
+                    try:
+                        df = pl.read_csv(fpath, separator="\t", skip_rows=7)
+                    except Exception as e:
+                        print(f"[warn] skipping MAF due to read error: {fpath} ({type(e).__name__}: {e})")
+                        continue
                 else:                                        # copy-number / tx
                     skip = 1 if data_type == "transcriptomics" else 0
                     df   = pl.read_csv(fpath, separator="\t", skip_rows=skip)
-
+    
                 df = df.with_columns(pl.lit(folder).alias("file_id"))
 
                 if data_type == "transcriptomics":

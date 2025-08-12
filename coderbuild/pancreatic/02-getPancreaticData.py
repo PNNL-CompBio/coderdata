@@ -98,6 +98,14 @@ def ensure_gdc_client():
     else:
         print("gdc-client already installed")
 
+def _df_chunks(df, size):
+    """
+    Helper function to yield chunks of a DataFrame.
+    This is so the GDC tool can process smaller batches of data.
+    """
+    for i in range(0, len(df), size):
+        yield df.iloc[i:i+size]
+
 
 
 def extract_uuids_from_manifest(manifest_data):
@@ -183,7 +191,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
         # Initialize retry variables
         retries = 0
-        max_retries = 1
+        max_retries = 5
 
         # Function to get downloaded file IDs
         def get_downloaded_ids(manifest_loc):
@@ -211,9 +219,17 @@ def use_gdc_tool(manifest_data, data_type, download_data):
                 return False
 
         # Initial download attempt
-        print("Starting secondary download...")
-        subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'new_manifest.txt'])
-        print("Secondary download complete.")
+        print("Starting download...")
+        # subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'new_manifest.txt'])
+        batch_size = 150
+        print(f"Starting batched download ({batch_size} per batch)...")
+        for bi, batch_df in enumerate(_df_chunks(newfm, batch_size), start=1):
+            tmp_manifest = f"manifest_batch_{bi:04d}.txt"
+            batch_df.to_csv(tmp_manifest, sep="\t", index=False)
+            print(f"  Batch {bi}: downloading {len(batch_df)} files …")
+            subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', tmp_manifest])
+            os.remove(tmp_manifest)
+        print("Batched download complete.")
 
         # Check for missing or corrupt files and retry if necessary
         while retries <= max_retries:
@@ -256,12 +272,14 @@ def use_gdc_tool(manifest_data, data_type, download_data):
                 print(f"  Removed corrupt file: {file_id}")
 
             # Create a new manifest with missing or corrupt IDs
-            retry_manifest = newfm[newfm['id'].isin(missing_or_corrupt_ids)]
-            retry_manifest.to_csv('retry_manifest.txt', sep='\t', index=False)
-
-            # Retry download
-            print(f"Starting retry {retries} download...")
-            subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', 'retry_manifest.txt'])
+            retry_df = newfm[newfm['id'].isin(missing_or_corrupt_ids)]
+            print(f"Starting retry {retries} in batches of {batch_size} …")
+            for bi, batch_df in enumerate(_df_chunks(retry_df, batch_size), start=1):
+                tmp_manifest = f"retry_{retries:02d}_batch_{bi:04d}.txt"
+                batch_df.to_csv(tmp_manifest, sep="\t", index=False)
+                print(f"  Retry {retries} · Batch {bi}: {len(batch_df)} files")
+                subprocess.run(['./gdc-client', 'download', '-d', manifest_loc, '-m', tmp_manifest], check=True)
+                os.remove(tmp_manifest)
             print(f"Retry {retries} complete.")
 
         if missing_or_corrupt_ids:
