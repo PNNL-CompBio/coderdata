@@ -83,6 +83,13 @@ def main():
         default=10
     )
     p_process_datasets.add_argument(
+        '-b', '--balance_by', dest='BALANCE_BY',
+        choices=['auc', 'fit_auc'],
+        default=None,
+        help="Defines if and using which drug response metric the splits "
+             "should be balanced by."
+    )
+    p_process_datasets.add_argument(
         '-r', '--random_seeds', dest='RANDOM_SEEDS',
         type=_random_seed_list,
         default=None,
@@ -166,7 +173,7 @@ def process_datasets(args):
     logger.debug("creating list of datasets that contain experiment info ...")
     for data_set in data_sets_names_list:
         # sarcpdo has different drug response values
-        if data_set == 'sarcpdo':
+        if data_set == 'sarcpdo' and data_sets[data_set].experiments is not None:
             experiment = data_sets[data_set].format(
                 data_type='experiments',
                 shape='wide',
@@ -763,13 +770,21 @@ def split_data_sets(
         args: dict,
         data_sets: dict,
         data_sets_names: list,
-        response_data: pd.DataFrame
+        response_data: pd.DataFrame,
         ):
 
     splits_folder = args.WORKDIR.joinpath('data_out', 'splits')
     split_type = args.SPLIT_TYPE
     ratio = (8,1,1)
-    stratify_by = None
+    stratify_by = args.BALANCE_BY
+    if stratify_by is not None:
+        balance = True
+        quantiles = False
+        num_classes = 4
+    else:
+        balance = False
+        quantiles = True
+        num_classes = 4
     if args.RANDOM_SEEDS is not None:
         random_seeds = args.RANDOM_SEEDS
     else:
@@ -818,6 +833,9 @@ def split_data_sets(
                     split_type=split_type,
                     ratio=ratio,
                     stratify_by=stratify_by,
+                    balance=balance,
+                    quantiles=quantiles,
+                    num_classes=num_classes,
                     random_state=random_seeds[i]
                     )
                 train_keys = (
