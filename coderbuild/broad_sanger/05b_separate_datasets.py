@@ -42,7 +42,7 @@ def main():
         exp_improve_drug_ids = exp["improve_drug_id"].unique().to_list()
         
         #Ensure that the improve_sample_id column is in integer form.
-        exp = exp.with_column(pl.col("improve_sample_id").cast(pl.Float64).cast(pl.Int64))
+        exp = exp.with_columns(pl.col("improve_sample_id").cast(pl.Float64).cast(pl.Int64))
 
         # Write Filtered Experiments File to TSV. Then delete it from memory.
         exp_filename_out = f"/tmp/{dataset}_experiments.tsv".lower()
