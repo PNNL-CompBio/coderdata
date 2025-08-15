@@ -35,6 +35,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     parser.add_argument('--samples',dest='samples',default=False,action='store_true', help="Build all sample files.")
     parser.add_argument('--omics',dest='omics',default=False,action='store_true', help="Build all omics files.")
     parser.add_argument('--drugs',dest='drugs',default=False,action='store_true', help="Build all drug files")
+    parser.add_argument('--misc', action='store_true', help="Run the final misc post-build step (e.g., split broad_sanger datasets).")
     parser.add_argument('--exp',dest='exp',default=False,action='store_true', help="Build all experiment file.")
     parser.add_argument('--validate', action='store_true', help="Run schema checker on all local files. Note this will be run, whether specified or not, if figshare arguments are included.")
     parser.add_argument('--figshare', action='store_true', help="Upload all local data to Figshare. FIGSHARE_TOKEN must be set in local environment.")
@@ -384,9 +385,9 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     # Currently only the cell line datasets need this. This seperates broad_sanger into all of its component datasets.
     
     with ThreadPoolExecutor() as executor:
-        if args.all:
+        if args.misc or args.all:
             misc_thread = executor.submit(process_misc, executor, datasets, args.high_mem)
-        if args.all:
+        if args.misc or args.all:
             misc_thread.result()
             print("Final build step complete.")
 
