@@ -1,0 +1,133 @@
+version: '3.8'
+services:
+  broad_sanger_exp:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.broad_sanger_exp
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: broad_sanger_exp:latest
+
+  broad_sanger_omics:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.broad_sanger_omics
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: broad_sanger_omics:latest
+
+  hcmi:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.hcmi
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: hcmi:latest
+  pancreatic:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.pancreatic
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: pancreatic:latest
+
+  beataml:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.beataml
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: beataml:latest
+
+  mpnst:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.mpnst
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: mpnst:latest
+    
+  mpnstpdx:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.mpnstpdx
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: mpnstpdx:latest
+
+  cptac:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.cptac
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: cptac:latest
+  sarcoma:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.sarcoma
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: sarcoma:latest
+  bladder:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.bladder
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: bladder:latest
+
+  genes:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.genes
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: genes:latest
+
+  upload:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.upload
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: upload:latest
+
+  colorectal:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.colorectal
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: colorectal:latest
+
+  liver:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.liver
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: liver:latest
+
+  novartis:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.novartis
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: novartis:latest

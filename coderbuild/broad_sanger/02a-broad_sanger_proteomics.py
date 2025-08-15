@@ -1,0 +1,118 @@
+import pandas as pd
+import argparse
+from zipfile import ZipFile
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+
+def robust_download(url, dest_path, max_retries=5):
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=max_retries,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods={"GET", "HEAD"},
+        raise_on_status=False,
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+
+    try:
+        with session.get(url, stream=True, timeout=(5, 60)) as r:
+            r.raise_for_status()
+            with open(dest_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=1024 * 1024):
+                    if chunk:  # filter out keep-alive chunks
+                        f.write(chunk)
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Failed to download {url}: {e}") from e
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--sample', dest='samplefile', default=None, help='DepMap sample file')
+    parser.add_argument('--gene', dest='genefile', default=None, help='Gene file')
+
+    opts = parser.parse_args()
+
+    samplefile = opts.samplefile
+    gfile = opts.genefile
+
+    samps = pd.read_csv(samplefile)
+    print(samps)
+    genes = pd.read_csv(gfile)[['gene_symbol','entrez_id']]
+    genes = genes.drop_duplicates()
+
+    print(genes)
+    protfile='https://gygi.hms.harvard.edu/data/ccle/Table_S2_Protein_Quant_Normalized.xlsx'
+
+
+    
+    prots = pd.read_excel(protfile,'Normalized Protein Expression')
+    print(prots)
+
+
+    vvars = [col for col in prots.columns if '_Ten' in col]
+
+    prot2 = prots[['Gene_Symbol']+vvars]
+
+    ##we can just do the metlt here
+    plong = pd.melt(prot2,id_vars='Gene_Symbol',value_vars=vvars,var_name='cellline',value_name='proteomics')
+
+    ##rename gene symbol column
+    plong = plong.rename({'Gene_Symbol':'gene_symbol'},axis=1)
+    print(plong)
+    
+    ##split cell lin
+    plong['other_id'] = [a.split('_Ten')[0] for a in plong.cellline]
+
+    full = plong.merge(genes,on='gene_symbol')
+    full = full.merge(samps,on='other_id')
+
+    full = full.loc[:,['entrez_id','proteomics','improve_sample_id']].drop_duplicates().dropna()
+
+    full[['study']] = 'DepMap'
+    full[['source']] = 'Broad'
+    ##now save to separate files
+    full.dropna(axis=0)
+    full.to_csv('/tmp/broad_proteomics.csv.gz', index=False, compression='gzip')
+
+
+    #old download, (was failing too much)
+    # sanger_protfile='https://cog.sanger.ac.uk/cmp/download/Proteomics_20221214.zip'
+    # r = requests.get(sanger_protfile)
+    # sanger_loc ='/tmp/sp.zip'
+    # open(sanger_loc , 'wb').write(r.content)
+    # zf = ZipFile(sanger_loc,'r')
+    # zf.extractall(path='/tmp/')
+    # pdat = pd.read_csv('/tmp/Protein_matrix_averaged_zscore_20221214.tsv',sep='\t',skiprows=[0])
+    
+    ##now get sanger
+    sanger_protfile = "https://cog.sanger.ac.uk/cmp/download/Proteomics_20221214.zip"
+    sanger_loc = "/tmp/sp.zip"
+    robust_download(sanger_protfile, sanger_loc)
+    with ZipFile(sanger_loc, "r") as zf:
+        zf.extractall(path="/tmp/")
+    pdat = pd.read_csv(
+        "/tmp/Protein_matrix_averaged_zscore_20221214.tsv",
+        sep="\t",
+        skiprows=[0],
+    )
+    
+    vv=pdat.columns[2:]
+    plong = pd.melt(pdat,id_vars='symbol',value_vars=vv)
+    pres = plong.rename({'symbol':'other_names','variable':'gene_symbol','value':'proteomics'},axis=1)
+    pres = pres.merge(genes,on='gene_symbol')
+    pres = pres.merge(samps,on='other_names')
+
+    full2 = pres.loc[:,['entrez_id','improve_sample_id','proteomics']].drop_duplicates().dropna()
+    full2.loc[:,['study']] = 'Sanger'
+    full2.loc[:,['source']] = 'Sanger'
+    
+    #full3 = pd.concat([full,full2])
+    #print(full3)
+    full2.dropna(axis=0)
+    full2.to_csv('/tmp/sanger_proteomics.csv.gz',index=False, compression='gzip')
+    
+main()
