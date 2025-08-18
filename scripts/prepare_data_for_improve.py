@@ -172,8 +172,16 @@ def process_datasets(args):
     experiments = []
     logger.debug("creating list of datasets that contain experiment info ...")
     for data_set in data_sets_names_list:
-        # sarcpdo has different drug response values
-        if data_set == 'sarcpdo' and data_sets[data_set].experiments is not None:
+        experiments_raw = data_sets[data_set].experiments
+
+        # Some datasets don't have drug response data (the experiments
+        # table)
+        if experiments_raw is None:
+            logger.debug(f"NO experiment data for {data_set}")
+
+
+        # Logic for datasets containing "published_auc" but not "auc"
+        elif experiments_raw['dose_response_metric'].isin(['published_auc']).any():
             experiment = data_sets[data_set].format(
                 data_type='experiments',
                 shape='wide',
@@ -183,8 +191,29 @@ def process_datasets(args):
             )
             experiment.rename(columns={'published_auc': 'auc'}, inplace=True)
             experiments.append(experiment)
-        # not all Datasets have experiments / drug response data
-        elif data_sets[data_set].experiments is not None:
+
+        # Logic for PDX datasets that don't have `auc` but mRECIST (note
+        # the typo currently in the `drugresponse_metric` column).
+        elif experiments_raw['dose_response_metric'].isin(['mRESCIST']).any():
+            experiment = data_sets[data_set].format(
+                data_type='experiments',
+                shape='wide',
+                metrics=[
+                    'mRESCIST',
+                ],
+            )
+            # conversion logic from mRECIST -> auc
+            experiment.loc[experiment['mRESCIST'] == 'CR', 'mRESCIST'] = 0.1
+            experiment.loc[experiment['mRESCIST'] == 'PR', 'mRESCIST'] = 0.2
+            experiment.loc[experiment['mRESCIST'] == 'SD', 'mRESCIST'] = 0.5
+            experiment.loc[experiment['mRESCIST'] == 'PD', 'mRESCIST'] = 1.0
+
+            experiment.rename(columns={'mRESCIST': 'auc'}, inplace=True)
+            experiments.append(experiment)
+
+        # The remaining datasets should have `auc` as
+        # drug_response_metric available in the `experiments` table
+        else:
             logger.debug(f"experiment data found for {data_set}")
             # formatting existing response data to wide
             experiment = data_sets[data_set].format(
@@ -203,8 +232,6 @@ def process_datasets(args):
                 ],
             )
             experiments.append(experiment.dropna())
-        else:
-            logger.debug(f"NO experiment data for {data_set}")
 
     # concatenating existing response data and "clean up"
     logger.debug("concatenating experiment data ...")
