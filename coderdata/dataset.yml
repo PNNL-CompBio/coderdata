@@ -1,5 +1,5 @@
 figshare: https://api.figshare.com/v2/articles/28823159
-version: 2.1.0
+version: 2.2.0
 datasets:
   beataml:
     description: Beat acute myeloid leukemia (BeatAML) focuses on acute myeloid leukemia
