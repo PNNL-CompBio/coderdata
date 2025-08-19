@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+#ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update --allow-insecure-repositories
+RUN apt-get install -y --allow-unauthenticated --fix-missing gcc-12 build-essential libpq-dev python3-venv
+
+RUN python3 -m venv /opt/venv
+RUN /opt/venv/bin/pip3 install --upgrade pip
+
+ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONPATH "${PYTHONPATH}:/tmp"
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+WORKDIR /app
+
+# installing python libraries
+COPY coderbuild/cptac/requirements.txt .
+RUN /opt/venv/bin/pip3 install -r requirements.txt
+
+COPY coderbuild/cptac/*.py ./
+COPY coderbuild/cptac/*sh ./
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+VOLUME ["/tmp"]
+#ENTRYPOINT ["python3","getCptacData.py"]

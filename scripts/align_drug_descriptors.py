@@ -65,8 +65,8 @@ def rewrite_files(files, ref):
                 key = (row['improve_drug_id'], row['structural_descriptor'])
                 correct = ref.get(key)
                 if correct is not None and row['descriptor_value'] != correct:
-                    print(f"Fixing {key} in {os.path.basename(fp)}: "
-                          f"{row['descriptor_value']} to {correct}")
+                    # print(f"Fixing {key} in {os.path.basename(fp)}: "
+                    #       f"{row['descriptor_value']} to {correct}")
                     row['descriptor_value'] = correct
                     changed = True
                 writer.writerow(row)

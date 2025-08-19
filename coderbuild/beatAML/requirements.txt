@@ -1,0 +1,11 @@
+pandas
+wget==3.2
+requests
+synapseclient
+argparse
+numpy==1.26.4
+openpyxl
+matplotlib
+scikit-learn
+mordredcommunity
+rdkit

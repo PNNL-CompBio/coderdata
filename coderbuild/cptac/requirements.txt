@@ -1,0 +1,5 @@
+numpy==1.23.2
+pandas==2.0.0
+cptac==1.5.14
+argparse
+pathvalidate
