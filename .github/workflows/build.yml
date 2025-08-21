@@ -25,7 +25,7 @@ jobs:
       - name: Build and push broad sanger omics
         uses: docker/build-push-action@v3
         with:
-          file: ./build/docker/Dockerfile.broad_sanger_omics
+          file: ./coderbuild/docker/Dockerfile.broad_sanger_omics
           tags: |
             sgosline/broad-sanger-omics:latest
             sgosline/broad-sanger-omics:${{ github.ref_name }}
@@ -49,7 +49,7 @@ jobs:
       - name: Build and push broad sanger experiment
         uses: docker/build-push-action@v3
         with:
-          file: ./build/docker/Dockerfile.broad_sanger_exp
+          file: ./coderbuild/docker/Dockerfile.broad_sanger_exp
           tags: |
             sgosline/broad-sanger-exp:latest
             sgosline/broad-sanger-exp:${{ github.ref_name }}
@@ -74,7 +74,7 @@ jobs:
       - name: Build and push genes
         uses: docker/build-push-action@v3
         with:
-          file: ./build/docker/Dockerfile.genes
+          file: ./coderbuild/docker/Dockerfile.genes
           tags: |
             sgosline/genes:latest
             sgosline/genes:${{ github.ref_name }}
@@ -98,36 +98,36 @@ jobs:
       - name: Build and push hcmi
         uses: docker/build-push-action@v3
         with:
-          file: ./build/docker/Dockerfile.hcmi
+          file: ./coderbuild/docker/Dockerfile.hcmi
           tags: |
             sgosline/hcmi:latest
             sgosline/hcmi:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
 
-  build-cptac:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Build and push cptac
-        uses: docker/build-push-action@v3
-        with:
-          file: ./build/docker/Dockerfile.cptac
-          tags: |
-            sgosline/cptac:latest
-            sgosline/cptac:${{ github.ref_name }}
-          push: true
-          platforms: linux/amd64
+  # build-cptac:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v3
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
+  #     - name: Login to DockerHub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_PASSWORD }}
+  #     - name: Build and push cptac
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         file: ./coderbuild/docker/Dockerfile.cptac
+  #         tags: |
+  #           sgosline/cptac:latest
+  #           sgosline/cptac:${{ github.ref_name }}
+  #         push: true
+  #         platforms: linux/amd64
 
   build-mpnst:
     runs-on: ubuntu-latest
@@ -146,7 +146,7 @@ jobs:
       - name: Build and push mpnst
         uses: docker/build-push-action@v3
         with:
-          file: ./build/docker/Dockerfile.mpnst
+          file: ./coderbuild/docker/Dockerfile.mpnst
           tags: |
             sgosline/mpnst:latest
             sgosline/mpnst:${{ github.ref_name }}
@@ -170,14 +170,14 @@ jobs:
       - name: Build and push beataml
         uses: docker/build-push-action@v3
         with:
-          file: ./build/docker/Dockerfile.beataml
+          file: ./coderbuild/docker/Dockerfile.beataml
           tags: |
             sgosline/beataml:latest
             sgosline/beataml:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
 
-  build-pancpdo:
+  build-pancreatic:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -191,13 +191,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Build and push pancpdo
+      - name: Build and push pancreatic
         uses: docker/build-push-action@v3
         with:
-          file: ./build/docker/Dockerfile.pancpdo
+          file: ./coderbuild/docker/Dockerfile.pancreatic
           tags: |
-            sgosline/pancpdo:latest
-            sgosline/pancpdo:${{ github.ref_name }}
+            sgosline/pancreatic:latest
+            sgosline/pancreatic:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
 
@@ -218,9 +218,129 @@ jobs:
       - name: Build and push upload
         uses: docker/build-push-action@v3
         with:
-          file: ./build/docker/Dockerfile.upload
+          file: ./coderbuild/docker/Dockerfile.upload
           tags: |
             sgosline/upload:latest
             sgosline/upload:${{ github.ref_name }}
+          push: true
+          platforms: linux/amd64
+
+  build-sarcoma:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build and push sarcoma
+        uses: docker/build-push-action@v3
+        with:
+          file: ./coderbuild/docker/Dockerfile.sarcoma
+          tags: |
+            sgosline/sarcoma:latest
+            sgosline/sarcoma:${{ github.ref_name }}
+          push: true
+          platforms: linux/amd64
+
+  build-liver:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build and push liver
+        uses: docker/build-push-action@v3
+        with:
+          file: ./coderbuild/docker/Dockerfile.liver
+          tags: |
+            sgosline/liver:latest
+            sgosline/liver:${{ github.ref_name }}
+          push: true
+          platforms: linux/amd64
+
+  build-bladder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build and push bladder
+        uses: docker/build-push-action@v3
+        with:
+          file: ./coderbuild/docker/Dockerfile.bladder
+          tags: |
+            sgosline/bladder:latest
+            sgosline/bladder:${{ github.ref_name }}
+          push: true
+          platforms: linux/amd64
+
+  build-colorectal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build and push colorectal
+        uses: docker/build-push-action@v3
+        with:
+          file: ./coderbuild/docker/Dockerfile.colorectal
+          tags: |
+            sgosline/colorectal:latest
+            sgosline/colorectal:${{ github.ref_name }}
+          push: true
+          platforms: linux/amd64
+
+  build-novartis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build and push novartis
+        uses: docker/build-push-action@v3
+        with:
+          file: ./coderbuild/docker/Dockerfile.novartis
+          tags: |
+            sgosline/novartis:latest
+            sgosline/novartis:${{ github.ref_name }}
           push: true
           platforms: linux/amd64
