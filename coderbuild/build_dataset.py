@@ -133,7 +133,7 @@ def process_omics(executor, dataset, should_continue):
         'bladder': ['copy_number', 'mutations', 'transcriptomics'],
         'colorectal':['copy_number', 'mutations', 'transcriptomics'],
         'novartis':['copy_number', 'mutations', 'transcriptomics'],
-        'liver':['copy_number', 'mutations', 'transcriptomics']
+        'liver':['copy_number', 'mutations', 'transcriptomics','proteomics']
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])
