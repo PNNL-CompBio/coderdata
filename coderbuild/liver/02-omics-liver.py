@@ -282,7 +282,7 @@ if __name__ == "__main__":
     parser.add_argument('-T', '--transcriptomics', action = 'store_true', default=False, help='Generate transcriptomics data')
     parser.add_argument('-M', '--mutations', action = 'store_true', default=False, help='Generate mutations data')
     parser.add_argument('-C', '--copy_number', action = 'store_true', default=False, help='Generate copy number data')
-
+    parser.add_argument('-R', '--proteomics', action = 'store_true', default=False, help='Generate proteomics data')
 
     args = parser.parse_args()
 
@@ -338,4 +338,16 @@ if __name__ == "__main__":
             print("Starting copy number data.")
             mutation_df = map_copy_number(copy_number_data = "/tmp/raw_copynum_data.csv", improve_id_data = "/tmp/liver_samples.csv", entrez_data = "/tmp/genes.csv")
             mutation_df.to_csv("/tmp/liver_copy_number.csv", index=False)
+
+    if args.proteomics:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting proteomics data.")
+            proteomics_df = map_proteomics(proteomics_data = "/tmp/raw_proteomics_data.csv", improve_id_data = "/tmp/liver_samples.csv", entrez_data = "/tmp/genes.csv")
+            proteomics_df.to_csv("/tmp/liver_proteomics.csv", index=False)
     
