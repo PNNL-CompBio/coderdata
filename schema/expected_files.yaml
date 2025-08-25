@@ -270,6 +270,8 @@ datasets:
       file: /tmp/liver_copy_number.csv
     - target_class: Mutations
       file: /tmp/liver_mutations.csv
+    - target_class: Proteomics
+      file: /tmp/liver_proteomics.csv
     - target_class: Experiments
       file: /tmp/liver_experiments.tsv
     - target_class: Drug
