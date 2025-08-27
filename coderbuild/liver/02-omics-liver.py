@@ -225,7 +225,6 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
         
     return(improve_mapped_cn_df)
 
-
 def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
 
     # read in data
@@ -234,7 +233,7 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
 
     if isinstance(improve_id_data, pd.DataFrame) == False:
         improve_id_data = pd.read_csv(improve_id_data)
-    
+
     if isinstance(entrez_data, pd.DataFrame) == False:
         entrez_data = pd.read_csv(entrez_data)
 
@@ -253,20 +252,20 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
 
     # run tpmFromCounts.py to convert counts to tpm
     os.system("python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.tsv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
-    
+
     # melt the df so there is one sample and gene per row
     long_transcriptomics_df = pd.read_csv("/tmp/transcriptomics_tpm.tsv",sep='\t')
     long_transcriptomics_df = pd.melt(long_transcriptomics_df, id_vars=['stable_id'], value_vars=long_transcriptomics_df.columns[long_transcriptomics_df.columns != 'stable_id'])
     long_transcriptomics_df = long_transcriptomics_df.rename(columns = {'value':'transcriptomics', 0:'sample_name'})
-    
 
-    # map gene names to entrez id's 
+
+    # map gene names to entrez id's
     mapped_transcriptomics_df = pd.merge(long_transcriptomics_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'inner', left_on= "stable_id", right_on= "other_id")
     mapped_transcriptomics_df = mapped_transcriptomics_df.dropna(subset=['entrez_id'])
 
     # mapping improve sample id'samples_df
     mapped_transcriptomics_df = pd.merge(mapped_transcriptomics_df, improve_id_data[['other_id','improve_sample_id']].drop_duplicates(), how = 'inner', left_on= "variable", right_on= "other_id")
-        
+
     # clean up column names and data types
     mapped_transcriptomics_df = mapped_transcriptomics_df.drop(columns=['stable_id','variable','other_id_x','other_id_y'])
     mapped_transcriptomics_df['source'] = "Synapse"
@@ -276,6 +275,46 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
     mapped_transcriptomics_df = mapped_transcriptomics_df[['entrez_id','transcriptomics','improve_sample_id','source','study']]
 
     return(mapped_transcriptomics_df)
+
+
+def map_proteomics(proteomics_data, improve_id_data, entrez_data):
+
+    # read in data
+    if isinstance(proteomics_data, pd.DataFrame) == False:
+        proteomics_data = pd.read_csv(proteomics_data)
+
+    if isinstance(improve_id_data, pd.DataFrame) == False:
+        improve_id_data = pd.read_csv(improve_id_data)
+
+    if isinstance(entrez_data, pd.DataFrame) == False:
+        entrez_data = pd.read_csv(entrez_data)
+
+    # first, replace colnames with first row and delete first row
+    proteomics_data.columns = proteomics_data.iloc[0,:]
+    proteomics_data = proteomics_data.iloc[1:]
+
+    # melt the df so there is one sample and prot per row
+    proteomics_data = proteomics_data.rename(columns = {proteomics_data.columns[0]:'gene_symbol'})
+    long_prot_df = pd.melt(proteomics_data, id_vars=['gene_symbol'], value_vars=proteomics_data.columns[proteomics_data.columns != 'gene_symbol'])
+    long_prot_df = long_prot_df.rename(columns = {0:'sample_name', 'value':'proteomics'})
+
+
+    # map gene names to entrez id's
+    mapped_proteomics_df = pd.merge(long_prot_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'inner', left_on= "gene_symbol", right_on= "other_id")
+    mapped_proteomics_df = mapped_proteomics_df.dropna(subset=['entrez_id'])
+
+    # mapping improve sample id'samples_df
+    mapped_proteomics_df = pd.merge(mapped_proteomics_df, improve_id_data[['other_id','improve_sample_id']].drop_duplicates(), how = 'inner', left_on= "sample_name", right_on= "other_id")
+
+    # clean up column names and data types
+    mapped_proteomics_df = mapped_proteomics_df.drop(columns=['gene_symbol','sample_name','other_id_x','other_id_y'])
+    mapped_proteomics_df['source'] = "Synapse"
+    mapped_proteomics_df['study'] = "liver"
+    mapped_proteomics_df = mapped_proteomics_df.dropna()
+    mapped_proteomics_df = mapped_proteomics_df.astype({'entrez_id':'int','improve_sample_id':'int'})
+    mapped_proteomics_df = mapped_proteomics_df[['entrez_id','proteomics','improve_sample_id','source','study']]
+
+    return(mapped_proteomics_df)
 
 
 if __name__ == "__main__":
@@ -292,6 +331,7 @@ if __name__ == "__main__":
     parser.add_argument('-T', '--transcriptomics', action = 'store_true', default=False, help='Generate transcriptomics data')
     parser.add_argument('-M', '--mutations', action = 'store_true', default=False, help='Generate mutations data')
     parser.add_argument('-C', '--copy_number', action = 'store_true', default=False, help='Generate copy number data')
+    parser.add_argument('-R', '--proteomics', action = 'store_true', default=False, help='Generate proteomics data')
 
     args = parser.parse_args()
 
@@ -347,4 +387,16 @@ if __name__ == "__main__":
             print("Starting copy number data.")
             mutation_df = map_copy_number(copy_number_data = "/tmp/raw_copynum_data.csv", improve_id_data = "/tmp/liver_samples.csv", entrez_data = "/tmp/genes.csv")
             mutation_df.to_csv("/tmp/liver_copy_number.csv", index=False)
+
+    if args.proteomics:
+        if args.genes is None or args.genes=='':
+            print("No genes data provided. Exiting script.")
+            exit()
+        if args.ids is None or args.ids=='':
+            print("No samples data provided. Exiting script.")
+            exit()
+        else:
+            print("Starting proteomics data.")
+            proteomics_df = map_proteomics(proteomics_data = "/tmp/raw_proteomics_data.csv", improve_id_data = "/tmp/liver_samples.csv", entrez_data = "/tmp/genes.csv")
+            proteomics_df.to_csv("/tmp/liver_proteomics.csv", index=False)
     
