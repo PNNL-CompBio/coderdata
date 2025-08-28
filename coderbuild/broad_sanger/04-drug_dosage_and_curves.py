@@ -55,7 +55,7 @@ final_file = []
 for of in outfiles:
     final_file.append(pd.read_csv(of,sep='\t'))
 
-pd.concat(final_file).to_csv('/tmp/broad_sanger_experiments.tsv',index=False,sep='\t')
+pd.concat(final_file).drop_duplicates().to_csv('/tmp/broad_sanger_experiments.tsv',index=False,sep='\t')
 #os.system('cat *.0 > /tmp/broad_sanger_experiments.tsv')
 #os.system('gzip -f /tmp/experiments.tsv')
 

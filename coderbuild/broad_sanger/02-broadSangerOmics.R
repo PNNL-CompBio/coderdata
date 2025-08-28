@@ -668,9 +668,9 @@ main<-function(){
 
     lapply(alltypes,function(dt){
         print(dt)
-        temps<-sanger_files(sanger_filenames[[dt]],dt)|>tidyr::drop_na()
+        temps<-sanger_files(sanger_filenames[[dt]],dt)|>tidyr::drop_na()|>dplyr::distinct()
         readr::write_csv(temps,file=paste0('/tmp/sanger_',dt,'.csv.gz'))
-        tempd<-depmap_files(depmap_filenames[[dt]],dt)|>tidyr::drop_na()
+        tempd<-depmap_files(depmap_filenames[[dt]],dt)|>tidyr::drop_na()|>dplyr::distinct()
         readr::write_csv(tempd,file=paste0('/tmp/broad_',dt,'.csv.gz'))
 
 #        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv.gz'))

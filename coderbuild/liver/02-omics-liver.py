@@ -362,6 +362,7 @@ if __name__ == "__main__":
         else:
             print("Starting transcriptomics data.")
             transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/raw_rnaseq_data.csv", improve_id_data = "/tmp/liver_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df.drop_duplicates(inplace=True)
             transcriptomics_df.to_csv("/tmp/liver_transcriptomics.csv", index=False)
     
     if args.mutations:
@@ -385,8 +386,9 @@ if __name__ == "__main__":
             exit()
         else:
             print("Starting copy number data.")
-            mutation_df = map_copy_number(copy_number_data = "/tmp/raw_copynum_data.csv", improve_id_data = "/tmp/liver_samples.csv", entrez_data = "/tmp/genes.csv")
-            mutation_df.to_csv("/tmp/liver_copy_number.csv", index=False)
+            copy_number_df = map_copy_number(copy_number_data = "/tmp/raw_copynum_data.csv", improve_id_data = "/tmp/liver_samples.csv", entrez_data = "/tmp/genes.csv")
+            copy_number_df.drop_duplicates(inplace=True)
+            copy_number_df.to_csv("/tmp/liver_copy_number.csv", index=False)
 
     if args.proteomics:
         if args.genes is None or args.genes=='':

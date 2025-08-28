@@ -441,6 +441,7 @@ def update_dataframe_and_write_tsv(unique_names,
         final_df = pd.DataFrame(columns=combined.columns)
 
     # --- 10) write final filtered output ---
+    final_df.drop_duplicates(inplace=True)
     final_df.to_csv(output_filename, sep="\t", index=False)
 
     if os.path.exists(temp_file):

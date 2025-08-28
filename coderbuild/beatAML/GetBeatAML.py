@@ -124,6 +124,7 @@ def generate_samples_file(prev_samples_path):
     mapping = {labId: i for i, labId in enumerate(all_samples['other_id'].unique(), start=(int(maxval)+1))}
     all_samples['improve_sample_id'] = all_samples['other_id'].map(mapping)
     all_samples.insert(1, 'improve_sample_id', all_samples.pop('improve_sample_id'))
+    all_samples.drop_duplicates(inplace=True)
     all_samples.to_csv("/tmp/beataml_samples.csv", index=False)
     return all_samples
 

@@ -295,6 +295,7 @@ if __name__ == "__main__":
         else:
             print("Starting transcriptomics data.")
             transcriptomics_df_final = map_transcriptomics_novPDX(transcriptomics_data = "/tmp/raw_rnaseq_data.csv", improve_id_data = "/tmp/novartis_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df_final.drop_duplicates(inplace=True)
             transcriptomics_df_final.to_csv("/tmp/novartis_transcriptomics.csv", index=False)
     
     if args.mutations:
@@ -307,6 +308,7 @@ if __name__ == "__main__":
         else:
             print("Starting mutations data.")
             mutation_df_final = map_mutations_novPDX(mutation_data = "/tmp/raw_mutation_data.csv", improve_id_data = "/tmp/novartis_samples.csv", entrez_data = "/tmp/genes.csv")
+            mutation_df_final.drop_duplicates(inplace=True)
             mutation_df_final.to_csv("/tmp/novartis_mutations.csv", index=False)
     
     if args.copy_number:
