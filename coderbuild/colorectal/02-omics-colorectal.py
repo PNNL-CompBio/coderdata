@@ -242,6 +242,7 @@ if __name__ == "__main__":
         else:
             print("Starting transcriptomics data.")
             transcriptomics_df = map_transcriptomics(transciptomics_data = "/tmp/GSE65253_col_tum_org_merge.csv.gz", improve_id_data = "/tmp/colorectal_samples.csv", entrez_data = "/tmp/genes.csv")
+            transcriptomics_df.drop_duplicates(inplace=True)
             transcriptomics_df.to_csv("/tmp/colorectal_transcriptomics.csv", index=False)
     
     if args.mutations:

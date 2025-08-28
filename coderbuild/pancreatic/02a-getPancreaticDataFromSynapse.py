@@ -165,6 +165,7 @@ def main():
             res = parseMutFile(path,sampid, genes)
             alldats.append(res)
         newmut = pd.concat(alldats)
+        newmut.drop_duplicates(inplace=True)
         newmut.to_csv("/tmp/pancreatic_mutations.csv.gz",compression='gzip',index=False)
     #pd.DataFrame(missingsamples).to_csv('missing.csv',index=False,quoting=None,header=False)
 if __name__=='__main__':
