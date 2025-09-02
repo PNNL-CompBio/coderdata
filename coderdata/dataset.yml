@@ -47,7 +47,7 @@ datasets:
       - experiments
 
   cptac:
-    description: The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project. Simplified and Unified Access to Cancer Proteogenomic Data.
+    description: The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI) focused on improving our understanding of cancer biology through the integration of transcriptomic, proteomic, and genomic data.
     references:
       - citation: Lindgren CM, Adams DW, Kimball B, et al. Simplified and Unified Access to Cancer Proteogenomic Data. J Proteome Res. 2021;20(4):1902-1910.
         doi: https://doi.org/10.1021/acs.jproteome.0c00919
@@ -91,7 +91,7 @@ datasets:
       - experiments
 
   hcmi:
-    description: Human Cancer Models Initiative (HCMI) encompasses numerous cancer types and includes cell line, organoid, and tumor data. Data includes transcriptomics, somatic mutation, and copy number datasets.
+    description: Human Cancer Models Initiative (HCMI) encompasses numerous cancer types and includes cell line, organoid, and tumor data.
     modalities:
       - sample
       - transcriptomics
@@ -114,7 +114,7 @@ datasets:
       - experiments
 
   mpnstpdx:
-    description: Patient derived xenograft data for MPNST
+    description: Patient-derived xenograft data for MPNST.
     modalities:
       - sample
       - transcriptomics
@@ -123,7 +123,7 @@ datasets:
       - experiments
 
   nci60:
-    description: National Cancer Institute 60
+    description: National Cancer Institute 60.
     references:
       - citation: Shoemaker RH. The NCI60 human tumour cell line anticancer drug screen. Nat Rev Cancer. 2006;6(10):813-823.
         doi: https://doi.org/10.1038/nrc1951
@@ -151,7 +151,7 @@ datasets:
       - experiments
 
   prism:
-    description: Profiling Relative Inhibition Simultaneously in Mixtures
+    description: Profiling Relative Inhibition Simultaneously in Mixtures.
     references:
       - citation: Corsello SM, Nagari RT, Spangler RD, et al. Discovering the anti-cancer potential of non-oncology drugs by systematic viability profiling. Nat Cancer. 2020;1(2):235-248.
         doi: https://doi.org/10.1038/s43018-019-0018-6
@@ -178,9 +178,9 @@ datasets:
       - experiments
 
   crcpdo:
-    description: Prospective derivation of a living organoid biobank of colorectal cancer patients.
+    description: Living organoid biobank of colorectal cancer patients.
     references:
-      - citation: van de Wetering M, Francies HE, Francis JM, et al. Cell. 2015;161(4):933–945.
+      - citation: van de Wetering M, Francies HE, Francis JM, et al. Prospective derivation of a living organoid biobank of colorectal cancer patients. Cell. 2015;161(4):933-945.
         doi: https://doi.org/10.1016/j.cell.2015.03.053
     modalities:
       - sample
@@ -189,12 +189,11 @@ datasets:
       - copy number
       - drug
       - drug descriptor
-      - experiments
 
   liverpdo:
     description: Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology.
     references:
-      - citation: Ji S, Feng L, Fu Z, et al. Science Transl Med. 2023;15(706):eadg3358.
+      - citation: Ji S, Feng L, Fu Z, et al. Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology. Sci Transl Med. 2023;15(706):eadg3358.
         doi: https://doi.org/10.1126/scitranslmed.adg3358
     modalities:
       - sample
@@ -203,12 +202,11 @@ datasets:
       - copy number
       - drug
       - drug descriptor
-      - experiments
 
   novartispdx:
-    description: High-throughput screening using patient-derived tumor xenografts to predict clinical trial drug response.
+    description: Patient-derived tumor xenografts for drug response prediction.
     references:
-      - citation: Gao H, Korn JM, Ferretti S, et al. Nat Med. 2015;21(11):1318-1325.
+      - citation: Gao H, Korn JM, Ferretti S, et al. High-throughput screening using patient-derived tumor xenografts to predict clinical trial drug response. Nat Med. 2015;21(11):1318–1325.
         doi: https://doi.org/10.1038/nm.3954
     modalities:
       - sample
@@ -217,4 +215,55 @@ datasets:
       - copy number
       - drug
       - drug descriptor
-      - experiments
+
+  gcsi:
+    description: The Genentech Cell Line Screening Initiative (gCSI)
+    references:
+      - citation: Haverty PM, Lin E, Tan J, et al. Reproducible pharmacogenomic profiling of cancer cell line panels. Nature. 2016;533(7603):333–337.
+        doi: https://doi.org/10.1038/nature17987
+      - citation: Klijn C, Durinck S, Stawiski EW, et al. A comprehensive transcriptional portrait of human cancer cell lines. Nat Biotechnol. 2015;33(3):306–312.
+        doi: https://doi.org/10.1038/nbt.3080
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+
+  gdscv1:
+    description: Genomics of Drug Sensitivity in Cancer version 1 (GDSCv1)
+    references:
+      - citation: Garnett MJ, Edelman EJ, Heidorn SJ, et al. Systematic identification of genomic markers of drug sensitivity in cancer cells. Nature. 2012;483(7391):570–575.
+        doi: https://doi.org/10.1038/nature11005
+      - citation: Iorio F, Knijnenburg TA, Vis DJ, et al. A Landscape of Pharmacogenomic Interactions in Cancer. Cell. 2016;166(3):740–754.
+        doi: https://doi.org/10.1016/j.cell.2016.06.017
+      - citation: Yang W, Soares J, Greninger P, et al. Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells. Nucleic Acids Res. 2013;41(Database issue):D955–D961.
+        doi: https://doi.org/10.1093/nar/gks1111
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+
+  gdscv2:
+    description: Genomics of Drug Sensitivity in Cancer version 2 (GDSCv2)
+    references:
+      - citation: Garnett MJ, Edelman EJ, Heidorn SJ, et al. Systematic identification of genomic markers of drug sensitivity in cancer cells. Nature. 2012;483(7391):570–575.
+        doi: https://doi.org/10.1038/nature11005
+      - citation: Iorio F, Knijnenburg TA, Vis DJ, et al. A Landscape of Pharmacogenomic Interactions in Cancer. Cell. 2016;166(3):740–754.
+        doi: https://doi.org/10.1016/j.cell.2016.06.017
+      - citation: Yang W, Soares J, Greninger P, et al. Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells. Nucleic Acids Res. 2013;41(Database issue):D955–D961.
+        doi: https://doi.org/10.1093/nar/gks1111
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
