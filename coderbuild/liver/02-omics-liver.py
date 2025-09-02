@@ -281,7 +281,7 @@ def map_proteomics(proteomics_data, improve_id_data, entrez_data):
 
     # read in data
     if isinstance(proteomics_data, pd.DataFrame) == False:
-        proteomics_data = pd.read_csv(proteomics_data)
+        proteomics_data = pd.read_csv(proteomics_data, dtype=str, low_memory=False)
 
     if isinstance(improve_id_data, pd.DataFrame) == False:
         improve_id_data = pd.read_csv(improve_id_data)
@@ -299,8 +299,13 @@ def map_proteomics(proteomics_data, improve_id_data, entrez_data):
     long_prot_df = long_prot_df.rename(columns = {0:'sample_name', 'value':'proteomics'})
 
 
+    # Ensure both columns are string types for merging
+    long_prot_df['gene_symbol'] = long_prot_df['gene_symbol'].astype(str)
+    entrez_data['other_id'] = entrez_data['other_id'].astype(str)
+
     # map gene names to entrez id's
     mapped_proteomics_df = pd.merge(long_prot_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'inner', left_on= "gene_symbol", right_on= "other_id")
+
     mapped_proteomics_df = mapped_proteomics_df.dropna(subset=['entrez_id'])
 
     # mapping improve sample id'samples_df
