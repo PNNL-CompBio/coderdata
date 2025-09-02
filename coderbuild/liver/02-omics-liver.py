@@ -278,48 +278,60 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
 
 
 def map_proteomics(proteomics_data, improve_id_data, entrez_data):
-
-    # read in data
-    if isinstance(proteomics_data, pd.DataFrame) == False:
-        proteomics_data = pd.read_csv(proteomics_data, dtype=str, low_memory=False)
-
-    if isinstance(improve_id_data, pd.DataFrame) == False:
+    if not isinstance(proteomics_data, pd.DataFrame):
+        # use header=1 (second line as header), drop first row which is a comment
+        proteomics_data = pd.read_csv(proteomics_data, header=1, index_col=0)
+    if not isinstance(improve_id_data, pd.DataFrame):
         improve_id_data = pd.read_csv(improve_id_data)
-
-    if isinstance(entrez_data, pd.DataFrame) == False:
+    if not isinstance(entrez_data, pd.DataFrame):
         entrez_data = pd.read_csv(entrez_data)
 
-    # first, replace colnames with first row and delete first row
-    proteomics_data.columns = proteomics_data.iloc[0,:]
-    proteomics_data = proteomics_data.iloc[1:]
+    # Clean column names
+    proteomics_data.columns = proteomics_data.columns.astype(str).str.strip()
+    proteomics_data = proteomics_data.rename(columns={"Sample \nGene symbol": "gene_symbol"})
 
-    # melt the df so there is one sample and prot per row
-    proteomics_data = proteomics_data.rename(columns = {proteomics_data.columns[0]:'gene_symbol'})
-    long_prot_df = pd.melt(proteomics_data, id_vars=['gene_symbol'], value_vars=proteomics_data.columns[proteomics_data.columns != 'gene_symbol'])
-    long_prot_df = long_prot_df.rename(columns = {0:'sample_name', 'value':'proteomics'})
+    # Drop any rows with missing gene symbol and all are strings
+    proteomics_data = proteomics_data.dropna(subset=["gene_symbol"])
+    proteomics_data["gene_symbol"] = proteomics_data["gene_symbol"].astype(str).str.strip()
+    
+    value_cols = [c for c in proteomics_data.columns if c != "gene_symbol"]
+    long_prot_df = proteomics_data.melt(
+        id_vars=["gene_symbol"],
+        value_vars=value_cols,
+        var_name="sample_name",
+        value_name="proteomics"
+    )
 
+    #ensure strings
+    long_prot_df["gene_symbol"] = long_prot_df["gene_symbol"].astype(str).str.strip()
+    entrez_data["other_id"] = entrez_data["other_id"].astype(str).str.strip()
 
-    # Ensure both columns are string types for merging
-    long_prot_df['gene_symbol'] = long_prot_df['gene_symbol'].astype(str)
-    entrez_data['other_id'] = entrez_data['other_id'].astype(str)
+    #Two merges
+    mapped_proteomics_df = pd.merge(
+        long_prot_df,
+        entrez_data[["other_id", "entrez_id"]].drop_duplicates(),
+        how="inner",
+        left_on="gene_symbol",
+        right_on="other_id"
+    )
 
-    # map gene names to entrez id's
-    mapped_proteomics_df = pd.merge(long_prot_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'inner', left_on= "gene_symbol", right_on= "other_id")
+    improve_id_data["other_id"] = improve_id_data["other_id"].astype(str).str.strip()
+    mapped_proteomics_df = pd.merge(
+        mapped_proteomics_df,
+        improve_id_data[["other_id", "improve_sample_id"]].drop_duplicates(),
+        how="inner",
+        left_on="sample_name",
+        right_on="other_id"
+    )
 
-    mapped_proteomics_df = mapped_proteomics_df.dropna(subset=['entrez_id'])
+    mapped_proteomics_df = mapped_proteomics_df.drop(columns=["other_id_x", "other_id_y", "gene_symbol"])
+    mapped_proteomics_df["source"] = "Synapse"
+    mapped_proteomics_df["study"] = "liver"
+    mapped_proteomics_df = mapped_proteomics_df.dropna(subset=["entrez_id", "improve_sample_id"])
+    mapped_proteomics_df = mapped_proteomics_df.astype({"entrez_id": "int", "improve_sample_id": "int"})
+    mapped_proteomics_df = mapped_proteomics_df[["entrez_id", "proteomics", "improve_sample_id", "source", "study"]]
 
-    # mapping improve sample id'samples_df
-    mapped_proteomics_df = pd.merge(mapped_proteomics_df, improve_id_data[['other_id','improve_sample_id']].drop_duplicates(), how = 'inner', left_on= "sample_name", right_on= "other_id")
-
-    # clean up column names and data types
-    mapped_proteomics_df = mapped_proteomics_df.drop(columns=['gene_symbol','sample_name','other_id_x','other_id_y'])
-    mapped_proteomics_df['source'] = "Synapse"
-    mapped_proteomics_df['study'] = "liver"
-    mapped_proteomics_df = mapped_proteomics_df.dropna()
-    mapped_proteomics_df = mapped_proteomics_df.astype({'entrez_id':'int','improve_sample_id':'int'})
-    mapped_proteomics_df = mapped_proteomics_df[['entrez_id','proteomics','improve_sample_id','source','study']]
-
-    return(mapped_proteomics_df)
+    return mapped_proteomics_df
 
 
 if __name__ == "__main__":
