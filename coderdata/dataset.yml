@@ -297,3 +297,212 @@ datasets:
       - drug
       - drug descriptor
       - experiments
+cptac:
+  description: Simplified and Unified Access to Cancer Proteogenomic Data
+  references:
+  - citation: Lindgren, C. M., Adams, D. W., Kimball, B., Boekweg, H.,
+     Tayler, S., Pugh, S. L., & Payne, S. H. (2021).
+     Simplified and Unified Access to Cancer Proteogenomic Data. Journal of proteome research,
+     20(4), 1902–1910. https://doi.org/10.1021/acs.jproteome.0c00919
+  doi: https://doi.org/10.1021/acs.jproteome.0c00919
+  modalities:
+    - transcriptomics
+    - proteomics
+    - mutations
+    - copy_number
+
+ctrpv2:
+  description: ""
+  references:
+  - citation: Rees, M. G., Seashore-Ludlow, B., Cheah, J. H., Adams, D. J., Price,
+     E. V., Gill, S., Javaid, S., Coletti, M. E., Jones, V. L., Bodycombe, N. E., Soule,
+     C. K., Alexander, B., Li, A., Montgomery, P., Kotz, J. D., Hon, C. S., Munoz, B., Liefeld,
+      T., Dančík, V., Haber, D. A., … Schreiber, S. L. (2016).
+      Correlating chemical sensitivity and basal gene expression reveals mechanism of action. Nature chemical biology,
+      12(2), 109–116. https://doi.org/10.1038/nchembio.1986
+    doi: https://doi.org/10.1038/nchembio.1986
+  - citation: Seashore-Ludlow, B., Rees, M. G., Cheah, J. H., Cokol, M., Price, E. V., Coletti,
+     M. E., Jones, V., Bodycombe, N. E., Soule, C. K., Gould, J., Alexander, B., Li, A., Montgomery,
+     P., Wawer, M. J., Kuru, N., Kotz, J. D., Hon, C. S., Munoz, B., Liefeld, T., Dančík, V., … Schreiber,
+      S. L. (2015). Harnessing Connectivity in a Large-Scale Small-Molecule Sensitivity Dataset.
+     Cancer discovery, 5(11), 1210–1223. https://doi.org/10.1158/2159-8290.CD-15-0235
+    doi: https://doi.org/10.1158/2159-8290.CD-15-0235
+  - citation: Basu, A., Bodycombe, N. E., Cheah, J. H., Price, E. V., Liu, K., Schaefer, G. I.,
+     Ebright, R. Y., Stewart, M. L., Ito, D., Wang, S., Bracha, A. L., Liefeld, T., Wawer, M.,
+     Gilbert, J. C., Wilson, A. J., Stransky, N., Kryukov, G. V., Dancik, V., Barretina, J.,
+     Garraway, L. A., … Schreiber, S. L. (2013).
+     An interactive resource to identify cancer genetic and lineage dependencies targeted by small molecules.
+     Cell, 154(5), 1151–1161. https://doi.org/10.1016/j.cell.2013.08.003
+    doi: https://doi.org/10.1016/j.cell.2013.08.003
+  modalities:
+    - transcriptomics
+    - proteomics
+    - mutations
+    - copy_number
+    - drugs
+
+fimm:
+  description: ""
+  references:
+  - citation: Mpindi, J. P., Yadav, B., Östling, P., Nevedomskaya, E., Tuomela, J.,
+      Aittokallio, T., & Wennerberg, K. (2016). Consistency in drug response profiling. Nature, 540(7631), E5–E6.
+      https://doi.org/10.1038/nature20171
+    doi: https://doi.org/10.1038/nature20171
+  - citation: Pemovska, T., Kontro, M., Yadav, B., Edgren, H., Eldfors, S., Szwajda, A., Almusa, H., Bespalov,
+     M. M., Ellonen, P., Elonen, E., Gjertsen, B. T., Karjalainen, R., Kulesskiy, E., Lagström, S., Lehto, A., Lepistö, M.,
+     Lundán, T., Majumder, M. M., Marti, J. M., Mattila, P., … Wennerberg, K. (2013).
+     Individualized systems medicine strategy to tailor treatments for patients with chemorefractory acute myeloid leukemia.
+     Cancer discovery, 3(12), 1416–1429. https://doi.org/10.1158/2159-8290.CD-13-0350
+    doi: https://doi.org/10.1158/2159-8290.CD-13-0350
+  modalities:
+    - transcriptomics
+    - proteomics
+    - mutations
+    - copy_number
+    - drugs
+
+gcsi:
+  description: ""
+  references:
+  - citation: Haverty, P. M., Lin, E., Tan, J., Yu, Y., Lam, B., Masoudi, H., Zhang, R.,
+      Zhu, X., Ding, L., Swanson, K. D., Watanabe, C., Yang, X., Li, L., Li, M., Liang, H.,
+      Lin, W., Lin, Y., Liu, J., Luo, J., Ma, Y., … Liang, H. (2016). Reproducible pharmacogenomic profiling of cancer cell line panels.
+      Nature, 533(7603), 333–337. https://doi.org/10.1038/nature17987
+    doi: https://doi.org/10.1038/nature17987
+  - citation: Klijn, C., Durinck, S., Stawiski, E. W., Haverty, P. M., Jiang, Z., Liu, H.,
+     Degenhardt, J., Mayba, O., Gnad, F., Liu, J., Pau, G., Reeder, J., Cao, Y., Mukhyala, K.,
+      Selvaraj, S. K., Yu, M., Zynda, G. J., Brauer, M. J., Wu, T. D., Gentleman, R. C., … Zhang, Z. (2015).
+      A comprehensive transcriptional portrait of human cancer cell lines. Nature biotechnology, 33(3), 306–312.
+      https://doi.org/10.1038/nbt.3080
+    doi: https://doi.org/10.1038/nbt.3080
+  modalities:
+    - transcriptomics
+    - proteomics
+    - mutations
+    - copy_number
+    - drugs
+
+gdscv1:
+  description: ""
+  references:
+  - citation: Garnett, M. J., Edelman, E. J., Heidorn, S. J., Greenman, C. D., Dastur, A., Lau,
+     K. W., Greninger, P., Thompson, I. R., Luo, X., Soares, J., Liu, Q., Iorio, F., Surdez, D.,
+     Chen, L., Milano, R. J., Bignell, G. R., Tamura, K., Gaasenbeek, M., Mukherjee, S.,
+     Berger, M. F., … McDermott, U. (2012). Systematic identification of genomic markers of drug sensitivity in cancer cells.
+     Nature, 483(7391), 570–575. https://doi.org/10.1038/nature11005
+    doi: https://doi.org/10.1038/nature11005
+  - citation: Iorio, F., Knijnenburg, T. A., Vis, D. J., Bignell, G. R., Menden, M. P., Schubert, M., Aben, N.,
+     Gonçalves, E., Barthorpe, S., Lightfoot, H., Cokelaer, T., Greninger, P., van Dyk, E., Chang, H., de Silva,
+      H., Heyn, H., Deng, X., Egan, R. K., Liu, Q., Mironenko, T., … Garnett, M. J. (2016).
+      A Landscape of Pharmacogenomic Interactions in Cancer. Cell, 166(3), 740–754. https://doi.org/10.1016/j.cell.2016.06.017
+    doi: https://doi.org/10.1016/j.cell.2016.06.017
+  - citation: Yang, W., Soares, J., Greninger, P., Edelman, E. J., Lightfoot, H., Forbes, S., Bindal, N., Beare, D.,
+     Smith, J. A., Thompson, I. R., Ramaswamy, S., Futreal, P. A., Haber, D. A., Stratton, M. R., Benes, C., McDermott, U.,
+      & Garnett, M. J. (2013). Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells.
+       Nucleic acids research, 41(Database issue), D955–D961. https://doi.org/10.1093/nar/gks1111
+    doi: https://doi.org/10.1093/nar/gks1111
+  modalities:
+    - transcriptomics
+    - proteomics
+    - mutations
+    - copy_number
+    - drugs
+
+gdscv2:
+  description: ""
+  references:
+  - citation: Garnett, M. J., Edelman, E. J., Heidorn, S. J., Greenman, C. D., Dastur, A., Lau,
+     K. W., Greninger, P., Thompson, I. R., Luo, X., Soares, J., Liu, Q., Iorio, F., Surdez, D.,
+     Chen, L., Milano, R. J., Bignell, G. R., Tamura, K., Gaasenbeek, M., Mukherjee, S.,
+     Berger, M. F., … McDermott, U. (2012). Systematic identification of genomic markers of drug sensitivity in cancer cells.
+     Nature, 483(7391), 570–575. https://doi.org/10.1038/nature11005
+    doi: https://doi.org/10.1038/nature11005
+  - citation: Iorio, F., Knijnenburg, T. A., Vis, D. J., Bignell, G. R., Menden, M. P., Schubert, M., Aben, N.,
+     Gonçalves, E., Barthorpe, S., Lightfoot, H., Cokelaer, T., Greninger, P., van Dyk, E., Chang, H., de Silva,
+      H., Heyn, H., Deng, X., Egan, R. K., Liu, Q., Mironenko, T., … Garnett, M. J. (2016).
+      A Landscape of Pharmacogenomic Interactions in Cancer. Cell, 166(3), 740–754. https://doi.org/10.1016/j.cell.2016.06.017
+    doi: https://doi.org/10.1016/j.cell.2016.06.017
+  - citation: Yang, W., Soares, J., Greninger, P., Edelman, E. J., Lightfoot, H., Forbes, S., Bindal, N., Beare, D.,
+     Smith, J. A., Thompson, I. R., Ramaswamy, S., Futreal, P. A., Haber, D. A., Stratton, M. R., Benes, C., McDermott, U.,
+      & Garnett, M. J. (2013). Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells.
+       Nucleic acids research, 41(Database issue), D955–D961. https://doi.org/10.1093/nar/gks1111
+    doi: https://doi.org/10.1093/nar/gks1111
+  modalities:
+    - transcriptomics
+    - proteomics
+    - mutations
+    - copy_number
+    - drugs
+
+pancpdo:
+  description: ""
+  references:
+  - citation: Tiriac, H., Belleau, P., Engle, D. D., Plenker, D., Deschênes, A., Somerville, T. D. D.,
+      Froeling, F. E. M., Burkhart, R. A., Denroche, R. E., Jang, G.-H., Miyabayashi, K., Young, C. M.,
+      Patel, H., Shah, M., Sanghvi, R., Goetz, A. B., Lowder, C. Y., Martello, L., Driehuis, E., LeComte, N.,
+      … Shen, M. (2018). Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer.
+      Cancer discovery, 8(9), 1112–1129. https://doi.org/10.1158/2159-8290.CD-18-0349
+    doi: https://doi.org/10.1158/2159-8290.CD-18-0349
+  modalities:
+    - transcriptomics
+    - mutations
+    - copy_number
+    - drugs
+
+sarcpdo:
+  description: ""
+  references:
+  - citation: Al Shihabi, A., Tebon, P. J., Nguyen, H. T. L., Chantharasamee, J., Sartini, S.,
+      Davarifar, A., Jensen, A. Y., Diaz-Infante, M., Cox, H., Gonzalez, A. E., Norris, S., Sperry, J.,
+      Nakashima, J., Tavanaie, N., Winata, H., Fitz-Gibbon, S. T., Yamaguchi, T. N., Jeong, J. H.,
+      Dry, S., Singh, A. S., … Soragni, A. (2024). The landscape of drug sensitivity and resistance in sarcoma.
+      Cell Stem Cell, 31(10), 1524–1542.e4. https://doi.org/10.1016/j.stem.2024.08.010
+    doi: https://doi.org/10.1016/j.stem.2024.08.010
+  modalities:
+    - transcriptomics
+    - mutations
+    - drugs
+
+crcpdo:
+  description: ""
+  references:
+  - citation: van de Wetering, M., Francies, H. E., Francis, J. M., Bounova, G., Iorio, F., Pronk, A., van Houdt, W.,
+     van Gorp, J., Taylor-Weiner, A., Kester, L., McLaren-Douglas, A., Blokker, J., Jaksani, S., Bartfeld, S., Volckman,
+      R., van Sluis, P., Li, V. S., Seepo, S., Sekhar Pedamallu, C., Cibulskis, K., … Clevers, H. (2015).
+      Prospective derivation of a living organoid biobank of colorectal cancer patients.
+      Cell, 161(4), 933–945. https://doi.org/10.1016/j.cell.2015.03.053
+    doi: https://doi.org/10.1016/j.cell.2015.03.053
+  modalities:
+    - transcriptomics
+    - mutations
+    - copy_number
+    - drugs
+
+liverpdo:
+  description: ""
+  references:
+  - citation: Ji, S., Feng, L., Fu, Z., Wu, G., Wu, Y., Lin, Y., Lu, D., Song, Y., Cui, P., Yang, Z.,
+     Sang, C., Song, G., Cai, S., Li, Y., Lin, H., Zhang, S., Wang, X., Qiu, S., Zhang, X., Hua, G., … Gao, Q. (2023).
+      Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology. Science translational medicine,
+       15(706), eadg3358. https://doi.org/10.1126/scitranslmed.adg3358
+    doi: https://doi.org/10.1126/scitranslmed.adg3358
+  modalities:
+    - transcriptomics
+    - mutations
+    - copy_number
+    - drugs
+
+novartispdx:
+  description: ""
+  references:
+  - citation: Gao, H., Korn, J. M., Ferretti, S., Monahan, J. E., Wang, Y., Singh, M., Zhang, C., Schnell, C.,
+     Yang, G., Zhang, Y., Balbin, O. A., Barbe, S., Cai, H., Casey, F., Chatterjee, S., Chiang, D. Y., Chuai, S.,
+     Cogan, S. M., Collins, S. D., Dammassa, E., … Sellers, W. R. (2015).
+     High-throughput screening using patient-derived tumor xenografts to predict clinical trial drug response.
+      Nature medicine, 21(11), 1318–1325. https://doi.org/10.1038/nm.3954
+    doi: https://doi.org/10.1038/nm.3954
+  modalities:
+    - transcriptomics
+    - mutations
+    - copy_number
+    - drugs
