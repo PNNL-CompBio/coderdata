@@ -1,0 +1,14 @@
+pandas
+matplotlib
+numpy==1.26.4
+argparse
+tqdm
+scikit-learn
+scipy
+requests
+openpyxl
+polars-lts-cpu==0.19.17
+mordredcommunity
+rdkit
+coderdata==0.1.40
+psutil

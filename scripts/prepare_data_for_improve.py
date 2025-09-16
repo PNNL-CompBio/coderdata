@@ -83,6 +83,13 @@ def main():
         default=10
     )
     p_process_datasets.add_argument(
+        '-b', '--balance_by', dest='BALANCE_BY',
+        choices=['auc', 'fit_auc'],
+        default=None,
+        help="Defines if and using which drug response metric the splits "
+             "should be balanced by."
+    )
+    p_process_datasets.add_argument(
         '-r', '--random_seeds', dest='RANDOM_SEEDS',
         type=_random_seed_list,
         default=None,
@@ -165,8 +172,16 @@ def process_datasets(args):
     experiments = []
     logger.debug("creating list of datasets that contain experiment info ...")
     for data_set in data_sets_names_list:
-        # sarcpdo has different drug response values
-        if data_set == 'sarcpdo':
+        experiments_raw = data_sets[data_set].experiments
+
+        # Some datasets don't have drug response data (the experiments
+        # table)
+        if experiments_raw is None:
+            logger.debug(f"NO experiment data for {data_set}")
+
+
+        # Logic for datasets containing "published_auc" but not "auc"
+        elif experiments_raw['dose_response_metric'].isin(['published_auc']).any():
             experiment = data_sets[data_set].format(
                 data_type='experiments',
                 shape='wide',
@@ -176,8 +191,29 @@ def process_datasets(args):
             )
             experiment.rename(columns={'published_auc': 'auc'}, inplace=True)
             experiments.append(experiment)
-        # not all Datasets have experiments / drug response data
-        elif data_sets[data_set].experiments is not None:
+
+        # Logic for PDX datasets that don't have `auc` but mRECIST (note
+        # the typo currently in the `drugresponse_metric` column).
+        elif experiments_raw['dose_response_metric'].isin(['mRESCIST']).any():
+            experiment = data_sets[data_set].format(
+                data_type='experiments',
+                shape='wide',
+                metrics=[
+                    'mRESCIST',
+                ],
+            )
+            # conversion logic from mRECIST -> auc
+            experiment.loc[experiment['mRESCIST'] == 'CR', 'mRESCIST'] = 0.1
+            experiment.loc[experiment['mRESCIST'] == 'PR', 'mRESCIST'] = 0.2
+            experiment.loc[experiment['mRESCIST'] == 'SD', 'mRESCIST'] = 0.5
+            experiment.loc[experiment['mRESCIST'] == 'PD', 'mRESCIST'] = 1.0
+
+            experiment.rename(columns={'mRESCIST': 'auc'}, inplace=True)
+            experiments.append(experiment)
+
+        # The remaining datasets should have `auc` as
+        # drug_response_metric available in the `experiments` table
+        else:
             logger.debug(f"experiment data found for {data_set}")
             # formatting existing response data to wide
             experiment = data_sets[data_set].format(
@@ -196,8 +232,6 @@ def process_datasets(args):
                 ],
             )
             experiments.append(experiment.dropna())
-        else:
-            logger.debug(f"NO experiment data for {data_set}")
 
     # concatenating existing response data and "clean up"
     logger.debug("concatenating experiment data ...")
@@ -326,7 +360,82 @@ def process_datasets(args):
             )
         )
 
+    #-------------------------------------------------------------------
+    # create proteomics master table
+    #-------------------------------------------------------------------
 
+    proteomics = merge_master_tables(
+        args=args,
+        data_sets=data_sets,
+        data_type='proteomics'
+        )
+    
+    ####
+    # Imputation step:
+    # currently we are imputing by generating the mean over all samples
+    # in wich the protein was detected across all datasets.
+    # The missing values are the back filled for each protein.
+    ####
+    proteomics = (
+        proteomics
+        # the proteomics table has the transposed first (see below)
+        # due to .fillna not working as expected with axis==1
+        .T
+        .fillna(
+            # the filling of NAs with 'value' is not implemented for
+            # axis==1, despite what is documented for pandas>2.0.0
+            value=proteomics.median(axis=1, skipna=True), 
+            axis=0
+            )
+        .T # transpose back into original orientation
+    )
+    # merging ensemble gene id & gene symbol into the proteomics 
+    # data
+    proteomics = pd.merge(
+        proteomics,
+        data_gene_names[[
+            'entrez_id',
+            'ensembl_gene_id',
+            'gene_symbol'
+        ]],
+        how='left',
+        on='entrez_id',
+    )
+
+    # moving ensemble_id & gene_symbol columns to the front of the table
+    # such that when transposing the DataFrame they are row 3 and 2
+    # respectively
+    proteomics.insert(
+        1,
+        'gene_symbol',
+        proteomics.pop('gene_symbol')
+    )
+    proteomics.insert(
+        0,
+        'ensembl_gene_id',
+        proteomics.pop('ensembl_gene_id')
+    )
+
+    proteomics = proteomics[proteomics['entrez_id'] != 0]
+    proteomics = proteomics.fillna(0).T.reset_index()
+    for i in range(0,3):
+        proteomics.iloc[i,0] = np.nan
+
+    # writing the proteomics datatable to '/x_data/*_proteomics.tsv'
+    outfile_path = args.WORKDIR.joinpath(
+        "data_out",
+        "x_data",
+        "cancer_proteomics.tsv"
+    )
+    (proteomics
+        .to_csv(
+            path_or_buf=outfile_path,
+            sep='\t',
+            header=False,
+            index=False
+            )
+        )
+    
     #-------------------------------------------------------------------
     # create copynumber master table & discretized table
     #-------------------------------------------------------------------
@@ -688,13 +797,21 @@ def split_data_sets(
         args: dict,
         data_sets: dict,
         data_sets_names: list,
-        response_data: pd.DataFrame
+        response_data: pd.DataFrame,
         ):
 
     splits_folder = args.WORKDIR.joinpath('data_out', 'splits')
     split_type = args.SPLIT_TYPE
     ratio = (8,1,1)
-    stratify_by = None
+    stratify_by = args.BALANCE_BY
+    if stratify_by is not None:
+        balance = True
+        quantiles = False
+        num_classes = 4
+    else:
+        balance = False
+        quantiles = True
+        num_classes = 4
     if args.RANDOM_SEEDS is not None:
         random_seeds = args.RANDOM_SEEDS
     else:
@@ -743,6 +860,9 @@ def split_data_sets(
                     split_type=split_type,
                     ratio=ratio,
                     stratify_by=stratify_by,
+                    balance=balance,
+                    quantiles=quantiles,
+                    num_classes=num_classes,
                     random_state=random_seeds[i]
                     )
                 train_keys = (
@@ -869,7 +989,7 @@ def merge_master_tables(args, data_sets, data_type: str='transcriptomics'):
     for data_set in data_sets:
         if data_sets[data_set].experiments is not None:
             if (
-                data_type in ['transcriptomics', 'copy_number'] and 
+                data_type in ['transcriptomics', 'copy_number', 'proteomics'] and 
                 getattr(data_sets[data_set], data_type, None) is not None
             ):
                 dfs_to_merge.append(

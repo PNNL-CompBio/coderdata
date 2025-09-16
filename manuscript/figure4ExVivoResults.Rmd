@@ -1,6 +1,6 @@
 ---
 title: "Figure 4 ex vivo results"
-author: "Sara Gosline"
+author: "Sara Gosline and Yannick Mahlich"
 date: "2025-06-02"
 output: html_document
 ---
@@ -14,14 +14,16 @@ First we get the packages loaded and logged into synapse.
 knitr::opts_chunk$set(echo  =  TRUE)
 library(tidyverse)
 library(ggplot2)
+library(arrow)
+library(dplyr)
+library(gridExtra)
 source('coderdataResultsFunctions.R')
-
 ```
 
 
 The data has been uploaded by natasha and can be downloaded as follows.
 
-```{r download data}
+```{r download data, eval}
 
   cdres <- getModelPerformanceData()
 
@@ -33,7 +35,7 @@ The data has been uploaded by natasha and can be downloaded as follows.
 ## Figure 4A
 
 
-```{r}
+```{r, eval=FALSE}
 metrics <- c('scc','pcc')
 exres = lapply(metrics,function(x) {
   res<-ridgelineMetricPlots(x, ecdres,'cellline')
@@ -47,7 +49,7 @@ print(exres)
 
 Now we can confirm that the datasets follow the same pattern. 
 
-```{r dataset samples}
+```{r dataset samples, eval=FALSE}
 
 
 plot<-calcSourceStatistics('scc',ecdres)
@@ -58,10 +60,64 @@ print(plot)
 
 ```
 
-## Create funtion to dive in
+## MPNST test
 
+Here we download data from all models, subset to only MPNST target predictions
+and combine the individual subsets into one master table.
+```{r predictions data import}
+
+tgt = 'mpnst'
+
+all_preds <- do.call(
+  rbind,
+  lapply(
+    models,
+    function(mdl) getModelPredictionData(dset = mdl) |>
+      dplyr::filter(target == tgt & source != tgt & source != 'beataml') |>
+      collect()
+    )
+  )
+
+```
+
+We want to group results by drugs i.e. create a panel per drug. To that end we 
+extract the drugs and determine the "grid layout" by size of target drugs.
+```{r}
+
+drugs <- unique(all_preds$improve_chem_id)
+grid_ncol = 4
+grid_nrow = ceiling(length(drugs) / grid_ncol)
+```
+
+Defining the plot function for the individual "panels"
+```{r}
+plot_panel <- function(data, title){
+  plot <- (
+    ggplot(data, aes(x=auc_true, y=auc_pred))
+    + geom_point()
+    + geom_smooth(method=lm)
+    + facet_grid(source ~ model)
+    + ggtitle(title)
+    + xlim(0, 1)
+    + ylim(0, 1.25)
+  )
+}
+
+```
+
+```{r}
+plots <- lapply(drugs, function(drug_id){
+  data <- all_preds |> filter(improve_chem_id == drug_id) |> collect()
+  plot_panel(data, drug_id)
+})
+```
+
+```{r}
+plot <- arrangeGrob(grobs = plots, ncol = grid_ncol, nrow = grid_nrow)
+```
 
 
 ```{r}
-
+# print(plot)
+ggsave('mpnst_auc_plot.pdf', plot, dpi=300, width=40, height=60, limitsize = FALSE)
 ```

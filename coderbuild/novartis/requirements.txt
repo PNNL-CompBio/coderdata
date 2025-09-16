@@ -1,0 +1,12 @@
+pandas
+numpy==1.23
+requests
+argparse
+synapseclient 
+matplotlib
+rdkit
+mordred
+tqdm
+scikit-learn
+openpyxl
+statsmodels

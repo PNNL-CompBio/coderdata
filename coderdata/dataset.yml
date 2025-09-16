@@ -1,5 +1,5 @@
-figshare: https://api.figshare.com/v2/articles/28823159
-version: 2.1.0
+figshare: https://api.figshare.com/v2/articles/29923646
+version: 2.2.0
 datasets:
   beataml:
     description: Beat acute myeloid leukemia (BeatAML) focuses on acute myeloid leukemia
@@ -12,7 +12,7 @@ datasets:
         enables prediction of drug response in acute myeloid leukemia. Cell Rep Med.
         2024;5(1):101359.
       doi: https://doi.org/10.1016/j.xcrm.2023.101359
-  bladderpdo:
+  bladder:
     description: Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer
       Data includes transcriptomics, mutations, copy number, and drug response data.
     references:
@@ -20,9 +20,9 @@ datasets:
         Tomasz B. Owczarek, Kwanghee Kim, Chee Wai Chua, LaMont J. Barlow, 
         Cyriac Kandoth, Alanna B. Williams, Sarah K. Bergren, Eugene J. Pietzak, 
         Christopher B. Anderson, Mitchell C. Benson, Jonathan A. Coleman, Barry S. Taylor, 
-        Cory Abate‑Shen, James M. McKiernan, Hikmat Al‑Ahmadie, David B. Solit, Michael M. Shen. 
-        Tumor Evolution and Drug Response in Patient‑Derived Organoid Models of Bladder Cancer. 
-        Cell. 2018;173(2):515‑528.e17.
+        Cory Abate-Shen, James M. McKiernan, Hikmat Al-Ahmadie, David B. Solit, Michael M. Shen. 
+        Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer. 
+        Cell. 2018;173(2):515-528.e17.
       doi: https://doi.org/10.1016/j.cell.2018.03.017
   ccle:
     description: Cancer Cell Line Encyclopedia (CCLE).
@@ -31,15 +31,6 @@ datasets:
         Encyclopedia enables predictive modelling of anticancer drug sensitivity Nature.
         2012;483(7391):603-607. Published 2012 Mar 28.
       doi: https://doi.org/10.1038/nature11003
-  cptac:
-    description: The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project
-      is a collaborative network funded by the National Cancer Institute (NCI) focused
-      on improving our understanding of cancer biology through the integration of
-      transcriptomic, proteomic, and genomic data.
-    references:
-    - citation: Lindgren CM, Adams DW, Kimball B, et al. Simplified and Unified Access
-        to Cancer Proteogenomic Data. J Proteome Res. 2021;20(4):1902-1910.
-      doi: doi:10.1021/acs.jproteome.0c00919
   ctrpv2:
     description: Cancer Therapeutics Response Portal version 2 (CTRPv2)
     references:
@@ -113,31 +104,29 @@ datasets:
         with high-grade transformation in MPNST. JCI Insight. 2021;6(6):e146351. Published
         2021 Mar 22.
       doi: https://doi.org/10.1172/jci.insight.146351
-  mpnstpdx:
-    description: Patient derived xenograft data for MPNST
   nci60:
     description: National Cancer Institute 60
     references:
     - citation: Shoemaker RH. The NCI60 human tumour cell line anticancer drug screen.
         Nat Rev Cancer. 2006;6(10):813-823.
       doi: doi:10.1038/nrc1951
-  pancpdo:
+  pancreatic:
     description: Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer
       Data includes transcriptomics, mutations, copy number, and drug response data.
     references:
     - citation: Hervé Tiriac, Pascal Belleau, Dannielle D. Engle, Dennis Plenker, Astrid Deschênes, 
-        Tim D. D. Somerville, Fieke E. M. Froeling, Richard A. Burkhart, Robert E. Denroche, Gun‑Ho Jang,
+        Tim D. D. Somerville, Fieke E. M. Froeling, Richard A. Burkhart, Robert E. Denroche, Gun-Ho Jang,
         Koji Miyabayashi, C. Megan Young, Hardik Patel, Michelle Ma, Joseph F. LaComb, Randze L. D. Palmaira, 
         Ammar A. Javed, Jasmine C. Huynh, Molly Johnson, Kanika Arora, Nicolas Robine, Minita Shah, 
         Rashesh Sanghvi, Austin B. Goetz, Cinthya Y. Lowder, Laura Martello, Else Driehuis, Nicolas LeComte, 
-        Gokce Askan, Christine A. Iacobuzio‑Donahue, Hans Clevers, Laura D. Wood, Ralph H. Hruban, Elizabeth Thompson, 
+        Gokce Askan, Christine A. Iacobuzio-Donahue, Hans Clevers, Laura D. Wood, Ralph H. Hruban, Elizabeth Thompson, 
         Andrew J. Aguirre, Brian M. Wolpin, Aaron Sasson, Joseph Kim, Maoxin Wu, Juan C. Bucobo, Peter Allen, 
         Divyesh V. Sejpal, William Nealon, James D. Sullivan, Jordan M. Winter, Phyllis A. Gimotty, Jean L. Grem, 
         Dominick J. DiMaio, Jonathan M. Buscaglia, Paul M. Grandgenett, Jonathan R. Brody, Michael A. Hollingsworth, 
-        Grainne M. O’Kane, Faiyaz Notta, Edward Kim, James M. Crawford, Craig Devoe, Allyson Ocean, Christopher L. Wolfgang, 
+        Grainne M. O'Kane, Faiyaz Notta, Edward Kim, James M. Crawford, Craig Devoe, Allyson Ocean, Christopher L. Wolfgang, 
         Kenneth H. Yu, Ellen Li, Christopher R. Vakoc, Benjamin Hubert, Sandra E. Fischer, Julie M. Wilson, Richard Moffitt, 
         Jennifer Knox, Alexander Krasnitz, Steven Gallinger, David A. Tuveson. Organoid Profiling Identifies Common 
-        Responders to Chemotherapy in Pancreatic Cancer. Cancer Discov. 2018;8(9):1112‑1129.
+        Responders to Chemotherapy in Pancreatic Cancer. Cancer Discov. 2018;8(9):1112-1129.
       doi: https://doi.org/10.1158/2159-8290.CD-18-0349
   prism:
     description: Profiling Relative Inhibition Simultaneously in Mixtures
@@ -150,17 +139,57 @@ datasets:
         genotype-specific cancer vulnerabilities in mixtures of barcoded tumor cell
         lines. Nat Biotechnol. 2016;34(4):419-423.
       doi: doi:10.1038/nbt.3460
-  sarcpdo:
+  sarcoma:
       description: The landscape of drug sensitivity and resistance in sarcoma
         Data includes transcriptomics, mutations, and drug response data.
       references:
-      - citation: Ahmad Al Shihabi, Peyton J. Tebon, Huyen T. L. Nguyen, 
-          Jomjit Chantharasamee, Sara Sartini, Ardalan Davarifar, Alexandra Y. Jensen, 
-          Miranda Diaz‑Infante, Hannah Cox, Alfredo E. Gonzalez, Summer Norris, Jantzen Sperry, 
-          Jonathan Nakashima, Nasrin Tavanaie, Helena Winata, Sorel T. Fitz‑Gibbon, 
-          Takafumi N. Yamaguchi, Jae H. Jeong, Sarah Dry, Arun S. Singh, Bartosz Chmielowski, 
-          Joseph G. Crompton, Anusha K. Kalbasi, Fritz C. Eilber, Francis Hornicek, 
-          Nicholas M. Bernthal, Scott D. Nelson, Paul C. Boutros, Noah C. Federman, Jane Yanagawa, 
-          Alice Soragni. The landscape of drug sensitivity and resistance in sarcoma. 
-          Cell Stem Cell. 2024;31(10):1524‑1542.e4.
+      - citation: Ahmad Al Shihabi, Peyton J. Tebon, Huyen T. L. Nguyen, 
+          Jomjit Chantharasamee, Sara Sartini, Ardalan Davarifar, Alexandra Y. Jensen, 
+          Miranda Diaz-Infante, Hannah Cox, Alfredo E. Gonzalez, Summer Norris, Jantzen Sperry, 
+          Jonathan Nakashima, Nasrin Tavanaie, Helena Winata, Sorel T. Fitz-Gibbon, 
+          Takafumi N. Yamaguchi, Jae H. Jeong, Sarah Dry, Arun S. Singh, Bartosz Chmielowski, 
+          Joseph G. Crompton, Anusha K. Kalbasi, Fritz C. Eilber, Francis Hornicek, 
+          Nicholas M. Bernthal, Scott D. Nelson, Paul C. Boutros, Noah C. Federman, Jane Yanagawa, 
+          Alice Soragni. The landscape of drug sensitivity and resistance in sarcoma. 
+          Cell Stem Cell. 2024;31(10):1524-1542.e4.
         doi: https://doi.org/10.1016/j.stem.2024.08.010
+  colorectal:
+    description: Prospective Derivation of a Living Organoid Biobank of Colorectal Cancer Patients
+    references:
+    - citation: Marc van de Wetering, Hayley E. Francies, Joshua M. Francis, Gergana Bounova,
+          Francesco Iorio, Apollo Pronk, Winan van Houdt, Joost van Gorp, Amaro Taylor-Weiner,
+          Lennart Kester, Anne McLaren-Douglas, Joyce Blokker, Sridevi Jaksani, Sina Bartfeld, 
+          Richard Volckman, Peter van Sluis, Vivian S.W. Li, Sara Seepo, Chandra Sekhar Pedamallu, 
+          Kristian Cibulskis, Scott L. Carter, Aaron McKenna, Michael S. Lawrence, 
+          Lee Lichtenstein, Chip Stewart, Jan Koster, Rogier Versteeg, Alexander van Oudenaarden, 
+          Julio Saez-Rodriguez, Robert G.J. Vries, Gad Getz, Lodewyk Wessels, Michael R. Stratton, 
+          Ultan McDermott, Matthew Meyerson, Mathew J. Garnett, Hans Clevers, Prospective Derivation 
+          of a Living Organoid Biobank of Colorectal Cancer Patients, Cell, Volume 161, Issue 4, 2015,
+          Pages 933-945, ISSN 0092-8674
+      doi: https://doi.org/10.1016/j.cell.2015.03.053
+  liver:
+    description: Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology
+    references:
+    - citation: Ji S, Feng L, Fu Z, Wu G, Wu Y, Lin Y, Lu D, Song Y, Cui P, Yang Z, Sang C, Song G,
+          Cai S, Li Y, Lin H, Zhang S, Wang X, Qiu S, Zhang X, Hua G, Li J, Zhou J, Dai Z, Wang X, 
+          Ding L, Wang P, Gao D, Zhang B, Rodriguez H, Fan J, Clevers H, Zhou H, Sun Y, Gao Q. 
+          Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology. 
+      doi: https://doi.org/10.1126/scitranslmed.adg3358
+  novartis:
+    description: High-throughput screening using patient-derived tumor xenografts to predict clinical trial
+         drug response
+    references:
+    - citation: Hui Gao, Joshua M. Korn, Stéphane Ferretti, John E. Monahan, Youzhen Wang, Mallika Singh, 
+          Chao Zhang, Christian Schnell, Guizhi Yang, Yun Zhang, O. Alejandro Balbin, Stéphanie Barbe, 
+          Hongbo Cai, Fergal Casey, Susmita Chatterjee, Derek Y. Chiang, Shannon Chuai, Shawn M. Cogan, 
+          Scott D. Collins, Ernesta Dammassa, Nicolas Ebel, Millicent Embry, John Green, Audrey Kauffmann, 
+          Colleen Kowal, Rebecca J. Leary, Joseph Lehar, Ying Liang, Alice Loo, Edward Lorenzana, 
+          E. Robert McDonald III, Margaret E. McLaughlin, Jason Merkin, Ronald Meyer, Tara L. Naylor, 
+          Montesa Patawaran, Anupama Reddy, Claudia Röelli, David A. Ruddy, Fernando Salangsang, 
+          Francesca Santacroce, Angad P. Singh, Yan Tang, Walter Tinetto, Sonja Tobler, Roberto Velazquez, 
+          Kavitha Venkatesan, Fabian Von Arx, Hui Qin Wang, Zongyao Wang, Marion Wiesmann, Daniel Wyss, 
+          Fiona Xu, Hans Bitter, Peter Atadja, Emma Lees, Francesco Hofmann, En Li, Nicholas Keen, 
+          Robert Cozens, Michael Rugaard Jensen, Nancy K. Pryer, Juliet A. Williams, William R. Sellers, 
+          High-throughput screening using patient-derived tumor xenografts to predict clinical trial drug 
+          response, Nature Medicine, Volume 21, 2015, Pages 1318–1325.
+      doi: https://doi.org/10.1038/nm.3954

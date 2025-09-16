@@ -412,7 +412,7 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
                         help='Build date in YYYY-MM-DD. Default=now.')
     parser.add_argument('--version', required=True,
                         help='Build version. Must be unique per build.')
-    parser.add_argument('--datasets', default='ccle,ctrpv2,fimm,gcsi,gdscv1,gdscv2,nci60,prism,hcmi,beataml,cptac,mpnst,mpnstpdx,pancpdo,bladderpdo,sarcpdo',
+    parser.add_argument('--datasets', default='ccle,ctrpv2,fimm,gcsi,gdscv1,gdscv2,nci60,prism,hcmi,beataml,pancreatic,bladder,sarcoma,liver,novartis,colorectal,mpnst',
                         help='Comma-separated list of datasets, e.g., beataml,ccle')
     parser.add_argument('--local_dir', default='data',
                         help='Directory containing all CSV/TSV files.')
@@ -422,7 +422,7 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
     # Set build_date
     build_date = args.build_date or datetime.utcnow().strftime("%Y-%m-%d")
     # Load or initialize improve_sample_mapping.json
-    mapping_file = "build/improve_sample_mapping.json"
+    mapping_file = "coderbuild/improve_sample_mapping.json"
     mapping_data, had_prior = load_mapping(mapping_file)
     # Insert current build metadata
     current_build_metadata = get_current_build_metadata(build_date, args.version)
