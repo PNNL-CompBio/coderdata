@@ -91,7 +91,7 @@ datasets:
       - experiments
 
   hcmi:
-    description: Human Cancer Models Initiative (HCMI) encompasses numerous cancer types and includes cell line, organoid, and tumor data.
+    description: Human Cancer Models Initiative (HCMI) encompasses numerous cancer types and includes cell line, organoid, and tumor data. The models and the data are from the Human Cancer Models Initiative (HCMI) www.cancer.gov/ccg/research/functional-genomics/hcmi; dbGaP accession number phs001486.
     modalities:
       - sample
       - transcriptomics
