@@ -320,7 +320,10 @@ def lmm(time, volume, treatment, drug_name):
     print("[DBG][LMM] volume<=0:", (data['volume']<=0).sum(), " nonfinite log_volume:", (~np.isfinite(np.log(data['volume']))).sum())
     print("[DBG][LMM] groups:", data['model_id'].nunique())
 
+    print("[DBG][LMM] DATA:", data)
     fit = model.fit()
+    
+    print("[DBG][LMM] fit:", fit.params)
     
     # Get the coefficient for the interaction term 'time:exp_type'
     #interaction_term = 'time:exp_type'
@@ -328,6 +331,8 @@ def lmm(time, volume, treatment, drug_name):
 #    time_coef_value = fit.params['time']
     #print(fit.params)
     i_coef_value = fit.params['time:exp_type[T.'+drug_name+']']
+    
+    print("[DBG][LMM] i_coef_value:", i_coef_value)
     #i_coef_value = fit.params['time:exp_type['+drug_name+']']
    # else:
    #     coef_value = None  # Handle the case when the interaction term is not present
