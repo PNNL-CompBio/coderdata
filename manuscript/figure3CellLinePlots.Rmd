@@ -132,7 +132,7 @@ plots <- lapply(ranges, function(auc_range){
   data <- all_preds |> filter(auc_ranges == auc_range) |> collect()
   plot_panel(data, auc_range)
 })
-plot <- arrangeGrob(grobs = plots, ncol = 3)
+plot <- gridExtra::arrangeGrob(grobs = plots, ncol = 3)
 ggsave('ccle_auc_plot.pdf', plot, dpi=300, width=30, height=10)
 
 ggplot(all_preds,aes(x=diff,fill=model))+geom_histogram()+facet_grid(source~auc_ranges)+scale_y_log10()+scale_fill_manual(values=modelcolors)
