@@ -64,8 +64,8 @@ class Dataset:
 
         Parameters
         ----------
-        name : str
-            The name of the dataset that is stored in the object
+        name : str, optional
+            The name of the dataset that is stored in the object, by default None
         transcriptomics : pd.DataFrame, optional
             _description_, by default None
         proteomics : pd.DataFrame, optional
@@ -386,6 +386,14 @@ class Dataset:
 
 
     def types(self) -> list:
+        """
+        Get the data types available in the dataset.
+
+        Returns
+        -------
+        list
+        A list of available data types (e.g., 'transcriptomics', 'proteomics').
+        """
         data_types = [
             'transcriptomics',
             'proteomics',
@@ -407,7 +415,18 @@ class Dataset:
         return data_types_present
     
     def save(self, path: Path) -> None:
+        """
+        Save the dataset to a file.
 
+        Parameters
+        ----------
+        path : Path
+            The file path where the dataset will be saved.
+
+        Returns
+        -------
+        None
+        """
         with open(path, 'wb') as f_path:
             pickle.dump(self, file=f_path)
 
@@ -563,6 +582,22 @@ def format(
         remove_na: bool=False,
         **kwargs: dict,
         ):
+    """
+    Format the dataset according to the specified type.
+
+    Parameters
+    ----------
+    data_type : str
+        The type of data to format (e.g., 'transcriptomics', 'mutations').
+    remove_na : bool, optional
+        Whether to remove rows with missing values, by default False.
+    **kwargs : dict
+        Additional arguments for customization.
+
+    Returns
+    -------
+    Formatted data based on the requested type.
+    """
 
     if data_type == "transcriptomics":
         if data.transcriptomics is None:
@@ -759,6 +794,31 @@ def split_train_other(
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict, 
     ):
+
+    """
+    Split the dataset into training and other subsets.
+
+    Parameters
+    ----------
+    split_type : {'mixed-set', 'drug-blind', 'cancer-blind'}, optional
+        The type of splitting to perform, by default 'mixed-set'.
+    ratio : tuple[int, int], optional
+        Ratio of train to other split sizes, by default (8, 2).
+    stratify_by : str, optional
+        Column to use for stratification, if any, by default None.
+    balance : bool, optional
+        Whether to balance the split data, by default False.
+    random_state : int | RandomState | None, optional
+        Random seed for reproducibility, by default None.
+    **kwargs : dict
+        Additional arguments for customization.
+
+    Returns
+    -------
+    TwoWaySplit
+        The resulting datasets in training and other split.
+    """
+
     train, other = _split_two_way(
         data=data,
         split_type=split_type,
@@ -785,6 +845,31 @@ def split_train_test_validate(
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict,
         ) -> Split:
+
+    """
+    Split the dataset into training, testing, and validation subsets.
+
+    Parameters
+    ----------
+    split_type : {'mixed-set', 'drug-blind', 'cancer-blind'}, optional
+        The type of splitting strategy to use, by default 'mixed-set'.
+    ratio : tuple[int, int, int], optional
+        Ratio for train, test, and validation sizes, by default (8,1,1).
+    stratify_by : str, optional
+        Column for stratification, if any, by default None.
+    balance : bool, optional
+        Whether to balance the splits, by default False.
+    random_state : int | RandomState | None, optional
+        Random seed for reproducible splits, by default None.
+    **kwargs : dict
+        Additional arguments for customization.
+
+    Returns
+    -------
+    Split
+        A Split object with train, test, and validation datasets.
+    """
+
     # Type checking split_type
     if split_type not in [
         'mixed-set', 'drug-blind', 'cancer-blind'
