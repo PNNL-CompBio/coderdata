@@ -322,7 +322,43 @@ class Dataset:
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict, 
         ) -> TwoWaySplit:
+            """
+        Split the dataset into training and another subset (e.g., testing or validation).
 
+        Parameters
+        ----------
+        split_type : {'mixed-set', 'drug-blind', 'cancer-blind'}, optional
+            The type of split to perform, by default 'mixed-set'.
+            - `mixed-set`: A random split, disregarding drug or cancer associations.
+            - `drug-blind`: Ensures disjoint splits by drug ID.
+            - `cancer-blind`: Ensures disjoint splits by sample or cancer association.
+        ratio : tuple[int, int], optional
+            The ratio of train to other subset sizes, by default (8, 2).
+            For instance, (8, 2) translates to an 80%-20% split.
+        stratify_by : str, optional
+            The column used for stratification, if stratification is needed, by default None.
+        balance : bool, optional
+            Whether to adjust to balanced splits (equal representation of classes), by default False.
+        random_state : int | RandomState | None, optional
+            A seed for reproducibility of the random split, by default None.
+        **kwargs : dict
+            Additional arguments for advanced customization of the split.
+
+        Returns
+        -------
+        TwoWaySplit
+            An object containing the train and other subsets as separate datasets.
+
+        Notes
+        -----
+        This method is a wrapper around the `split_train_other` utility function and
+        ensures that the split configuration is applied to the dataset (self).
+
+        Examples
+        --------
+        >>> split = dataset.split_train_other(split_type='cancer-blind', ratio=(7,3))
+        >>> print(split.train, split.other)
+        """
         split = split_train_other(
             data=self,
             split_type=split_type,
@@ -347,6 +383,47 @@ class Dataset:
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict,
         ) -> Split:
+        """
+        Split the dataset into training, testing, and validation subsets.
+
+        Parameters
+        ----------
+        split_type : {'mixed-set', 'drug-blind', 'cancer-blind'}, optional
+            Defines the type of splitting to perform, by default 'mixed-set'.
+            - `mixed-set`: Data is split randomly, disregarding drug or cancer associations.
+            - `drug-blind`: Ensures disjoint splits by drug association.
+            - `cancer-blind`: Ensures disjoint splits by sample or cancer association.
+        ratio : tuple[int, int, int], optional
+            Defines the ratio of train, test, and validate sizes, e.g., (8,1,1)
+            means 80% train, 10% test, 10% validation.
+        stratify_by : str, optional
+            Column to use for stratification, if required, by default None.
+        balance : bool, optional
+            Whether to balance the splits (equal representation of classes), by default False.
+        random_state : int | RandomState | None, optional
+            A random seed for reproducibility, by default None.
+        **kwargs : dict
+            Additional arguments for customization of the split logic.
+
+        Returns
+        -------
+        Split
+            A Split object containing the training, testing, and validation subsets.
+
+        Notes
+        -----
+        - This method uses the `split_train_test_validate` utility function internally.
+        - Ensures disjoint subsets based on the specified splitting criteria, especially
+        for `drug-blind` and `cancer-blind` splits.
+        - Includes options for stratifying splits based on a drug response metric.
+
+        Examples
+        --------
+        >>> split = dataset.split_train_test_validate(
+        ...     split_type='drug-blind', ratio=(7,2,1), stratify_by='auc'
+        ... )
+        >>> print(split.train, split.test, split.validate)
+        """
         split = split_train_test_validate(
             data=self,
             split_type=split_type,
@@ -371,7 +448,46 @@ class Dataset:
         random_state: Optional[Union[int,RandomState]]=None,
         **kwargs: dict,
         ) -> Split:
+        """
+        Split the dataset into training, testing, and validation subsets.
 
+        Parameters
+        ----------
+        split_type : {'mixed-set', 'drug-blind', 'cancer-blind'}, optional
+            Defines the type of splitting, by default 'mixed-set'.
+            - `mixed-set`: Random splitting, disregarding drug or cancer associations.
+            - `drug-blind`: Ensures disjoint splits based on drug associations.
+            - `cancer-blind`: Ensures disjoint splits based on cancer or sample associations.
+        ratio : tuple[int, int, int], optional
+            The proportion of data for train, test, and validation splits 
+            (e.g., (8,1,1) means 80% train, 10% test, 10% validation), by default (8,1,1).
+        stratify_by : str, optional
+            The column used for stratification (e.g., a drug response metric), by default None.
+        balance : bool, optional
+            Whether to adjust splits to ensure balanced classes, by default False.
+        random_state : int | RandomState | None, optional
+            Random seed for reproducibility, by default None.
+        **kwargs : dict
+            Additional arguments for customization, passed to the stratification logic.
+
+        Returns
+        -------
+        Split
+            An object containing the training, testing, and validation subsets.
+
+        Notes
+        -----
+        - This method wraps around the `split_train_test_validate` utility function.
+        - Useful for creating disjoint and optionally stratified splits of the dataset.
+        - Supports reproducibility through `random_state`.
+
+        Examples
+        --------
+        >>> split = dataset.train_test_validate(
+        ...     split_type='cancer-blind', ratio=(6,2,2), stratify_by='fit_auc'
+        ... )
+        >>> print(split.train, split.test, split.validate)
+        """
         split = split_train_test_validate(
             data=self,
             split_type=split_type,
@@ -441,28 +557,54 @@ def load(
         local_path: Union[str,Path]=Path.cwd(),
         from_pickle:bool=False
         ) -> Dataset:
+   
     """
-    _summary_
+    Load a dataset from local files.
+
+    This function allows loading either from raw data files (e.g., CSV, TSV)
+    or from a pickled file. The raw data is parsed and indexed into a `Dataset`
+    object based on predefined types. If pickled data is available, it can be
+    directly loaded for faster access.
 
     Parameters
     ----------
     name : str
-        _description_
-    directory : str | Path, optional
-        _description_, by default Path.cwd()
+        The name of the dataset to load (used as a filename prefix).
+    local_path : str | Path, optional
+        The local directory where the dataset files are located, by default the current working directory.
+    from_pickle : bool, optional
+        If True, attempts to load the dataset from a pickled file, by default False.
 
     Returns
     -------
     Dataset
-        _description_
+        An object containing the loaded dataset with attributes for specific data types like 'transcriptomics', 
+        'proteomics', 'mutations', etc.
 
     Raises
     ------
     OSError
-        _description_
+        If the specified directory does not exist.
     TypeError
-        _description_
+        If the provided path is not a valid path.
+    FileNotFoundError
+        If no suitable pickled file is found when `from_pickle=True`.
+
+    Notes
+    -----
+    - When loading from raw files, supported file formats are `.csv`, `.tsv`, `.csv.gz`, `.tsv.gz`.
+    - The `genes` dataset is subsetted to include only genes relevant to other subdatasets ('transcriptomics', 'proteomics', etc.).
+    - When loading from pickle, the function looks for files with extensions `.pkl` or `.pickle`.
+
+    Examples
+    --------
+    Load a dataset from raw files:
+    >>> dataset = load(name='my_dataset', local_path='/data/datasets')
+
+    Load a dataset from a pickled file:
+    >>> dataset = load(name='my_dataset', local_path='/data/datasets', from_pickle=True)
     """
+   
 
     data_types_to_load = (
         'transcriptomics',

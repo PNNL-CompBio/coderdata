@@ -42,7 +42,7 @@ def plot_2d_respones_metric(
     -------
     None
         Displays the 2D histogram plot.
-
+    """
 
     data_plot = _prepare_2d_hist_data(
         data=data.experiments,
