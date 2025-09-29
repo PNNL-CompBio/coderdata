@@ -1,44 +1,58 @@
 Datasets Included
 =================
 
-This page provides an overview of the datasets included in CoderData version 2.1.0.
+This page provides an overview of the datasets included in CoderData version 2.2.0. This package collects 18 diverse sets of paired molecular datasets with corresponding drug sensitivity data. All data here is reprocessed and standardized so it can be easily used as a benchmark dataset for machine learning models.
 
 Figshare record: https://api.figshare.com/v2/articles/28823159
-Version: 2.1.0
+Version: 2.2.0
 
 ---------------------------
 Dataset Overview
 ---------------------------
 .. csv-table:: Datasets and Modalities
-   :header: "Dataset", "References", "Sample", "Transcriptomics", "Proteomics", "Mutations", "Copy Number", "Drug", "Drug Descriptor", "Experiments"
-   :widths: 12, 10, 6, 12, 12, 12, 12, 8, 15, 12
+   :header: "Dataset", "References", "Sample", "Drug", "Drug Descriptor", "Experiments", "Transcriptomics", "Proteomics", "Mutations", "Copy Number"
+   :widths: 14, 12, 6, 8, 15, 12, 12, 12, 12, 12
 
-   "BeatAML", "[1]_, [2]_", "X", "X", "X", "X", "", "X", "X", "X"
-   "BladderPDO", "[3]_", "X", "X", "", "X", "X", "X", "X", "X"
-   "CCLE", "[4]_", "X", "X", "X", "X", "X", "X", "X", "X"
-   "CPTAC", "[5]_", "X", "X", "X", "X", "X", "", "", ""
-   "CTRPv2", "[6]_, [7]_, [8]_", "X", "X", "", "X", "X", "X", "X", "X"
-   "FIMM", "[9]_, [10]_", "X", "X", "", "", "", "X", "X", "X"
-   "HCMI", "[11]_", "X", "X", "", "X", "X", "", "", ""
-   "MPNST", "[12]_", "X", "X", "X", "X", "X", "X", "X", "X"
-   "NCI60", "[13]_", "X", "X", "X", "X", "", "X", "X", "X"
-   "Pancreatic PDO", "[14]_", "X", "X", "", "X", "X", "X", "X", "X"
-   "PRISM", "[15]_, [16]_", "X", "X", "", "", "", "X", "X", "X"
-   "Sarcoma PDO", "[17]_", "X", "X", "", "X", "", "X", "X", "X"
-   "CRC PDO", "[18]_", "X", "X", "", "X", "X", "X", "X", ""
-   "Liver PDO", "[19]_", "X", "X", "", "X", "X", "X", "X", ""
-   "Novartis PDX", "[20]_", "X", "X", "", "X", "X", "X", "X", ""
-   "gCSI", "[21]_, [22]_", "X", "X", "X", "X", "X", "X", "X", ""
-   "GDSC v1", "[23]_, [24]_, [25]_", "X", "X", "X", "X", "X", "X", "X", ""
-   "GDSC v2", "[23]_, [24]_, [25]_", "X", "X", "X", "X", "X", "X", "X", ""
+   "BeatAML", "[1]_, [2]_", "1022", "164", "X", "X", "X", "X", "X", ""
+   "Bladder", "[3]_", "134", "50", "X", "X", "X", "", "X", "X"
+   "CCLE", "[4]_", "502", "24", "X", "X", "X", "X", "X", "X"
+   "Colorectal ", "[18]_", "61", "10", "X", "", "X", "", "X", "X"
+   "CPTAC", "[5]_", "1139", "", "", "", "X", "X", "X", "X"
+   "CTRPv2", "[6]_, [7]_, [8]_", "846", "459", "X", "X", "X", "", "X", "X"
+   "FIMM", "[9]_, [10]_", "52", "52", "X", "X", "X", "", "", ""
+   "GDSC v1", "[23]_, [24]_, [25]_", "984", "294", "X", "", "X", "X", "X", "X"
+   "GDSC v2", "[23]_, [24]_, [25]_", "806", "171", "X", "", "X", "X", "X", "X"
+   "gCSI", "[21]_, [22]_", "569", "X", "X", "", "X", "X", "X", "X"
+   "HCMI", "[11]_", "886", "", "", "", "X", "", "X", "X"
+   "Liver", "[19]_", "62", "76", "X", "", "X", "", "X", "X"
+   "MPNST", "[12]_", "50", "30", "X", "X", "X", "X", "X", "X"
+   "NCI60", "[13]_", "83", "55157", "X", "X", "X", "X", "X", ""
+   "Novartis", "[20]_", "386", "25", "X", "", "X", "", "X", "X"
+   "Pancreatic", "[14]_", "70", "25", "X", "X", "X", "", "X", "X"
+   "PRISM", "[15]_, [16]_", "478", "1419", "X", "X", "X", "", "", ""
+   "Sarcoma", "[17]_", "36", "34", "X", "X", "X", "", "X", ""
 
-The table above lists the datasets included in CoderData version 2.1.0, along with references to their original publications and the types of data available for each dataset. An "X" indicates the presence of a particular data type for the corresponding dataset.
+
+The table above lists the datasets included in CoderData version 2.2.0, along with references to their original publications, counts of samples and drugs, and the types of data available for each dataset.
+
+CoderData includes the following data:
+
+- Sample - cell lines, patient-derived samples, or patient-derived organoids
+- Drug - compounds tested for sensitivity
+- Drug Descriptor - molecular descriptors for each drug (computed using RDKit)
+- Experiments - dose-response experiments (various metrics such as AUC, IC50, etc.)
+- Transcriptomics - gene expression (in transcripts per million, TPM)
+- Proteomics - protein expression (in log2 ratio to reference)
+- Mutations - gene mutations (variant calls)
+- Copy Number - gene copy number variations (number of copies of each gene, 2 being diploid)
+
+An "X" indicates the presence of a particular data type for the corresponding dataset.
 
 
 ---------------------------
 Dataset Summary Statistics
 ---------------------------
-The following table summarizes key statistics for each dataset, including the number of samples, drugs, and various combinations of sample-drug pairs with different molecular data types.
+The following table summarizes combination counts for each dataset. This includes the number of experimental sample-drug pairs, with different molecular data types. Each column represents the number of unique combinations of samples and drugs with the specified molecular data types available. For example, the "Sample-Drug-Transcriptomics-Mutations" column indicates the number of unique sample-drug pairs that have both transcriptomics and mutation data available.
 
     .. csv-table:: Dataset Summary Statistics
        :file: _static/dataset_summary_statistics.csv
@@ -51,8 +65,26 @@ Drug Curve Metrics Collected
 The following table summarizes the number of drugs associated with each dose-response metric across the datasets.
 
     .. csv-table:: Drug Curve Metrics Summary
-       :file: _static/dataset_curve_metric_summary.csv
+       :file: _static/dataset_curve_metrics_wide.csv
        :header-rows: 0
+
+Types of dose-response metrics collected include:
+
+- AAC - Area above the response curve; the complement value of AUC.
+- ABC - Area between curves, the difference between the AUC of the control and the treated cells.
+- AUC - Area under the fitted hill slope curve across all doses present. Lower AUC signifies lower levels of growth.
+- DSS - A multiparametric dose response value that takes into account control and treated cells.
+- fit_auc - Area under the fitted hill slope curve across the common interval of −log10[M], where the molar concentration ranges from 10⁻⁴ to 10⁻¹⁰.
+- fit_ec50 - The fitted curve prediction of the −log10M concentration at which 50% of the maximal effect is observed.
+- fit_ec50se - Standard error of the Fit_EC50 estimate.
+- fit_einf - The fraction of cells that are unaffected even at an infinite dose concentration. Calculated as the lower asymptote of the hill slope function.
+- fit_hs - The estimated hill slope binding cooperativity, calculated as the slope of the sigmoidal hill curve.
+- fit_ic50 - The fitted curve prediction of the −log10M concentration required to reduce tumor growth by 50%.
+- fit_r2 - Coefficient of determination between observed growth and the fitted hill slope curve, indicating goodness of fit.
+- lmm - The resulting “time and treatment interaction” in a linear mixed model with fixed effects as time and treatment and patient as a random effect. Indicates how much the treatment changes the slope of log(volume) over time compared to the control.
+- mRESCIST - Disease status classified into PD (progressive disease), SD (stable disease), PR (partial response), and CR (complete response), based on percent volume change and cumulative average response.
+- published_auc - Published Area Under the Curve
+- TG - Tumor growth inhibition between the control and treatment time-volume curves.
 
 
 
