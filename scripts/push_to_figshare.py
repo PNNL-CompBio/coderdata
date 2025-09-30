@@ -197,7 +197,7 @@ def upload_to_figshare(token, title, directory, project_id, publish, version, ar
         # update dataset.yml
         with open("coderdata/dataset.yml", "r") as f:
             data = yaml.safe_load(f)
-        data["figshare"] = f"https://api.figshare.com/v2/articles/{article_id}/files?page=1&page_size=500"
+        data["figshare"] = f"https://api.figshare.com/v2/articles/{article_id}"
         data["version"] = version
         with open('/tmp/dataset.yml', 'w') as f:
             yaml.safe_dump(data, f, sort_keys=False)       
@@ -232,12 +232,7 @@ def upload_to_figshare(token, title, directory, project_id, publish, version, ar
         remote_file_info = get_remote_file_info(article_id, file_name)
         if remote_file_info:
             local_md5, local_size = get_file_check_data(file_path)
-            remote_md5 = (
-                remote_file_info.get('computed_md5')
-                or remote_file_info.get('md5')
-                or remote_file_info.get('supplied_md5')
-            )
-            if remote_file_info.get('size') != local_size or remote_md5 != local_md5:
+            if remote_file_info['size'] != local_size or remote_file_info['computed_md5'] != local_md5:
                 print(f"Updating file {file_name} in Figshare...")
                 delete_existing_file(article_id, remote_file_info['id'])
                 file_info = initiate_new_upload(article_id, file_path)
