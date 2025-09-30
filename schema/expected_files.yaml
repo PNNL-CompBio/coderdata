@@ -199,97 +199,99 @@ datasets:
     - target_class: Drug Descriptor
       file: /tmp/prism_drug_descriptors.tsv
 
-  pancpdo:
+  pancreatic:
     - target_class: Sample
-      file: /tmp/pancpdo_samples.csv
+      file: /tmp/pancreatic_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/pancpdo_transcriptomics.csv
+      file: /tmp/pancreatic_transcriptomics.csv
     - target_class: Mutations
-      file: /tmp/pancpdo_mutations.csv
+      file: /tmp/pancreatic_mutations.csv
     - target_class: Copy Number
-      file: /tmp/pancpdo_copy_number.csv
+      file: /tmp/pancreatic_copy_number.csv
     - target_class: Experiments
-      file: /tmp/pancpdo_experiments.tsv
+      file: /tmp/pancreatic_experiments.tsv
     - target_class: Drug
-      file: /tmp/pancpdo_drugs.tsv
+      file: /tmp/pancreatic_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/pancpdo_drug_descriptors.tsv
+      file: /tmp/pancreatic_drug_descriptors.tsv
 
-  bladderpdo:
+  bladder:
     - target_class: Sample
-      file: /tmp/bladderpdo_samples.csv
+      file: /tmp/bladder_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/bladderpdo_transcriptomics.csv    
+      file: /tmp/bladder_transcriptomics.csv    
     - target_class: Mutations
-      file: /tmp/bladderpdo_mutations.csv
+      file: /tmp/bladder_mutations.csv
     - target_class: Copy Number
-      file: /tmp/bladderpdo_copy_number.csv
+      file: /tmp/bladder_copy_number.csv
     - target_class: Experiments
-      file: /tmp/bladderpdo_experiments.tsv
+      file: /tmp/bladder_experiments.tsv
     - target_class: Drug
-      file: /tmp/bladderpdo_drugs.tsv
+      file: /tmp/bladder_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/bladderpdo_drug_descriptors.tsv
+      file: /tmp/bladder_drug_descriptors.tsv
 
-  sarcpdo:
+  sarcoma:
     - target_class: Sample
-      file: /tmp/sarcpdo_samples.csv
+      file: /tmp/sarcoma_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/sarcpdo_transcriptomics.csv   
+      file: /tmp/sarcoma_transcriptomics.csv   
     - target_class: Mutations
-      file: /tmp/sarcpdo_mutations.csv
+      file: /tmp/sarcoma_mutations.csv
     - target_class: Experiments
-      file: /tmp/sarcpdo_experiments.tsv
+      file: /tmp/sarcoma_experiments.tsv
     - target_class: Drug
-      file: /tmp/sarcpdo_drugs.tsv
+      file: /tmp/sarcoma_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/sarcpdo_drug_descriptors.tsv
+      file: /tmp/sarcoma_drug_descriptors.tsv
 
-  crcpdo:
+  colorectal:
     - target_class: Sample
-      file: /tmp/crcpdo_samples.csv
+      file: /tmp/colorectal_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/crcpdo_transcriptomics.csv
+      file: /tmp/colorectal_transcriptomics.csv
     - target_class: Copy Number
-      file: /tmp/crcpdo_copy_number.csv
+      file: /tmp/colorectal_copy_number.csv
     - target_class: Mutations
-      file: /tmp/crcpdo_mutations.csv
+      file: /tmp/colorectal_mutations.csv
     - target_class: Experiments
-      file: /tmp/crcpdo_experiments.tsv
+      file: /tmp/colorectal_experiments.tsv
     - target_class: Drug
-      file: /tmp/crcpdo_drugs.tsv
+      file: /tmp/colorectal_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/crcpdo_drug_descriptors.tsv
+      file: /tmp/colorectal_drug_descriptors.tsv
 
-  liverpdo:
+  liver:
     - target_class: Sample
-      file: /tmp/liverpdo_samples.csv
+      file: /tmp/liver_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/liverpdo_transcriptomics.csv
+      file: /tmp/liver_transcriptomics.csv
     - target_class: Copy Number
-      file: /tmp/liverpdo_copy_number.csv
+      file: /tmp/liver_copy_number.csv
     - target_class: Mutations
-      file: /tmp/liverpdo_mutations.csv
+      file: /tmp/liver_mutations.csv
+    - target_class: Proteomics
+      file: /tmp/liver_proteomics.csv
     - target_class: Experiments
-      file: /tmp/liverpdo_experiments.tsv
+      file: /tmp/liver_experiments.tsv
     - target_class: Drug
-      file: /tmp/liverpdo_drugs.tsv
+      file: /tmp/liver_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/liverpdo_drug_descriptors.tsv
+      file: /tmp/liver_drug_descriptors.tsv
 
 
-  novartispdx:
+  novartis:
     - target_class: Sample
-      file: /tmp/novartispdx_samples.csv
+      file: /tmp/novartis_samples.csv
     - target_class: Transcriptomics
-      file: /tmp/novartispdx_transcriptomics.csv
+      file: /tmp/novartis_transcriptomics.csv
     - target_class: Mutations
-      file: /tmp/novartispdx_mutations.csv
+      file: /tmp/novartis_mutations.csv
     - target_class: Copy Number
-      file: /tmp/novartispdx_copy_number.csv
+      file: /tmp/novartis_copy_number.csv
     - target_class: Experiments
-      file: /tmp/novartispdx_experiments.tsv
+      file: /tmp/novartis_experiments.tsv
     - target_class: Drug
-      file: /tmp/novartispdx_drugs.tsv
+      file: /tmp/novartis_drugs.tsv
     - target_class: Drug Descriptor
-      file: /tmp/novartispdx_drug_descriptors.tsv
+      file: /tmp/novartis_drug_descriptors.tsv

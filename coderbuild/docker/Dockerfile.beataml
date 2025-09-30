@@ -1,0 +1,22 @@
+FROM python:3.9
+
+WORKDIR /usr/src/app
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+COPY coderbuild/beatAML/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# CMD python GetBeatAML.py --token ${SYNAPSE_TOKEN}
+
+COPY coderbuild/beatAML/GetBeatAML.py . 
+COPY coderbuild/utils/fit_curve.py .
+COPY coderbuild/utils/build_drug_desc.py .
+COPY coderbuild/utils/pubchem_retrieval.py .
+COPY coderbuild/utils/tpmFromCounts.py .
+COPY coderbuild/beatAML/*sh ./
+
+
+VOLUME ['/tmp']

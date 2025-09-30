@@ -1,0 +1,17 @@
+FROM python:3.9
+
+WORKDIR /usr/src/app
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+COPY coderbuild/hcmi/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+
+COPY coderbuild/hcmi/01-createHCMISamplesFile.py .
+COPY coderbuild/hcmi/02-getHCMIData.py .
+COPY coderbuild/hcmi/full_manifest.txt .
+COPY coderbuild/hcmi/*sh ./
+COPY coderbuild/hcmi/hcmi_cancer_types.csv ./

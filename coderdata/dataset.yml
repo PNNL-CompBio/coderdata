@@ -1,5 +1,5 @@
-figshare: https://api.figshare.com/v2/articles/28823159
-version: 2.1.0
+figshare: https://api.figshare.com/v2/articles/29923646
+version: 2.2.0
 datasets:
   beataml:
     description: Beat acute myeloid leukemia (BeatAML) focuses on acute myeloid leukemia tumor data. Data includes drug response, proteomics, and transcriptomics datasets.
@@ -17,7 +17,7 @@ datasets:
       - drug descriptor
       - experiments
 
-  bladderpdo:
+  bladder:
     description: Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer. Data includes transcriptomics, mutations, copy number, and drug response data.
     references:
       - citation: Suk Hyung Lee, Wenhuo Hu, Justin T. Matulay, et al. Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer. Cell. 2018;173(2):515-528.e17.
@@ -113,15 +113,6 @@ datasets:
       - drug descriptor
       - experiments
 
-  mpnstpdx:
-    description: Patient-derived xenograft data for MPNST.
-    modalities:
-      - sample
-      - transcriptomics
-      - drug
-      - drug descriptor
-      - experiments
-
   nci60:
     description: National Cancer Institute 60.
     references:
@@ -136,7 +127,7 @@ datasets:
       - drug descriptor
       - experiments
 
-  pancpdo:
+  pancreas:
     description: Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer. Data includes transcriptomics, mutations, copy number, and drug response data.
     references:
       - citation: Tiriac H, Belleau P, Engle DD, et al. Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer. Cancer Discov. 2018;8(9):1112-1129.
@@ -164,7 +155,7 @@ datasets:
       - drug descriptor
       - experiments
 
-  sarcpdo:
+  sarcoma:
     description: The landscape of drug sensitivity and resistance in sarcoma. Data includes transcriptomics, mutations, and drug response data.
     references:
       - citation: Al Shihabi A, Tebon PJ, Nguyen HTL, et al. The landscape of drug sensitivity and resistance in sarcoma. Cell Stem Cell. 2024;31(10):1524-1542.e4.
@@ -177,7 +168,7 @@ datasets:
       - drug descriptor
       - experiments
 
-  crcpdo:
+  colorectal:
     description: Living organoid biobank of colorectal cancer patients.
     references:
       - citation: van de Wetering M, Francies HE, Francis JM, et al. Prospective derivation of a living organoid biobank of colorectal cancer patients. Cell. 2015;161(4):933-945.
@@ -190,7 +181,7 @@ datasets:
       - drug
       - drug descriptor
 
-  liverpdo:
+  liver:
     description: Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology.
     references:
       - citation: Ji S, Feng L, Fu Z, et al. Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology. Sci Transl Med. 2023;15(706):eadg3358.
@@ -203,7 +194,7 @@ datasets:
       - drug
       - drug descriptor
 
-  novartispdx:
+  novartis:
     description: Patient-derived tumor xenografts for drug response prediction.
     references:
       - citation: Gao H, Korn JM, Ferretti S, et al. High-throughput screening using patient-derived tumor xenografts to predict clinical trial drug response. Nat Med. 2015;21(11):1318–1325.
@@ -267,3 +258,4 @@ datasets:
       - copy number
       - drug
       - drug descriptor
+

@@ -1,0 +1,122 @@
+'''
+build drug descriptor table from drug table
+
+
+'''
+
+
+import argparse
+from rdkit import Chem
+from rdkit.Chem import AllChem
+from rdkit.Chem import rdFingerprintGenerator
+from rdkit.DataStructs import ConvertToNumpyArray
+import pandas as pd
+import numpy as np
+from mordred import Calculator, descriptors
+import multiprocessing
+
+# Remove all of the Deprecation warnings. There is a github issue to update the code and 50k lines of warnings in the build log so I'm hiding them for now. 
+from rdkit import RDLogger
+RDLogger.DisableLog('rdApp.*')
+# If this script suddently stops working, it is likely due to a change in rdkit. Unhide the warnings to see the error.
+
+
+def smiles_to_fingerprint(smiles):
+    '''
+    Takes all SMILES and create morgan fingerprints for them
+    '''
+    fdict = []
+    ##get morgan fingerprint
+    print('Computing morgan fingerprints for '+str(len(smiles))+' SMILES')
+ #   morgan_fp_gen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=1024, useCountSimulation=False)
+    for s in smiles:
+       # print(s)
+        mol = Chem.MolFromSmiles(s)
+        try:
+            #this has been depracated despite being in Alex's original script
+            fingerprint = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=1024)  # update these parameters
+  #          fingerprint = morgan_fp_gen.GetFingerprint(mol)
+            #            vec2 = np.array(fp2)
+        except:
+            print('Cannot compute fingerprint for '+s)
+            continue
+        fingerprint_array = np.array(fingerprint)
+        fstr = ''.join([str(a) for a in fingerprint_array])
+        fdict.append({'smile':s,'descriptor_value':fstr,'structural_descriptor':'morgan fingerprint'})
+        
+    return pd.DataFrame(fdict)#fingerprint_array
+
+
+def smiles_to_mordred(smiles,nproc=2):
+    '''
+    get descriptors - which ones?
+    '''
+    print('Computing mordred descriptors for '+str(len(smiles))+' SMILES')
+
+    
+    mols = [Chem.MolFromSmiles(s) for s in smiles]
+    smols = []
+    ssmil = []
+    for i in range(len(mols)):
+        m = mols[i]
+        if m is not None:
+            smols.append(m)
+            ssmil.append(smiles[i])
+
+    calc = Calculator(descriptors, ignore_3D=True)
+    dd = calc.pandas(mols=smols, nproc=nproc, quiet=False, ipynb=False )
+    values = dd.columns
+    dd['smile'] = ssmil
+    ##reformat here
+    longtab = pd.melt(dd,id_vars='smile',value_vars=values)
+    longtab = longtab.rename({'variable':'structural_descriptor','value':'descriptor_value'},axis=1)
+    
+    return longtab
+
+def main():
+    parser = argparse.ArgumentParser('Build drug descriptor table')
+    parser.add_argument('--drugtable',dest='drugtable')
+    parser.add_argument('--desctable',dest='outtable')
+
+    args  = parser.parse_args()
+
+    cores = multiprocessing.cpu_count()
+    ncors = cores-1
+    # print("Running with "+str(ncors)+' out of '+str(cores)+' processors')
+    # print('Adding drug table for '+args.drugtable)
+    tab = pd.read_csv(args.drugtable,sep='\t')
+
+    cansmiles = [a for a in set(tab.canSMILES) if str(a)!='nan']
+    #    isosmiles = list(set(tab.isoSMILES))
+    morgs = smiles_to_fingerprint(cansmiles)
+
+    ids = pd.DataFrame(tab[['improve_drug_id','canSMILES']]).drop_duplicates()
+    # print("IDS columns:", ids.columns.tolist())
+    # print("MORGS columns:", morgs.columns.tolist())
+    id_morg = ids.rename({"canSMILES":'smile'},axis=1).merge(morgs)[['improve_drug_id','structural_descriptor','descriptor_value']]
+
+    mords = smiles_to_mordred(cansmiles,nproc=ncors)
+    
+    id_mord = ids.rename({'canSMILES':'smile'},axis=1).merge(mords)[['improve_drug_id','structural_descriptor','descriptor_value']]
+
+    full = pd.concat([id_morg,id_mord],axis=0)    
+    
+    # Convert any values that contain the following strings to NA. I think this covers all of the cases, but add here if more are found.
+    strings_to_replace = ["min", "max", "invalid", "multiple", "missing"]
+    pattern = '|'.join(strings_to_replace)
+    full['descriptor_value'] = full['descriptor_value'].astype(str)
+    full.loc[full['descriptor_value'].str.contains(pattern, case=False, na=False), 'descriptor_value'] = "NaN"
+    
+    # Remove Data that is incorrectly written by mordred or rdkit. - Very rare bug, but it happens.
+    full['improve_drug_id'] = full['improve_drug_id'].astype(str).str.strip()
+    mask = full['improve_drug_id'].str.match(r'^SMI_\d+$')
+    n_dropped = (~mask).sum()
+    # if n_dropped:
+    #     print(f"Dropping {n_dropped} malformed improve_drug_id rows.")
+    full = full[mask].copy()
+
+
+    full.to_csv(args.outtable,sep='\t',index=False,compression='gzip')
+
+if __name__=='__main__':
+    main()

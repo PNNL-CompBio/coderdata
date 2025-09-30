@@ -1,0 +1,27 @@
+FROM python:3.9
+
+WORKDIR /usr/src/app
+
+
+# Set MPLCONFIGDIR to a writable directory
+ENV MPLCONFIGDIR=/app/tmp/matplotlib
+RUN mkdir -p /app/tmp/matplotlib
+
+# Install requirements
+COPY coderbuild/pancreatic/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Add files last to optimize Docker caching
+COPY coderbuild/pancreatic/01-createPancreaticSamplesFile.py .
+COPY coderbuild/pancreatic/02-getPancreaticData.py .
+COPY coderbuild/pancreatic/02a-getPancreaticDataFromSynapse.py .
+COPY coderbuild/pancreatic/03-getPancreaticDrugs.py .
+COPY coderbuild/pancreatic/04-getPancreaticExperiments.py .
+COPY coderbuild/pancreatic/05-addPrecalcAUC.py .
+COPY coderbuild/pancreatic/full_manifest.txt .
+COPY coderbuild/pancreatic/requirements.txt .
+COPY coderbuild/pancreatic/*sh ./
+COPY coderbuild/pancreatic/pancreatic_cancer_types.csv ./
+COPY coderbuild/utils/* ./
+
+VOLUME ['/tmp']
