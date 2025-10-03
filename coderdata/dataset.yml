@@ -2,194 +2,260 @@ figshare: https://api.figshare.com/v2/articles/29923646
 version: 2.2.0
 datasets:
   beataml:
-    description: Beat acute myeloid leukemia (BeatAML) focuses on acute myeloid leukemia
-      tumor data. Data includes drug response, proteomics, and transcriptomics datasets.
+    description: Beat acute myeloid leukemia (BeatAML) focuses on acute myeloid leukemia tumor data. Data includes drug response, proteomics, and transcriptomics datasets.
     references:
-    - citation: Bottomly D, Long N, Schultz AR, et al. Integrative analysis of drug
-        response and clinical outcome in acute myeloid leukemia. Cancer Cell. 2022;40(8):850-864.e9.
-      doi: https://doi.org/10.1016/j.ccell.2022.07.002
-    - citation: Pino JC, Posso C, Joshi SK, et al. Mapping the proteogenomic landscape
-        enables prediction of drug response in acute myeloid leukemia. Cell Rep Med.
-        2024;5(1):101359.
-      doi: https://doi.org/10.1016/j.xcrm.2023.101359
+      - citation: Bottomly D, Long N, Schultz AR, et al. Integrative analysis of drug response and clinical outcome in acute myeloid leukemia. Cancer Cell. 2022;40(8):850-864.e9.
+        doi: https://doi.org/10.1016/j.ccell.2022.07.002
+      - citation: Pino JC, Posso C, Joshi SK, et al. Mapping the proteogenomic landscape enables prediction of drug response in acute myeloid leukemia. Cell Rep Med. 2024;5(1):101359.
+        doi: https://doi.org/10.1016/j.xcrm.2023.101359
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - proteomics
+      - drug
+      - drug descriptor
+      - experiments
+
   bladder:
-    description: Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer
-      Data includes transcriptomics, mutations, copy number, and drug response data.
+    description: Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer. Data includes transcriptomics, mutations, copy number, and drug response data.
     references:
-    - citation: Suk Hyung Lee, Wenhuo Hu, Justin T. Matulay, Mark V. Silva, 
-        Tomasz B. Owczarek, Kwanghee Kim, Chee Wai Chua, LaMont J. Barlow, 
-        Cyriac Kandoth, Alanna B. Williams, Sarah K. Bergren, Eugene J. Pietzak, 
-        Christopher B. Anderson, Mitchell C. Benson, Jonathan A. Coleman, Barry S. Taylor, 
-        Cory Abate-Shen, James M. McKiernan, Hikmat Al-Ahmadie, David B. Solit, Michael M. Shen. 
-        Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer. 
-        Cell. 2018;173(2):515-528.e17.
-      doi: https://doi.org/10.1016/j.cell.2018.03.017
+      - citation: Suk Hyung Lee, Wenhuo Hu, Justin T. Matulay, et al. Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer. Cell. 2018;173(2):515-528.e17.
+        doi: https://doi.org/10.1016/j.cell.2018.03.017
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+      - experiments
+
   ccle:
     description: Cancer Cell Line Encyclopedia (CCLE).
     references:
-    - citation: Barretina J, Caponigro G, Stransky N, et al. The Cancer Cell Line
-        Encyclopedia enables predictive modelling of anticancer drug sensitivity Nature.
-        2012;483(7391):603-607. Published 2012 Mar 28.
-      doi: https://doi.org/10.1038/nature11003
+      - citation: Barretina J, Caponigro G, Stransky N, et al. The Cancer Cell Line Encyclopedia enables predictive modelling of anticancer drug sensitivity. Nature. 2012;483(7391):603-607.
+        doi: https://doi.org/10.1038/nature11003
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+      - experiments
+
+  cptac:
+    description: The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI) focused on improving our understanding of cancer biology through the integration of transcriptomic, proteomic, and genomic data.
+    references:
+      - citation: Lindgren CM, Adams DW, Kimball B, et al. Simplified and Unified Access to Cancer Proteogenomic Data. J Proteome Res. 2021;20(4):1902-1910.
+        doi: https://doi.org/10.1021/acs.jproteome.0c00919
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - mutations
+      - copy number
+
   ctrpv2:
     description: Cancer Therapeutics Response Portal version 2 (CTRPv2)
     references:
-    - citation: Rees MG, Seashore-Ludlow B, Cheah JH, et al. Correlating chemical
-        sensitivity and basal gene expression reveals mechanism of action. Nat Chem
-        Biol. 2016;12(2):109-116.
-      doi: doi:10.1038/nchembio.1986
-    - citation: Seashore-Ludlow B, Rees MG, Cheah JH, et al. Harnessing Connectivity
-        in a Large-Scale Small-Molecule Sensitivity Dataset. Cancer Discov. 2015;5(11):1210-1223.
-      doi: doi:10.1158/2159-8290.CD-15-0235
-    - citation: Basu A, Bodycombe NE, Cheah JH, et al. An interactive resource to
-        identify cancer genetic and lineage dependencies targeted by small molecules.
-        Cell. 2013;154(5):1151-1161.
-      doi: doi:10.1016/j.cell.2013.08.003
+      - citation: Rees MG, Seashore-Ludlow B, Cheah JH, et al. Correlating chemical sensitivity and basal gene expression reveals mechanism of action. Nat Chem Biol. 2016;12(2):109-116.
+        doi: https://doi.org/10.1038/nchembio.1986
+      - citation: Seashore-Ludlow B, Rees MG, Cheah JH, et al. Harnessing Connectivity in a Large-Scale Small-Molecule Sensitivity Dataset. Cancer Discov. 2015;5(11):1210-1223.
+        doi: https://doi.org/10.1158/2159-8290.CD-15-0235
+      - citation: Basu A, Bodycombe NE, Cheah JH, et al. An interactive resource to identify cancer genetic and lineage dependencies targeted by small molecules. Cell. 2013;154(5):1151-1161.
+        doi: https://doi.org/10.1016/j.cell.2013.08.003
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+      - experiments
+
   fimm:
     description: Institute for Molecular Medicine Finland (FIMM) dataset.
     references:
-    - citation: "Mpindi JP, Yadav B, \xD6stling P, et al. Consistency in drug response\
-        \ profiling. Nature. 2016;540(7631):E5-E6."
-      doi: doi:10.1038/nature20171
-    - citation: Pemovska T, Kontro M, Yadav B, et al. Individualized systems medicine
-        strategy to tailor treatments for patients with chemorefractory acute myeloid
-        leukemia. Cancer Discov. 2013;3(12):1416-1429.
-      doi: doi:10.1158/2159-8290.CD-13-0350
+      - citation: Mpindi JP, Yadav B, Östling P, et al. Consistency in drug response profiling. Nature. 2016;540(7631):E5-E6.
+        doi: https://doi.org/10.1038/nature20171
+      - citation: Pemovska T, Kontro M, Yadav B, et al. Individualized systems medicine strategy to tailor treatments for patients with chemorefractory acute myeloid leukemia. Cancer Discov. 2013;3(12):1416-1429.
+        doi: https://doi.org/10.1158/2159-8290.CD-13-0350
+    modalities:
+      - sample
+      - transcriptomics
+      - drug
+      - drug descriptor
+      - experiments
+
+  hcmi:
+    description: Human Cancer Models Initiative (HCMI) encompasses numerous cancer types and includes cell line, organoid, and tumor data. The models and the data are from the Human Cancer Models Initiative (HCMI) www.cancer.gov/ccg/research/functional-genomics/hcmi; dbGaP accession number phs001486.
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - copy number
+
+  mpnst:
+    description: Malignant Peripheral Nerve Sheath Tumor is a rare, aggressive sarcoma that affects peripheral nerves throughout the body.
+    references:
+      - citation: Dehner C, Moon CI, Zhang X, et al. Chromosome 8 gain is associated with high-grade transformation in MPNST. JCI Insight. 2021;6(6):e146351.
+        doi: https://doi.org/10.1172/jci.insight.146351
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+      - experiments
+
+  nci60:
+    description: National Cancer Institute 60.
+    references:
+      - citation: Shoemaker RH. The NCI60 human tumour cell line anticancer drug screen. Nat Rev Cancer. 2006;6(10):813-823.
+        doi: https://doi.org/10.1038/nrc1951
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - proteomics
+      - drug
+      - drug descriptor
+      - experiments
+
+  pancreas:
+    description: Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer. Data includes transcriptomics, mutations, copy number, and drug response data.
+    references:
+      - citation: Tiriac H, Belleau P, Engle DD, et al. Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer. Cancer Discov. 2018;8(9):1112-1129.
+        doi: https://doi.org/10.1158/2159-8290.CD-18-0349
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+      - experiments
+
+  prism:
+    description: Profiling Relative Inhibition Simultaneously in Mixtures.
+    references:
+      - citation: Corsello SM, Nagari RT, Spangler RD, et al. Discovering the anti-cancer potential of non-oncology drugs by systematic viability profiling. Nat Cancer. 2020;1(2):235-248.
+        doi: https://doi.org/10.1038/s43018-019-0018-6
+      - citation: Yu C, Mannan AM, Yvone GM, et al. High-throughput identification of genotype-specific cancer vulnerabilities in mixtures of barcoded tumor cell lines. Nat Biotechnol. 2016;34(4):419-423.
+        doi: https://doi.org/10.1038/nbt.3460
+    modalities:
+      - sample
+      - transcriptomics
+      - drug
+      - drug descriptor
+      - experiments
+
+  sarcoma:
+    description: The landscape of drug sensitivity and resistance in sarcoma. Data includes transcriptomics, mutations, and drug response data.
+    references:
+      - citation: Al Shihabi A, Tebon PJ, Nguyen HTL, et al. The landscape of drug sensitivity and resistance in sarcoma. Cell Stem Cell. 2024;31(10):1524-1542.e4.
+        doi: https://doi.org/10.1016/j.stem.2024.08.010
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - drug
+      - drug descriptor
+      - experiments
+
+  colorectal:
+    description: Living organoid biobank of colorectal cancer patients.
+    references:
+      - citation: van de Wetering M, Francies HE, Francis JM, et al. Prospective derivation of a living organoid biobank of colorectal cancer patients. Cell. 2015;161(4):933-945.
+        doi: https://doi.org/10.1016/j.cell.2015.03.053
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+
+  liver:
+    description: Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology.
+    references:
+      - citation: Ji S, Feng L, Fu Z, et al. Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology. Sci Transl Med. 2023;15(706):eadg3358.
+        doi: https://doi.org/10.1126/scitranslmed.adg3358
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+
+  novartis:
+    description: Patient-derived tumor xenografts for drug response prediction.
+    references:
+      - citation: Gao H, Korn JM, Ferretti S, et al. High-throughput screening using patient-derived tumor xenografts to predict clinical trial drug response. Nat Med. 2015;21(11):1318–1325.
+        doi: https://doi.org/10.1038/nm.3954
+    modalities:
+      - sample
+      - transcriptomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+
   gcsi:
     description: The Genentech Cell Line Screening Initiative (gCSI)
     references:
-    - citation: Haverty PM, Lin E, Tan J, et al. Reproducible pharmacogenomic profiling
-        of cancer cell line panels. Nature. 2016;533(7603):333-337.
-      doi: https://doi.org/10.1038/nature17987
-    - citation: Klijn C, Durinck S, Stawiski EW, et al. A comprehensive transcriptional
-        portrait of human cancer cell lines. Nat Biotechnol. 2015;33(3):306-312.
-      doi: https://doi.org/10.1038/nbt.3080
+      - citation: Haverty PM, Lin E, Tan J, et al. Reproducible pharmacogenomic profiling of cancer cell line panels. Nature. 2016;533(7603):333–337.
+        doi: https://doi.org/10.1038/nature17987
+      - citation: Klijn C, Durinck S, Stawiski EW, et al. A comprehensive transcriptional portrait of human cancer cell lines. Nat Biotechnol. 2015;33(3):306–312.
+        doi: https://doi.org/10.1038/nbt.3080
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+
   gdscv1:
-    description: Genomics of Drug Sensitivity in Cancer (GDSC) v1
+    description: Genomics of Drug Sensitivity in Cancer version 1 (GDSCv1)
     references:
-    - citation: Garnett MJ, Edelman EJ, Heidorn SJ, et al. Systematic identification
-        of genomic markers of drug sensitivity in cancer cells. Nature. 2012;483(7391):570-575.
-        Published 2012 Mar 28.
-      doi: doi:10.1038/nature11005
-    - citation: Iorio F, Knijnenburg TA, Vis DJ, et al. A Landscape of Pharmacogenomic
-        Interactions in Cancer. Cell. 2016;166(3):740-754.
-      doi: doi:10.1016/j.cell.2016.06.017
-    - citation: 'Yang W, Soares J, Greninger P, et al. Genomics of Drug Sensitivity
-        in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer
-        cells. Nucleic Acids Res. 2013;41(Database issue):D955-D961.'
-      doi: doi:10.1093/nar/gks1111
+      - citation: Garnett MJ, Edelman EJ, Heidorn SJ, et al. Systematic identification of genomic markers of drug sensitivity in cancer cells. Nature. 2012;483(7391):570–575.
+        doi: https://doi.org/10.1038/nature11005
+      - citation: Iorio F, Knijnenburg TA, Vis DJ, et al. A Landscape of Pharmacogenomic Interactions in Cancer. Cell. 2016;166(3):740–754.
+        doi: https://doi.org/10.1016/j.cell.2016.06.017
+      - citation: Yang W, Soares J, Greninger P, et al. Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells. Nucleic Acids Res. 2013;41(Database issue):D955–D961.
+        doi: https://doi.org/10.1093/nar/gks1111
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+
   gdscv2:
-    description: Genomics of Drug Sensitivity in Cancer (GDSC) v2
+    description: Genomics of Drug Sensitivity in Cancer version 2 (GDSCv2)
     references:
-    - citation: Garnett MJ, Edelman EJ, Heidorn SJ, et al. Systematic identification
-        of genomic markers of drug sensitivity in cancer cells. Nature. 2012;483(7391):570-575.
-        Published 2012 Mar 28.
-      doi: doi:10.1038/nature11005
-    - citation: Iorio F, Knijnenburg TA, Vis DJ, et al. A Landscape of Pharmacogenomic
-        Interactions in Cancer. Cell. 2016;166(3):740-754.
-      doi: doi:10.1016/j.cell.2016.06.017
-    - citation: 'Yang W, Soares J, Greninger P, et al. Genomics of Drug Sensitivity
-        in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer
-        cells. Nucleic Acids Res. 2013;41(Database issue):D955-D961.'
-      doi: doi:10.1093/nar/gks1111
-  hcmi:
-    description: Human Cancer Models Initiative (HCMI) encompasses numerous cancer
-      types and includes cell line, organoid, and tumor data. Data includes the transcriptomics,
-      somatic mutation, and copy number datasets.
-  mpnst:
-    description: Malignant Peripheral Nerve Sheath Tumor is a rare, agressive sarcoma
-      that affects peripheral nerves throughout the body.
-    references:
-    - citation: Dehner C, Moon CI, Zhang X, et al. Chromosome 8 gain is associated
-        with high-grade transformation in MPNST. JCI Insight. 2021;6(6):e146351. Published
-        2021 Mar 22.
-      doi: https://doi.org/10.1172/jci.insight.146351
-  nci60:
-    description: National Cancer Institute 60
-    references:
-    - citation: Shoemaker RH. The NCI60 human tumour cell line anticancer drug screen.
-        Nat Rev Cancer. 2006;6(10):813-823.
-      doi: doi:10.1038/nrc1951
-  pancreatic:
-    description: Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer
-      Data includes transcriptomics, mutations, copy number, and drug response data.
-    references:
-    - citation: Hervé Tiriac, Pascal Belleau, Dannielle D. Engle, Dennis Plenker, Astrid Deschênes, 
-        Tim D. D. Somerville, Fieke E. M. Froeling, Richard A. Burkhart, Robert E. Denroche, Gun-Ho Jang,
-        Koji Miyabayashi, C. Megan Young, Hardik Patel, Michelle Ma, Joseph F. LaComb, Randze L. D. Palmaira, 
-        Ammar A. Javed, Jasmine C. Huynh, Molly Johnson, Kanika Arora, Nicolas Robine, Minita Shah, 
-        Rashesh Sanghvi, Austin B. Goetz, Cinthya Y. Lowder, Laura Martello, Else Driehuis, Nicolas LeComte, 
-        Gokce Askan, Christine A. Iacobuzio-Donahue, Hans Clevers, Laura D. Wood, Ralph H. Hruban, Elizabeth Thompson, 
-        Andrew J. Aguirre, Brian M. Wolpin, Aaron Sasson, Joseph Kim, Maoxin Wu, Juan C. Bucobo, Peter Allen, 
-        Divyesh V. Sejpal, William Nealon, James D. Sullivan, Jordan M. Winter, Phyllis A. Gimotty, Jean L. Grem, 
-        Dominick J. DiMaio, Jonathan M. Buscaglia, Paul M. Grandgenett, Jonathan R. Brody, Michael A. Hollingsworth, 
-        Grainne M. O'Kane, Faiyaz Notta, Edward Kim, James M. Crawford, Craig Devoe, Allyson Ocean, Christopher L. Wolfgang, 
-        Kenneth H. Yu, Ellen Li, Christopher R. Vakoc, Benjamin Hubert, Sandra E. Fischer, Julie M. Wilson, Richard Moffitt, 
-        Jennifer Knox, Alexander Krasnitz, Steven Gallinger, David A. Tuveson. Organoid Profiling Identifies Common 
-        Responders to Chemotherapy in Pancreatic Cancer. Cancer Discov. 2018;8(9):1112-1129.
-      doi: https://doi.org/10.1158/2159-8290.CD-18-0349
-  prism:
-    description: Profiling Relative Inhibition Simultaneously in Mixtures
-    references:
-    - citation: Corsello SM, Nagari RT, Spangler RD, et al. Discovering the anti-cancer
-        potential of non-oncology drugs by systematic viability profiling. Nat Cancer.
-        2020;1(2):235-248.
-      doi: doi:10.1038/s43018-019-0018-6
-    - citation: Yu C, Mannan AM, Yvone GM, et al. High-throughput identification of
-        genotype-specific cancer vulnerabilities in mixtures of barcoded tumor cell
-        lines. Nat Biotechnol. 2016;34(4):419-423.
-      doi: doi:10.1038/nbt.3460
-  sarcoma:
-      description: The landscape of drug sensitivity and resistance in sarcoma
-        Data includes transcriptomics, mutations, and drug response data.
-      references:
-      - citation: Ahmad Al Shihabi, Peyton J. Tebon, Huyen T. L. Nguyen, 
-          Jomjit Chantharasamee, Sara Sartini, Ardalan Davarifar, Alexandra Y. Jensen, 
-          Miranda Diaz-Infante, Hannah Cox, Alfredo E. Gonzalez, Summer Norris, Jantzen Sperry, 
-          Jonathan Nakashima, Nasrin Tavanaie, Helena Winata, Sorel T. Fitz-Gibbon, 
-          Takafumi N. Yamaguchi, Jae H. Jeong, Sarah Dry, Arun S. Singh, Bartosz Chmielowski, 
-          Joseph G. Crompton, Anusha K. Kalbasi, Fritz C. Eilber, Francis Hornicek, 
-          Nicholas M. Bernthal, Scott D. Nelson, Paul C. Boutros, Noah C. Federman, Jane Yanagawa, 
-          Alice Soragni. The landscape of drug sensitivity and resistance in sarcoma. 
-          Cell Stem Cell. 2024;31(10):1524-1542.e4.
-        doi: https://doi.org/10.1016/j.stem.2024.08.010
-  colorectal:
-    description: Prospective Derivation of a Living Organoid Biobank of Colorectal Cancer Patients
-    references:
-    - citation: Marc van de Wetering, Hayley E. Francies, Joshua M. Francis, Gergana Bounova,
-          Francesco Iorio, Apollo Pronk, Winan van Houdt, Joost van Gorp, Amaro Taylor-Weiner,
-          Lennart Kester, Anne McLaren-Douglas, Joyce Blokker, Sridevi Jaksani, Sina Bartfeld, 
-          Richard Volckman, Peter van Sluis, Vivian S.W. Li, Sara Seepo, Chandra Sekhar Pedamallu, 
-          Kristian Cibulskis, Scott L. Carter, Aaron McKenna, Michael S. Lawrence, 
-          Lee Lichtenstein, Chip Stewart, Jan Koster, Rogier Versteeg, Alexander van Oudenaarden, 
-          Julio Saez-Rodriguez, Robert G.J. Vries, Gad Getz, Lodewyk Wessels, Michael R. Stratton, 
-          Ultan McDermott, Matthew Meyerson, Mathew J. Garnett, Hans Clevers, Prospective Derivation 
-          of a Living Organoid Biobank of Colorectal Cancer Patients, Cell, Volume 161, Issue 4, 2015,
-          Pages 933-945, ISSN 0092-8674
-      doi: https://doi.org/10.1016/j.cell.2015.03.053
-  liver:
-    description: Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology
-    references:
-    - citation: Ji S, Feng L, Fu Z, Wu G, Wu Y, Lin Y, Lu D, Song Y, Cui P, Yang Z, Sang C, Song G,
-          Cai S, Li Y, Lin H, Zhang S, Wang X, Qiu S, Zhang X, Hua G, Li J, Zhou J, Dai Z, Wang X, 
-          Ding L, Wang P, Gao D, Zhang B, Rodriguez H, Fan J, Clevers H, Zhou H, Sun Y, Gao Q. 
-          Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology. 
-      doi: https://doi.org/10.1126/scitranslmed.adg3358
-  novartis:
-    description: High-throughput screening using patient-derived tumor xenografts to predict clinical trial
-         drug response
-    references:
-    - citation: Hui Gao, Joshua M. Korn, Stéphane Ferretti, John E. Monahan, Youzhen Wang, Mallika Singh, 
-          Chao Zhang, Christian Schnell, Guizhi Yang, Yun Zhang, O. Alejandro Balbin, Stéphanie Barbe, 
-          Hongbo Cai, Fergal Casey, Susmita Chatterjee, Derek Y. Chiang, Shannon Chuai, Shawn M. Cogan, 
-          Scott D. Collins, Ernesta Dammassa, Nicolas Ebel, Millicent Embry, John Green, Audrey Kauffmann, 
-          Colleen Kowal, Rebecca J. Leary, Joseph Lehar, Ying Liang, Alice Loo, Edward Lorenzana, 
-          E. Robert McDonald III, Margaret E. McLaughlin, Jason Merkin, Ronald Meyer, Tara L. Naylor, 
-          Montesa Patawaran, Anupama Reddy, Claudia Röelli, David A. Ruddy, Fernando Salangsang, 
-          Francesca Santacroce, Angad P. Singh, Yan Tang, Walter Tinetto, Sonja Tobler, Roberto Velazquez, 
-          Kavitha Venkatesan, Fabian Von Arx, Hui Qin Wang, Zongyao Wang, Marion Wiesmann, Daniel Wyss, 
-          Fiona Xu, Hans Bitter, Peter Atadja, Emma Lees, Francesco Hofmann, En Li, Nicholas Keen, 
-          Robert Cozens, Michael Rugaard Jensen, Nancy K. Pryer, Juliet A. Williams, William R. Sellers, 
-          High-throughput screening using patient-derived tumor xenografts to predict clinical trial drug 
-          response, Nature Medicine, Volume 21, 2015, Pages 1318–1325.
-      doi: https://doi.org/10.1038/nm.3954
+      - citation: Garnett MJ, Edelman EJ, Heidorn SJ, et al. Systematic identification of genomic markers of drug sensitivity in cancer cells. Nature. 2012;483(7391):570–575.
+        doi: https://doi.org/10.1038/nature11005
+      - citation: Iorio F, Knijnenburg TA, Vis DJ, et al. A Landscape of Pharmacogenomic Interactions in Cancer. Cell. 2016;166(3):740–754.
+        doi: https://doi.org/10.1016/j.cell.2016.06.017
+      - citation: Yang W, Soares J, Greninger P, et al. Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells. Nucleic Acids Res. 2013;41(Database issue):D955–D961.
+        doi: https://doi.org/10.1093/nar/gks1111
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - mutations
+      - copy number
+      - drug
+      - drug descriptor
+

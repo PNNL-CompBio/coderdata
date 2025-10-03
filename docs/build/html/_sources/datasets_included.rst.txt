@@ -121,5 +121,3 @@ References
 .. [23] Garnett MJ, Edelman EJ, Heidorn SJ, et al. *Systematic identification of genomic markers of drug sensitivity in cancer cells.* Nature. 2012;483(7391):570–575. doi:`10.1038/nature11005 <https://doi.org/10.1038/nature11005>`_
 .. [24] Iorio F, Knijnenburg TA, Vis DJ, et al. *A Landscape of Pharmacogenomic Interactions in Cancer.* Cell. 2016;166(3):740–754. doi:`10.1016/j.cell.2016.06.017 <https://doi.org/10.1016/j.cell.2016.06.017>`_
 .. [25] Yang W, Soares J, Greninger P, et al. *Genomics of Drug Sensitivity in Cancer (GDSC): a resource for therapeutic biomarker discovery in cancer cells.* Nucleic Acids Res. 2013;41(Database issue):D955–D961. doi:`10.1093/nar/gks1111 <https://doi.org/10.1093/nar/gks1111>`_
-
-
