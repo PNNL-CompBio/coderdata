@@ -1,0 +1,152 @@
+/* Outer part of site -----------------------------------*/
+body {
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva',
+                 'Verdana', sans-serif;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+    line-height: 150%;
+    text-align: center;
+    background-color: white;
+    color: black;
+    padding: 0;
+    border: 1px solid #aaa;
+
+    margin: 0px 0px 0px 0px; /* adjusted page margins from original */
+    min-width: 740px;
+}
+
+div.related ul li a {
+    margin: 0;
+    padding: 0 5px 0 5px;
+    line-height: 1.75em;
+    color: #021d3b;
+}
+
+/* Adjust body margins to fit page --------------------- */
+
+div.body {
+    min-width: 360px;
+    max-width: 2000px; /* Fit content to page */
+}
+
+/* Main page modifications ----------------------------- */
+div.document {
+    background-color: white; /* background to white */
+    text-align: left;
+    background-image: url(contents.png);
+    background-repeat: repeat-x;
+}
+
+/* Sidebar modifications -------------------------------*/
+div.sphinxsidebar h3, div.sphinxsidebar h4 {
+    margin: 1em 0 0.5em 0;
+    font-size: 1em;
+    padding: 0.1em 0 0.1em 0.5em;
+    color: white;
+    border: 1px solid #083575; /* adjust sidebar colors */
+    background-color: #083575;
+}
+
+div.sphinxsidebar {
+    /*background-color: #0a0911;*/
+    padding: 0.5em 15px 15px 0;
+    width: calc(230px - 20px);
+    float: right;
+    font-size: 1em;
+    text-align: left;
+}
+
+/* Link colors -----------------------------------------*/
+a {
+    color: #89bef0;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0392e6;
+}
+
+a:visited {
+    color: #51878f;
+}
+
+/* Clickable boxes ---- --------------------------------*/
+.box-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: space-evenly; /* Centers horizontally */
+    align-items: center; /* Centers vertically */
+    margin-top: 50px;
+    margin-bottom: 25px;
+}
+
+.clickable-box {
+    border: 2px solid #083575;
+    padding: 5px;
+    text-align: center;
+    font-size: 1.25em;
+    cursor: pointer;
+    border-radius: 5px;
+    background-color: #083575;
+    color: white;
+    flex: 1;
+    max-width: 200px;
+    min-height: 50px;
+}
+
+.clickable-box:hover {
+    background-color: #05a6dd;
+}
+
+
+
+/* basic.css edits ---- changing the way docstrings format render in API reference */
+
+/* Updates are related to improving readability for the returned docstring documentation */
+
+/* changes the parameters background color for readability  */
+
+dl.field-list {
+    display: grid;
+    grid-template-columns: fit-content(30%) auto;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border: 1px solid black;
+}
+
+dl.field-list > dt {
+    font-weight: bold;
+    word-break: break-word;
+    padding-left: 0.5em;
+    padding-right: 5px;
+    border: 1px solid black;
+}
+
+dl.field-list > dd {
+    padding-left: 0.5em;
+    margin-top: 0em;
+    margin-left: 0em;
+    margin-bottom: 0em;
+    border: 1px solid black;
+}
+
+.field-list p {
+    margin: 0;
+}
+
+p {
+    margin: 0.8em 0 0.5em 0;
+}
+
+.sig {
+	font-family: 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+    background: #d8f0f7; 
+}
+
+dl {
+    margin-bottom: 50px;
+}
+
+
+

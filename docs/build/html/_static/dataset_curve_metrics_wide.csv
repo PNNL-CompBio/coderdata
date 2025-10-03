@@ -1,0 +1,17 @@
+dataset,num_drugs,aac,abc,auc,dss,fit_auc,fit_ec50,fit_ec50se,fit_einf,fit_hs,fit_ic50,fit_r2,lmm,mRESCIST,published_auc,TGI
+beataml,164,X,,X,X,X,X,X,X,X,X,X,,,,
+bladder,50,X,,X,X,X,X,X,X,X,X,X,,,,
+ccle,24,X,,X,X,X,X,X,X,X,X,X,,,,
+colorectal,10,X,,X,X,X,X,X,X,X,X,X,,,,
+ctrpv2,459,X,,X,X,X,X,X,X,X,X,X,,,,
+fimm,52,X,,X,X,X,X,X,X,X,X,X,,,,
+gcsi,44,X,,X,X,X,X,X,X,X,X,X,,,,
+gdscv1,294,X,,X,X,X,X,X,X,X,X,X,,,,
+gdscv2,171,X,,X,X,X,X,X,X,X,X,X,,,,
+liver,76,X,,X,X,X,X,X,X,X,X,X,,,,
+mpnst,30,X,X,X,X,X,X,X,X,X,X,X,X,X,,X
+nci60,55157,X,,X,X,X,X,X,X,X,X,X,,,,
+novartis,25,,X,,,,,,,,,,X,X,,X
+pancreatic,25,X,,X,X,X,X,X,X,X,X,X,,,,
+prism,1419,X,,X,X,X,X,X,X,X,X,X,,,,
+sarcoma,34,,,,,,,,,,,,,,X,
