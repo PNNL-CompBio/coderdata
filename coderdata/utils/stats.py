@@ -22,6 +22,27 @@ def plot_2d_respones_metric(
         metric2: str,
         **kwargs: dict
     ) -> None:
+    """
+    Plot a 2D histogram of two response metrics from a dataset.
+
+    Parameters
+    ----------
+    data : cd.Dataset
+        The dataset containing experiment data.
+    metric1 : str
+        The first response metric to plot on the y-axis.
+    metric2 : str
+        The second response metric to plot on the x-axis.
+    **kwargs : dict
+        Additional keyword arguments for customizing the plot:
+        - `joint_bins` (int): Number of bins for the joint histogram. Default is 50.
+        - `marginal_bins` (int): Number of bins for the marginal histograms. Default is 50.
+
+    Returns
+    -------
+    None
+        Displays the 2D histogram plot.
+    """
 
     data_plot = _prepare_2d_hist_data(
         data=data.experiments,
