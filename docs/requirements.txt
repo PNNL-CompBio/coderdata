@@ -1,0 +1,14 @@
+sphinx
+myst-parser
+sphinx-design
+nbconvert
+nbsphinx
+notebook<7 
+sphinx_tabs
+numpy
+pandas
+requests
+scikit-learn
+pyyaml
+matplotlib
+seaborn
