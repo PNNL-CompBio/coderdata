@@ -261,12 +261,41 @@ def lmm(time, volume, treatment, drug_name):
     dict: A dictionary containing the fit object and the specific coefficient value.
     """
 
+    # --- DEBUG: inputs to LMM ---
+    print("\n[DBG][LMM] incoming arrays")
+    print(f"[DBG][LMM] len(time)={len(time)}, len(volume)={len(volume)}, len(treatment)={len(treatment)}, drug_name={drug_name}")
+
+
     data = pd.DataFrame({'model_id':['model']*len(time),\
                          'volume':volume,\
                          'time':time,\
                           'exp_type':treatment})
 
-    data = data.dropna()
+        
+    print("[DBG][LMM] raw data shape:", data.shape)
+    print("[DBG][LMM] raw dtypes:\n", data.dtypes)
+    print("[DBG][LMM] NA counts:\n", data.isna().sum())
+    
+    data['log_volume'] = np.log(data['volume'])
+    n_nonfinite_log = (~np.isfinite(data['log_volume'])).sum()
+    print(f"[DBG][LMM] non-finite log_volume count: {n_nonfinite_log}")
+
+    # categories
+    data['exp_type'] = data['exp_type'].astype('category')
+    data['exp_type'] = pd.Categorical(data['exp_type'],
+                                    categories=['control', drug_name],
+                                    ordered=True)
+    print("[DBG][LMM] exp_type categories:", list(data['exp_type'].cat.categories))
+    print("[DBG][LMM] exp_type value_counts:\n", data['exp_type'].value_counts(dropna=False))
+
+    # time variation overall and by treatment
+    print(f"[DBG][LMM] time min/max: {data['time'].min()} / {data['time'].max()}")
+    print("[DBG][LMM] time describe by exp_type:\n",
+        data.groupby('exp_type', dropna=False)['time'].describe())
+
+    # groups
+    print("[DBG][LMM] unique model_id count:", data['model_id'].nunique())
+    print("[DBG][LMM] model_id value_counts:\n", data['model_id'].value_counts())
                 
     ##create data frame from these 4 vectors
     required_columns = ["model_id", "volume", "time", "exp_type"]
@@ -286,7 +315,15 @@ def lmm(time, volume, treatment, drug_name):
     #print(data['exp_type'].cat.categories)
     # Fit the model
     model = mixedlm(formula, data, groups=data['model_id'])
+    print("[DBG][LMM] exp_type counts:\n", data['exp_type'].value_counts(dropna=False))
+    print("[DBG][LMM] time min/max:", data['time'].min(), data['time'].max())
+    print("[DBG][LMM] volume<=0:", (data['volume']<=0).sum(), " nonfinite log_volume:", (~np.isfinite(np.log(data['volume']))).sum())
+    print("[DBG][LMM] groups:", data['model_id'].nunique())
+
+    print("[DBG][LMM] DATA:", data)
     fit = model.fit()
+    
+    print("[DBG][LMM] fit:", fit.params)
     
     # Get the coefficient for the interaction term 'time:exp_type'
     #interaction_term = 'time:exp_type'
@@ -294,6 +331,8 @@ def lmm(time, volume, treatment, drug_name):
 #    time_coef_value = fit.params['time']
     #print(fit.params)
     i_coef_value = fit.params['time:exp_type[T.'+drug_name+']']
+    
+    print("[DBG][LMM] i_coef_value:", i_coef_value)
     #i_coef_value = fit.params['time:exp_type['+drug_name+']']
    # else:
    #     coef_value = None  # Handle the case when the interaction term is not present
@@ -384,9 +423,25 @@ def get_drug_stats(df, control='control'):
             else:
                 singleres.append(treat_abc)
 
-            #llm
+            # --- DEBUG: before LMM ---
+            print("\n[DBG] -------- Drug block --------")
+            print(f"[DBG] experiment={name[0]}  model_id={mod}  drug={d}")
+            print(f"[DBG] control rows: {len(ctl_data)}  treated rows: {len(d_data)}")
+
+            # Quick sanity on time / volume
+            print(f"[DBG] control time min/max: {ctl_time.min() if len(ctl_time)>0 else None} / {ctl_time.max() if len(ctl_time)>0 else None}")
+            print(f"[DBG] treat   time min/max: {treat_time.min() if len(treat_time)>0 else None} / {treat_time.max() if len(treat_time)>0 else None}")
+
+            print(f"[DBG] control volume<=0: {(ctl_volume<=0).sum() if len(ctl_volume)>0 else None}")
+            print(f"[DBG] treat   volume<=0: {(treat_volume<=0).sum() if len(treat_volume)>0 else None}")
+
+            # Show the first few rows that will go into LMM
             comb = pd.concat([ctl_data, d_data])
-            #print(comb)
+            print("[DBG] comb dtypes:\n", comb.dtypes)
+            print("[DBG] comb treatment counts:\n", comb['treatment'].value_counts(dropna=False))
+            print("[DBG] comb head:\n", comb[['treatment','time','volume']].head())
+            # --- END DEBUG ---
+
             lmm_res = lmm(comb.time, comb.volume, comb.treatment, d)
             lmm_res.update({'sample': mod, 'drug': d, 'time': np.max(treat_time), 'time_unit': 'days'})
             if '+' in d:
