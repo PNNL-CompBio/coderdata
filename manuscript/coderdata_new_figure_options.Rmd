@@ -1449,12 +1449,11 @@ metric        <- "scc"
 models_keep   <- c("deepttc","graphdrp","lgbm","xgboostdrp")
 tile_opacity  <- 0.7   # 0..1
 
-# Source order (global Y): cellline then exvivo, drop novartis AND drop ccle from SOURCE list
 global_src_order <- if (exists("cellline") && exists("exvivo")) {
   setdiff(c(cellline, exvivo), c("novartis", "ccle"))
 } else NULL
 
-# Targets: EX VIVO only, drop novartis
+# Targets: EX VIVO only, drop novartis (bc its not included.)
 trg_order <- if (exists("exvivo")) setdiff(exvivo, "novartis") else NULL
 
 # Aggregate means per (model, src, trg), restrict to EX VIVO targets
@@ -1462,7 +1461,7 @@ mu_tbl <- cdres %>%
   filter(
     met == metric,
     src != trg,
-    !src %in% c("novartis", "ccle"),   # <-- drop CCLE from SOURCE
+    !src %in% c("novartis", "ccle"),
     !trg %in% c("novartis"),
     model %in% models_keep,
     if (exists("exvivo")) trg %in% exvivo else TRUE
@@ -1475,7 +1474,6 @@ if (is.null(global_src_order)) global_src_order <- sort(unique(mu_tbl$src))
 global_src_order <- intersect(global_src_order, unique(mu_tbl$src))
 if (is.null(trg_order)) trg_order <- sort(unique(mu_tbl$trg))
 
-# ---- Fixed shared color scale (match cell-line figure) ----
 cmin <- 0; cmid <- 0.5; cmax <- 1
 colorscale_rnb <- list(
   list(0.00, "rgb(178,24,43)"),   # red (low)
@@ -1484,7 +1482,6 @@ colorscale_rnb <- list(
 )
 clamp01 <- function(v) pmax(cmin, pmin(cmax, v))
 
-# Shared colorbar helper (transparent)
 plt <- plot_ly() %>%
   add_surface(
     x = c(0,1), y = c(0,1), z = matrix(as.numeric(NA), 2, 2),
@@ -1743,63 +1740,6 @@ plot_drug_consistency <- function(method = "spearman",
 
 # Example
 plot_drug_consistency(method = "spearman", stat_y = "IQR", label_top = 12)
-
-```
-
-
-
-```{r}
-plot_drug_target_heatmap <- function(model = "uno",
-                                     method = "spearman",
-                                     domain = c("both","cell line","ex vivo"),
-                                     max_drugs = 40,
-                                     limits = c(-0.2, 0.6)) {
-  domain <- match.arg(domain)
-
-  d <- drug_transfer_scores(models = model, method = method)
-
-  d <- d %>%
-    dplyr::mutate(target_domain = ifelse(target %in% get0("exvivo", ifnotfound = character()),
-                                         "ex vivo", "cell line"))
-
-  if (domain != "both") d <- d %>% dplyr::filter(target_domain == domain)
-
-  mu <- d %>%
-    dplyr::group_by(drug, target) %>%
-    dplyr::summarise(mu = mean(perf, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
-
-  # Keep the most represented drugs
-  top_drugs <- mu %>% dplyr::count(drug, sort = TRUE) %>% head(max_drugs) %>% dplyr::pull(drug)
-  mu <- mu %>% dplyr::filter(drug %in% top_drugs)
-
-  # Order targets by overall mean
-  targ_order <- mu %>% dplyr::group_by(target) %>% dplyr::summarise(m = mean(mu), .groups="drop") %>%
-    dplyr::arrange(m) %>% dplyr::pull(target)
-  drug_order <- mu %>% dplyr::group_by(drug)   %>% dplyr::summarise(m = mean(mu), .groups="drop") %>%
-    dplyr::arrange(m) %>% dplyr::pull(drug)
-
-  mu$target <- factor(mu$target, levels = targ_order)
-  mu$drug   <- factor(mu$drug,   levels = drug_order)
-
-  p <- ggplot(mu, aes(x = target, y = drug, fill = mu)) +
-    geom_tile(width = 0.999, height = 0.999, color = "white", linewidth = 0.25) +
-    scale_fill_distiller(palette = "RdBu", direction = 1,
-                         limits = limits, oob = scales::squish,
-                         name = paste0("Mean ", method)) +
-    coord_fixed() +
-    theme_bw(11) +
-    theme(axis.title = element_blank(),
-          axis.text.x = element_text(angle = 45, hjust = 1),
-          panel.grid = element_blank(),
-          plot.title = element_text(hjust = 0.5)) +
-    labs(title = paste0("Drug × Target heatmap (model: ", model, ", domain: ", domain, ")"))
-  print(p)
-  invisible(p)
-}
-
-# Examples
-plot_drug_target_heatmap(model = "uno", method = "spearman", domain = "both",     max_drugs = 40)
-# plot_drug_target_heatmap(model = "lgbm", method = "spearman", domain = "ex vivo", max_drugs = 30)
 
 ```
 
