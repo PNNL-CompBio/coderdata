@@ -7,19 +7,38 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
-Sys.setenv(RETICULATE_PYTHON="~/.virtualenvs/r-reticulate-x86_64/bin/python")
 
+# I am setting the default to reticulate (use_reticulate = TRUE). 
+# If reticulate doesn't work for you, try arrow. 
+# However, be warned that my arrow doesn't work so I haven't been able to test everything with it.
+
+
+# Check your R arch via sessionInfo()
+# if it is x86_64 (Platform: x86_64-apple-darwin23.6.0)
+# Build reticulate environment with these commands, otherwise build normally.
+# arch -x86_64 /usr/bin/python3 -m venv ~/.virtualenvs/r-reticulate-x86_64
+# arch -x86_64 ~/.virtualenvs/r-reticulate-x86_64/bin/pip install -U pip
+# arch -x86_64 ~/.virtualenvs/r-reticulate-x86_64/bin/pip install "numpy==2.1.*" pandas pyarrow fastparquet
+
+
+# Ensure this RETICULATE_PYTHON path is correct.
+use_reticulate = TRUE
+if (use_reticulate) {
+  Sys.setenv(RETICULATE_PYTHON="~/.virtualenvs/r-reticulate-x86_64/bin/python")
+  library(reticulate)
+} else {
+  library(arrow)
+}
+
+library(synapser)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
-# library(arrow)
 library(gridExtra)
 library(rlang)
 library(patchwork)
-library(synapser)
 library(ggridges)
 library(RColorBrewer)
-library(reticulate)
 library(tidyr)
 library(plotly)
 
@@ -27,11 +46,11 @@ suppressWarnings(suppressMessages({
   if (!requireNamespace("ggrepel", quietly = TRUE)) install.packages("ggrepel")
   if (!requireNamespace("patchwork", quietly = TRUE)) install.packages("patchwork")
 }))
+
 ```
 
-
 # Setup the Data
-```{r setup, include=FALSE}
+```{r}
 
 models <- c('deepttc','graphdrp','lgbm','xgboostdrp','uno')
 modelcolors <- RColorBrewer::brewer.pal(n=6,name='RdYlBu')
@@ -49,7 +68,9 @@ names(ecols) <- exvivo
 
 datasetcolors <- c(ccols,ecols)
 
-synapser::synLogin()
+# Either set info in ~/.synapseConfig, or use the `email` and `authToken` arguments of synLogin
+# synapser::synLogin()
+synapser::synLogin(email = "jeremy.jacobson3402@gmail.com", authToken = "eyJ0eXAiOiJKV1QiLCJraWQiOiJXN05OOldMSlQ6SjVSSzpMN1RMOlQ3TDc6M1ZYNjpKRU9VOjY0NFI6VTNJWDo1S1oyOjdaQ0s6RlBUSCIsImFsZyI6IlJTMjU2In0.eyJhY2Nlc3MiOnsic2NvcGUiOlsidmlldyIsImRvd25sb2FkIl0sIm9pZGNfY2xhaW1zIjp7fX0sInRva2VuX3R5cGUiOiJQRVJTT05BTF9BQ0NFU1NfVE9LRU4iLCJpc3MiOiJodHRwczovL3JlcG8tcHJvZC5wcm9kLnNhZ2ViYXNlLm9yZy9hdXRoL3YxIiwiYXVkIjoiMCIsIm5iZiI6MTcxNTYyODcwNSwiaWF0IjoxNzE1NjI4NzA1LCJqdGkiOiI3OTkxIiwic3ViIjoiMzQ1Mzk1NSJ9.oxkYtbtWjkvHJi53D4rrVmdzfIT0c2TtM_oeBkZEZ5HvkR8MYP1UmAqRg2jfD_h_yORXkk9y1_d7CzVOjmx3A3xtpK0yow6EK31TggRD7kF6VTGfmCyCmxZeMsoeQ8mbnxtzUqn61GIRzSdHWR80hi9TMzgj8Tg_PEz9u2McgoduQDJiOLtuju6JY_Lgrr1AwtQDx4M8pn8Rm4NnaBsYlUaYyhSDcAMzkl05OGWY6jUWCblcHu7iGDwHgh6kq2I5HDyWnptwts1Flu-1_ZI8a0MlewO7-BsllaobnA5gq8jvOYlVhRl2ntCDW-yPkbbFlFFcPiTbPHw9GyIXuPTJ0g")
 
 getProteomicsData <- function(){
 
@@ -86,202 +107,90 @@ getModelPerformanceData <- function(include_within = TRUE){
   cdres
 }
 
-# Replaced arrow with reticulate/pandas - feel free to swap back.
-# this currently only retrieves one dataset at a time and returns an appache
-# "arrow" tabular dataset object that can be interacted / queried via dplyr
-# getModelPredictionData <- function(dset='lgbm') {
-# 
-#   preds <- list(
-#     deepttc = "syn69960497",
-#     graphdrp = "syn69953716",
-#     lgbm = "syn69931953",
-#     xgboostdrp = "syn69931981",
-#     uno = "syn69953114"
-#   )
-# 
-#   dataset <- arrow::open_dataset(
-#     sources = synapser::synGet(preds[[dset]])$path,
-#     format = "parquet"
-#     )
-# 
-#   return(dataset)
-# }
-
-getModelPredictionData <- function(dset = "lgbm") {
-  preds <- list(
-    deepttc="syn69960497", graphdrp="syn69953716", lgbm="syn69931953",
-    xgboostdrp="syn69931981", uno="syn69953114"
-  )
-  p <- synapser::synGet(preds[[dset]])$path
-  if (dir.exists(p)) p <- file.path(p, "*.parquet")
-
-  pd <- import("pandas", convert = FALSE)
-  df_py <- pd$read_parquet(p)
-  as_tibble(reticulate::py_to_r(df_py))
-}
-
-ridgelineMetricPlots <- function(metric,dataset=cdres, prefix='all'){
-
-    sr <- dataset |>
-    subset(met == metric)
-
-  mvals <- sr |> group_by(src) |>
-    summarize(mvals = mean(value)) |>
-    arrange(mvals)
-
-  if (metric == 'r2') {
-    sr$value <- sapply(sr$value,function(x) ifelse(x < (-1),-1,x))
-  }
-
-  sr$src = factor(sr$src,levels = mvals$src)
-
-  #compare models by source dataset
-  p1 <- sr |>
-    ggplot(aes(x = value,y = trg,fill = model)) +
-    ggridges::geom_density_ridges(alpha = 0.5) +
-    facet_grid(src~.) +
-    ggtitle(paste0(metric,' by source dataset'))+
-    scale_fill_manual(values=modelcolors)
-
-  ##now we rerank by target dataset and evaluate by target
-  mvals <- sr |> group_by(trg) |>
-    summarize(mvals = mean(value)) |>
-    arrange(mvals)
-  sr$trg = factor(sr$trg,levels = mvals$trg)
-
-  #plot source by target data
-  p3 <- sr |>
-    ggplot(aes(x = value,y = src,fill = model)) +
-    ggridges::geom_density_ridges(alpha = 0.5) +
-    facet_grid(trg~.) +
-    ggtitle(paste0(metric,' by target dataset'))+
-    scale_fill_manual(values=modelcolors)
 
 
-  return(list(src=p1,trg=p3))
-}
-
-
-##here we have to interrogate the results to visualize how specific drugs are behaving
-performanceByDrugOrSample <- function(){
-
-}
-
-## calculate source dataset statistics
-## how do features of the source dataset impact  performance?
-calcSourceStatistics<-function(metric, dataset=cdres){
-  #number of combos
-  combos = c(ccle = 10911,ctrpv2 = 303520,fimm = 2457 ,gcsi = 12320,
-             gdscv1 = 105808,gdscv2 = 45323, nci60 = 2317205,prism = 633169)
-
-  numsamples = c(ccle = 503, ctrpv2 = 847, fimm=52, gcsi = 571, gdscv1 = 984,
-                 gdscv2 = 806, nci60 = 83, prism = 478)
-  numdrugs = c(ccle = 24, ctrpv2 = 461, fimm=52, gcsi = 43, gdscv1 = 296, gdscv2 = 169,
-               nci60 = 54707, prism = 1418)
-
-  stats = data.frame(Samples = numsamples, Drugs =numdrugs, Combos = combos)
-  stats$src = rownames(stats)
-
-  #todo: we can also evaluate number of samples or drugs
-
-  #e can get performance summaries
-  gres <- dataset  |>
-    #subset(model!='uno')|>
-    subset(met==metric) |>
-    group_by(met,src,trg,model) |>
-    summarize(meanVal=mean(value,na.rm=TRUE)) |>
-    left_join(stats) |>
-    arrange(meanVal)
-
-  p1 <- ggplot(gres, aes(x=Samples, y = meanVal,col=model))+
-    geom_point()+scale_x_log10()+scale_color_manual(values=modelcolors)+geom_smooth(method=lm, alpha=0.2)+theme_bw()
-
-  p2 <- ggplot(gres, aes(x=Drugs, y = meanVal,col=model))+
-    geom_point()+scale_x_log10()+scale_color_manual(values=modelcolors)+geom_smooth(method=lm, alpha=0.2)+theme_bw()
-
-  p3 <- ggplot(gres, aes(x=Combos, y = meanVal,col=model))+
-    geom_point()+scale_x_log10()+scale_color_manual(values=modelcolors)+geom_smooth(method=lm, alpha=0.2)+theme_bw()
-
-  corvals <- gres |>
-    ungroup() |>
-    group_by(model) |>
-    summarize(Sample=cor(Samples,meanVal),Drugs=cor(Drugs,meanVal),Combinations=cor(Combos,meanVal,use='pairwise.complete.obs'))|>
-    tidyr::pivot_longer(cols=c(2,3,4),names_to='statistic',values_to='correlation')
-
-  p4 <- ggplot(corvals, aes(x=statistic,y=correlation,fill=model)) + geom_bar(position='dodge',stat='identity') +
-    scale_fill_manual(values=modelcolors) + theme_bw()
-
-  return(cowplot::plot_grid(p1,p2,p3,p4,nrow=4))
-}
-
-##do we still need this function?
-
-# Display + save plots for a given metric
-doModelPlot <- function(metric, dataset = cdres, outdir = ".", save_files = TRUE) {
-
-  sr <- subset(dataset, met == metric)
-
-  # Clamp only for r2 (to keep histograms sane)
-  if (identical(metric, "r2")) {
-    sr$value <- ifelse(sr$value < -1, -1, sr$value)
-  }
-
-  # Re-rank by target mean to order facets
-  mvals <- sr |>
-    dplyr::group_by(trg) |>
-    dplyr::summarize(mvals = mean(value, na.rm = TRUE), .groups = "drop") |>
-    dplyr::arrange(mvals)
-  sr$trg <- factor(sr$trg, levels = mvals$trg)
-
-  # ---- ex vivo panel
-  p_ex <- sr |>
-    subset(trg %in% exvivo) |>
-    ggplot2::ggplot(ggplot2::aes(x = value, alpha = 0.8)) +
-    ggplot2::geom_histogram(bins = 30) +
-    ggplot2::facet_grid(model ~ trg) +
-    ggplot2::ggtitle(paste0(metric, " evaluated on ex vivo data"))
-
-  # Print so it shows in R (Rscript, RStudio, knitr, etc.)
-  print(p_ex)
-
-  if (isTRUE(save_files)) {
-    ggplot2::ggsave(
-      filename = file.path(outdir, paste0(metric, "_exVivoPerformance.png")),
-      plot = p_ex, width = 10, height = 8, dpi = 300
+# Reticulate vs Arrow - this is where it matters.
+if (use_reticulate) {
+  getModelPredictionData <- function(dset = "lgbm") {
+    preds <- list(
+      deepttc="syn69960497", graphdrp="syn69953716", lgbm="syn69931953",
+      xgboostdrp="syn69931981", uno="syn69953114"
     )
+    p <- synapser::synGet(preds[[dset]])$path
+    if (dir.exists(p)) p <- file.path(p, "*.parquet")
+  
+    pd <- import("pandas", convert = FALSE)
+    df_py <- pd$read_parquet(p)
+    as_tibble(reticulate::py_to_r(df_py))
   }
-
-  # ---- cell-line panel
-  p_cl <- sr |>
-    subset(!trg %in% exvivo) |>
-    ggplot2::ggplot(ggplot2::aes(x = value, alpha = 0.8)) +
-    ggplot2::geom_histogram(bins = 30) +
-    ggplot2::facet_grid(model ~ trg) +
-    ggplot2::ggtitle(paste0(metric, " evaluated on cell line data"))
-
-  print(p_cl)
-
-  if (isTRUE(save_files)) {
-    ggplot2::ggsave(
-      filename = file.path(outdir, paste0(metric, "_CellLinePerformance.png")),
-      plot = p_cl, width = 10, height = 8, dpi = 300
+} else {
+  getModelPredictionData <- function(dset='lgbm') {
+    preds <- list(
+      deepttc = "syn69960497",
+      graphdrp = "syn69953716",
+      lgbm = "syn69931953",
+      xgboostdrp = "syn69931981",
+      uno = "syn69953114"
     )
+  
+    dataset <- arrow::open_dataset(
+      sources = synapser::synGet(preds[[dset]])$path,
+      format = "parquet"
+      )
+  
+    return(dataset)
   }
-
-  invisible(list(exvivo = p_ex, cellline = p_cl))
 }
 
+```
 
-doModelPlot(metric = 'r2')
+# Load in the data
+```{r}
+if (!exists("models"))    models    <- c('deepttc','graphdrp','lgbm','xgboostdrp','uno')
+if (!exists("exvivo"))    exvivo    <- c('mpnst','beataml','sarcoma','pancreatic','bladder','liver','novartis','colorectal')
+if (!exists("cellline"))  cellline  <- c('nci60','ctrpv2','fimm','gcsi','gdscv1','gdscv2','prism','ccle')
+if (!exists("datasetcolors")) {
+  all_ds <- c(cellline, exvivo)
+  datasetcolors <- setNames(colorRampPalette(RColorBrewer::brewer.pal(8,"Set3"))(length(all_ds)), all_ds)
+}
+if (!exists("modelcolors")) {
+  modelcolors <- setNames(RColorBrewer::brewer.pal(n=6,"RdYlBu")[seq_along(models)], models)
+}
+
+# ---- load performance summaries (lightweight) -------------------------
+cdres <- getModelPerformanceData()
+
+# ---- helper: build per-example predictions  ---------------
+# By default, keep it small: one model (UNO) across all available src!=trg
+build_all_preds <- function(model_subset = "uno",
+                            exclude_src = c("beataml","mpnst"),
+                            targets_subset = c(cellline, exvivo),
+                            require_cross = TRUE) {
+  mdl_list <- if (identical(model_subset, "all")) models else model_subset
+
+  purrr::map_dfr(mdl_list, function(m) {
+    df <- getModelPredictionData(dset = m)
+    if (is.null(df)) stop(sprintf("getModelPredictionData('%s') returned NULL", m))
+
+    df |>
+      dplyr::filter(
+        !source %in% exclude_src,
+        target %in% targets_subset,
+        if (require_cross) source != target else TRUE
+      ) |>
+      dplyr::mutate(model = m)
+  })
+}
+
 
 ```
 
 
+# Original Ridgeline code
 ```{r}
 # this is originally from "coderdataResultsFunctions.R
 # Ridgeline plots
 ridgelineMetricPlots <- function(metric, dataset = cdres, print_plots = TRUE, hide_y_grid = TRUE) {
-
 
   sr <- subset(dataset, met == metric)
 
@@ -335,55 +244,8 @@ ridgelineMetricPlots <- function(metric, dataset = cdres, print_plots = TRUE, hi
   invisible(list(src = p1, trg = p3))
 }
 
-
 ridgelineMetricPlots(metric='r2')
-
-
 ```
-
-
-
-# Load in the data
-```{r}
-if (!exists("models"))    models    <- c('deepttc','graphdrp','lgbm','xgboostdrp','uno')
-if (!exists("exvivo"))    exvivo    <- c('mpnst','beataml','sarcoma','pancreatic','bladder','liver','novartis','colorectal')
-if (!exists("cellline"))  cellline  <- c('nci60','ctrpv2','fimm','gcsi','gdscv1','gdscv2','prism','ccle')
-if (!exists("datasetcolors")) {
-  all_ds <- c(cellline, exvivo)
-  datasetcolors <- setNames(colorRampPalette(RColorBrewer::brewer.pal(8,"Set3"))(length(all_ds)), all_ds)
-}
-if (!exists("modelcolors")) {
-  modelcolors <- setNames(RColorBrewer::brewer.pal(n=6,"RdYlBu")[seq_along(models)], models)
-}
-
-# ---- load performance summaries (lightweight) -------------------------
-cdres <- getModelPerformanceData()
-
-# ---- helper: build per-example predictions  ---------------
-# By default, keep it small: one model (UNO) across all available src!=trg
-build_all_preds <- function(model_subset = "uno",
-                            exclude_src = c("beataml","mpnst"),
-                            targets_subset = c(cellline, exvivo),
-                            require_cross = TRUE) {
-  mdl_list <- if (identical(model_subset, "all")) models else model_subset
-
-  purrr::map_dfr(mdl_list, function(m) {
-    df <- getModelPredictionData(dset = m)
-    if (is.null(df)) stop(sprintf("getModelPredictionData('%s') returned NULL", m))
-
-    df |>
-      dplyr::filter(
-        !source %in% exclude_src,
-        target %in% targets_subset,
-        if (require_cross) source != target else TRUE
-      ) |>
-      dplyr::mutate(model = m)
-  })
-}
-
-
-```
-
 
 # Create a heatmap that shows how dataset performance (scc) with all target/source combos. 
 # This example was just for uno / spearman. 
@@ -463,10 +325,6 @@ print(gg)
 ggsave("fig_drug_consistency_uno.pdf", width=6.5, height=4.5)
   
 ```
-
-
-
-
 
 
 
@@ -1597,6 +1455,9 @@ plt %>%
 ```
 
 
+
+# I'm not sure if the arrow version will work for these final parts. My arrow is not working, so I can't test it.
+
 #drug setup
 ```{r}
 # Detect common column names for drug id / truth / prediction
@@ -1651,6 +1512,8 @@ drug_transfer_scores <- function(models = c("deepttc","graphdrp","lgbm","xgboost
 
 # Best and worst drugs for cross-dataset transfer.
 # In this case they end all being between cell lines, but if ex vivo was in there, there would be more horiz bars.
+
+#Very slow
 ```{r}
 
 
@@ -1698,7 +1561,7 @@ plot_drug_leaderboard(method = "spearman", top_k = 20)
 
 
 
-# Larger scale version of earlier drug consistency plot
+# Larger scale version of earlier drug consistency plot - also slow.
 ```{r}
 plot_drug_consistency <- function(method = "spearman",
                                   stat_y = c("IQR","SD"),
@@ -1734,12 +1597,11 @@ plot_drug_consistency <- function(method = "spearman",
          subtitle = paste0("Method: ", method, "; variability = ", stat_y),
          x = "Mean cross-dataset performance",
          y = paste0(stat_y, " of cross-dataset performance"))
-  print(p)
-  invisible(p)
 }
 
-# Example
-plot_drug_consistency(method = "spearman", stat_y = "IQR", label_top = 12)
+p <- plot_drug_consistency(method="spearman", stat_y="IQR", label_top=12)
+p
+
 
 ```
 
