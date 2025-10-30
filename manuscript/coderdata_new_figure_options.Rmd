@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 # Build reticulate environment with these commands, otherwise build normally.
 # arch -x86_64 /usr/bin/python3 -m venv ~/.virtualenvs/r-reticulate-x86_64
 # arch -x86_64 ~/.virtualenvs/r-reticulate-x86_64/bin/pip install -U pip
-# arch -x86_64 ~/.virtualenvs/r-reticulate-x86_64/bin/pip install "numpy==2.1.*" pandas pyarrow fastparquet
+# arch -x86_64 ~/.virtualenvs/r-reticulate-x86_64/bin/pip install "numpy==2.1.*" "pandas>=2.2,<2.3" pyarrow fastparquet
 
 
 # Ensure this RETICULATE_PYTHON path is correct.
