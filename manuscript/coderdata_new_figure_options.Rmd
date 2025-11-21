@@ -837,7 +837,7 @@ plot_drug_leaderboard(method = "spearman", top_k = 20)
 
 
 # Larger scale version of earlier drug consistency plot - also slow.
-```{r}
+```{r, eval=FALSE}
 
 p <- plot_drug_consistency(method="spearman", stat_y="IQR", label_top=12)
 p
