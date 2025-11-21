@@ -5,7 +5,21 @@ date: "2025-08-25"
 output: html_document
 ---
 
+This document suggests specific figures to include in the coderdata manuscript.
+
+# Data and scripting functions
+
+
+Below is the setup for the figures. There are multiple dependencies as we 
+explore different packages.
+
+To avoid the reticulate mess, set it to FALSE and it will load with synapser.
+
 ```{r setup, include=FALSE}
+use_reticulate = FALSE
+
+source('coderdataFigureFunctions.R')
+source('coderdataResultsFunctions.R')
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 # I am setting the default to reticulate (use_reticulate = TRUE). 
@@ -22,7 +36,6 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 
 # Ensure this RETICULATE_PYTHON path is correct.
-use_reticulate = TRUE
 if (use_reticulate) {
   Sys.setenv(RETICULATE_PYTHON="~/.virtualenvs/r-reticulate-x86_64/bin/python")
   library(reticulate)
@@ -32,15 +45,10 @@ if (use_reticulate) {
 
 library(synapser)
 library(tidyverse)
-library(ggplot2)
-library(dplyr)
-library(gridExtra)
 library(rlang)
-library(patchwork)
-library(ggridges)
-library(RColorBrewer)
-library(tidyr)
-library(plotly)
+
+
+
 
 suppressWarnings(suppressMessages({
   if (!requireNamespace("ggrepel", quietly = TRUE)) install.packages("ggrepel")
@@ -50,6 +58,11 @@ suppressWarnings(suppressMessages({
 ```
 
 # Setup the Data
+
+First we have to downlaod the results of the model analysis from synpase and
+set the color scheme for the rest of the manuscript. 
+
+
 ```{r}
 
 models <- c('deepttc','graphdrp','lgbm','xgboostdrp','uno')
@@ -57,12 +70,15 @@ modelcolors <- RColorBrewer::brewer.pal(n=6,name='RdYlBu')
 names(modelcolors) <- models
 
 
-exvivo = c('mpnst','beataml','sarcoma','pancreatic','bladder','liver','novartis','colorectal')
+exvivo = c('mpnst','beataml','sarcoma','pancreatic','bladder',
+           'liver','novartis','colorectal')
 cellline = c('nci60','ctrpv2','fimm','gcsi','gdscv1','gdscv2','prism','ccle')
 
+#cell line colors
 ccols = RColorBrewer::brewer.pal(n = length(cellline),name = 'RdBu')
 names(ccols) <- cellline
 
+#ex vivo colors
 ecols = RColorBrewer::brewer.pal(n = length(exvivo),name = 'PRGn')
 names(ecols) <- exvivo
 
@@ -72,80 +88,14 @@ datasetcolors <- c(ccols,ecols)
 synapser::synLogin()
 
 
-getProteomicsData <- function(){
-
-  allscoreslist <- list(lgbm = 'syn68156330')
-  fullres <- do.call(rbind,lapply(names(allscoreslist),function(mod)
-    readr::read_csv(synapser::synGet(allscoreslist[[mod]])$path) |> mutate(model = mod)))
-
-  fullres <- fullres |>
-    mutate(withinDataset = ifelse(src == trg,TRUE,FALSE))
-
-  #lets remove same-dataset data. - I'm going to keep it actually...
- # cdres <- subset(fullres,!withinDataset)
-
-  ##lets remove ex vivo training
-  fullres <- subset(fullres,!src %in% c('mpnst','beataml'))
-
-  return(fullres)
-
-}
-
-getModelPerformanceData <- function(include_within = TRUE){
-  allscoreslist <- list(deepttc='syn69960485', graphdrp='syn69953705',
-                        lgbm='syn69931939', xgboostdrp='syn69931970', uno='syn69953101')
-
-  fullres <- purrr::imap_dfr(allscoreslist, \(id, mod)
-    readr::read_csv(synapser::synGet(id)$path, show_col_types = FALSE) |> mutate(model = mod))
-
-  fullres <- fullres |>
-    mutate(withinDataset = src == trg)
-
-  cdres <- if (include_within) fullres else subset(fullres, !withinDataset)
-
-  cdres <- subset(cdres, !src %in% c('mpnst','beataml'))
-  cdres
-}
-
-
-
-# Reticulate vs Arrow - this is where it matters.
-if (use_reticulate) {
-  getModelPredictionData <- function(dset = "lgbm") {
-    preds <- list(
-      deepttc="syn69960497", graphdrp="syn69953716", lgbm="syn69931953",
-      xgboostdrp="syn69931981", uno="syn69953114"
-    )
-    p <- synapser::synGet(preds[[dset]])$path
-    if (dir.exists(p)) p <- file.path(p, "*.parquet")
-  
-    pd <- import("pandas", convert = FALSE)
-    df_py <- pd$read_parquet(p)
-    as_tibble(reticulate::py_to_r(df_py))
-  }
-} else {
-  getModelPredictionData <- function(dset='lgbm') {
-    preds <- list(
-      deepttc = "syn69960497",
-      graphdrp = "syn69953716",
-      lgbm = "syn69931953",
-      xgboostdrp = "syn69931981",
-      uno = "syn69953114"
-    )
-  
-    dataset <- arrow::open_dataset(
-      sources = synapser::synGet(preds[[dset]])$path,
-      format = "parquet"
-      )
-  
-    return(dataset)
-  }
-}
-
 ```
 
 # Load in the data
-```{r}
+
+The results for the anlaysis are currently stored in parquet files on Synapse.
+this leverages the code in the accompanying R scripts.
+
+```{r get data, echo=FALSE}
 if (!exists("models"))    models    <- c('deepttc','graphdrp','lgbm','xgboostdrp','uno')
 if (!exists("exvivo"))    exvivo    <- c('mpnst','beataml','sarcoma','pancreatic','bladder','liver','novartis','colorectal')
 if (!exists("cellline"))  cellline  <- c('nci60','ctrpv2','fimm','gcsi','gdscv1','gdscv2','prism','ccle')
@@ -178,7 +128,8 @@ build_all_preds <- function(model_subset = "uno",
         target %in% targets_subset,
         if (require_cross) source != target else TRUE
       ) |>
-      dplyr::mutate(model = m)
+      dplyr::mutate(model = m)|>
+      as.data.frame()
   })
 }
 
@@ -186,70 +137,23 @@ build_all_preds <- function(model_subset = "uno",
 ```
 
 
-# Original Ridgeline code
+# Model specific performancea cross source and target
+
+First we evaluate how well the models perform across source and target datasets. 
+
+A ridgeline plot will compare this in distribution.
 ```{r}
-# this is originally from "coderdataResultsFunctions.R
-# Ridgeline plots
-ridgelineMetricPlots <- function(metric, dataset = cdres, print_plots = TRUE, hide_y_grid = TRUE) {
-
-  sr <- subset(dataset, met == metric)
-
-  # Clamp only for r2
-  if (identical(metric, "r2")) {
-    sr$value <- ifelse(sr$value < -1, -1, sr$value)
-  }
-
-  # ---- order facets (unchanged look) ----
-  mvals_src <- sr |>
-    dplyr::group_by(src) |>
-    dplyr::summarize(m = mean(value, na.rm = TRUE), .groups = "drop") |>
-    dplyr::arrange(m)
-  sr$src <- factor(sr$src, levels = mvals_src$src)
-
-  # common theme tweak to hide horizontal grid if desired
-  grid_tweak <- if (hide_y_grid) ggplot2::theme(
-    panel.grid.major.y = ggplot2::element_blank(),
-    panel.grid.minor.y = ggplot2::element_blank()
-  ) else ggplot2::theme()
-
-  # by source dataset (remove ridge outlines with color = NA)
-  p1 <- sr |>
-    ggplot2::ggplot(ggplot2::aes(x = value, y = trg, fill = model)) +
-    ggridges::geom_density_ridges(alpha = 0.5, color = NA) +
-    ggplot2::facet_grid(src ~ .) +
-    ggplot2::ggtitle(paste0(metric, " by source dataset")) +
-    ggplot2::scale_fill_manual(values = modelcolors) +
-    grid_tweak
-
-  # reorder targets
-  mvals_trg <- sr |>
-    dplyr::group_by(trg) |>
-    dplyr::summarize(m = mean(value, na.rm = TRUE), .groups = "drop") |>
-    dplyr::arrange(m)
-  sr$trg <- factor(sr$trg, levels = mvals_trg$trg)
-
-  # by target dataset (remove ridge outlines with color = NA)
-  p3 <- sr |>
-    ggplot2::ggplot(ggplot2::aes(x = value, y = src, fill = model)) +
-    ggridges::geom_density_ridges(alpha = 0.5, color = NA) +
-    ggplot2::facet_grid(trg ~ .) +
-    ggplot2::ggtitle(paste0(metric, " by target dataset")) +
-    ggplot2::scale_fill_manual(values = modelcolors) +
-    grid_tweak
-
-  if (isTRUE(print_plots)) {
-    print(p1)
-    print(p3)
-  }
-  invisible(list(src = p1, trg = p3))
-}
 
 ridgelineMetricPlots(metric='r2')
 ```
 
-# Create a heatmap that shows how dataset performance (scc) with all target/source combos. 
-# This example was just for uno / spearman. 
+We can also do a heatmap for each model type
+
 ```{r}
+
+ev_res <- subset(cdres,trg%in%exvivo)
+cl_res <- subset(cdres,trg%in%cellline)
+
 transfer_matrix <- function(cdres, metric="scc", mdl="uno"){
   cdres |>
     # filter(met == metric, model == mdl, src != trg) |>
@@ -259,29 +163,42 @@ transfer_matrix <- function(cdres, metric="scc", mdl="uno"){
     tidyr::complete(src, trg, fill = list(mu = NA_real_, n = 0))
 }
 
-plot_transfer_heatmap <- function(mat_df, title, limits = c(-.2,.6)) {
-  ggplot(mat_df, aes(x = trg, y = src, fill = mu)) +
-    geom_tile(color = "white") +
-    scale_fill_distiller(palette = "RdBu", limits = limits, direction = 1, na.value = "grey95") +
-    geom_point(aes(size = n), shape = 21, stroke = .2, alpha = .9, fill = NA) +
-    coord_fixed() + theme_bw(base_size = 11) +
-    labs(title = title, x = "Target dataset", y = "Source dataset", fill = "Perf", size = "#pairs") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-}
 
-mat_uno_scc <- transfer_matrix(cdres, metric="scc", mdl="uno")
-plot_transfer_heatmap(mat_uno_scc, title = "Cross-dataset transfer (UNO, Spearman)")
-ggsave("fig_transfer_matrix_uno_scc.pdf", width = 7, height = 5)
+cl_res <- lapply(unique(cdres$model),function(mod){
+  mat_uno_scc <- transfer_matrix(cl_res, metric="scc", mdl=mod)
+  plot_transfer_heatmap(mat_uno_scc, title = paste0("Cross-dataset pred: ",mod))
+  
+})
+
+ev_res <- lapply(unique(cdres$model),function(mod){
+  mat_uno_scc <- transfer_matrix(ev_res, metric="scc", mdl=mod)
+  plot_transfer_heatmap(mat_uno_scc, title = paste0("Cross-dataset pred: ",mod))
+  
+})
+
+cowplot::plot_grid(plotlist=c(cl_res,ev_res),ncol=2)
+
+
+ggsave("fig_transfer_matrix_scc.pdf", width = 7, height = 5)
 
 
 ```
 
-#Drug consistency plot - performance vs variability
-# we could add colors to this - blue for cell line, red for ex vivo 
+This is a bit confusing, though probably better than the joy division plots
+because it summarizes. 
 
-```{r}
-# Starting off with uno
-preds_cons <- build_all_preds(model_subset = "uno")
+# Variability across predictions
+
+How do predictions vary? I'm not sure this is useful. Also runs out of memory
+when run on all the models. 
+
+
+```{r, eval = FALSE}
+
+model_var <- lapply(unique(cdres$model),function (mod){
+  
+  # Starting off with uno
+  preds_cons <- build_all_preds(model_subset = mod,targets_subset = cellline)
 
 drug_consistency_tbl <- preds_cons |>
   group_by(improve_chem_id, source, target) |>
@@ -303,7 +220,7 @@ gg <- ggplot(drug_consistency_tbl,
   geom_point(alpha=.8) +
   theme_bw(base_size=11) +
   labs(
-    title = "Drug Consistency: mean performance vs variability across all datasets (UNO)",
+    title = paste("Drug Consistency: mean performance vs variability across all datasets",mod),
     x = "mean R²",
     y = expression(SD~of~R^2)
   )
@@ -320,16 +237,21 @@ if (requireNamespace("ggrepel", quietly = TRUE)) {
     size = 3, max.overlaps = 40
   )
 }
+return(gg)
+})
 
-print(gg)
-ggsave("fig_drug_consistency_uno.pdf", width=6.5, height=4.5)
+cowplot::plot_grid(plotlist=model_var)
+
+ggsave("fig_drug_consistenc.pdf", width=6.5, height=4.5)
   
 ```
 
 
 
+# Cross dataset performance vs fraction of drugs in the source datset. 
+This plot asks how drug coverage alters dataset response.
 
-# Cross dataset performance vs fraction of drugs in the source datset. I have two versions of this, the first one is just red / blue for ex vivo vs cell line.
+I have two versions of this, the first one is just red / blue for ex vivo vs cell line.
 
 ```{r}
 
@@ -338,7 +260,7 @@ nz_list <- function(x) {
 }
 
 # Infer measured drug panels from rows where each dataset is the TARGET
-infer_panels_from_predictions <- function(panel_model = "uno") {
+infer_panels_from_predictions <- function(panel_model = "deepttc") {
   df <- getModelPredictionData(dset = panel_model) |>
     select(source, target, improve_chem_id, auc_true) |>
     collect()
@@ -383,7 +305,7 @@ perf_vs_overlap_all_models <- function(cdres, metric = "scc",
 }
 
 # --- run once to get panels, then build & plot for ALL MODELS ----------
-sets   <- infer_panels_from_predictions(panel_model = "uno")  # any model is fine
+sets   <- infer_panels_from_predictions(panel_model = "deepttc")  # any model is fine - SG not sure cuz because uno was not universally run
 pvo_all <- perf_vs_overlap_all_models(cdres, metric = "scc", sets = sets)
 
 
@@ -405,9 +327,12 @@ ggplot(pvo_all, aes(target_coverage, mu, color = target_domain)) +
 
 
 
+
 ```
 
 #The second version of 'Cross dataset performance vs fraction of drugs in the source datset' - more granular information.
+
+
 ```{r}
 # split
 pvo_cell <- dplyr::filter(pvo_all, target_domain == "cell line")
@@ -428,7 +353,7 @@ p_top <- ggplot(pvo_cell, aes(target_coverage, mu, color = trg)) +
              position = position_jitter(width = 0.01, height = 0)) +
   stat_smooth(aes(weight = n), method = "lm", se = TRUE,
               linewidth = 0.5, color = "black") +
-  scale_color_manual(values = pal_cell, name = "Cell-line targets", drop = FALSE) +
+  scale_color_manual(values = ccols, name = "Cell-line targets", drop = FALSE) +
   scale_x_continuous(limits = c(0, 1), breaks = NULL) +
   scale_y_continuous(limits = ylims, breaks = ybrks) +
   theme_bw(base_size = 11) +
@@ -446,7 +371,7 @@ p_bot <- ggplot(pvo_ex, aes(target_coverage, mu, color = trg)) +
              position = position_jitter(width = 0.01, height = 0)) +
   stat_smooth(aes(weight = n), method = "lm", se = TRUE,
               linewidth = 0.5, color = "black") +
-  scale_color_manual(values = pal_ex, name = "Ex vivo targets", drop = FALSE) +
+  scale_color_manual(values = ecols, name = "Ex vivo targets", drop = FALSE) +
   scale_x_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1), labels = c("0","0.5","1")) +
   scale_y_continuous(limits = ylims, breaks = ybrks) +
   theme_bw(base_size = 11) +
@@ -470,121 +395,6 @@ p_bot <- ggplot(pvo_ex, aes(target_coverage, mu, color = trg)) +
 
 ```{r}
 
-paired_grid_all_pretty <- function(cdres, metric = "scc",
-                                   model_order = c("deepttc","graphdrp","lgbm","xgboostdrp","uno"),
-                                   breaks = c(-0.25, 0, 0.25, 0.5, 0.75),
-                                   ncol = 5) {
-  # --- helpers ---
-  safe_palette_for_targets <- function(trg_vec) {
-    lvls <- sort(unique(trg_vec))
-    stopifnot(length(lvls) > 0)
-    if (exists("datasetcolors")) {
-      base <- datasetcolors[names(datasetcolors) %in% lvls]
-      missing <- setdiff(lvls, names(base))
-      if (length(missing) > 0) {
-        add <- setNames(scales::hue_pal()(length(missing)), missing)
-        base <- c(base, add)
-      }
-      base[lvls]
-    } else {
-      setNames(scales::hue_pal()(length(lvls)), lvls)
-    }
-  }
-  pval_fmt <- function(p) ifelse(is.na(p), "p=NA",
-                           ifelse(p < 1e-3, "p<0.001", sprintf("p=%.3g", p)))
-
-  have_models <- intersect(model_order, unique(cdres$model))
-  if (length(have_models) < 2) stop("Need at least two models present in cdres.")
-
-  # 1) cell means per (model, src, trg)
-  cell_means <- cdres %>%
-    dplyr::filter(met == metric, src != trg, model %in% have_models) %>%
-    dplyr::group_by(model, src, trg) %>%
-    dplyr::summarise(mu = mean(value, na.rm = TRUE), .groups = "drop") %>%
-    tidyr::pivot_wider(names_from = model, values_from = mu)
-
-  # 2) long table for every unordered model pair
-  pairs <- t(combn(have_models, 2))
-  long_list <- apply(pairs, 1, function(pr) {
-    a <- pr[1]; b <- pr[2]
-    if (!all(c(a, b) %in% names(cell_means))) return(NULL)
-    cell_means %>%
-      dplyr::select(src, trg, !!rlang::sym(a), !!rlang::sym(b)) %>%
-      tidyr::drop_na(!!rlang::sym(a), !!rlang::sym(b)) %>%
-      dplyr::transmute(src, trg, x = .data[[a]], y = .data[[b]],
-                       pair = paste0(a, " vs ", b), a = a, b = b)
-  })
-  long_list <- long_list[!vapply(long_list, is.null, logical(1))]
-  if (!length(long_list)) stop("No overlapping (src→trg) cells across model pairs.")
-  long <- dplyr::bind_rows(long_list)
-
-  # 3) stats per pair: winner by HL median (y − x), keep p for evidence
-  stats <- long %>%
-    dplyr::group_by(pair) %>%
-    dplyr::summarise(
-      a = dplyr::first(a),
-      b = dplyr::first(b),
-      wt = list(tryCatch(
-        stats::wilcox.test(y, x, paired = TRUE, exact = FALSE,
-                           conf.int = TRUE, conf.level = 0.95),
-        error = function(e) NULL
-      )),
-      p  = ifelse(is.null(wt[[1]]), NA_real_, wt[[1]]$p.value),
-      HL = ifelse(is.null(wt[[1]]), NA_real_, unname(wt[[1]]$estimate)),
-      .groups = "drop"
-    ) %>%
-    dplyr::mutate(
-      winner = dplyr::case_when(
-        is.na(HL)            ~ "NA",
-        HL >  0              ~ b,   # y-axis model wins
-        HL <  0              ~ a,   # x-axis model wins
-        TRUE                 ~ "tie"
-      ),
-      label = paste0(pair, "\n", winner, ", ", pval_fmt(p))
-    )
-  lab_map <- setNames(stats$label, stats$pair)
-
-  # 4) palette only for targets that appear
-  pal <- safe_palette_for_targets(long$trg)
-
-  # 5) common square limits + nice breaks
-  rng <- range(c(long$x, long$y), na.rm = TRUE)
-  if (!is.finite(diff(rng)) || diff(rng) == 0) rng <- rng + c(-0.5, 0.5)
-  pad <- diff(rng) * 0.05
-  lims <- c(rng[1] - pad, rng[2] + pad)
-  brx  <- breaks[breaks >= lims[1] & breaks <= lims[2]]
-  if (!length(brx)) brx <- scales::pretty_breaks(5)(lims)
-
-  ggplot(long, aes(x = x, y = y, color = trg)) +
-    geom_abline(slope = 1, intercept = 0, linetype = "dashed",
-                linewidth = 0.5, color = "grey55") +
-    geom_point(alpha = 0.9, size = 0.7) +
-    scale_color_manual(values = pal, name = "Target dataset", drop = FALSE) +
-    coord_equal(xlim = lims, ylim = lims, expand = FALSE) +
-    scale_x_continuous(breaks = brx) +
-    scale_y_continuous(breaks = brx) +
-    theme_bw(base_size = 11) +
-    theme(
-      panel.grid.minor = element_blank(),
-      panel.grid.major = element_line(colour = "grey88"),
-      axis.text  = element_text(size = 8),
-      axis.title = element_text(size = 10),
-      legend.position   = "right",
-      legend.title      = element_text(size = 10),
-      legend.text       = element_text(size = 9),
-      legend.key.size   = unit(0.35, "cm"),
-      legend.spacing.y  = unit(0.2, "cm"),
-      strip.text = element_text(size = 7, face = "bold",  # smaller facet titles
-                                margin = margin(2, 2, 2, 2)),
-      panel.spacing = unit(0.5, "lines"),
-      plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
-    ) +
-    labs(
-      title = paste0("Paired Comparisons across model pairs"),
-      x = "Model 1 (average spearman correlation)", y = "Model 2 (average spearman correlation)"
-    ) +
-    facet_wrap(~ pair, labeller = labeller(pair = lab_map), ncol = ncol)
-}
 
 # --- Use it ---
 pg_plot <- paired_grid_all_pretty(
@@ -600,135 +410,6 @@ pg_plot
 
 # This was another way to compare between models, but is honestly kind of confusing and may not be worth keeping.
 ```{r}
-# Symmetric triangular heatmap using MEAN differences (ROW − COLUMN):
-# - Upper triangle  (row < col):  cell line   Δmean = mean( row − column )
-# - Lower triangle  (row > col):  ex vivo     Δmean = mean( row − column )
-# - Diagonal        (row = col):  within-model Δmean = mean(ex vivo) − mean(cell line)
-paired_heatmap_triangular_mean <- function(cdres,
-                                           metric = "scc",
-                                           model_order = c("deepttc","graphdrp","lgbm","xgboostdrp","uno"),
-                                           limits = c(-0.15, 0.15),
-                                           show_labels = TRUE) {
-
-  have_models <- intersect(model_order, unique(cdres$model))
-  stopifnot(length(have_models) >= 2)
-
-  dom_of_trg <- function(trg) ifelse(trg %in% exvivo, "ex vivo", "cell line")
-
-  # Per-(model, src, trg) average performance + domain tag
-  cell_means <- cdres %>%
-    dplyr::filter(met == metric, src != trg, model %in% have_models) %>%
-    dplyr::group_by(model, src, trg) %>%
-    dplyr::summarise(mu = mean(value, na.rm = TRUE), .groups = "drop") %>%
-    dplyr::mutate(domain = dom_of_trg(trg))
-
-  # --- Pairwise (between models) MEAN Δ and paired t-test, per domain -----------
-  # IMPORTANT CHANGE: d <- x - y (row − column), and t.test(x, y, paired=TRUE)
-  compute_pairwise_domain_mean <- function(df_domain) {
-    wide <- tidyr::pivot_wider(df_domain, names_from = model, values_from = mu)
-    prs  <- t(combn(have_models, 2))
-    rows <- apply(prs, 1, function(pr) {
-      a <- pr[1]; b <- pr[2]  # 'a' will be the row model; 'b' the column model if (row=a, col=b)
-      sub <- wide %>% dplyr::select(src, trg, !!rlang::sym(a), !!rlang::sym(b)) %>% tidyr::drop_na()
-      if (nrow(sub) < 3) return(NULL)
-      x <- sub[[a]]; y <- sub[[b]]
-      d  <- x - y                              # <-- row − column
-      md <- mean(d, na.rm = TRUE)
-      tt <- tryCatch(stats::t.test(x, y, paired = TRUE), error = function(e) NULL)
-      tibble::tibble(a = a, b = b,
-                     MEAN_D = md,
-                     p      = if (!is.null(tt)) tt$p.value else NA_real_,
-                     n      = sum(stats::complete.cases(d)))
-    })
-    rows <- rows[!vapply(rows, is.null, logical(1))]
-    if (!length(rows)) return(NULL)
-    dplyr::bind_rows(rows)
-  }
-
-  by_dom <- cell_means %>%
-    dplyr::group_by(domain) %>%
-    tidyr::nest() %>%
-    dplyr::mutate(res = purrr::map(data, compute_pairwise_domain_mean)) %>%
-    tidyr::unnest(res) %>%
-    dplyr::select(domain, a, b, MEAN_D, p, n)
-
-  # --- Diagonal (within-model) MEAN gap: mean(ex vivo) − mean(cell line) --------
-  diag_tbl <- purrr::map_dfr(have_models, function(m) {
-    xe <- cell_means %>% dplyr::filter(model == m, domain == "ex vivo")   %>% dplyr::pull(mu)
-    yc <- cell_means %>% dplyr::filter(model == m, domain == "cell line") %>% dplyr::pull(mu)
-    if (length(xe) < 3 || length(yc) < 3) {
-      tibble::tibble(model = m, MEAN_diag = NA_real_, p_diag = NA_real_)
-    } else {
-      md <- mean(xe, na.rm = TRUE) - mean(yc, na.rm = TRUE)
-      tt <- tryCatch(stats::t.test(xe, yc, paired = FALSE), error = function(e) NULL) # Welch
-      tibble::tibble(model = m, MEAN_diag = md,
-                     p_diag = if (!is.null(tt)) tt$p.value else NA_real_)
-    }
-  })
-
-  # Grid of cells
-  grid <- expand.grid(row_model = have_models, col_model = have_models, stringsAsFactors = FALSE)
-  grid$row_model <- factor(grid$row_model, levels = have_models)
-  grid$col_model <- factor(grid$col_model, levels = have_models)
-  grid$i <- as.integer(grid$row_model); grid$j <- as.integer(grid$col_model)
-
-  # Lookup now returns Δmean = (ROW − COLUMN) for requested domain
-  lookup_mean <- function(dom, row, col) {
-    m1 <- by_dom %>% dplyr::filter(domain == dom, a == row, b == col)
-    if (nrow(m1) == 1) return(c(MD = m1$MEAN_D, p = m1$p, found = TRUE))      # already row−col
-    m2 <- by_dom %>% dplyr::filter(domain == dom, a == col, b == row)
-    if (nrow(m2) == 1) return(c(MD = -m2$MEAN_D, p = m2$p, found = TRUE))     # invert if stored reversed
-    c(MD = NA_real_, p = NA_real_, found = FALSE)
-  }
-
-  vals <- purrr::pmap_dfr(list(grid$i, grid$j, as.character(grid$row_model), as.character(grid$col_model)),
-                          function(i, j, rm, cm) {
-                            if (i == j) {
-                              d <- diag_tbl %>% dplyr::filter(model == rm)
-                              tibble::tibble(row_model = rm, col_model = cm,
-                                             MD = d$MEAN_diag, p = d$p_diag,
-                                             domain_used = "ex vivo − cell line")
-                            } else if (i < j) {
-                              v <- lookup_mean("cell line", rm, cm)
-                              tibble::tibble(row_model = rm, col_model = cm,
-                                             MD = as.numeric(v["MD"]), p = as.numeric(v["p"]),
-                                             domain_used = "cell line")
-                            } else {
-                              v <- lookup_mean("ex vivo", rm, cm)
-                              tibble::tibble(row_model = rm, col_model = cm,
-                                             MD = as.numeric(v["MD"]), p = as.numeric(v["p"]),
-                                             domain_used = "ex vivo")
-                            }
-                          })
-
-  star <- function(p) dplyr::case_when(
-    is.na(p) ~ "",
-    p < 1e-4 ~ "****",
-    p < 1e-3 ~ "***",
-    p < 1e-2 ~ "**",
-    p < 0.05 ~ "*",
-    TRUE     ~ ""
-  )
-  vals$lab <- if (show_labels) sprintf("%.3f%s", vals$MD, star(vals$p)) else ""
-
-  ggplot(vals, aes(x = col_model, y = row_model, fill = MD)) +
-    geom_tile(color = "white", linewidth = 0.3) +
-    {if (show_labels) geom_text(aes(label = lab), size = 3)} +
-    scale_fill_distiller(palette = "RdBu", direction = 1,
-                         limits = limits, oob = scales::squish,
-                         name = "Mean Difference\n(row − column)") +
-    coord_fixed() +
-    theme_bw(11) +
-    theme(
-      axis.title = element_blank(),
-      axis.text.x = element_text(angle = 45, hjust = 1),
-      panel.grid = element_blank(),
-      legend.position = "right"
-    ) +
-    labs(
-      title = "Average Model Differences",
-      subtitle = "upper = cell line, lower = ex vivo; diagonal = ex vivo − cell line")
-}
 
 # Example
 p_tri_mean <- paired_heatmap_triangular_mean(cdres, metric = "scc",
@@ -743,281 +424,6 @@ p_tri_mean
 
 #This does the same as above, but for all datasets. Again its confusing and probably should not make the final cut. Keeping for inspiration, maybe some variation would be better.
 ```{r}
-
-paired_heatmap_triangular_mean_by_target_4x4 <- function(
-  cdres,
-  metric = "scc",
-  model_order = c("deepttc","graphdrp","lgbm","xgboostdrp","uno"),
-  limits = c(-0.15, 0.15),
-  show_labels = TRUE,
-  diag_mode = c("na","zero")
-) {
-  diag_mode <- match.arg(diag_mode)
-  have_models <- intersect(model_order, unique(cdres$model))
-  stopifnot(length(have_models) >= 2)
-
-  dom_of_trg <- function(trg) ifelse(trg %in% exvivo, "ex vivo", "cell line")
-
-  # Per-(model, src, trg) mean + domain
-  cell_means <- cdres %>%
-    dplyr::filter(met == metric, src != trg, model %in% have_models) %>%
-    dplyr::group_by(model, src, trg) %>%
-    dplyr::summarise(mu = mean(value, na.rm = TRUE), .groups = "drop") %>%
-    dplyr::mutate(trg_domain = dom_of_trg(trg))
-
-  # ---- Per-target average (for annotation) ----
-  # avg over models and sources for that target
-  avg_by_trg <- cell_means %>%
-    dplyr::group_by(trg, trg_domain) %>%
-    dplyr::summarise(avg_mu = mean(mu, na.rm = TRUE), .groups = "drop")
-
-  # Helper to compute pairwise Δ mean per target (fill only domain-matching triangle)
-  compute_for_target <- function(df_trg) {
-    trgnm <- df_trg$trg[1]; dom <- df_trg$trg_domain[1]
-    wide <- tidyr::pivot_wider(df_trg, names_from = model, values_from = mu)
-    prs  <- t(combn(have_models, 2))
-
-    rows <- apply(prs, 1, function(pr) {
-      a <- pr[1]; b <- pr[2]
-      sub <- wide %>% dplyr::select(src, !!rlang::sym(a), !!rlang::sym(b)) %>% tidyr::drop_na()
-      if (nrow(sub) < 3) return(NULL)
-      x <- sub[[a]]; y <- sub[[b]]
-      d  <- y - x
-      md <- mean(d, na.rm = TRUE)
-      tt <- tryCatch(stats::t.test(y, x, paired = TRUE), error = function(e) NULL)
-      tibble::tibble(trg = trgnm, trg_domain = dom,
-                     a = a, b = b, MD = md,
-                     p = if (!is.null(tt)) tt$p.value else NA_real_,
-                     n = sum(stats::complete.cases(d)))
-    })
-    rows <- rows[!vapply(rows, is.null, logical(1))]
-    if (!length(rows)) return(NULL)
-    out <- dplyr::bind_rows(rows)
-
-    # Tile grid for this target
-    grid <- expand.grid(row_model = have_models, col_model = have_models, stringsAsFactors = FALSE)
-    grid$row_model <- factor(grid$row_model, levels = have_models)
-    grid$col_model <- factor(grid$col_model, levels = have_models)
-    grid$i <- as.integer(grid$row_model); grid$j <- as.integer(grid$col_model)
-
-    # Δ mean = (Column − Row), using either (a=row,b=col) or flipped
-    get_md <- function(row, col) {
-      m1 <- out %>% dplyr::filter(a == row, b == col)
-      if (nrow(m1) == 1) return(c(MD = -m1$MD, p = m1$p))   # flip sign
-      m2 <- out %>% dplyr::filter(a == col, b == row)
-      if (nrow(m2) == 1) return(c(MD = m2$MD, p = m2$p))    # flip sign
-      c(MD = NA_real_, p = NA_real_)
-    }
-
-    purrr::pmap_dfr(
-      list(grid$i, grid$j, as.character(grid$row_model), as.character(grid$col_model)),
-      function(i, j, rm, cm) {
-        if (i == j) {
-          if (diag_mode == "zero") {
-            tibble::tibble(trg = trgnm, trg_domain = dom,
-                           row_model = rm, col_model = cm,
-                           MD = 0, p = NA_real_, which_tri = "diag")
-          } else {
-            tibble::tibble(trg = trgnm, trg_domain = dom,
-                           row_model = rm, col_model = cm,
-                           MD = NA_real_, p = NA_real_, which_tri = "diag")
-          }
-        } else if (i < j && dom == "cell line") {
-          mdp <- get_md(rm, cm)
-          tibble::tibble(trg = trgnm, trg_domain = dom,
-                         row_model = rm, col_model = cm,
-                         MD = as.numeric(mdp["MD"]), p = as.numeric(mdp["p"]),
-                         which_tri = "upper_cellline")
-        } else if (i > j && dom == "ex vivo") {
-          mdp <- get_md(rm, cm)
-          tibble::tibble(trg = trgnm, trg_domain = dom,
-                         row_model = rm, col_model = cm,
-                         MD = as.numeric(mdp["MD"]), p = as.numeric(mdp["p"]),
-                         which_tri = "lower_exvivo")
-        } else {
-          tibble::tibble(trg = trgnm, trg_domain = dom,
-                         row_model = rm, col_model = cm,
-                         MD = NA_real_, p = NA_real_, which_tri = "offdomain")
-        }
-      }
-    )
-  }
-
-  mats <- cell_means %>%
-    dplyr::group_by(trg) %>%
-    tidyr::nest() %>%
-    dplyr::mutate(res = purrr::map(data, compute_for_target)) %>%
-    tidyr::unnest(res) %>%
-    dplyr::mutate(
-      row_model = factor(row_model, levels = have_models),
-      col_model = factor(col_model, levels = have_models)
-    )
-
-  # Drop NA tiles → blanks for off-domain cells
-  mats_plot <- mats %>% dplyr::filter(is.finite(MD))
-
-  # Facet order: cell-line first, then ex vivo
-  if (exists("cellline") && exists("exvivo")) {
-    facet_levels <- c(cellline, exvivo)
-  } else {
-    trg_domains <- mats %>% dplyr::distinct(trg, trg_domain)
-    facet_levels <- c(
-      trg_domains %>% dplyr::filter(trg_domain == "cell line") %>% dplyr::arrange(trg) %>% dplyr::pull(trg),
-      trg_domains %>% dplyr::filter(trg_domain == "ex vivo")   %>% dplyr::arrange(trg) %>% dplyr::pull(trg)
-    )
-  }
-  mats_plot$trg <- factor(mats_plot$trg, levels = facet_levels)
-  avg_by_trg$trg <- factor(avg_by_trg$trg, levels = facet_levels)
-
-  # Build corner-annotation data:
-  #  - cell line: top-left -> (x=first model, y=first model)
-  #  - ex vivo:   bottom-right -> (x=last model,  y=last model)
-# Build corner-annotation data (fix y positions):
-#  - cell line: top-left  -> x = first model, y = LAST model
-#  - ex vivo:   bottom-right -> x = last model,  y = FIRST model
-  first_m <- have_models[1]
-  last_m  <- tail(have_models, 1)
-  
-  ann_cell <- avg_by_trg %>%
-    dplyr::filter(trg_domain == "cell line") %>%
-    dplyr::transmute(
-      trg,
-      x = factor(first_m, levels = have_models),   # left
-      y = factor(last_m,  levels = have_models),   # top
-      lab = sprintf("Avg=%.3f", avg_mu),
-      hjust = 0, vjust = 1.1
-    )
-  
-  ann_ex <- avg_by_trg %>%
-    dplyr::filter(trg_domain == "ex vivo") %>%
-    dplyr::transmute(
-      trg,
-      x = factor(last_m,  levels = have_models),   # right
-      y = factor(first_m, levels = have_models),   # bottom
-      lab = sprintf("Avg=%.3f", avg_mu),
-      hjust = 1, vjust = -0.1
-    )
-
-
-  # Labels inside tiles
-  star <- function(p) dplyr::case_when(
-    is.na(p) ~ "",
-    p < 1e-4 ~ "****",
-    p < 1e-3 ~ "***",
-    p < 1e-2 ~ "**",
-    p < 0.05 ~ "*",
-    TRUE     ~ ""
-  )
-  mats_plot$lab <- if (show_labels) sprintf("%.3f%s", mats_plot$MD, star(mats_plot$p)) else ""
-
-  ggplot(mats_plot, aes(x = col_model, y = row_model, fill = MD)) +
-    # Tile grid
-    geom_tile(color = "white", linewidth = 0.25, width = 0.999, height = 0.999) +
-    {if (show_labels) geom_text(aes(label = lab), size = 2.0)} +
-    # Corner annotations (do not inherit tile aesthetics)
-    geom_text(data = ann_cell, aes(x = x, y = y, label = lab, hjust = hjust, vjust = vjust),
-              inherit.aes = FALSE, size = 3, fontface = "bold") +
-    geom_text(data = ann_ex,   aes(x = x, y = y, label = lab, hjust = hjust, vjust = vjust),
-              inherit.aes = FALSE, size = 3, fontface = "bold") +
-    scale_fill_distiller(
-      palette = "RdBu", direction = 1,
-      limits = limits, oob = scales::squish,
-      name = "Mean Difference (row − col)") +
-    coord_fixed() +
-    theme_bw(base_size = 9) +
-    theme(
-      axis.title = element_blank(),
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
-      axis.text.y = element_text(size = 7),
-      strip.text = element_text(face = "bold", size = 9, margin = margin(2,2,2,2)),
-      panel.grid = element_blank(),
-      panel.spacing = grid::unit(0.15, "lines"),
-      plot.margin = margin(4,4,4,4),
-      legend.position = "right",
-      legend.title = element_text(size = 8),
-      legend.text  = element_text(size = 7),
-      legend.key.size = grid::unit(0.28, "cm"),
-      legend.spacing.y = grid::unit(0.12, "cm")
-    ) +
-    guides(
-      fill = guide_colorbar(
-        title.position = "top",
-        label.position = "right",
-        barheight = grid::unit(3.0, "cm"),
-        barwidth  = grid::unit(0.26, "cm")
-      )
-    ) +
-    labs(
-      title = paste0("Model pair differences per target"),
-    ) +
-    facet_wrap(~ trg, ncol = 4, nrow = 4)
-}
-
-# Example
-p_4x4 <- paired_heatmap_triangular_mean_by_target_4x4(
-  cdres, metric = "scc",
-  model_order = c("deepttc","graphdrp","lgbm","xgboostdrp","uno"),
-  limits = c(-0.15, 0.15),
-  diag_mode = "na",
-  show_labels = TRUE
-)
-p_4x4
-
-ggsave("fig_pair_heatmap_triangular_mean_by_target_scc_4x4_avgannot.pdf",
-       p_4x4, width = 8, height = 8, dpi = 300)
-
-```
-
-
-# I think we should have this in the paper (atleast in supp). It's simple, but it represents the results(ish) that the original algorithm papers claim to have. They do perform well when trained/tested within the same datasets. The problem comes when we compare between datasets - but this one is helpful for setting up the problem.
-
-```{r}
-# Per-dataset Self scores heatmap
-model_self_scores_heatmap <- function(
-  cdres,
-  metric = "scc",
-  model_order = c("deepttc","graphdrp","lgbm","xgboostdrp","uno"),
-  datasets_cellline = if (exists("cellline")) cellline else NULL,
-  datasets_exvivo   = if (exists("exvivo"))   exvivo   else NULL,
-  show_labels = TRUE,
-  limits = NULL,
-  palette = "RdBu"
-) {
-  have_models <- intersect(model_order, unique(cdres$model))
-
-  self_tbl <- cdres %>%
-    filter(met == metric, src == trg, model %in% have_models) %>%
-    group_by(model, trg) %>%
-    summarise(mu = mean(value, na.rm=TRUE), .groups="drop")
-
-  # Order: cell lines, ex vivo
-  col_order <- c(datasets_cellline, datasets_exvivo)
-  self_tbl$model <- factor(self_tbl$model, levels = rev(have_models))
-  self_tbl$trg   <- factor(self_tbl$trg,   levels = col_order)
-
-  if (is.null(limits)) {
-    rng <- range(self_tbl$mu, na.rm=TRUE); pad <- diff(rng)*0.05
-    limits <- c(rng[1]-pad, rng[2]+pad)
-  }
-  self_tbl$lab <- if (show_labels) sprintf("%.3f", self_tbl$mu) else ""
-
-  ggplot(self_tbl, aes(x=trg, y=model, fill=mu)) +
-    geom_tile(width=0.999, height=0.999, color="white", linewidth=0.25) +
-    {if(show_labels) geom_text(aes(label=lab), size=3)} +
-    scale_fill_distiller(palette=palette, direction=1,
-                         limits=c(.65,.9), oob=scales::squish,
-                         name="Spearman" )+
-    coord_fixed() +
-    theme_bw(11) +
-    theme(axis.title=element_blank(),
-          axis.text.x=element_text(angle=45,hjust=1),
-          panel.grid=element_blank(),
-          plot.title=element_text(hjust=0.5)) +
-    labs(
-      title="Performance within Datasets, Spearman",
-      subtitle=""
-    )
-}
 
 # Example
 p <- model_self_scores_heatmap(
@@ -1036,94 +442,7 @@ p
 # This also shows that lgbm performs the best between datasets (on average) - particularly across model types.
 
 ```{r}
-# Main heatmap with aggregated Self scores
-model_by_dataset_heatmap <- function(
-  cdres,
-  metric = "scc",
-  model_order = c("deepttc","graphdrp","lgbm","xgboostdrp","uno"),
-  datasets_cellline = if (exists("cellline")) cellline else NULL,
-  datasets_exvivo   = if (exists("exvivo"))   exvivo   else NULL,
-  show_labels = TRUE,
-  limits = NULL,
-  palette = "RdBu",
-  sep_lines = TRUE
-) {
-  stopifnot(all(c("model","met","src","trg","value") %in% names(cdres)))
 
-  have_models <- intersect(model_order, unique(cdres$model))
-
-  # Cross-prediction means (exclude self)
-  base <- cdres %>%
-    dplyr::filter(met == metric, src != trg, model %in% have_models) %>%
-    dplyr::group_by(model, trg) %>%
-    dplyr::summarise(mu = mean(value, na.rm = TRUE), .groups = "drop")
-
-  # Self scores (src==trg)
-  self_tbl <- cdres %>%
-    dplyr::filter(met == metric, src == trg, model %in% have_models) %>%
-    dplyr::group_by(model, trg) %>%
-    dplyr::summarise(mu = mean(value, na.rm = TRUE), .groups = "drop")
-
-  # Aggregated Self (cell line/ex vivo)
-  self_cell <- self_tbl %>% filter(trg %in% datasets_cellline) %>%
-    group_by(model) %>% summarise(trg = "Self (cell line)", mu = mean(mu, na.rm=TRUE), .groups="drop")
-  self_ex   <- self_tbl %>% filter(trg %in% datasets_exvivo) %>%
-    group_by(model) %>% summarise(trg = "Self (ex vivo)", mu = mean(mu, na.rm=TRUE), .groups="drop")
-
-  # Aggregated averages (cross only)
-  avg_cell <- base %>% filter(trg %in% datasets_cellline) %>%
-    group_by(model) %>% summarise(trg = "Avg (cell line)", mu = mean(mu, na.rm=TRUE), .groups="drop")
-  avg_ex <- base %>% filter(trg %in% datasets_exvivo) %>%
-    group_by(model) %>% summarise(trg = "Avg (ex vivo)", mu = mean(mu, na.rm=TRUE), .groups="drop")
-  avg_all <- base %>% filter(trg %in% c(datasets_cellline, datasets_exvivo)) %>%
-    group_by(model) %>% summarise(trg = "Avg (overall)", mu = mean(mu, na.rm=TRUE), .groups="drop")
-
-  # Column order
-  col_order <- c(datasets_cellline, "Self (cell line)", "Avg (cell line)",
-                 datasets_exvivo,   "Self (ex vivo)",  "Avg (ex vivo)",
-                 "Avg (overall)")
-
-  # Assemble long table
-  long_tbl <- bind_rows(
-    base %>% filter(trg %in% c(datasets_cellline, datasets_exvivo)),
-    self_cell, self_ex, avg_cell, avg_ex, avg_all
-  )
-  long_tbl$model <- factor(long_tbl$model, levels = rev(have_models))
-  long_tbl$trg   <- factor(long_tbl$trg, levels = col_order)
-
-  # Color limits
-  if (is.null(limits)) {
-    rng <- range(long_tbl$mu, na.rm=TRUE); pad <- diff(rng)*0.05
-    limits <- c(rng[1]-pad, rng[2]+pad)
-  }
-  long_tbl$lab <- if (show_labels) sprintf("%.3f", long_tbl$mu) else ""
-
-  # Vertical separators
-  vlines <- tibble::tibble(x = c(
-    length(datasets_cellline) + 0.5,
-    length(datasets_cellline) + 1 + 0.5,
-    length(datasets_cellline) + 2 + length(datasets_exvivo) + 0.5,
-    length(datasets_cellline) + 3 + length(datasets_exvivo) + 0.5
-  ))
-
-  ggplot(long_tbl, aes(x = trg, y = model, fill = mu)) +
-    geom_tile(width=0.999, height=0.999, color="white", linewidth=0.25) +
-    {if(show_labels) geom_text(aes(label=lab), size=3)} +
-    scale_fill_distiller(palette=palette, direction=1,
-                         limits=limits, oob=scales::squish,
-                         name=paste0("Mean ", metric)) +
-    {if(sep_lines) geom_vline(data=vlines, aes(xintercept=x), inherit.aes=FALSE,
-                              color="grey30", linewidth=0.5)} +
-    coord_fixed() +
-    theme_bw(11) +
-    theme(axis.title=element_blank(),
-          axis.text.x=element_text(angle=45,hjust=1),
-          panel.grid=element_blank(),
-          plot.title=element_text(hjust=0.5)) +
-    labs(
-      title=paste0("Average performance by Model")
-    )
-}
 
 # Example
 p_mod_ds <- model_by_dataset_heatmap(
@@ -1142,7 +461,7 @@ ggsave("fig_model_by_dataset_mean_heatmap_scc_avgs_grouped.pdf", p_mod_ds, width
 
 # These 3d heat maps are another, more granular, way to diplay results of models across datasets / model types. 
 
-```{r}
+```{r 3d not gonna work, eval=FALSE}
 #### 3D solid-tile heatmap for cell lines
 
 metric        <- "scc"
@@ -1297,7 +616,8 @@ plt %>%
 
 ```
 
-```{r}
+Another 3d option i'm going to skip
+```{r why do we need 3d?, eval=FALSE}
 #### 3D solid-tile heatmap for ex vivo targets
 library(dplyr)
 library(tidyr)
@@ -1479,33 +799,6 @@ plt %>%
   )
 }
 
-# Build per-drug cross-dataset performance from predictions
-# method = "spearman" (scc) or "pearson"
-drug_transfer_scores <- function(models = c("deepttc","graphdrp","lgbm","xgboostdrp","uno"),
-                                 exclude_src = c("beataml","mpnst"),
-                                 targets_subset = c(cellline, exvivo),
-                                 method = "spearman",
-                                 min_n = 8) {
-  stopifnot(method %in% c("spearman","pearson"))
-  purrr::map_dfr(models, function(m) {
-    df <- getModelPredictionData(dset = m) |>
-      dplyr::mutate(model = m) |>
-      dplyr::filter(!source %in% exclude_src,
-                    target %in% targets_subset,
-                    source != target)
-    df <- .standardize_pred_cols(df)
-
-    # per (src, trg, model, drug) correlation
-    df %>%
-      dplyr::group_by(source, target, model, drug) %>%
-      dplyr::summarise(
-        n = dplyr::n(),
-        perf = suppressWarnings(stats::cor(y, yhat, method = method, use = "pairwise.complete.obs")),
-        .groups = "drop"
-      ) %>%
-      dplyr::filter(is.finite(perf), n >= min_n)
-  })
-}
 
 ```
 
@@ -1513,45 +806,27 @@ drug_transfer_scores <- function(models = c("deepttc","graphdrp","lgbm","xgboost
 # Best and worst drugs for cross-dataset transfer.
 # In this case they end all being between cell lines, but if ex vivo was in there, there would be more horiz bars.
 
+```{r where did this go}
+
+
+# Example
+p_4x4 <- paired_heatmap_triangular_mean_by_target_4x4(
+  cdres, metric = "scc",
+  model_order = c("deepttc","graphdrp","lgbm","xgboostdrp","uno"),
+  limits = c(-0.15, 0.15),
+  diag_mode = "na",
+  show_labels = TRUE
+)
+p_4x4
+
+ggsave("fig_pair_heatmap_triangular_mean_by_target_scc_4x4_avgannot.pdf",
+       p_4x4, width = 8, height = 8, dpi = 300)
+
+```
 #Very slow
-```{r}
+I cannot get this to run. 
 
-
-plot_drug_leaderboard <- function(method = "spearman",
-                                  top_k = 20,
-                                  models = c("deepttc","graphdrp","lgbm","xgboostdrp","uno")) {
-  d <- drug_transfer_scores(models = models, method = method)
-
-  d2 <- d %>%
-    dplyr::mutate(domain = ifelse(target %in% get0("exvivo", ifnotfound = character()),
-                                  "ex vivo", "cell line")) %>%
-    dplyr::group_by(drug, domain) %>%
-    dplyr::summarise(mu = mean(perf, na.rm = TRUE),
-                     se = stats::sd(perf, na.rm = TRUE) / sqrt(pmax(1, dplyr::n())),
-                     n  = dplyr::n(),
-                     .groups = "drop")
-
-  # choose globally by mean across domains
-  keep <- d2 %>%
-    dplyr::group_by(drug) %>%
-    dplyr::summarise(gmu = mean(mu, na.rm = TRUE), .groups = "drop") %>%
-    dplyr::arrange(dplyr::desc(gmu))
-  top <- head(keep$drug, top_k)
-  bot <- tail(keep$drug, top_k)
-  d3  <- d2 %>% dplyr::filter(drug %in% c(top, bot)) %>%
-    dplyr::mutate(drug = factor(drug, levels = unique(c(rev(top), bot))))
-
-  p <- ggplot(d3, aes(x = mu, y = drug, color = domain)) +
-    geom_point(size = 2) +
-    geom_errorbarh(aes(xmin = mu - 1.96*se, xmax = mu + 1.96*se), height = 0) +
-    scale_color_manual(values = c("cell line" = "#377eb8", "ex vivo" = "#e41a1c")) +
-    theme_bw(11) +
-    labs(title = "Drug transfer leaderboard (top & bottom)",
-         subtitle = paste0("Method: ", method, " (mean ± 95% CI across models & sources)"),
-         x = "Cross-dataset performance", y = NULL, color = "Target domain")
-  print(p)
-  invisible(p)
-}
+```{r, eval= FALSE}
 
 # Example
 plot_drug_leaderboard(method = "spearman", top_k = 20)
@@ -1563,41 +838,6 @@ plot_drug_leaderboard(method = "spearman", top_k = 20)
 
 # Larger scale version of earlier drug consistency plot - also slow.
 ```{r}
-plot_drug_consistency <- function(method = "spearman",
-                                  stat_y = c("IQR","SD"),
-                                  label_top = 10,
-                                  models = c("deepttc","graphdrp","lgbm","xgboostdrp","uno")) {
-  stat_y <- match.arg(stat_y)
-
-  d <- drug_transfer_scores(models = models, method = method)
-
-  agg <- d %>%
-    dplyr::group_by(drug) %>%
-    dplyr::summarise(
-      mu  = mean(perf, na.rm = TRUE),
-      sd  = stats::sd(perf, na.rm = TRUE),
-      iqr = stats::IQR(perf, na.rm = TRUE),
-      n   = dplyr::n(),
-      .groups = "drop"
-    )
-  agg$varstat <- if (stat_y == "IQR") agg$iqr else agg$sd
-
-  # Label a few most interesting (highest mu and lowest varstat)
-  labset <- dplyr::bind_rows(
-    agg %>% dplyr::arrange(desc(mu)) %>% head(label_top),
-    agg %>% dplyr::arrange(varstat)   %>% head(label_top)
-  ) %>% dplyr::distinct(drug)
-
-  p <- ggplot(agg, aes(x = mu, y = varstat)) +
-    geom_point(alpha = 0.8) +
-    ggrepel::geom_text_repel(data = dplyr::semi_join(agg, labset, by = "drug"),
-                             aes(label = drug), size = 3, max.overlaps = 100) +
-    theme_bw(11) +
-    labs(title = "Drug transfer: mean vs variability across datasets/models",
-         subtitle = paste0("Method: ", method, "; variability = ", stat_y),
-         x = "Mean cross-dataset performance",
-         y = paste0(stat_y, " of cross-dataset performance"))
-}
 
 p <- plot_drug_consistency(method="spearman", stat_y="IQR", label_top=12)
 p
