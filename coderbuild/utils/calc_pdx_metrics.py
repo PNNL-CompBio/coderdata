@@ -249,7 +249,6 @@ def ABC(contr_time=None, contr_volume=None, treat_time=None, treat_volume=None):
     return {"metric": "abc", "value": abc,'time':np.max(treat_time)}#, "control": con, "treatment": tre}
 
 
-###LMM CODE
 def lmm(time, volume, treatment, drug_name):
     """
     Compute the linear mixed model (lmm) statistics for a PDX batch.
@@ -266,7 +265,16 @@ def lmm(time, volume, treatment, drug_name):
                          'time':time,\
                           'exp_type':treatment})
 
-    data = data.dropna()
+    
+    data['log_volume'] = np.log(data['volume'])
+    n_nonfinite_log = (~np.isfinite(data['log_volume'])).sum()
+
+    # categories
+    data['exp_type'] = data['exp_type'].astype('category')
+    data['exp_type'] = pd.Categorical(data['exp_type'],
+                                    categories=['control', drug_name],
+                                    ordered=True)
+
                 
     ##create data frame from these 4 vectors
     required_columns = ["model_id", "volume", "time", "exp_type"]
@@ -286,7 +294,10 @@ def lmm(time, volume, treatment, drug_name):
     #print(data['exp_type'].cat.categories)
     # Fit the model
     model = mixedlm(formula, data, groups=data['model_id'])
+
+
     fit = model.fit()
+    
     
     # Get the coefficient for the interaction term 'time:exp_type'
     #interaction_term = 'time:exp_type'
@@ -294,6 +305,7 @@ def lmm(time, volume, treatment, drug_name):
 #    time_coef_value = fit.params['time']
     #print(fit.params)
     i_coef_value = fit.params['time:exp_type[T.'+drug_name+']']
+    
     #i_coef_value = fit.params['time:exp_type['+drug_name+']']
    # else:
    #     coef_value = None  # Handle the case when the interaction term is not present
@@ -384,9 +396,9 @@ def get_drug_stats(df, control='control'):
             else:
                 singleres.append(treat_abc)
 
-            #llm
             comb = pd.concat([ctl_data, d_data])
-            #print(comb)
+
+
             lmm_res = lmm(comb.time, comb.volume, comb.treatment, d)
             lmm_res.update({'sample': mod, 'drug': d, 'time': np.max(treat_time), 'time_unit': 'days'})
             if '+' in d:
