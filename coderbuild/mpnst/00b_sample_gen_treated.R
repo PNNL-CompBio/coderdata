@@ -346,7 +346,8 @@ run_batch1 <- function(orig_samples, next_id) {
 # Batch 2
 # ============================================================
 BATCH2_KEY <- "batch2"
-BATCH2_SAMPLEMAP_SYNID <- "syn66302373"
+BATCH2_SAMPLEMAP_SYNID <- "syn66302373"     # Update to syn64608372 once the corrected version is uploaded.
+
 
 fetch_batch2_map <- function() {
   .p("[BATCH2] synGet(", BATCH2_SAMPLEMAP_SYNID, ") ...")
@@ -364,8 +365,9 @@ normalize_batch2_map <- function(raw_map) {
   dt[, Drug         := trimws(as.character(Drug))]
   dt[, Timepoint    := trimws(as.character(Timepoint))]
 
+ #fixed in metadata, so this is not needed anymore.
   # MN2 -> MN-2
-  dt[individualID == "MN2", individualID := "MN-2"]
+  # dt[individualID == "MN2", individualID := "MN-2"]
 
   dt <- dt[!is.na(specimenID) & nzchar(specimenID) & !is.na(individualID) & nzchar(individualID)]
 
@@ -418,29 +420,16 @@ run_batch3 <- function(orig_samples, next_id) {
 }
 
 # ============================================================
-# Batch 4 (Excel)
+# Batch 4 (CSV)
 # ============================================================
 BATCH4_KEY <- "batch4"
-BATCH4_ANNOT_SYNID <- "syn68884278"
-BATCH4_SHEET_NAME <- "Samplelist"
-
-find_col <- function(nms, candidates) {
-  nms_clean  <- tolower(gsub("\\s+", " ", trimws(nms)))
-  cand_clean <- tolower(gsub("\\s+", " ", trimws(candidates)))
-  idx <- match(cand_clean, nms_clean, nomatch = 0)
-  idx <- idx[idx > 0]
-  if (length(idx) > 0) return(nms[idx[1]])
-  NULL
-}
+BATCH4_SAMPLEMAP_SYNID <- "syn72518652"
 
 fetch_batch4_map <- function() {
-  .p("[BATCH4] synGet(", BATCH4_ANNOT_SYNID, ") ...")
-  pth <- synGet(BATCH4_ANNOT_SYNID)$path
-  .p("[BATCH4] read_excel(sheet='", BATCH4_SHEET_NAME, "') from: ", pth)
-  dt <- as.data.table(readxl::read_excel(pth, sheet = BATCH4_SHEET_NAME))
+  .p("[BATCH4] synGet(", BATCH4_SAMPLEMAP_SYNID, ") ...")
+  pth <- synGet(BATCH4_SAMPLEMAP_SYNID)$path
+  dt <- as.data.table(fread(pth))
   .p("[BATCH4] map dim: ", nrow(dt), " x ", ncol(dt))
-  .p("[BATCH4] map colnames: ", paste(names(dt), collapse = " | "))
-  .p("[BATCH4] map head:")
   print_df_head(dt, 6)
   dt
 }
@@ -448,44 +437,31 @@ fetch_batch4_map <- function() {
 normalize_batch4_map <- function(raw_map) {
   dt <- copy(as.data.table(raw_map))
 
-  c_ind      <- find_col(names(dt), c("Individual ID"))
-  c_drug     <- find_col(names(dt), c("Drug"))
-  c_tp       <- find_col(names(dt), c("Timepoint"))
-  c_labelcap <- find_col(names(dt), c("Label on Cap"))
-  c_labelvial<- find_col(names(dt), c("Label on Vial"))
-
-  .p("[BATCH4] resolved columns:")
-  .p("  individual_id=", ifelse(is.null(c_ind), "<NOT FOUND>", c_ind))
-  .p("  drug         =", ifelse(is.null(c_drug), "<NOT FOUND>", c_drug))
-  .p("  timepoint    =", ifelse(is.null(c_tp), "<NOT FOUND>", c_tp))
-  .p("  label_on_cap =", ifelse(is.null(c_labelcap), "<NOT FOUND>", c_labelcap))
-  .p("  label_on_vial=", ifelse(is.null(c_labelvial), "<NOT FOUND>", c_labelvial))
-
-  if (is.null(c_ind) || is.null(c_drug) || is.null(c_tp)) {
-    .p("[BATCH4][WARN] Missing required columns; returning 0 rows.")
-    return(data.table(specimen_id=character(), individual_id=character(), drug=character(), timepoint=character()))
+  # Expected columns in 01252026_Batch4_samplemap.csv:
+  # specimenID, individualID, Drug, Timepoint
+  if (!all(c("specimenID", "individualID", "Drug", "Timepoint") %in% names(dt))) {
+    .p("[BATCH4][WARN] Missing required columns. Found: ", paste(names(dt), collapse = " | "))
+    return(data.table(
+      specimen_id   = character(),
+      individual_id = character(),
+      drug          = character(),
+      timepoint     = character()
+    ))
   }
 
-  if (!is.null(c_labelcap)) {
-    dt[, specimen_id := trimws(as.character(get(c_labelcap)))]
-  } else if (!is.null(c_labelvial)) {
-    dt[, specimen_id := trimws(as.character(get(c_labelvial)))]
-  } else {
-    dt[, specimen_id := ""]
-  }
+  dt[, specimenID   := trimws(as.character(specimenID))]
+  dt[, individualID := trimws(as.character(individualID))]
+  dt[, Drug         := trimws(as.character(Drug))]
+  dt[, Timepoint    := trimws(as.character(Timepoint))]
 
-  dt[, individual_id := trimws(as.character(get(c_ind)))]
-  dt[, drug          := trimws(as.character(get(c_drug)))]
-  dt[, timepoint     := normalize_timepoint(get(c_tp))]
+  dt <- dt[!is.na(specimenID) & nzchar(specimenID) & !is.na(individualID) & nzchar(individualID)]
 
-  dt[is.na(specimen_id) | !nzchar(specimen_id), specimen_id := "B4_unknown"]
-
-  out <- dt[
-    !is.na(individual_id) & nzchar(individual_id) &
-      !is.na(drug) & nzchar(drug) &
-      !is.na(timepoint) & nzchar(as.character(timepoint)),
-    .(specimen_id, individual_id, drug, timepoint)
-  ]
+  out <- dt[, .(
+    specimen_id   = specimenID,
+    individual_id = individualID,
+    drug          = Drug,
+    timepoint     = normalize_timepoint(Timepoint)
+  )]
 
   .p("[BATCH4] normalized dim: ", nrow(out), " x ", ncol(out))
   .p("[BATCH4] normalized head:")
@@ -503,6 +479,7 @@ run_batch4 <- function(orig_samples, next_id) {
     require_base = FALSE
   )
 }
+
 
 # ============================================================
 # Register all batches (order)

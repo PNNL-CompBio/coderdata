@@ -26,7 +26,7 @@ tab <- getBM(attributes = c('ensembl_gene_id','hgnc_symbol','entrezgene_id','ens
              values = c('protein_coding'), mart = ensembl) ##only protein coding
 
 new.df <- tab |>
-  dplyr::rename(entrez_id = 'entrezgene_id', gene_sybmol = 'hgnc_symbol',#rename existing columns
+  dplyr::rename(entrez_id = 'entrezgene_id', gene_symbol = 'hgnc_symbol',#rename existing columns
                 ensembl_transcript = 'ensembl_transcript_id', ensembl_gene = 'ensembl_gene_id') |>  #consistent with previous versions
   subset(!is.na(entrez_id)) |> # we dont want missing entrez ids
   tidyr::pivot_longer(cols = c('ensembl_gene','ensembl_transcript'), #compress these

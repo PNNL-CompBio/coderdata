@@ -1,3 +1,4 @@
+# 00_sample_gen.R
 # This script generate a new sample table based on previous dataset's sample file (taking the max improve_sample_id)
 # Load required libraries
 library(data.table)
