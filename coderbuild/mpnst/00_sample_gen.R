@@ -27,9 +27,14 @@ synapser::synLogin(authToken=synapse_token)
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
                                                              as.data.frame()
 
-#Drop contaminated sample JH-2-009
+#Drop contaminated sample JH-2-009 and others with issues
 manifest <- manifest %>% 
-  filter(Sample != "JH-2-009")
+  filter(Sample != "JH-2-009") %>%
+  filter(Sample != "WU-545") %>%
+  filter(Sample != "WU-536") %>%
+  filter(Sample != "WU-505") %>%
+  filter(Sample != "MN-1") %>%
+  filter(Sample != "MN-3")
 
 
 ###sample file has a strict schema

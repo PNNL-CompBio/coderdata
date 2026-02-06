@@ -148,13 +148,28 @@ transcriptomics_list <- lapply(
     if (is.null(meta)) return(NULL)
 
     df <- tryCatch({
-      fread(synGet(id)$path) %>%
+      raw <- fread(synGet(id)$path) %>%
         separate(Name, into = c("other_id","vers"), sep = "\\.") %>%
-        select(-vers) %>%
+        select(-vers)
+
+      is_enst_input <- all(grepl("^ENST", raw$other_id))
+
+      mapped <- raw %>%
         left_join(genes_df) %>%
-        select(entrez_id, transcriptomics = TPM) %>%
-        filter(!is.na(entrez_id), transcriptomics != 0) %>%
-        distinct()
+        select(entrez_id, other_id, transcriptomics = TPM) %>%
+        filter(!is.na(entrez_id), transcriptomics != 0)
+
+      if (is_enst_input) {
+        mapped <- mapped %>%
+          group_by(entrez_id) %>%
+          summarise(transcriptomics = sum(transcriptomics), .groups = "drop")
+      } else {
+        mapped <- mapped %>%
+          select(entrez_id, transcriptomics) %>%
+          distinct()
+      }
+
+      mapped
     }, error = function(e) NULL)
 
     i_safe_extract(
