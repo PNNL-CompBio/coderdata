@@ -585,6 +585,37 @@ if (!SKIP_FAST) {
   ok_rename <- file.rename(mt_exp0, mt_exp_path)
   dbg("rename ", mt_exp0, " -> ", mt_exp_path, " ok=", ok_rename)
   dbg_file(mt_exp_path, "MT experiments TSV")
+
+  # Average MT experiments across dates for each unique sample/drug/time/metric
+  mt_exp_dt <- tryCatch(data.table::fread(mt_exp_path), error = function(e) data.table::data.table())
+  if (nrow(mt_exp_dt) > 0) {
+    if ("Drug" %in% names(mt_exp_dt) && !"improve_drug_id" %in% names(mt_exp_dt)) {
+      data.table::setnames(mt_exp_dt, "Drug", "improve_drug_id")
+    }
+
+    req_cols <- c("source","improve_sample_id","improve_drug_id","study","time","time_unit","dose_response_metric","dose_response_value")
+    if (all(req_cols %in% names(mt_exp_dt))) {
+
+      # optional sanity check (no filtering)
+      if (any(!grepl("^MT\\s*\\d{6}\\b", as.character(mt_exp_dt$study), ignore.case = TRUE))) {
+        warning("[MT collapse] Found unexpected study values in mt_exp_path; still averaging all rows in this MT file.")
+      }
+
+      mt_exp_dt[, dose_response_value := suppressWarnings(as.numeric(as.character(dose_response_value)))]
+      mt_exp_dt <- mt_exp_dt[is.finite(dose_response_value)]
+
+      key_cols <- c("source","improve_sample_id","improve_drug_id","time","time_unit","dose_response_metric")
+
+      mt_agg <- mt_exp_dt[, .(
+        study = "MPNST Microtissue",
+        dose_response_value = mean(dose_response_value, na.rm = TRUE)
+      ), by = key_cols]
+
+      data.table::fwrite(mt_agg, mt_exp_path, sep = "\t")
+    }
+  }
+
+
   message("Wrote MT experiments")
 
   # ────────────────────────────────────────────────
