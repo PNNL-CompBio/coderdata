@@ -203,10 +203,10 @@ def process_datasets(args):
                 ],
             )
             # conversion logic from mRECIST -> auc
-            experiment.loc[experiment['mRESCIST'] == 'CR', 'mRESCIST'] = 0.1
-            experiment.loc[experiment['mRESCIST'] == 'PR', 'mRESCIST'] = 0.2
-            experiment.loc[experiment['mRESCIST'] == 'SD', 'mRESCIST'] = 0.5
-            experiment.loc[experiment['mRESCIST'] == 'PD', 'mRESCIST'] = 1.0
+            experiment.loc[experiment['mRESCIST'] == 'CR', 'mRESCIST'] = "0.1"
+            experiment.loc[experiment['mRESCIST'] == 'PR', 'mRESCIST'] = "0.2"
+            experiment.loc[experiment['mRESCIST'] == 'SD', 'mRESCIST'] = "0.5"
+            experiment.loc[experiment['mRESCIST'] == 'PD', 'mRESCIST'] = "1.0"
 
             experiment.rename(columns={'mRESCIST': 'auc'}, inplace=True)
             experiments.append(experiment)
