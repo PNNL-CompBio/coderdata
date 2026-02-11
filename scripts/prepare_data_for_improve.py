@@ -248,7 +248,9 @@ def process_datasets(args):
     response_data['improve_sample_id'] = "SAMPLE-ID-" + response_data['improve_sample_id'].astype(int).astype(str)
     # exporting the drug response data to 'y_data/response.tsv'
     outfile_path = args.WORKDIR.joinpath("data_out", "y_data", "response.tsv")
-    response_data.to_csv(
+    response_out = deepcopy(response_data)
+    response_out['study'] = response_out['study'].str.lower()
+    response_out.to_csv(
         path_or_buf=outfile_path,
         index=False,
         sep='\t',
