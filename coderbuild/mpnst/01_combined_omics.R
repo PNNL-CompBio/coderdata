@@ -32,7 +32,7 @@ genes_df <- fread(genes)
 # Subset by model type
 pdx_samps   <- filter(samples_df, model_type == "patient derived xenograft")
 tumor_samps<- filter(samples_df, model_type == "tumor")
-mt_samps    <- filter(samples_df, model_type == "xenograft derived organoid")  # These end up being the same as pdx_samps in the manifest.
+mt_samps    <- filter(samples_df, model_type == "3D-MEDS")  # These end up being the same as pdx_samps in the manifest.
 
 # Retrieve manifest table from Synapse
 manifest <- synTableQuery("select * from syn53503360")$asDataFrame() %>%
@@ -59,7 +59,7 @@ tumor_data <- manifest %>%
   mutate(Proteomics = "") %>%
   filter(!is.na(improve_sample_id))
 
-mt_data <- manifest %>%                     #Note, this is the same as pdx_data but I think we default to "xenograft derived organoid" if present (based on original files)
+mt_data <- manifest %>%                     #Note, this is the same as pdx_data but I think we default to "3D-MEDS" if present (based on original files)
   select(common_name, starts_with("PDX")) %>%
   left_join(mt_samps, by = "common_name") %>%
   select(improve_sample_id, common_name, model_type,
@@ -79,7 +79,7 @@ study_label <- function(type) {
   case_when(
     type == "patient derived xenograft"     ~ "MPNST PDX",
     type == "tumor"                          ~ "MPNST Tumor",
-    type == "xenograft derived organoid"     ~ "MPNST PDX MT",
+    type == "3D-MEDS"     ~ "MPNST PDX MT",
     TRUE                                       ~ "MPNST"
   )
 }

@@ -62,7 +62,7 @@ sampTable<-manifest|>
 
 ##third, generate a sample for the MTs if they were generated
 pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
-pdxmt$model_type=rep('xenograft derived organoid',nrow(pdxmt))
+pdxmt$model_type=rep('3D-MEDS',nrow(pdxmt))
 print(pdxmt)
 
 main<-rbind(sampTable,pdxmt)|>

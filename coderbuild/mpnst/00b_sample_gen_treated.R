@@ -28,7 +28,7 @@ print_df_head <- function(df, n = 8) {
 # -----------------------
 CONST_CANCER  <- "Malignant peripheral nerve sheath tumor"
 CONST_SPECIES <- "Homo sapiens (Human)"
-CONST_MODEL   <- "xenograft derived organoid"
+CONST_MODEL   <- "3D-MEDS"
 CONST_SOURCE  <- "NF Data Portal"
 
 # NOTE: updated to correctly preserve hyphens in IDs (MN-2, JH-2-002, WU-225)
@@ -119,11 +119,6 @@ is_control <- function(drug) {
 #   - Aggregates replicates: ONE row per treated sample
 #   - other_id  = {individual_id}_{drug}_{hours}hr_treated_microtissue
 #   - other_names = comma-separated replicate specimen IDs
-#
-# KEY FIX:
-#   - After first aggregation, compute other_id_val then
-#     RE-aggregate by other_id_val to merge replicate IDs when
-#     sanitization causes collisions (e.g. RMC-4630 vs RMC 4630).
 # ============================================================
 build_from_standard_map <- function(std_map, orig_samples, batch_key, next_id, require_base = TRUE) {
   std_map <- as.data.table(std_map)

@@ -28,7 +28,7 @@
 #   distinct()
 
 # pdx_samps <- filter(samples_df, model_type == "patient derived xenograft")
-# mt_samps  <- filter(samples_df, model_type == "xenograft derived organoid")
+# mt_samps  <- filter(samples_df, model_type == "3D-MEDS")
 
 # # Get manifest table from Synapse
 # manifest <- synTableQuery("select * from syn53503360")$asDataFrame() %>%

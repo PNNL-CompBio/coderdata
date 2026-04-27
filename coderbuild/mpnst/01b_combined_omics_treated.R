@@ -29,7 +29,7 @@ study_label <- function(type) {
   dplyr::case_when(
     type == "patient derived xenograft"     ~ "MPNST PDX",
     type == "tumor"                          ~ "MPNST Tumor",
-    type == "xenograft derived organoid"     ~ "MPNST PDX MT",
+    type == "3D-MEDS"     ~ "MPNST PDX MT",
     TRUE                                     ~ "MPNST"
   )
 }
@@ -146,7 +146,7 @@ synLogin(authToken = PAT)
 samples_df <- fread(samples)
 
 treated <- samples_df[
-  model_type == "xenograft derived organoid" &
+  model_type == "3D-MEDS" &
     vapply(seq_len(nrow(samples_df)), function(i) {
       is_treated_microtissue(samples_df$other_id[i], samples_df$other_names[i])
     }, logical(1)),

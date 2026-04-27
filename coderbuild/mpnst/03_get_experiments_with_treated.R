@@ -3,7 +3,7 @@
 #
 # DEBUG VERSION
 # - Adds verbose print statements throughout MT + treated-microtissue code paths + helpers
-# - Adds safe readers/guards so empty MT outputs don’t crash downstream (instead they print diagnostics)
+# - Adds safe readers/guards so empty MT outputs don't crash downstream (instead they print diagnostics)
 #
 
 suppressPackageStartupMessages({
@@ -20,6 +20,22 @@ suppressPackageStartupMessages({
 # FAST DEBUG SWITCH - skip ahead to later treated section (save time debugging)
 # ============================================================
 SKIP_FAST <- FALSE  # set to TRUE to skip MT/PDX/combine sections
+
+# ============================================================
+# PER-SECTION SKIP SWITCHES
+# ============================================================
+SKIP_MT      <- FALSE
+SKIP_PDX     <- FALSE
+SKIP_COMBINE <- FALSE
+SKIP_EXACT   <- FALSE
+
+# Backward-compat: SKIP_FAST skips all heavy sections
+if (isTRUE(SKIP_FAST)) {
+  SKIP_MT      <- TRUE
+  SKIP_PDX     <- TRUE
+  SKIP_COMBINE <- TRUE
+  SKIP_EXACT   <- TRUE
+}
 
 # ============================================================
 # DEBUG CONTROLS
@@ -301,6 +317,10 @@ extract_treated_token_from_other_id <- function(other_id, common_name) {
 # ============================================================
 dbg_hr("SCRIPT START")
 dbg("SKIP_FAST=", SKIP_FAST)
+dbg("SKIP_MT=", SKIP_MT)
+dbg("SKIP_PDX=", SKIP_PDX)
+dbg("SKIP_COMBINE=", SKIP_COMBINE)
+dbg("SKIP_EXACT=", SKIP_EXACT)
 dbg("samples=", samples)
 dbg("drugfile=", drugfile)
 dbg("out_prefix=", out_prefix)
@@ -324,7 +344,7 @@ samples_df <- samples_all %>%
 dbg_df(samples_df, "samples_df")
 
 pdx_samps <- filter(samples_df, model_type == "patient derived xenograft")
-mt_samps  <- filter(samples_df, model_type == "xenograft derived organoid")
+mt_samps  <- filter(samples_df, model_type == "3D-MEDS")
 dbg_df(pdx_samps, "pdx_samps")
 dbg_df(mt_samps,  "mt_samps")
 
@@ -350,7 +370,7 @@ if (!all(c("common_name","MicroTissueDrugFolder") %in% names(manifest))) {
 # ============================================================
 # OPTIONAL: MT / PDX / Combine
 # ============================================================
-if (!SKIP_FAST) {
+if (!(isTRUE(SKIP_MT) && isTRUE(SKIP_PDX) && isTRUE(SKIP_COMBINE) && isTRUE(SKIP_EXACT))) {
 
   # ────────────────────────────────────────────────
   # MicroTissue Experiments
@@ -485,300 +505,693 @@ if (!SKIP_FAST) {
   dbg("mts_map unique folders=", length(unique(mts_map$folder)))
 
   if (nrow(mts_map) == 0) {
-    dbg_stop("MT: mts_map is empty. Likely manifest join failed or MicroTissueDrugFolder missing/NA.")
-  }
-
-  # Pull MT data for each folder
-  mt_list <- vector("list", length = nrow(mts_map))
-  for (i in seq_len(nrow(mts_map))) {
-    sample_id <- mts_map$improve_sample_id[i]
-    folder    <- mts_map$folder[i]
-
-    if (isTRUE(DEBUG) && i <= DEBUG_MAX_ITEMS) {
-      dbg_hr(paste0("MT MAP ROW ", i, "/", nrow(mts_map), " sample_id=", sample_id, " folder=", folder))
+    if (!isTRUE(SKIP_MT)) {
+      dbg_stop("MT: mts_map is empty. Likely manifest join failed or MicroTissueDrugFolder missing/NA.")
+    } else {
+      dbg("MT: mts_map is empty (SKIP_MT=TRUE); continuing.")
     }
-
-    mt_list[[i]] <- getDrugDataByParent(folder, sample_id)
   }
 
-  mt_data <- dplyr::bind_rows(mt_list)
-  dbg_df(mt_data, "mt_data")
+  if (!isTRUE(SKIP_MT)) {
 
-  # If mt_data empty, dump context + stop (this is the earliest real failure)
-  if (nrow(mt_data) == 0) {
-    dbg("MT FAILURE: mt_data is empty. Writing debug dumps.")
-    dbg_out1 <- file.path("/tmp", paste0(out_prefix, "_DEBUG_mts_map.tsv"))
-    dbg_out2 <- file.path("/tmp", paste0(out_prefix, "_DEBUG_manifest_mt_subset.tsv"))
-    fwrite(as.data.table(mts_map), dbg_out1, sep = "\t")
-    fwrite(as.data.table(manifest %>% as.data.frame() %>% filter(common_name %in% mt_samps$common_name)),
-           dbg_out2, sep = "\t")
-    dbg("Wrote: ", dbg_out1)
-    dbg("Wrote: ", dbg_out2)
-    dbg_stop("MT produced 0 rows. Investigate printed logs above + debug TSVs in /tmp.")
-  }
+    # Pull MT data for each folder
+    mt_list <- vector("list", length = nrow(mts_map))
+    for (i in seq_len(nrow(mts_map))) {
+      sample_id <- mts_map$improve_sample_id[i]
+      folder    <- mts_map$folder[i]
 
-  # Join to drug map
-  mt_curve <- mt_data %>%
-    mutate(chem_name = norm_drug(chem_name))
-
-  # show join coverage BEFORE filtering NA improve_drug_id
-  mt_joined <- mt_curve %>%
-    left_join(drug_map, by = "chem_name")
-
-  dbg_df(mt_joined, "mt_joined")
-  n_unmapped <- sum(is.na(mt_joined$improve_drug_id))
-  dbg("MT join unmapped chem_name rows=", n_unmapped, " / ", nrow(mt_joined))
-  if (n_unmapped > 0) {
-    top_unmapped <- mt_joined %>%
-      filter(is.na(improve_drug_id)) %>%
-      count(chem_name, sort = TRUE) %>%
-      head(20)
-    dbg("MT top unmapped chem_name (up to 20):")
-    print(top_unmapped)
-    dbg_unmapped_path <- file.path("/tmp", paste0(out_prefix, "_DEBUG_mt_unmapped_chem_name.tsv"))
-    fwrite(as.data.table(mt_joined %>% filter(is.na(improve_drug_id))), dbg_unmapped_path, sep = "\t")
-    dbg("Wrote: ", dbg_unmapped_path)
-  }
-
-  mt_curve <- mt_joined %>%
-    filter(!is.na(improve_drug_id)) %>%
-    transmute(
-      source             = source,
-      improve_sample_id  = improve_sample_id,
-      Drug               = improve_drug_id,
-      study              = study,
-      time               = time,
-      time_unit          = "hours",
-      DOSE               = DOSE,
-      GROWTH             = GROWTH
-    )
-
-  dbg_df(mt_curve, "mt_curve (final)")
-
-  out_mt_curve_path <- file.path("/tmp", paste0(out_prefix, "_mt_curve_data.tsv"))
-  fwrite(mt_curve, out_mt_curve_path, sep = "\t")
-  dbg_file(out_mt_curve_path, "MT curve output")
-  message("Wrote MT curve data")
-
-  if (nrow(mt_curve) == 0) {
-    dbg_stop("MT curve is EMPTY after join/filter. Root cause is likely chem_name mismatch vs drugfile.tsv. See DEBUG_mt_unmapped_chem_name.tsv.")
-  }
-
-  # Fit curves
-  out_mt_prefix <- paste0("/tmp/", out_prefix, "_mt_experiments")
-  cmd <- sprintf("/opt/venv/bin/python fit_curve.py --input %s --output %s",
-                 out_mt_curve_path, out_mt_prefix)
-  dbg_hr("RUN fit_curve.py (MT)")
-  dbg("CMD: ", cmd)
-  rc <- system(cmd)
-  dbg("fit_curve.py return code: ", rc)
-
-  # fit_curve.py writes "<prefix>.0"
-  mt_exp0 <- paste0(out_mt_prefix, ".0")
-  dbg_file(mt_exp0, "MT experiments .0 (pre-rename)")
-  if (!file.exists(mt_exp0) || file.info(mt_exp0)$size == 0) {
-    dbg_stop("fit_curve.py did not produce a non-empty MT experiments file: ", mt_exp0,
-             " (check fit_curve.py logs + MT curve input)")
-  }
-
-  mt_exp_path <- paste0("/tmp/", out_prefix, "_mt_experiments.tsv")
-  ok_rename <- file.rename(mt_exp0, mt_exp_path)
-  dbg("rename ", mt_exp0, " -> ", mt_exp_path, " ok=", ok_rename)
-  dbg_file(mt_exp_path, "MT experiments TSV")
-
-  # Average MT experiments across dates for each unique sample/drug/time/metric
-  mt_exp_dt <- tryCatch(data.table::fread(mt_exp_path), error = function(e) data.table::data.table())
-  if (nrow(mt_exp_dt) > 0) {
-    if ("Drug" %in% names(mt_exp_dt) && !"improve_drug_id" %in% names(mt_exp_dt)) {
-      data.table::setnames(mt_exp_dt, "Drug", "improve_drug_id")
-    }
-
-    req_cols <- c("source","improve_sample_id","improve_drug_id","study","time","time_unit","dose_response_metric","dose_response_value")
-    if (all(req_cols %in% names(mt_exp_dt))) {
-
-      # optional sanity check (no filtering)
-      if (any(!grepl("^MT\\s*\\d{6}\\b", as.character(mt_exp_dt$study), ignore.case = TRUE))) {
-        warning("[MT collapse] Found unexpected study values in mt_exp_path; still averaging all rows in this MT file.")
+      if (isTRUE(DEBUG) && i <= DEBUG_MAX_ITEMS) {
+        dbg_hr(paste0("MT MAP ROW ", i, "/", nrow(mts_map), " sample_id=", sample_id, " folder=", folder))
       }
 
-      mt_exp_dt[, dose_response_value := suppressWarnings(as.numeric(as.character(dose_response_value)))]
-      mt_exp_dt <- mt_exp_dt[is.finite(dose_response_value)]
-
-      key_cols <- c("source","improve_sample_id","improve_drug_id","time","time_unit","dose_response_metric")
-
-      mt_agg <- mt_exp_dt[, .(
-        study = "MPNST Microtissue",
-        dose_response_value = mean(dose_response_value, na.rm = TRUE)
-      ), by = key_cols]
-
-      data.table::fwrite(mt_agg, mt_exp_path, sep = "\t")
+      mt_list[[i]] <- getDrugDataByParent(folder, sample_id)
     }
+
+    mt_data <- dplyr::bind_rows(mt_list)
+    dbg_df(mt_data, "mt_data")
+
+    # If mt_data empty, dump context + stop (this is the earliest real failure)
+    if (nrow(mt_data) == 0) {
+      dbg("MT FAILURE: mt_data is empty. Writing debug dumps.")
+      dbg_out1 <- file.path("/tmp", paste0(out_prefix, "_DEBUG_mts_map.tsv"))
+      dbg_out2 <- file.path("/tmp", paste0(out_prefix, "_DEBUG_manifest_mt_subset.tsv"))
+      fwrite(as.data.table(mts_map), dbg_out1, sep = "\t")
+      fwrite(as.data.table(manifest %>% as.data.frame() %>% filter(common_name %in% mt_samps$common_name)),
+             dbg_out2, sep = "\t")
+      dbg("Wrote: ", dbg_out1)
+      dbg("Wrote: ", dbg_out2)
+      dbg_stop("MT produced 0 rows. Investigate printed logs above + debug TSVs in /tmp.")
+    }
+
+    # Join to drug map
+    mt_curve <- mt_data %>%
+      mutate(chem_name = norm_drug(chem_name))
+
+    # show join coverage BEFORE filtering NA improve_drug_id
+    mt_joined <- mt_curve %>%
+      left_join(drug_map, by = "chem_name")
+
+    dbg_df(mt_joined, "mt_joined")
+    n_unmapped <- sum(is.na(mt_joined$improve_drug_id))
+    dbg("MT join unmapped chem_name rows=", n_unmapped, " / ", nrow(mt_joined))
+    if (n_unmapped > 0) {
+      top_unmapped <- mt_joined %>%
+        filter(is.na(improve_drug_id)) %>%
+        count(chem_name, sort = TRUE) %>%
+        head(20)
+      dbg("MT top unmapped chem_name (up to 20):")
+      print(top_unmapped)
+      dbg_unmapped_path <- file.path("/tmp", paste0(out_prefix, "_DEBUG_mt_unmapped_chem_name.tsv"))
+      fwrite(as.data.table(mt_joined %>% filter(is.na(improve_drug_id))), dbg_unmapped_path, sep = "\t")
+      dbg("Wrote: ", dbg_unmapped_path)
+    }
+
+    # Fallback: regex match for chem_names that didn't exact-join
+    # (e.g. raw "verteporfin" vs drug_map "verteporfin [usan:usp:inn:ban]")
+    mt_joined <- fill_ids_with_fallback(
+      as.data.frame(mt_joined),
+      raw_col  = "chem_name",
+      id_col   = "improve_drug_id",
+      chem_tbl = drug_map,
+      label    = "MT"
+    )
+
+    mt_curve <- mt_joined %>%
+      filter(!is.na(improve_drug_id)) %>%
+      transmute(
+        source             = source,
+        improve_sample_id  = improve_sample_id,
+        Drug               = improve_drug_id,
+        study              = study,
+        time               = time,
+        time_unit          = "hours",
+        DOSE               = DOSE,
+        GROWTH             = GROWTH
+      )
+
+    dbg_df(mt_curve, "mt_curve (final)")
+
+    out_mt_curve_path <- file.path("/tmp", paste0(out_prefix, "_mt_curve_data.tsv"))
+    fwrite(mt_curve, out_mt_curve_path, sep = "\t")
+    dbg_file(out_mt_curve_path, "MT curve output")
+    message("Wrote MT curve data")
+
+    if (nrow(mt_curve) == 0) {
+      dbg_stop("MT curve is EMPTY after join/filter. Root cause is likely chem_name mismatch vs drugfile.tsv. See DEBUG_mt_unmapped_chem_name.tsv.")
+    }
+
+    # Fit curves
+    out_mt_prefix <- paste0("/tmp/", out_prefix, "_mt_experiments")
+    cmd <- sprintf("/opt/venv/bin/python fit_curve.py --input %s --output %s",
+                   out_mt_curve_path, out_mt_prefix)
+    dbg_hr("RUN fit_curve.py (MT)")
+    dbg("CMD: ", cmd)
+    rc <- system(cmd)
+    dbg("fit_curve.py return code: ", rc)
+
+    # fit_curve.py writes "<prefix>.0"
+    mt_exp0 <- paste0(out_mt_prefix, ".0")
+    dbg_file(mt_exp0, "MT experiments .0 (pre-rename)")
+    if (!file.exists(mt_exp0) || file.info(mt_exp0)$size == 0) {
+      dbg_stop("fit_curve.py did not produce a non-empty MT experiments file: ", mt_exp0,
+               " (check fit_curve.py logs + MT curve input)")
+    }
+
+    mt_exp_path <- paste0("/tmp/", out_prefix, "_mt_experiments.tsv")
+    ok_rename <- file.rename(mt_exp0, mt_exp_path)
+    dbg("rename ", mt_exp0, " -> ", mt_exp_path, " ok=", ok_rename)
+    dbg_file(mt_exp_path, "MT experiments TSV")
+
+    # Average MT experiments across dates for each unique sample/drug/time/metric
+    mt_exp_dt <- tryCatch(data.table::fread(mt_exp_path), error = function(e) data.table::data.table())
+    if (nrow(mt_exp_dt) > 0) {
+      if ("Drug" %in% names(mt_exp_dt) && !"improve_drug_id" %in% names(mt_exp_dt)) {
+        data.table::setnames(mt_exp_dt, "Drug", "improve_drug_id")
+      }
+
+      req_cols <- c("source","improve_sample_id","improve_drug_id","study","time","time_unit","dose_response_metric","dose_response_value")
+      if (all(req_cols %in% names(mt_exp_dt))) {
+
+        # optional sanity check (no filtering)
+        if (any(!grepl("^MT\\s*\\d{6}\\b", as.character(mt_exp_dt$study), ignore.case = TRUE))) {
+          warning("[MT collapse] Found unexpected study values in mt_exp_path; still averaging all rows in this MT file.")
+        }
+
+        mt_exp_dt[, dose_response_value := suppressWarnings(as.numeric(as.character(dose_response_value)))]
+        mt_exp_dt <- mt_exp_dt[is.finite(dose_response_value)]
+
+        key_cols <- c("source","improve_sample_id","improve_drug_id","time","time_unit","dose_response_metric")
+
+        mt_agg <- mt_exp_dt[, .(
+          study = "MPNST Microtissue",
+          dose_response_value = mean(dose_response_value, na.rm = TRUE)
+        ), by = key_cols]
+
+        data.table::fwrite(mt_agg, mt_exp_path, sep = "\t")
+      }
+    }
+
+
+    message("Wrote MT experiments")
+
+  } else {
+    dbg_hr("SKIP_MT=TRUE")
+    cat0("SKIP_MT=TRUE: skipping MT section.")
   }
-
-
-  message("Wrote MT experiments")
 
   # ────────────────────────────────────────────────
   # PDX Experiments
   # ────────────────────────────────────────────────
-  dbg_hr("PDX SECTION")
+  if (!isTRUE(SKIP_PDX)) {
 
-  pdx_map <- do.call(rbind, lapply(seq_len(nrow(manifest)), function(i) {
-    row <- manifest[i, ]
-    samp <- pdx_samps[pdx_samps$common_name == row$common_name, ]
-    if (nrow(samp)==0 || is.na(row$PDX_Drug_Data) || row$PDX_Drug_Data %in% c("", "NA"))
-      return(NULL)
-    ids <- strsplit(row$PDX_Drug_Data, ",")[[1]]
-    ids <- trimws(ids[ids!=""])
-    data.frame(
-      improve_sample_id = samp$improve_sample_id,
-      child_id          = ids,
-      stringsAsFactors  = FALSE
-    )
-  }))
-  if (is.null(pdx_map) || nrow(pdx_map) == 0) {
-    dbg("PDX: pdx_map empty (no PDX drug data)")
-  } else {
-    dbg_df(pdx_map, "pdx_map")
-  }
+    dbg_hr("PDX SECTION")
 
-  pdx_meta <- if (!is.null(pdx_map) && nrow(pdx_map) > 0) {
-    do.call(rbind, lapply(seq_len(nrow(pdx_map)), function(i) {
-      sid <- pdx_map$improve_sample_id[i]
-      cid <- pdx_map$child_id[i]
-      pid <- synGet(cid)$parentId
-      if (is.null(pid) || pid=="") stop("no parentId for ", cid)
+    pdx_map <- do.call(rbind, lapply(seq_len(nrow(manifest)), function(i) {
+      row <- manifest[i, ]
+      samp <- pdx_samps[pdx_samps$common_name == row$common_name, ]
+      if (nrow(samp)==0 || is.na(row$PDX_Drug_Data) || row$PDX_Drug_Data %in% c("", "NA"))
+        return(NULL)
+      ids <- strsplit(row$PDX_Drug_Data, ",")[[1]]
+      ids <- trimws(ids[ids!=""])
       data.frame(
-        improve_sample_id = sid,
-        child_id          = cid,
-        parentId          = pid,
+        improve_sample_id = samp$improve_sample_id,
+        child_id          = ids,
         stringsAsFactors  = FALSE
       )
     }))
-  } else {
-    data.frame()
-  }
+    if (is.null(pdx_map) || nrow(pdx_map) == 0) {
+      dbg("PDX: pdx_map empty (no PDX drug data)")
+    } else {
+      dbg_df(pdx_map, "pdx_map")
+    }
 
-  all_pdx <- if (nrow(pdx_meta) > 0) {
-    do.call(rbind, lapply(seq_len(nrow(pdx_meta)), function(i) {
-      m   <- pdx_meta[i, ]
-      pth <- synGet(m$child_id)$path
-      raw <- if (grepl("\\.xlsx?$", pth)) read_xlsx(pth) else read_csv(pth)
-
-      sec_opts  <- c("compound 2_name", "compound_2_name")
-      drug2_col <- intersect(sec_opts, names(raw))[1]
-      compound2 <- if (!is.na(drug2_col)) raw[[drug2_col]] else NA_character_
-
-      df <- data.frame(
-        child_id                     = m$child_id,
-        specimen_id                  = raw$specimen_id,
-        compound_name                = raw$compound_name,
-        compound_2_name              = compound2,
-        experimental_time_point      = raw$experimental_time_point,
-        experimental_time_point_unit = raw$experimental_time_point_unit,
-        assay_value                  = raw$assay_value,
-        stringsAsFactors = FALSE
-      )
-
-      df <- within(df, {
-        drug1     <- tolower(trimws(compound_name))
-        drug2     <- tolower(trimws(compound_2_name))
-        treatment <- ifelse(
-          is.na(drug1) | drug1 %in% c("", "na", "n/a", "nan"),
-          "control",
-          ifelse(!is.na(drug2) & drug2 != "",
-                 paste(drug1, drug2, sep = "+"),
-                 drug1
-          )
+    pdx_meta <- if (!is.null(pdx_map) && nrow(pdx_map) > 0) {
+      do.call(rbind, lapply(seq_len(nrow(pdx_map)), function(i) {
+        sid <- pdx_map$improve_sample_id[i]
+        cid <- pdx_map$child_id[i]
+        pid <- synGet(cid)$parentId
+        if (is.null(pid) || pid=="") stop("no parentId for ", cid)
+        data.frame(
+          improve_sample_id = sid,
+          child_id          = cid,
+          parentId          = pid,
+          stringsAsFactors  = FALSE
         )
-        time      <- experimental_time_point
-        time_unit <- experimental_time_point_unit
-        volume    <- assay_value
+      }))
+    } else {
+      data.frame()
+    }
+
+    all_pdx <- if (nrow(pdx_meta) > 0) {
+      do.call(rbind, lapply(seq_len(nrow(pdx_meta)), function(i) {
+        m   <- pdx_meta[i, ]
+        pth <- synGet(m$child_id)$path
+        raw <- if (grepl("\\.xlsx?$", pth)) read_xlsx(pth) else read_csv(pth)
+
+        sec_opts  <- c("compound 2_name", "compound_2_name")
+        drug2_col <- intersect(sec_opts, names(raw))[1]
+        compound2 <- if (!is.na(drug2_col)) raw[[drug2_col]] else NA_character_
+
+        df <- data.frame(
+          child_id                     = m$child_id,
+          specimen_id                  = raw$specimen_id,
+          compound_name                = raw$compound_name,
+          compound_2_name              = compound2,
+          experimental_time_point      = raw$experimental_time_point,
+          experimental_time_point_unit = raw$experimental_time_point_unit,
+          assay_value                  = raw$assay_value,
+          stringsAsFactors = FALSE
+        )
+
+        df <- within(df, {
+          drug1     <- tolower(trimws(compound_name))
+          drug2     <- tolower(trimws(compound_2_name))
+          treatment <- ifelse(
+            is.na(drug1) | drug1 %in% c("", "na", "n/a", "nan"),
+            "control",
+            ifelse(!is.na(drug2) & drug2 != "",
+                   paste(drug1, drug2, sep = "+"),
+                   drug1
+            )
+          )
+          time      <- experimental_time_point
+          time_unit <- experimental_time_point_unit
+          volume    <- assay_value
+        })
+
+        df[ , c("child_id", "specimen_id", "treatment", "time", "time_unit", "volume")]
+      }))
+    } else {
+      data.frame()
+    }
+
+    pdx_data <- if (nrow(all_pdx) > 0) merge(all_pdx, pdx_meta, by="child_id") else data.frame()
+    if (nrow(pdx_data) > 0) {
+      pdx_data <- within(pdx_data, {
+        experiment <- parentId
+        model_id   <- improve_sample_id
       })
 
-      df[ , c("child_id", "specimen_id", "treatment", "time", "time_unit", "volume")]
-    }))
+      has_ctl <- tapply(pdx_data$treatment == "control", pdx_data$experiment, any)
+      pdx_data <- pdx_data[pdx_data$experiment %in% names(has_ctl)[has_ctl], ]
+
+      pdx_data <- pdx_data[ , c("experiment","specimen_id","treatment",
+                                "time","time_unit","volume","model_id")]
+
+      pdx_data$treatment <- gsub("doxorubinsin", "doxorubicin", pdx_data$treatment, ignore.case = TRUE)
+      pdx_data <- na.omit(pdx_data)
+
+      out_pdx_curve <- file.path("/tmp", paste0(out_prefix, "_pdx_curve_data.tsv"))
+      fwrite(pdx_data, out_pdx_curve, sep = "\t")
+      dbg_file(out_pdx_curve, "PDX curve output")
+      message("Wrote PDX curve data")
+
+      cmd2 <- sprintf(
+        "/opt/venv/bin/python calc_pdx_metrics.py %s --drugfile %s --outprefix %s --source 'NF Data Portal' --study 'MPNST PDX'",
+        out_pdx_curve,
+        drugfile,
+        paste0("/tmp/", out_prefix, "_pdx")
+      )
+      dbg("CMD: ", cmd2)
+      rc2 <- system(cmd2)
+      dbg("calc_pdx_metrics.py return code: ", rc2)
+      message("Wrote PDX experiments to /tmp/", out_prefix, "_pdx_experiments.tsv and combinations")
+    } else {
+      dbg("PDX: pdx_data empty; skipping PDX metrics")
+    }
+
   } else {
-    data.frame()
-  }
-
-  pdx_data <- if (nrow(all_pdx) > 0) merge(all_pdx, pdx_meta, by="child_id") else data.frame()
-  if (nrow(pdx_data) > 0) {
-    pdx_data <- within(pdx_data, {
-      experiment <- parentId
-      model_id   <- improve_sample_id
-    })
-
-    has_ctl <- tapply(pdx_data$treatment == "control", pdx_data$experiment, any)
-    pdx_data <- pdx_data[pdx_data$experiment %in% names(has_ctl)[has_ctl], ]
-
-    pdx_data <- pdx_data[ , c("experiment","specimen_id","treatment",
-                              "time","time_unit","volume","model_id")]
-
-    pdx_data$treatment <- gsub("doxorubinsin", "doxorubicin", pdx_data$treatment, ignore.case = TRUE)
-    pdx_data <- na.omit(pdx_data)
-
-    out_pdx_curve <- file.path("/tmp", paste0(out_prefix, "_pdx_curve_data.tsv"))
-    fwrite(pdx_data, out_pdx_curve, sep = "\t")
-    dbg_file(out_pdx_curve, "PDX curve output")
-    message("Wrote PDX curve data")
-
-    cmd2 <- sprintf(
-      "/opt/venv/bin/python calc_pdx_metrics.py %s --drugfile %s --outprefix %s --source 'NF Data Portal' --study 'MPNST PDX'",
-      out_pdx_curve,
-      drugfile,
-      paste0("/tmp/", out_prefix, "_pdx")
-    )
-    dbg("CMD: ", cmd2)
-    rc2 <- system(cmd2)
-    dbg("calc_pdx_metrics.py return code: ", rc2)
-    message("Wrote PDX experiments to /tmp/", out_prefix, "_pdx_experiments.tsv and combinations")
-  } else {
-    dbg("PDX: pdx_data empty; skipping PDX metrics")
+    dbg_hr("SKIP_PDX=TRUE")
+    cat0("SKIP_PDX=TRUE: skipping PDX section.")
   }
 
   # ────────────────────────────────────────────────
   # Combine all Experiments
   # ────────────────────────────────────────────────
-  dbg_hr("COMBINE MT + PDX EXPERIMENTS")
+  if (!isTRUE(SKIP_COMBINE)) {
 
-  mt_exp_path2  <- paste0("/tmp/", out_prefix, "_mt_experiments.tsv")
-  pdx_exp_path2 <- paste0("/tmp/", out_prefix, "_pdx_experiments.tsv")
+    dbg_hr("COMBINE MT + PDX EXPERIMENTS")
 
-  mt_exp <- safe_fread_df(mt_exp_path2, label = "read MT experiments")
-  pdx_exp <- safe_fread_df(pdx_exp_path2, label = "read PDX experiments")
+    mt_exp_path2  <- paste0("/tmp/", out_prefix, "_mt_experiments.tsv")
+    pdx_exp_path2 <- paste0("/tmp/", out_prefix, "_pdx_experiments.tsv")
 
-  dbg_df(mt_exp, "mt_exp (read)")
-  dbg_df(pdx_exp, "pdx_exp (read)")
+    mt_exp <- safe_fread_df(mt_exp_path2, label = "read MT experiments")
+    pdx_exp <- safe_fread_df(pdx_exp_path2, label = "read PDX experiments")
 
-  # Make sure dose_response_value exists so mutate won't crash
-  if (!("dose_response_value" %in% names(mt_exp)))  mt_exp$dose_response_value  <- NA
-  if (!("dose_response_value" %in% names(pdx_exp))) pdx_exp$dose_response_value <- NA
+    dbg_df(mt_exp, "mt_exp (read)")
+    dbg_df(pdx_exp, "pdx_exp (read)")
 
-  mt_exp  <- mt_exp  %>% mutate(dose_response_value = as.character(dose_response_value))
-  pdx_exp <- pdx_exp %>% mutate(dose_response_value = as.character(dose_response_value))
+    # Make sure dose_response_value exists so mutate won't crash
+    if (!("dose_response_value" %in% names(mt_exp)))  mt_exp$dose_response_value  <- NA
+    if (!("dose_response_value" %in% names(pdx_exp))) pdx_exp$dose_response_value <- NA
 
-  all_exp <- bind_rows(mt_exp, pdx_exp)
-  dbg_df(all_exp, "all_exp (combined)")
+    mt_exp  <- mt_exp  %>% mutate(dose_response_value = as.character(dose_response_value))
+    pdx_exp <- pdx_exp %>% mutate(dose_response_value = as.character(dose_response_value))
 
-  out_all <- paste0("/tmp/", out_prefix, "_experiments.tsv")
-  fwrite(all_exp, out_all, sep = "\t")
-  dbg_file(out_all, "combined experiments TSV")
-  message("Wrote combined experiments: /tmp/", out_prefix, "_experiments.tsv")
+    all_exp <- bind_rows(mt_exp, pdx_exp)
+    dbg_df(all_exp, "all_exp (combined)")
 
-  # rename combinations
-  pdx_combo_src <- paste0("/tmp/", out_prefix, "_pdx_combinations.tsv")
-  combo_dst     <- paste0("/tmp/", out_prefix, "_combinations.tsv")
-  if (file.exists(pdx_combo_src)) {
-    okc <- file.rename(pdx_combo_src, combo_dst)
-    dbg("rename combos ", pdx_combo_src, " -> ", combo_dst, " ok=", okc)
+    out_all <- paste0("/tmp/", out_prefix, "_experiments.tsv")
+    fwrite(all_exp, out_all, sep = "\t")
+    dbg_file(out_all, "combined experiments TSV")
+    message("Wrote combined experiments: /tmp/", out_prefix, "_experiments.tsv")
+
+    # rename combinations
+    pdx_combo_src <- paste0("/tmp/", out_prefix, "_pdx_combinations.tsv")
+    combo_dst     <- paste0("/tmp/", out_prefix, "_combinations.tsv")
+    if (file.exists(pdx_combo_src)) {
+      okc <- file.rename(pdx_combo_src, combo_dst)
+      dbg("rename combos ", pdx_combo_src, " -> ", combo_dst, " ok=", okc)
+    } else {
+      dbg("PDX combinations file missing (ok if no PDX): ", pdx_combo_src)
+    }
+
   } else {
-    dbg("PDX combinations file missing (ok if no PDX): ", pdx_combo_src)
+    dbg_hr("SKIP_COMBINE=TRUE")
+    cat0("SKIP_COMBINE=TRUE: skipping combine section.")
   }
 
+  # ────────────────────────────────────────────────
+  # EXACT Experiments
+  # - Average replicates within each file
+  # - Run curve fitting per date via study = "EXACT {DATE}"
+  # - Average fitted metrics across dates back to study = "EXACT"
+  # ────────────────────────────────────────────────
+  if (!isTRUE(SKIP_EXACT)) {
+
+    dbg_hr("EXACT SECTION")
+
+    EXACT_PARENT   <- "syn65473019"  # Folder (Processed Data)
+    EXACT_FILEVIEW <- "syn52369043"  # FileView table used by your python
+
+    get_exact_fileview <- function(parent_id) {
+      q <- sprintf("SELECT * FROM %s WHERE parentId = '%s'", EXACT_FILEVIEW, parent_id)
+      dbg("EXACT FileView query: ", q)
+
+      tab <- tryCatch({
+        synTableQuery(q)$asDataFrame()
+      }, error = function(e) {
+        dbg("[EXACT] synTableQuery(fileview) ERROR: ", conditionMessage(e))
+        return(NULL)
+      })
+
+      if (is.null(tab) || nrow(tab) == 0) {
+        dbg("[EXACT] FileView returned 0 rows for parentId=", parent_id)
+        return(data.frame())
+      }
+
+      dbg_df(tab, "EXACT fileview raw")
+
+      tab <- tab %>%
+        filter(!is.na(name)) %>%
+        filter(name != "synapse_storage_manifest.csv") %>%
+        filter(grepl("\\.csv$", name, ignore.case = TRUE)) %>%
+        filter(!grepl("250122\\.csv$", name, ignore.case = TRUE))
+
+      dbg_df(tab, "EXACT fileview filtered")
+      tab
+    }
+
+    pick_specimen_col <- function(df) {
+      opts <- c("specimenID","specimenId","specimen_id","improve_sample_id")
+      hit <- intersect(opts, names(df))
+      if (length(hit) == 0) return(NA_character_)
+      hit[1]
+    }
+
+    exact_files <- get_exact_fileview(EXACT_PARENT)
+
+    exact_samples_map <- samples_all %>%
+      transmute(
+        common_name       = trimws(as.character(common_name)),
+        model_type        = as.character(model_type),
+        improve_sample_id = suppressWarnings(as.integer(improve_sample_id))
+      ) %>%
+      distinct()
+
+    map_exact_sampleName_to_improve_id <- function(sampleName) {
+      sn <- trimws(as.character(sampleName))
+      if (is.na(sn) || sn == "" || tolower(sn) %in% c("na","n/a","nan")) return(NA_integer_)
+
+      sn_canon <- canon_id(sn)
+
+      hit1 <- exact_samples_map$improve_sample_id[
+        exact_samples_map$model_type == "3D-MEDS" &
+          canon_id(exact_samples_map$common_name) == sn_canon
+      ]
+      if (length(hit1) > 0 && !is.na(hit1[1])) return(as.integer(hit1[1]))
+
+      hit2 <- exact_samples_map$improve_sample_id[
+        exact_samples_map$model_type == "patient derived xenograft" &
+          canon_id(exact_samples_map$common_name) == sn_canon
+      ]
+      if (length(hit2) > 0 && !is.na(hit2[1])) return(as.integer(hit2[1]))
+
+      NA_integer_
+    }
+
+    exact_data <- data.frame()
+    if (nrow(exact_files) == 0) {
+      dbg("EXACT: no files found under ", EXACT_PARENT, "; skipping EXACT.")
+    } else {
+
+      spec_col <- pick_specimen_col(exact_files)
+      if (is.na(spec_col)) {
+        dbg("[EXACT] WARNING: FileView has no specimenID column; will fall back to sampleName inside CSVs.")
+        exact_files$.__specimen <- NA_character_
+        spec_col <- ".__specimen"
+      }
+
+      exact_list <- vector("list", length = nrow(exact_files))
+
+      for (i in seq_len(nrow(exact_files))) {
+        file_id   <- as.character(exact_files$id[i])
+        file_name <- as.character(exact_files$name[i])
+        specimen  <- exact_files[[spec_col]][i]
+
+        if (isTRUE(DEBUG) && i <= DEBUG_MAX_ITEMS) {
+          dbg_hr(paste0("EXACT FILE ", i, "/", nrow(exact_files),
+                        " id=", file_id, " name=", file_name,
+                        " specimen=", specimen))
+        }
+
+        sget <- tryCatch(synGet(file_id), error = function(e) {
+          dbg("[EXACT] synGet ERROR for ", file_id, ": ", conditionMessage(e))
+          return(NULL)
+        })
+        if (is.null(sget)) {
+          exact_list[[i]] <- NULL
+          next
+        }
+
+        pth <- sget$path
+        dbg_file(pth, label = paste0("EXACT file ", file_id))
+
+        raw <- tryCatch({
+          data.table::fread(pth)
+        }, error = function(e) {
+          dbg("[EXACT] fread ERROR for ", file_id, " path=", pth, " : ", conditionMessage(e))
+          return(NULL)
+        })
+        if (is.null(raw) || nrow(raw) == 0) {
+          dbg("[EXACT] raw empty for ", file_id)
+          exact_list[[i]] <- NULL
+          next
+        }
+
+        raw_df <- as.data.frame(raw)
+
+        # Optional: only keep processed rows if column exists
+        if ("dataSubtype" %in% names(raw_df)) {
+          raw_df <- raw_df[raw_df$dataSubtype == "processed", , drop = FALSE]
+          dbg("[EXACT] rows after dataSubtype=='processed': ", nrow(raw_df))
+          if (nrow(raw_df) == 0) {
+            exact_list[[i]] <- NULL
+            next
+          }
+        }
+
+        needed <- c("drugName","concentration","percentViability","timePoint","timePointUnit")
+        miss <- setdiff(needed, names(raw_df))
+        if (length(miss) > 0) {
+          dbg("[EXACT] MISSING required cols in ", file_id, ": ", paste(miss, collapse=", "))
+          exact_list[[i]] <- NULL
+          next
+        }
+
+        # Determine improve_sample_id for this file (map sampleName -> mpnst_samples.csv other_id)
+        raw_df$improve_sample_id <- NA_integer_
+        if ("sampleName" %in% names(raw_df)) {
+          raw_df$improve_sample_id <- vapply(raw_df$sampleName, map_exact_sampleName_to_improve_id, integer(1))
+        }
+
+        if (all(is.na(raw_df$improve_sample_id))) {
+          dbg("[EXACT] WARNING: sampleName->improve_sample_id mapping failed for ", file_id, " name=", file_name)
+          if ("sampleName" %in% names(raw_df)) {
+            dbg("[EXACT] sampleName values (unique, up to 20):")
+            print(head(unique(raw_df$sampleName), 20))
+          }
+          exact_list[[i]] <- NULL
+          next
+        }
+
+        # Extract 6-digit date token from filename
+        file_date <- str_match(file_name, "(\\d{6})\\.csv$")[,2]
+        if (is.na(file_date)) file_date <- str_match(file_name, "(\\d{6})")[,2]
+
+        # Average replicates WITHIN FILE
+        raw_avg <- raw_df %>%
+          mutate(
+            improve_sample_id = suppressWarnings(as.integer(improve_sample_id)),
+            drugName         = as.character(drugName),
+            concentration    = suppressWarnings(as.numeric(concentration)),
+            percentViability = suppressWarnings(as.numeric(percentViability)),
+            timePoint        = suppressWarnings(as.integer(timePoint)),
+            timePointUnit    = as.character(timePointUnit)
+          ) %>%
+          filter(!is.na(improve_sample_id), !is.na(drugName), !is.na(concentration), !is.na(percentViability), !is.na(timePoint)) %>%
+          group_by(improve_sample_id, drugName, concentration, timePoint, timePointUnit) %>%
+          summarise(percentViability = mean(percentViability, na.rm = TRUE), .groups = "drop")
+
+        tmp <- raw_avg %>%
+          transmute(
+            improve_sample_id = improve_sample_id,
+            DOSE              = concentration,            # µM
+            GROWTH            = percentViability,         # percent viability (0-100)
+            source            = "NF Data Portal",
+            chem_name         = norm_drug(drugName),
+            study             = paste0("EXACT ", file_date),
+            time              = timePoint,
+            time_unit         = timePointUnit
+          )
+
+        dbg_df(tmp, label = paste0("EXACT tmp ", file_id))
+        exact_list[[i]] <- tmp
+      }
+
+      exact_data <- dplyr::bind_rows(exact_list)
+    }
+
+    dbg_df(exact_data, "exact_data (raw)")
+
+    if (!is.null(exact_data) && nrow(exact_data) > 0) {
+
+      # map to improve_drug_id using drug_map (join on normalized chem_name)
+      exact_joined <- exact_data %>%
+        left_join(drug_map, by = "chem_name")
+
+      dbg_df(exact_joined, "exact_joined")
+      n_unmapped_ex <- sum(is.na(exact_joined$improve_drug_id))
+      dbg("EXACT join unmapped chem_name rows=", n_unmapped_ex, " / ", nrow(exact_joined))
+      if (n_unmapped_ex > 0) {
+        top_unmapped_ex <- exact_joined %>%
+          filter(is.na(improve_drug_id)) %>%
+          count(chem_name, sort = TRUE) %>%
+          head(20)
+        dbg("EXACT top unmapped chem_name (up to 20):")
+        print(top_unmapped_ex)
+        dbg_unmapped_ex_path <- file.path("/tmp", paste0(out_prefix, "_DEBUG_exact_unmapped_chem_name.tsv"))
+        fwrite(as.data.table(exact_joined %>% filter(is.na(improve_drug_id))), dbg_unmapped_ex_path, sep = "\t")
+        dbg("Wrote: ", dbg_unmapped_ex_path)
+      }
+
+      # Fallback: regex match for chem_names that didn't exact-join
+      # (e.g. raw "verteporfin" vs drug_map "verteporfin [usan:usp:inn:ban]")
+      exact_joined <- fill_ids_with_fallback(
+        as.data.frame(exact_joined),
+        raw_col  = "chem_name",
+        id_col   = "improve_drug_id",
+        chem_tbl = drug_map,
+        label    = "EXACT"
+      )
+
+      exact_curve <- exact_joined %>%
+        filter(!is.na(improve_drug_id)) %>%
+        transmute(
+          source            = source,
+          improve_sample_id = improve_sample_id,
+          Drug              = improve_drug_id,
+          study             = study,       # "EXACT {DATE}" for per-date fitting
+          time              = time,
+          time_unit         = time_unit,
+          DOSE              = DOSE,
+          GROWTH            = GROWTH
+        )
+
+      dbg_df(exact_curve, "exact_curve (final)")
+
+      out_exact_curve_path <- file.path("/tmp", paste0(out_prefix, "_exact_curve_data.tsv"))
+      fwrite(exact_curve, out_exact_curve_path, sep = "\t")
+      dbg_file(out_exact_curve_path, "EXACT curve output")
+      message("Wrote EXACT curve data")
+
+      if (nrow(exact_curve) > 0) {
+        # Fit curves (per-date via study)
+        out_exact_prefix <- paste0("/tmp/", out_prefix, "_exact_experiments")
+        cmd_ex <- sprintf("/opt/venv/bin/python fit_curve.py --input %s --output %s",
+                          out_exact_curve_path, out_exact_prefix)
+        dbg_hr("RUN fit_curve.py (EXACT)")
+        dbg("CMD: ", cmd_ex)
+        rc_ex <- system(cmd_ex)
+        dbg("fit_curve.py return code: ", rc_ex)
+
+        exact_exp0 <- paste0(out_exact_prefix, ".0")
+        dbg_file(exact_exp0, "EXACT experiments .0 (pre-rename)")
+        if (!file.exists(exact_exp0) || file.info(exact_exp0)$size == 0) {
+          dbg_stop("fit_curve.py did not produce a non-empty EXACT experiments file: ", exact_exp0,
+                   " (check fit_curve.py logs + EXACT curve input)")
+        }
+
+        
+        exact_exp_path <- paste0("/tmp/", out_prefix, "_exact_experiments.tsv")
+
+        ok_rename_ex <- file.rename(exact_exp0, exact_exp_path)
+        if (!isTRUE(ok_rename_ex)) {
+          ok_copy <- file.copy(exact_exp0, exact_exp_path, overwrite = TRUE)
+          if (isTRUE(ok_copy)) unlink(exact_exp0)
+          ok_rename_ex <- ok_copy
+        }
+        dbg("rename ", exact_exp0, " -> ", exact_exp_path, " ok=", ok_rename_ex)
+        dbg_file(exact_exp_path, "EXACT experiments TSV")
+
+        # Average across dates -> study="EXACT"
+        exact_exp_dt <- tryCatch(data.table::fread(exact_exp_path), error = function(e) data.table::data.table())
+        if (nrow(exact_exp_dt) > 0) {
+          if ("Drug" %in% names(exact_exp_dt) && !"improve_drug_id" %in% names(exact_exp_dt)) {
+            data.table::setnames(exact_exp_dt, "Drug", "improve_drug_id")
+          }
+
+          req_cols_ex <- c("source","improve_sample_id","improve_drug_id","study","time","time_unit","dose_response_metric","dose_response_value")
+          if (all(req_cols_ex %in% names(exact_exp_dt))) {
+            exact_exp_dt[, dose_response_value := suppressWarnings(as.numeric(as.character(dose_response_value)))]
+            exact_exp_dt <- exact_exp_dt[is.finite(dose_response_value)]
+
+            key_cols_ex <- c("source","improve_sample_id","improve_drug_id","time","time_unit","dose_response_metric")
+
+            exact_agg <- exact_exp_dt[, .(
+              study = "EXACT",
+              dose_response_value = mean(dose_response_value, na.rm = TRUE)
+            ), by = key_cols_ex]
+
+            data.table::fwrite(exact_agg, exact_exp_path, sep = "\t")
+          }
+        }
+
+        message("Wrote EXACT experiments")
+
+        # Append EXACT into combined experiments
+        exp_path2 <- file.path("/tmp", paste0(out_prefix, "_experiments.tsv"))
+        if (file.exists(exp_path2) && file.exists(exact_exp_path)) {
+          exp_dt2 <- data.table::fread(exp_path2)
+          ex_dt2  <- data.table::fread(exact_exp_path)
+
+          missing_cols2 <- setdiff(names(exp_dt2), names(ex_dt2))
+          for (cc in missing_cols2) ex_dt2[[cc]] <- NA
+
+          extra_cols2 <- setdiff(names(ex_dt2), names(exp_dt2))
+          if (length(extra_cols2) > 0) ex_dt2 <- ex_dt2[, setdiff(names(ex_dt2), extra_cols2), with = FALSE]
+
+          data.table::setcolorder(ex_dt2, names(exp_dt2))
+
+          for (cc in intersect(c("improve_sample_id", "time"), names(exp_dt2))) {
+            exp_dt2[[cc]] <- suppressWarnings(as.integer(exp_dt2[[cc]]))
+            ex_dt2[[cc]]  <- suppressWarnings(as.integer(ex_dt2[[cc]]))
+          }
+          for (cc in intersect(c("dose_response_value"), names(exp_dt2))) {
+            exp_dt2[[cc]] <- suppressWarnings(as.numeric(exp_dt2[[cc]]))
+            ex_dt2[[cc]]  <- suppressWarnings(as.numeric(ex_dt2[[cc]]))
+          }
+
+          before_n2 <- nrow(exp_dt2)
+          add_n2    <- nrow(ex_dt2)
+
+          final_dt2 <- data.table::rbindlist(list(exp_dt2, ex_dt2), use.names = TRUE, fill = TRUE)
+          final_dt2 <- unique(final_dt2)
+
+          bak_path2 <- paste0(exp_path2, ".bak_exact")
+          file.copy(exp_path2, bak_path2, overwrite = TRUE)
+          data.table::fwrite(final_dt2, exp_path2, sep = "\t")
+
+          message(sprintf(
+            "Appended EXACT into %s: +%d rows (was %d, now %d). Backup: %s",
+            exp_path2, add_n2, before_n2, nrow(final_dt2), bak_path2
+          ))
+        }
+      }
+
+    } else {
+      dbg("EXACT: no rows found; skipping curve fit + append.")
+    }
+
+  } else {
+    dbg_hr("SKIP_EXACT=TRUE")
+    cat0("SKIP_EXACT=TRUE: skipping EXACT section.")
+  }
+
+
 } else {
-  dbg_hr("SKIP_FAST=TRUE")
-  cat0("SKIP_FAST=TRUE: skipping MT + PDX + combine sections (debugging treated combos only).")
+  dbg_hr("ALL SKIP SWITCHES=TRUE")
+  cat0("All skip switches are TRUE: skipping MT + PDX + combine + EXACT sections (debugging treated combos only).")
   cat0("Will still read: samples.csv, drugfile.tsv, and syn69801348.")
 }
 
@@ -864,7 +1277,7 @@ treated_samples_long <- samples_all %>%
     common_name       = as.character(common_name)
   ) %>%
   filter(
-    model_type == "xenograft derived organoid",
+    model_type == "3D-MEDS",
     !is.na(other_id),
     grepl("hr_treated_microtissue$", other_id)
   ) %>%

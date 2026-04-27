@@ -248,6 +248,7 @@ enums:
       xenograft derived organoid:
       patient derived organoid:
       ex vivo:
+      3D-MEDS:
   Variant:
     permissible_values:
       3'UTR:

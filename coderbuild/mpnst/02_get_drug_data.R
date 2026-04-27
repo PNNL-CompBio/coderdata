@@ -272,5 +272,32 @@ if ("chem_name" %in% names(final_tab)) {
   message("FINAL has wu713d62n9? ", any(cnf == "wu713d62n9", na.rm=TRUE))
 }
 
+# 9) Ensure bare "verteporfin" exists as a chem_name row.
+#    PubChem synonyms often return only qualified variants like
+#    "verteporfin [usan:usp:inn:ban]" but not the bare name, which
+#    causes exact-join failures downstream in 03_get_experiments.
+if ("chem_name" %in% names(final_tab)) {
+  cn_lower <- tolower(trimws(as.character(final_tab$chem_name)))
+  has_bare <- any(cn_lower == "verteporfin", na.rm = TRUE)
+ 
+  if (!has_bare) {
+    # Look for any row whose chem_name contains "verteporfin" or "verteporphin"
+    match_idx <- which(grepl("verteporfin|verteporphin", cn_lower))
+    if (length(match_idx) > 0) {
+      donor_row <- final_tab[match_idx[1], ]
+      donor_row[["chem_name"]] <- "verteporfin"
+      final_tab <- rbind(donor_row, final_tab)
+      message("Inserted bare 'verteporfin' alias row (from row with chem_name='",
+              as.character(final_tab$chem_name[match_idx[1] + 1]),   # +1 because we prepended
+              "', improve_drug_id=", donor_row$improve_drug_id, ")")
+    } else {
+      message("WARNING: no verteporfin/verteporphin variant found in drug file; cannot insert bare alias.")
+    }
+  } else {
+    message("Bare 'verteporfin' already present in drug file; no insertion needed.")
+  }
+}
+ 
+
 fwrite(final_tab, newdrugfile, sep="\t", quote=FALSE)
 message("Wrote full synonyms list to ", newdrugfile)
