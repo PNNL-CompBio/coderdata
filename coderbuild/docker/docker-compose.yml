@@ -131,3 +131,12 @@ services:
         HTTPS_PROXY: ${HTTPS_PROXY}
     platform: linux/amd64
     image: novartis:latest
+
+  cnf:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.cnf
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: cnf:latest

@@ -295,3 +295,22 @@ datasets:
       file: /tmp/novartis_drugs.tsv
     - target_class: Drug Descriptor
       file: /tmp/novartis_drug_descriptors.tsv
+
+
+  cnf:
+    - target_class: Sample
+      file: /tmp/cnf_samples.csv
+    - target_class: Transcriptomics
+      file: /tmp/cnf_transcriptomics.csv
+    - target_class: Proteomics
+      file: /tmp/cnf_proteomics.csv
+    # - target_class: Mutations
+    #   file: /tmp/cnf_mutations.csv
+    # - target_class: Copy Number
+    #   file: /tmp/cnf_copy_number.csv
+    - target_class: Experiments
+      file: /tmp/cnf_experiments.tsv
+    - target_class: Drug
+      file: /tmp/cnf_drugs.tsv
+    - target_class: Drug Descriptor
+      file: /tmp/cnf_drug_descriptors.tsv

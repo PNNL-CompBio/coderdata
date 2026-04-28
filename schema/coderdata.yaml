@@ -157,7 +157,7 @@ classes:
       - time_unit
     attributes:
       dose_response_metric:
-        range: CurveMetric
+        range: ResponseMetric
         description: Metric by which dose response value is measured
       dose_response_value:
         description: Value of metric
@@ -218,7 +218,7 @@ enums:
       auc:
         description: Area under the curve measured by integrating data points
       dss:
-        description: I believe this is the drug sensitivity score
+        description: Drug sensistivity score.
       mrecist:
         description: For PDX data this value should be either Progressive Disease, Stable Disease, Partial Response or Complete Response.
       published_auc:
@@ -233,6 +233,11 @@ enums:
         description: tumor growth inhibitiojn
       kulgap:
         description: kl divergence based metric
+      uM_viability:
+        description:
+          Single-dose viability fraction at 1 μM. Range 0-1, where 1.0 = no
+          effect (full viability) and 0.0 = full tumor death. Used for organoid drug
+          screens where dose-response curves were not collected for that drug.
   CellPerturbation:
     permissible_values:
       gene_ko:

@@ -49,7 +49,8 @@ def process_docker(dataset,validate):
         'colorectal': ['colorectal'], 
         'bladder': ['bladder'],
         'liver': ['liver'],
-        'novartis': ['novartis']
+        'novartis': ['novartis'],
+        'cnf': ['cnf']
     }
 
     # Collect container names to build based on the dataset provided. Always build 'genes'.
@@ -133,7 +134,8 @@ def process_omics(executor, dataset, should_continue):
         'bladder': ['copy_number', 'mutations', 'transcriptomics'],
         'colorectal':['copy_number', 'mutations', 'transcriptomics'],
         'novartis':['copy_number', 'mutations', 'transcriptomics'],
-        'liver':['copy_number', 'mutations', 'transcriptomics','proteomics']
+        'liver':['copy_number', 'mutations', 'transcriptomics','proteomics'],
+        'cnf': ['transcriptomics', 'proteomics'],
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])
