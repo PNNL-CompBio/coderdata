@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# build_samples.sh — wraps 01-samples-cnf.py per coderdata convention.
+# build_samples.sh - wraps 01-samples-cnf.py per coderdata convention.
 #
 # Usage:
 #   build_samples.sh <previous_samples_file>

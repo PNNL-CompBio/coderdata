@@ -1,4 +1,4 @@
-# Dockerfile.cnf — container for building the cNF (cutaneous neurofibroma)
+# Dockerfile.cnf - container for building the cNF (cutaneous neurofibroma)
 # organoid drug-response dataset for inclusion in coderdata.
 #
 # Conventions (matching coderbuild/docker/Dockerfile.<dataset>):

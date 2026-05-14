@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# build_omics.sh — wraps 02-omics-cnf.py per coderdata convention.
+# build_omics.sh - wraps 02-omics-cnf.py per coderdata convention.
 #
 # Usage:
 #   build_omics.sh <genes_file> <samples_file> <phosphosites_file>

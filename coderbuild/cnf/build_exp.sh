@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# build_exp.sh — wraps 04-experiments-cnf.py per coderdata convention.
+# build_exp.sh - wraps 04-experiments-cnf.py per coderdata convention.
 #
 # Usage:
 #   build_exp.sh <samples_file> <drugs_file>

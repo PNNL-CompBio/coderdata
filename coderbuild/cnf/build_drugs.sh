@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# build_drugs.sh — wraps 03-drugs-cnf.py per coderdata convention.
+# build_drugs.sh - wraps 03-drugs-cnf.py per coderdata convention.
 #
 # Usage:
 #   build_drugs.sh <existing_drug_files>
