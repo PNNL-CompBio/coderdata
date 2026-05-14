@@ -43,8 +43,11 @@ COPY coderbuild/cnf/build_samples.sh /coderbuild/cnf/
 COPY coderbuild/cnf/build_omics.sh   /coderbuild/cnf/
 COPY coderbuild/cnf/build_drugs.sh   /coderbuild/cnf/
 COPY coderbuild/cnf/build_exp.sh     /coderbuild/cnf/
+COPY coderbuild/cnf/cnf_utils.py     /coderbuild/cnf/
+COPY coderbuild/utils/build_drug_desc.py /coderbuild/cnf/
+
 RUN chmod +x /coderbuild/cnf/*.sh
 
 # Standard coderdata utilities (fit_curve.py, pubchem_retrieval.py,
-# build_drug_descriptor_table.py) live alongside this directory in the repo.
 COPY coderbuild/utils /coderbuild/utils
+

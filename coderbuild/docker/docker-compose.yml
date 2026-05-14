@@ -96,6 +96,15 @@ services:
     platform: linux/amd64
     image: genes:latest
 
+  phosphosites:
+    build:
+      context: ../../
+      dockerfile: coderbuild/docker/Dockerfile.phosphosites
+      args:
+        HTTPS_PROXY: ${HTTPS_PROXY}
+    platform: linux/amd64
+    image: phosphosites:latest
+
   upload:
     build:
       context: ../../

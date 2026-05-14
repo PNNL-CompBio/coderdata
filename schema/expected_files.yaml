@@ -304,6 +304,8 @@ datasets:
       file: /tmp/cnf_transcriptomics.csv
     - target_class: Proteomics
       file: /tmp/cnf_proteomics.csv
+    - target_class: Phosphoproteomics
+      file: /tmp/cnf_phosphoproteomics.csv
     # - target_class: Mutations
     #   file: /tmp/cnf_mutations.csv
     # - target_class: Copy Number
@@ -314,3 +316,7 @@ datasets:
       file: /tmp/cnf_drugs.tsv
     - target_class: Drug Descriptor
       file: /tmp/cnf_drug_descriptors.tsv
+
+  phosphosites:
+    - target_class: Phosphosite
+      file: /tmp/phosphosites.csv

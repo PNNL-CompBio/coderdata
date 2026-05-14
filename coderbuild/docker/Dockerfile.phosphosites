@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /coderbuild/phosphosites
+
+RUN pip install --no-cache-dir pandas>=2.0 synapseclient>=4.0 openpyxl>=3.1
+
+COPY coderbuild/phosphosites/00-buildPhosphositeFile.py /coderbuild/phosphosites/
+COPY coderbuild/phosphosites/build_phosphosites.sh      /coderbuild/phosphosites/
+
+RUN chmod +x /coderbuild/phosphosites/build_phosphosites.sh

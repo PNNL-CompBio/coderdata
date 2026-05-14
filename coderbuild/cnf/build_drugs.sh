@@ -16,3 +16,5 @@ python 03-drugs-cnf.py \
     --prev_drugs "$PREV_DRUGS" \
     --out_drugs /tmp/cnf_drugs.tsv \
     --out_desc  /tmp/cnf_drug_descriptors.tsv
+
+python build_drug_desc.py --drugtable /tmp/cnf_drugs.tsv --desctable /tmp/cnf_drug_descriptors.tsv.gz

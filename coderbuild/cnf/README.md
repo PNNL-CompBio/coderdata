@@ -1,4 +1,4 @@
-# cNF — Cutaneous Neurofibroma Organoid Drug Screen
+# Cutaneous Neurofibroma (cnf) Organoid Drug Screen
 
 A coderdata dataset of cutaneous neurofibroma (cNF) patient-derived organoids
 with drug-response measurements and matched multi-omic profiling.
@@ -8,19 +8,18 @@ with drug-response measurements and matched multi-omic profiling.
 Cutaneous neurofibromas are benign nerve-sheath tumors that develop in patients
 with neurofibromatosis type 1 (NF1). This dataset contains drug-screen
 viability measurements for 238 small-molecule compounds across 23 cNF tumor
-specimens from 10 patients, paired with bulk RNA-seq and global LC-MS/MS
-proteomics for many of the same specimens.
+specimens from 10 patients, paired with bulk RNA-seq, global LC-MS/MS
+proteomics, and batch-corrected phosphoproteomics for many of the same
+specimens.
 
 | Property | Value |
 |---|---|
 | Cancer type | Cutaneous Neurofibroma |
 | Model type | patient derived organoid |
 | Patients | 10 |
-| Specimens | 23 |
+| Specimens | 23 (untreated organoids; additional tissue and treated organoid samples also present) |
 | Drugs | 238 |
-| Modalities included | Transcriptomics (TPM), Proteomics (log ratio) |
-| Modalities excluded | Phospho-proteomics (no schema slot) |
-| Cohorts | 2 (encoded in `other_id_source`) |
+| Modalities included | Transcriptomics (TPM), Proteomics (log ratio), Phosphoproteomics (log ratio) |
 
 ## Multi-tumor patient structure
 
@@ -32,66 +31,118 @@ can group specimens by patient when needed (e.g. patient-level holdout).
 
 ```
 improve_sample_id  other_id    common_name  other_names  other_id_source
-2401               NF0019_T1   NF0019_T1    NF0019       cNF_Cohort_1
-2402               NF0019_T2   NF0019_T2    NF0019       cNF_Cohort_1
-2403               NF0019_T3   NF0019_T3    NF0019       cNF_Cohort_1
+2401               NF0019_T1   NF0019_T1    NF0019       NF1_cNF_Project
+2402               NF0019_T2   NF0019_T2    NF0019       NF1_cNF_Project
+2403               NF0019_T3   NF0019_T3    NF0019       NF1_cNF_Project
 ```
 
-## Cohort structure
+The sample table also includes matched normal skin (`NFxxxx_skin`), primary
+tumor tissue (`NFxxxx_Tx_tissue`), and drug-treated organoids
+(`NFxxxx_Tx_<treatment_label>`). Each gets its own `improve_sample_id` and
+`model_type`. Organoids (untreated) receive the lowest IDs, sorted by
+specimen ID, to make drug-modelable samples easy to filter.
 
-Specimens were collected and processed in two cohorts. Cohort assignment is
-encoded in the `other_id_source` column of the Sample table:
-
-| Cohort         | Patients                                       |
-|----------------|------------------------------------------------|
-| cNF_Cohort_1   | NF0017, NF0018, NF0019, NF0020, NF0021, NF0022, NF0023 |
-| cNF_Cohort_2   | NF0025, NF0027, NF0035                         |
-
-Note: per-modality cohort membership can differ from patient-level cohort
-(e.g. one specimen had RNA processed in Cohort 1 but proteomics in Cohort 2).
-For coderdata, sample-level cohort follows the drug-screen batch.
 
 ## Drug-response metrics
 
 The cNF screen mixes two designs:
 
-* **Multi-dose drugs**: a subset of drugs were screened at multiple
+- **Multi-dose drugs**: a subset of drugs were screened at multiple
   concentrations. These are run through `coderbuild/utils/fit_curve.py` and
   contribute the standard schema metrics (`fit_auc`, `fit_ic50`, `fit_einf`,
   `fit_hs`, `fit_r2`).
-* **Single-dose drugs**: remaining drugs were screened at a single 1 μM
+
+- **Single-dose drugs**: remaining drugs were screened at a single 1 μM
   concentration. These are recorded with `dose_response_metric = uM_viability`
   and `dose_response_value = Viability_percentage / 100` (range 0–1, where
   1.0 = full viability and 0.0 = full kill).
 
-`uM_viability` is a new value in the `ResponseMetric` enum and requires a
-schema PR alongside this dataset. See `schema_patch.md`.
+`uM_viability` is a value in the `ResponseMetric` enum. See the Schema
+dependency section below.
+
+## SPECIMEN_DUAL_MAPPINGS edge case
+
+One viability file covers the treated organoid `NF0021_T1_Onalespid_1uM` but
+its drug-response measurements should also be attributed to the untreated
+`NF0021_T1`. The `SPECIMEN_DUAL_MAPPINGS` dict in `04-experiments-cnf.py`
+handles this by duplicating the rows for every additional specimen listed:
+
+```python
+SPECIMEN_DUAL_MAPPINGS = {
+    "NF0021_T1_Onalespid_1uM": ["NF0021_T1"],
+}
+```
+
+Add new entries here if additional treated organoids need the same dual
+attribution. Both specimens must already exist in `cnf_samples.csv` or the
+duplicate rows will be dropped during the sample-map join.
+
+## Protocol optimization samples
+
+Six RNA columns in the cohort TPM matrices correspond to protocol optimization
+runs rather than real specimens. They are excluded in `02-omics-cnf.py` before
+the wide-to-long melt. Column stems matching any of these substrings are
+dropped:
+
+```python
+DROP_SAMPLE_SUBSTRINGS = [
+    "cNF_organoid_DIA_G_02_11Feb25",
+    "cNF_organoid_DIA_G_05_11Feb25",
+    "cNF_organoid_DIA_G_06_11Feb25",
+    "cNF_organoid_DIA_P_02_29Jan25",
+    "cNF_organoid_DIA_P_05_11Feb25",
+    "cNF_organoid_DIA_P_06_11Feb25",
+]
+```
+
+These are matched on the column stem (basename without extension), so both
+plain paths and filename columns are handled correctly. If new protocol
+optimization runs appear in future cohort data, add their column stems to
+this list.
+
+## Phosphosites dependency and known unmatched sites
+
+`02-omics-cnf.py` requires `phosphosites.csv` as a positional argument.
+The phosphosites reference must be built before the cNF omics step runs.
+`build_dataset.py` and `build_all.py` enforce this sequencing.
+
+The phosphoproteomics output file (`cnf_phosphoproteomics.csv`) is produced
+by an inner join between the raw Synapse phospho data and `phosphosites.csv`.
+Sites that don't appear in the reference are silently dropped. As of the
+current release, **12 sites** in the raw cNF phospho data (syn70078415) are
+permanently unmatched because their gene symbols (`BAP18`, `C11orf96`,
+`C14orf93`, `C1orf21`, `C2orf49`, etc). The remaining 2,974 of 2,986 unique sites
+(99.6%) are present in the output.
 
 ## Data sources
 
 | Modality | Synapse ID | Notes |
 |---|---|---|
-| Drug-screen file index | `syn51301431` (table) | dataType='drug screen' |
-| Drug-screen files (parent) | `syn69947322` | One file per cohort |
-| RNA-seq (gene-level TPM) | set via `CNF_RNA_TPM_SYN_ID` env var | |
-| Global proteomics | `syn70078416` | log-ratio (correctedAbundance) |
-| Phospho-proteomics | `syn70078415` | **excluded** from coderdata |
+| Drug-screen file index | `syn51301431` (table) | `dataType='drug screen'` |
+| Drug-screen file parents | `syn51301414`, `syn51301420`, `syn51301426` | One folder per cohort |
+| RNA-seq TPM (Cohort 1) | `syn66352931` | `salmon.merged.gene_tpm.tsv` |
+| RNA-seq TPM (Cohort 2) | `syn70765053` | `salmon.merged.gene_tpm.tsv` |
+| Global proteomics | `syn74815895` | Batch-corrected; `correctedAbundance` column |
+| Phospho-proteomics | `syn70078415` | Batch-corrected; `correctedAbundance` column; mapped via `phosphosites.csv` |
+| Sample discovery (RNA) | `syn71333780` | All-conditions RNA file for sample enumeration only |
+| Normal Skin folder | `syn74284682` | One child per patient for skin sample discovery |
 
 ## Build pipeline
 
 The build follows coderdata conventions: four shell scripts wrapping Python
-implementations, packaged in a Docker image.
+implementations, plus shared utilities, packaged in a Docker image.
 
 ```
 coderbuild/cnf/
-├── build_samples.py      # mint improve_sample_ids, write cnf_samples.csv
+├── 01-samples-cnf.py     # mint improve_sample_ids, write cnf_samples.csv
 ├── build_samples.sh
-├── build_omics.py        # write cnf_transcriptomics.csv + cnf_proteomics.csv
-├── build_omics.sh
-├── build_drugs.py        # call pubchem_retrieval + descriptor utility
+├── 02-omics-cnf.py       # write cnf_transcriptomics.csv, cnf_proteomics.csv,
+├── build_omics.sh        #   cnf_phosphoproteomics.csv
+├── 03-drugs-cnf.py       # call pubchem_retrieval + descriptor utility
 ├── build_drugs.sh
-├── build_exp.py          # split single/multi-dose, run fit_curve, write cnf_experiments.tsv
+├── 04-experiments-cnf.py # split single/multi-dose, run fit_curve, write cnf_experiments.tsv
 ├── build_exp.sh
+├── cnf_utils.py          # shared specimen canonicalization utilities
 ├── requirements.txt
 └── README.md             (this file)
 
@@ -99,63 +150,20 @@ coderbuild/docker/
 └── Dockerfile.cnf
 ```
 
-### Required environment variables
-
-| Variable | Purpose |
-|---|---|
-| `SYNAPSE_AUTH_TOKEN` | Synapse auth (required for all scripts) |
-| `CNF_RNA_TPM_SYN_ID` | Synapse ID of gene-level TPM file (required for omics build) |
-| `CNF_GLOBAL_PROT_SYN_ID` | Optional override for global proteomics (default `syn70078416`) |
-
 ### Local build
 
 ```bash
 # From repository root
-docker build -f coderbuild/docker/Dockerfile.cnf -t coderdata-cnf .
-
-docker run --rm \
-    -e SYNAPSE_AUTH_TOKEN=$SYNAPSE_AUTH_TOKEN \
-    -e CNF_RNA_TPM_SYN_ID=syn... \
-    -v $(pwd)/build_outputs:/coderbuild/cnf/out \
-    coderdata-cnf bash build_samples.sh /coderbuild/cnf/out/prev_samples.csv
-
-# repeat for build_omics.sh, build_drugs.sh, build_exp.sh in order
+python coderbuild/build_dataset.py  --build --validate --dataset cnf
 ```
 
-In the full coderdata build, this dataset is invoked by `build_dataset.py` /
-`build_all.py` after at least one prior dataset has populated the running
-`samples.csv` / `drugs.tsv` / `genes.csv` files.
+In the full coderdata build, this dataset is orchestrated by `build_dataset.py`
+/ `build_all.py`, which ensures `genes.csv`, `samples.csv`, `drugs.tsv`, and
+`phosphosites.csv` are all present before starting the cNF containers.
 
-## Schema dependency
-
-This dataset uses `dose_response_metric = uM_viability`, which is **not**
-currently in the `ResponseMetric` enum. Either submit the schema patch with
-this dataset's PR or land the schema patch first:
-
-```yaml
-# schema/coderdata.yaml, ResponseMetric enum
-uM_viability:
-  description: >-
-    Single-dose viability fraction at 1 μM. Range 0–1, where 1.0 = no
-    effect (full viability) and 0.0 = full kill. Used for organoid drug
-    screens where dose-response curves were not collected for that drug.
-```
-
-There is also a pre-existing inconsistency where the `dose_response_metric`
-slot has `range: CurveMetric` while the enum is named `ResponseMetric`. The
-schema patch should resolve this — flagged in `schema_patch.md`.
 
 ## What's intentionally not included
 
-* **Phospho-proteomics** — useful in our internal modeling but no current
-  schema slot. Re-evaluate when coderdata adds a `Phosphoproteomics` class.
-* **Mutations** — not generated for this cohort.
-* **Copy number** — not generated for this cohort.
-* **Drug-class annotations** — handled by the standard
-  `pubchem_retrieval.py` / descriptor pipeline rather than a custom file.
+- **Mutations** - not yet generated for this dataset.
+- **Copy number** - not yet generated for this dataset.
 
-## Citation
-
-To be added when the cNF organoid drug-screening manuscript is published.
-The drug-screen analysis pipeline lives at
-[PNNL-CompBio/cNFDrugScreening](https://github.com/PNNL-CompBio/cNFDrugScreening).
