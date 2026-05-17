@@ -12,6 +12,10 @@ import gzip
 from glob import glob
 import sys
 import requests
+import threading
+import atexit
+import signal
+import tempfile
     
 def main():
     parser=argparse.ArgumentParser(
@@ -56,36 +60,76 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     #     time.sleep(2)
     #     print(f'Completed: {filename}')
     
-    def run_docker_cmd(cmd_arr,filename):
+    # --- Container cleanup on exit/interrupt ---
+    _active_cid_files = []
+    _cid_lock = threading.Lock()
+
+    def _kill_all_containers():
+        with _cid_lock:
+            cids = list(_active_cid_files)
+        for cid_file in cids:
+            try:
+                with open(cid_file) as f:
+                    cid = f.read().strip()
+                if cid:
+                    print(f"Cleaning up container {cid[:12]}...")
+                    subprocess.run(['docker', 'kill', cid],
+                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception:
+                pass
+
+    def _signal_handler(_signum, _frame):
+        print("\nBuild interrupted — killing all running containers...")
+        _kill_all_containers()
+        sys.exit(1)
+
+    atexit.register(_kill_all_containers)
+    signal.signal(signal.SIGINT, _signal_handler)
+    signal.signal(signal.SIGTERM, _signal_handler)
+
+    def run_docker_cmd(cmd_arr, filename):
         '''
         Essentially a wrapper for 'docker run'. Also provides output.
+        Tracks each container via --cidfile so they can be killed on exit/interrupt.
         '''
-        retries=3
+        retries = 3
         delays = [3 * 60, 10 * 60]  # 3 minutes, 10 minutes
-        print('running...'+filename)
+        print('running...' + filename)
         env = os.environ.copy()
         if 'SYNAPSE_AUTH_TOKEN' not in env.keys():
             print('You need to set the SYNAPSE_AUTH_TOKEN to acess the MPNST, beatAML, bladder, pancreatic, liver, sarcoma, cnf datasets')
-            docker_run = ['docker','run','--rm','-v',env['PWD']+'/local/:/tmp/','--platform=linux/amd64']
+            docker_run = ['docker', 'run', '--rm', '-v', env['PWD']+'/local/:/tmp/', '--platform=linux/amd64']
         else:
-            docker_run = ['docker','run','--rm','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'],'--platform=linux/amd64']
-        cmd = docker_run+cmd_arr
-        print(cmd)
-            
+            docker_run = ['docker', 'run', '--rm', '-v', env['PWD']+'/local/:/tmp/', '-e', 'SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'], '--platform=linux/amd64']
+
         attempt = 1
         while attempt <= retries:
-            print(f"[{filename}] Attempt {attempt}/{retries}: {' '.join(cmd)}")
-            res = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
-            if res.returncode == 0:
-                print(f"[{filename}] succeeded on attempt {attempt}.")
-                return
-            else:
-                print(f"[{filename}] failed (exit {res.returncode}).")
-                if attempt < retries:
-                    delay = delays[attempt - 1]
-                    print(f"[{filename}] waiting {delay//60} minutes before retrying...")
-                    print(cmd)
-                    time.sleep(delay)
+            with tempfile.NamedTemporaryFile(suffix='.cid', delete=False) as _tf:
+                cid_file = _tf.name
+            os.remove(cid_file)  # Docker requires the file to not exist before writing
+            cmd = docker_run + ['--cidfile', cid_file] + cmd_arr
+            with _cid_lock:
+                _active_cid_files.append(cid_file)
+            try:
+                print(f"[{filename}] Attempt {attempt}/{retries}: {' '.join(cmd)}")
+                res = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
+                if res.returncode == 0:
+                    print(f"[{filename}] succeeded on attempt {attempt}.")
+                    return
+                else:
+                    print(f"[{filename}] failed (exit {res.returncode}).")
+                    if attempt < retries:
+                        delay = delays[attempt - 1]
+                        print(f"[{filename}] waiting {delay//60} minutes before retrying...")
+                        time.sleep(delay)
+            finally:
+                with _cid_lock:
+                    if cid_file in _active_cid_files:
+                        _active_cid_files.remove(cid_file)
+                try:
+                    os.remove(cid_file)
+                except OSError:
+                    pass
             attempt += 1
         raise RuntimeError(f"{filename} failed after {retries} attempts")
 

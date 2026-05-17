@@ -3,7 +3,12 @@ import requests
 import os
 import argparse
 import numpy as np
+import io
 
+_BROWSER_UA = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
 
 #this is table S1 - it has a mapping from patient number to organoid
 sample_mapping='https://aacr.silverchair-cdn.com/aacr/content_public/journal/cancerdiscovery/8/9/10.1158_2159-8290.cd-18-0349/5/21598290cd180349-sup-199398_2_supp_4775186_p95dln.xlsx?Expires=1738004990&Signature=yngaaKNaXfIPCr-xLS2bDjX49n9py8JC7NBwi3q7m7ARYnK573eZwavFYmJOZVanL555vUWAr5x5k9b7IKj4VWHtZ-dts7BDzHd14AZh15LbsorJh-r3gjPliF7v1PIoAcGnEXjma2~kosmoDmyK0EDWXQCOE48tAaG5hFtaWAMMAINRMeBNgtDYk937Npc3Wb0IcGAdlgD2TJd8KJW2jQmcRspY1hfYssiS3BcWzuJrP-DVJeb-1V7-BnVNL6cVCkr7zHhau50H6aVgMVzk33F0gjCphl4r90OIx9UwE59hyNHbN9rFeeW26kDQpgCQKCj98Ol6CNQfLDsb2Zc5dQ__&Key-Pair-Id=APKAIE5G5CRDK6RD3PGA'
@@ -13,7 +18,9 @@ def get_organoid_samples(sample_tab):
     '''
     takes as input a processed list of samples from HCMI and appends it with the 'organoid' identifier from the papers table S1 described above
     '''
-    map = pd.read_excel(sample_mapping, sheet_name='Patient-Derived Organoid Cohort', skiprows=1)
+    resp = requests.get(sample_mapping, headers={"User-Agent": _BROWSER_UA})
+    resp.raise_for_status()
+    map = pd.read_excel(io.BytesIO(resp.content), sheet_name='Patient-Derived Organoid Cohort', skiprows=1)
     pmap = map[['Patient number','Organoid']]
     pmap = pmap.rename(columns={'Patient number':'common_name','Organoid':'experimentId'})
     
@@ -60,10 +67,11 @@ def align_to_linkml_schema(input_df):
     '2D Modified Conditionally Reprogrammed Cells': 'cell line',
     'Pleural Effusion': np.nan,
     'Human Original Cells': 'cell line',
-    'Not Reported': np.nan, 
+    'Not Reported': np.nan,
     'Mixed Adherent Suspension': 'cell line',
     'Cell': 'cell line',
-    'Saliva': np.nan
+    'Saliva': np.nan,
+    'Next Generation Cancer Model': 'patient derived organoid',
     }
 
     # Apply mapping
@@ -205,7 +213,7 @@ def extract_data(data):
                                     'sample_id': sample['sample_id'],
                                     'sample_type': sample['sample_type'],
                                     #'tumor_descriptor': sample.get('tumor_descriptor', None),
-                                    'composition': sample.get('composition', None),
+                                    'composition': sample.get('composition') or sample.get('sample_type', None),
                                     'id': aliquot['aliquot_id']
                                 })
     return pd.DataFrame(extracted)
@@ -349,12 +357,17 @@ def main():
         maxval = 0
     else:
         print("Previous Samples File Provided. Running pancreatic Sample File Generation")
-        maxval = max(pd.read_csv(args.prev_samps).improve_sample_id)
+        _prev = pd.read_csv(args.prev_samps)
+        _max = _prev['improve_sample_id'].max()
+        maxval = int(_max) if pd.notna(_max) else 0
     
     output = filter_and_subset_data(df,maxval,args.map)
     aligned = align_to_linkml_schema(output)
     print(aligned)
-    aligned = get_organoid_samples(aligned)
+    try:
+        aligned = get_organoid_samples(aligned)
+    except Exception as e:
+        print(f"Warning: get_organoid_samples failed ({e}); skipping organoid ID augmentation.")
     aligned.to_csv("/tmp/pancreatic_samples.csv",index=False)
  
 main()

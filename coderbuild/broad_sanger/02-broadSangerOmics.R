@@ -77,10 +77,25 @@ download_and_extract_zip_httr2 <- function(url, dest_zip, extract_dir, max_tries
 
 
 ##### DEPMAP FILES
+## URLs are fetched fresh from the DepMap portal API (signed GCS links, no auth needed).
+## Old Figshare ndownloader URLs returned HTTP 202 with empty body since DepMap moved to GCS.
+depmap_api_index <- readr::read_csv(
+  'https://depmap.org/portal/api/download/files',
+  show_col_types = FALSE
+)
+get_depmap_url <- function(fname) {
+  depmap_api_index |>
+    dplyr::filter(filename == fname) |>
+    dplyr::arrange(dplyr::desc(release_date)) |>
+    dplyr::slice(1) |>
+    dplyr::pull(url)
+}
 
-depmap_filenames=list(copy_number='https://figshare.com/ndownloader/files/40448840',
-               transcriptomics='https://figshare.com/ndownloader/files/40449128',
-                              mutations='https://figshare.com/ndownloader/files/40449638')
+depmap_filenames = list(
+  copy_number     = get_depmap_url("PortalOmicsCNGeneLog2.csv"),
+  transcriptomics = get_depmap_url("OmicsExpressionTPMLogp1HumanProteinCodingGenes.csv"),
+  mutations       = get_depmap_url("OmicsSomaticMutations.csv")
+)
 ##### SANGER FILES
 sanger_filenames=list(transcriptomics='https://cog.sanger.ac.uk/cmp/download/rnaseq_all_20220624.zip',
                copy_number='https://cog.sanger.ac.uk/cmp/download/WES_pureCN_CNV_genes_latest.csv.gz',
@@ -439,6 +454,9 @@ depmap_files<-function(fi,value){
         tidyr::pivot_longer(cols=c(2:ncol(exp_file)),
                             names_to='gene_entrez',values_to='copy_number',
                             values_transform=list(copy_number=as.numeric))|>
+        ## PortalOmicsCNGeneLog2 stores log2(absolute copies); convert to copy ratio
+        ## (relative to diploid = 2) so existing call thresholds still apply.
+        dplyr::mutate(copy_number = 2^copy_number / 2)|>
         dplyr::distinct()
       rm(exp_file)
 
@@ -497,6 +515,7 @@ depmap_files<-function(fi,value){
         robust_download_httr2(fi, local_mut)
 
         exp_file <- readr::read_csv(local_mut)|>
+          dplyr::filter(IsDefaultEntryForModel == TRUE)|>
           dplyr::select(EntrezGeneID,HgncName,other_id='ModelID',VariantInfo,mutation='DNAChange')|>
           distinct()
 
@@ -539,7 +558,13 @@ depmap_files<-function(fi,value){
         # exp_file <- readr::read_csv(fi)
         local_tx <- file.path(tempdir(), "depmap_transcriptomics.csv.gz")
         robust_download_httr2(fi, local_tx)
-        exp_file <- readr::read_csv(local_tx)
+        ## 26Q1 format has metadata columns (SequencingID, ModelConditionID,
+        ## IsDefaultEntryForMC, IsDefaultEntryForModel) before the gene columns.
+        ## Filter to one canonical run per model, then keep only ModelID + gene cols.
+        exp_file <- readr::read_csv(local_tx, show_col_types = FALSE)|>
+          dplyr::filter(IsDefaultEntryForModel == TRUE)|>
+          dplyr::rename(other_id = ModelID)|>
+          dplyr::select(other_id, dplyr::matches("\\(\\d+\\)"))
 
         print("wide to long")
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),

@@ -10,6 +10,25 @@ import argparse
 import pubchem_retrieval as pr
 import random as rand
 from urllib import request
+import io
+
+_BROWSER_UA = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+
+def _fetch(url: str) -> bytes:
+    """Download url with a browser User-Agent (NCI wiki blocks Python's default)."""
+    req = request.Request(url, headers={"User-Agent": _BROWSER_UA})
+    with request.urlopen(req) as resp:
+        return resp.read()
+
+def _read_csv_url(url: str, **kwargs) -> pl.DataFrame:
+    return pl.read_csv(io.BytesIO(_fetch(url)), **kwargs)
+
+def _retrieve_url(url: str, dest: str) -> None:
+    with open(dest, "wb") as f:
+        f.write(_fetch(url))
 
 ##drug files
 smi_strings='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_smiles.csv?version=1&modificationDate=1710381820000&api=v2&download=true'
@@ -58,14 +77,14 @@ def main():
           'InChIKey':[],'formula':[],'weight':[],'pubchem_id':[]}
 
     print('Downloading NSC identifiers for nci60 data')
-    names = pl.read_csv(chemnames,ignore_errors=True)
+    names = _read_csv_url(chemnames, ignore_errors=True)
     #castab = pd.read_csv(cas)
-    pubchems = pl.read_csv(pc_ids)
-    smiles = pl.read_csv(smi_strings)
+    pubchems = _read_csv_url(pc_ids)
+    smiles = _read_csv_url(smi_strings)
 
     print('Getting experimental data to filter drugs')
     if not os.path.exists('DOSERESP.csv'):
-        resp = request.urlretrieve(conc_data,'doseresp.zip')
+        _retrieve_url(conc_data, 'doseresp.zip')
         os.system('unzip doseresp.zip')
     dose_resp = pl.read_csv("DOSERESP.csv",quote_char='"',infer_schema_length=10000000,ignore_errors=True)
     pubchems = pubchems.filter(pl.col('NSC').is_in(dose_resp['NSC']))

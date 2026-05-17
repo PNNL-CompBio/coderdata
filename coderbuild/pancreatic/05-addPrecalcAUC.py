@@ -36,7 +36,7 @@ def main():
 
     args = parser.parse_args()
     samples = pd.read_csv(args.samples,sep=',')
-    drugs = pd.read_tsv(args.drugs,sep='\t')
+    drugs = pd.read_csv(args.drugs,sep='\t')
 
     newdat = get_precalc_auc().merge(samples).merge(drugs)
     newdat = newdat[['improve_sample_id','improve_drug_id','published_auc']].drop_duplicates()

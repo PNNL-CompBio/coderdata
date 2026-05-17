@@ -111,7 +111,9 @@ if __name__ == "__main__":
     synObject = synapseclient.login(authToken=PAT)
 
     if (args.prevSamples):
-        prev_max_improve_id = max(pd.read_csv(args.prevSamples).improve_sample_id)
+        _prev = pd.read_csv(args.prevSamples)
+        _max = _prev['improve_sample_id'].max()
+        prev_max_improve_id = int(_max) if pd.notna(_max) else 0
     else: 
         prev_max_improve_id = 0
 

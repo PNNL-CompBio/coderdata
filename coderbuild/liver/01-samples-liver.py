@@ -98,7 +98,8 @@ def generate_sample_file(samples_data_path:str = None, prev_samples_path:str = "
     if prev_samples_path == "":
         maxval = 0
     else:
-        maxval = max(prev_samples.improve_sample_id)
+        _max = prev_samples['improve_sample_id'].max()
+        maxval = int(_max) if pd.notna(_max) else 0
     samples_df['improve_sample_id'] = samples_df.index + maxval + 1 # take index plus 1 to create counter, start from max value
     return(samples_df)
 

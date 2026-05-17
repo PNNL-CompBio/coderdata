@@ -120,7 +120,9 @@ def generate_samples_file(prev_samples_path):
     if prev_samples_path == "":
         maxval = 0
     else:
-        maxval = max(pd.read_csv(prev_samples_path).improve_sample_id)
+        _prev = pd.read_csv(prev_samples_path)
+        _max = _prev['improve_sample_id'].max()
+        maxval = int(_max) if pd.notna(_max) else 0
     mapping = {labId: i for i, labId in enumerate(all_samples['other_id'].unique(), start=(int(maxval)+1))}
     all_samples['improve_sample_id'] = all_samples['other_id'].map(mapping)
     all_samples.insert(1, 'improve_sample_id', all_samples.pop('improve_sample_id'))

@@ -6,6 +6,10 @@ import threading
 import time
 import signal
 import sys
+from datetime import datetime
+
+def _ts():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # Global variables
 request_counter = 0
@@ -18,55 +22,54 @@ existing_structures = dict()
 existing_pubchemids = set()
 
 
-def fetch_url(url, retries=3, backoff_factor=1):
+def fetch_url(url, retries=4, backoff_factor=1):
     """
     Fetches a URL with retry mechanism and backoff.
-    
-    Parameters:
-    - url (str): The URL to fetch.
-    - retries (int): Number of retry attempts.
-    - backoff_factor (float): Factor to calculate backoff time.
-    
-    Returns:
-    - dict: JSON response if successful.
-    
-    Raises:
-    - Exception: If all retry attempts fail.
+
+    503 responses use a 30s base backoff (honouring Retry-After if present)
+    because PubChem rate-throttles aggressively and a 1s retry just gets
+    another 503.
     """
     global last_request_time, lock, request_counter
     with lock:
         current_time = time.time()
-        # Reset counter if more than 1 second has passed
         if current_time - last_request_time >= 1:
             request_counter = 0
             last_request_time = current_time
-        
-        # Wait if the limit is reached
-        while request_counter >= 4:
-            time.sleep(0.2)  # Sleep a bit to check again
+        while request_counter >= 3:   # stay at ≤3 req/s; PubChem limit is 5
+            time.sleep(0.1)
             current_time = time.time()
             if current_time - last_request_time >= 1:
                 request_counter = 0
                 last_request_time = current_time
-        
         request_counter += 1
-    
-    for attempt in range(retries + 1):  # Total attempts = retries + 1
+
+    for attempt in range(retries + 1):
+        status_code = None
+        retry_after_header = None
         try:
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-              return response.json()
-            if response.status_code == 404:          # permanent, no existing CID/name
+            response = requests.get(url, timeout=30)
+            status_code = response.status_code
+            if status_code == 200:
+                return response.json()
+            if status_code == 404:
                 raise FileNotFoundError("404")
-            raise Exception(f"Failed to fetch {url}, Status Code: {response.status_code}")
+            retry_after_header = response.headers.get('Retry-After', '')
+            raise Exception(f"Failed to fetch {url}, Status Code: {status_code}")
+        except FileNotFoundError:
+            raise
         except Exception as exc:
-            if attempt < retries:
-                wait = backoff_factor * (2 ** attempt)
-                print(f"Attempt {attempt + 1} for URL {url} failed with error: {exc}. Retrying in {wait} seconds...")
-                time.sleep(wait)
-            else:
-                print(f"All {retries + 1} attempts failed for URL {url}.")
+            if attempt >= retries:
+                print(f"[{_ts()}] All {retries + 1} attempts failed for URL {url}.")
                 raise
+            if status_code == 503:
+                wait = (int(retry_after_header)
+                        if retry_after_header and retry_after_header.isdigit()
+                        else min(15 * (attempt + 1), 60))
+            else:
+                wait = min(15 * (attempt + 1), 60)
+            print(f"[{_ts()}] Attempt {attempt + 1} for URL {url} failed with error: {exc}. Retrying in {wait} seconds...")
+            time.sleep(wait)
 
 
 def retrieve_drug_info(compound, ignore_chems, isname=True):
@@ -99,20 +102,17 @@ def retrieve_drug_info(compound, ignore_chems, isname=True):
     with ThreadPoolExecutor(max_workers=4) as executor:
         future_to_url = {executor.submit(fetch_url, url): key for key, url in urls.items()}
         results = {}
-
         for future in as_completed(future_to_url):
             key = future_to_url[future]
             try:
-                data = future.result()
-                results[key] = data
-                
-            except FileNotFoundError:                # only 404s are added
-                print(f"{compound} not found in PubChem. Adding to ignore list.")
+                results[key] = future.result()
+            except FileNotFoundError:
+                print(f"[{_ts()}] {compound} not found in PubChem. Adding to ignore list.")
                 with open(ignore_chems, "a") as f:
                     f.write(f"{compound}\n")
                 return None
-            except Exception as exc:                 # transient error, don't blacklist
-                print(f"{compound} generated a transient exception: {exc}")
+            except Exception as exc:
+                print(f"[{_ts()}] {compound} generated a transient exception: {exc}")
                 return None
 
     if all(key in results for key in ["properties", "synonyms"]):
@@ -137,7 +137,7 @@ def retrieve_drug_info(compound, ignore_chems, isname=True):
 
         # Check for structure
         if properties['SMILES'] in existing_structures.keys():
-            print(f'Found structure for {compound}')
+            print(f'[{_ts()}] Found structure for {compound}')
             SMI_assignment = existing_structures[properties['SMILES']]
         else:
             if improve_drug_id == 0:
@@ -166,13 +166,13 @@ def fetch_data_for_batch(batch, ignore_chems, isname):
     - batch (list): List of compound names or CIDs.
     - ignore_chems (str): File path to log ignored compounds.
     - isname (bool): True if compounds are names, False if they're CIDs.
-    
+
     Returns:
     - list: Combined list of drug information for the batch.
     """
     all_data = []
-    for compound_name in batch:
-        data = retrieve_drug_info(compound_name, ignore_chems, isname)
+    for compound in batch:
+        data = retrieve_drug_info(compound, ignore_chems, isname)
         if data:
             all_data.extend(data)
     return all_data
@@ -196,7 +196,7 @@ def read_existing_data(output_filename):
         max_id = df['improve_drug_id'].str.extract(r'SMI_(\d+)').astype(float).max()
         improve_drug_id = int(max_id[0]) + 1 if pd.notna(max_id[0]) else 1
         existing_structures = {row['canSMILES']: row['improve_drug_id'] for _, row in df.iterrows()}
-        print(f'Read in {len(existing_synonyms)} drug names and {len(existing_pubchemids)} pubchem IDs')
+        print(f'[{_ts()}] Read in {len(existing_synonyms)} drug names and {len(existing_pubchemids)} pubchem IDs')
     except FileNotFoundError:
         return {}
 
@@ -206,7 +206,7 @@ def timeout_handler(signum, frame):
     Handles timeouts by setting the global `should_continue` flag to False.
     """
     global should_continue
-    print("Time limit reached, exiting gracefully...")
+    print(f"[{_ts()}] Time limit reached, exiting gracefully...")
     should_continue = False
 
 
@@ -223,7 +223,7 @@ def _load_prev_drugs_union(prevDrugFilepath: str) -> pd.DataFrame:
     dfs = []
     for p in paths:
         if not os.path.exists(p):
-            print(f"Warning: previous drug file '{p}' not found; skipping.")
+            print(f"[{_ts()}] Warning: previous drug file '{p}' not found; skipping.")
             continue
         try:
             if p.lower().endswith(".tsv"):
@@ -232,7 +232,7 @@ def _load_prev_drugs_union(prevDrugFilepath: str) -> pd.DataFrame:
                 df = pd.read_csv(p)
             dfs.append(df)
         except Exception as e:
-            print(f"Warning: failed to read previous drug file '{p}': {e}; skipping.")
+            print(f"[{_ts()}] Warning: failed to read previous drug file '{p}': {e}; skipping.")
 
     if not dfs:
         return pd.DataFrame(columns=["improve_drug_id", "chem_name", "pubchem_id", "canSMILES", "InChIKey", "formula", "weight"])
@@ -304,10 +304,10 @@ def update_dataframe_and_write_tsv(unique_names,
     else:
         restrict_set = raw_names  # default filtering
 
-    print(f"Starting with {len(raw_names)} provided {'names' if isname else 'IDs'}; restricting output to {len(restrict_set)} of them.")
+    print(f"[{_ts()}] Starting with {len(raw_names)} provided {'names' if isname else 'IDs'}; restricting output to {len(restrict_set)} of them.")
 
     # --- 1) read existing output to bootstrap state ---
-    print(f"Reading existing data from {output_filename}")
+    print(f"[{_ts()}] Reading existing data from {output_filename}")
     # capture existing output file (if any) to include in base
     existing_output_df = pd.DataFrame()
     if os.path.exists(output_filename):
@@ -327,7 +327,7 @@ def update_dataframe_and_write_tsv(unique_names,
     desired_start = max(existing_output_max, prev_union_max) + 1
     if improve_drug_id < desired_start:
         improve_drug_id = desired_start
-    print(f"SMI numbering will start from {improve_drug_id} (max prior was {desired_start - 1})")
+    print(f"[{_ts()}] SMI numbering will start from {improve_drug_id} (max prior was {desired_start - 1})")
 
     # build seen names/IDs (to avoid re-query)
     seen_names = set(existing_synonyms)
@@ -341,10 +341,10 @@ def update_dataframe_and_write_tsv(unique_names,
     # --- 3) determine new candidates to query ---
     if isname:
         candidates = raw_names - seen_names
-        print(f"{len(raw_names)} raw names provided; {len(seen_names)} already seen; {len(candidates)} new to fetch.")
+        print(f"[{_ts()}] {len(raw_names)} raw names provided; {len(seen_names)} already seen; {len(candidates)} new to fetch.")
     else:
         candidates = raw_names - seen_pubchemids
-        print(f"{len(raw_names)} raw IDs provided; {len(seen_pubchemids)} already seen; {len(candidates)} new to fetch.")
+        print(f"[{_ts()}] {len(raw_names)} raw IDs provided; {len(seen_pubchemids)} already seen; {len(candidates)} new to fetch.")
 
     # apply ignore_chems filtering
     ignore_chem_set = set()
@@ -353,10 +353,13 @@ def update_dataframe_and_write_tsv(unique_names,
             for line in file:
                 ignore_chem_set.add(line.strip())
     candidates = set(candidates) - ignore_chem_set
-    print(f"{len(candidates)} candidates remain after removing ignored.")
+    print(f"[{_ts()}] {len(candidates)} candidates remain after removing ignored.")
 
     # --- 4) make a temp union file with previous union + existing output ---
-    temp_file = output_filename.replace(".tsv", "_temp.tsv")
+    if output_filename.endswith(".tsv"):
+        temp_file = output_filename[:-4] + "_temp.tsv"
+    else:
+        temp_file = output_filename + "_temp"
     base_dfs = []
     if not prev_union_df.empty:
         base_dfs.append(prev_union_df)
@@ -380,31 +383,65 @@ def update_dataframe_and_write_tsv(unique_names,
         # create empty temp file so fetch logic can append headers
         open(temp_file, "a").close()
 
-    # --- 5) fetch new ones in batches and append to temp_file ---
-    candidates_list = list(candidates)
-    for i in range(0, len(candidates_list), batch_size):
-        if not should_continue:
+    # --- 5) fetch new ones in batches and append to temp_file (3 sweeps) ---
+    remaining_candidates = set(candidates)
+
+    for sweep in range(3):
+        if not should_continue or not remaining_candidates:
             break
-        batch = candidates_list[i : i + batch_size]
-        data = fetch_data_for_batch(batch, ignore_chems, isname)
-        if data:
-            file_exists = os.path.isfile(temp_file)
-            mode = "a" if file_exists else "w"
-            with open(temp_file, mode) as f:
-                if os.path.getsize(temp_file) == 0:
-                    f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tInChIKey\tformula\tweight\n")
-                for entry in data:
-                    f.write(
-                        f"{entry['improve_drug_id']}\t{entry['name']}\t{entry.get('CID', '')}\t"
-                        f"{entry['SMILES']}\t{entry['InChIKey']}\t"
-                        f"{entry['MolecularFormula']}\t{entry['MolecularWeight']}\n"
-                    )
-            with open(ignore_chems, "a") as ig_f:
-                for entry in data:
-                    if isname:
-                        ig_f.write(f"{entry['name']}\n")
-                    else:
-                        ig_f.write(f"{entry.get('CID', '')}\n")
+
+        if sweep > 0:
+            print(f"[{_ts()}] Sweep {sweep + 1}/3: waiting 60 seconds before retry pass...")
+            time.sleep(60)
+
+            # refresh ignore set
+            ignore_chem_set = set()
+            if os.path.exists(ignore_chems):
+                with open(ignore_chems, "r") as f:
+                    for line in f:
+                        ignore_chem_set.add(line.strip())
+
+            # remove already-fetched candidates by reading what landed in temp_file
+            if os.path.exists(temp_file) and os.path.getsize(temp_file) > 0:
+                try:
+                    tmp_df = pd.read_csv(temp_file, sep="\t")
+                    if not isname and "pubchem_id" in tmp_df.columns:
+                        fetched = {str(x) for x in tmp_df["pubchem_id"].dropna()}
+                        remaining_candidates -= fetched
+                    elif isname and "chem_name" in tmp_df.columns:
+                        fetched = {str(x).lower() for x in tmp_df["chem_name"].dropna()}
+                        remaining_candidates -= fetched
+                except Exception:
+                    pass
+
+            remaining_candidates -= ignore_chem_set
+
+        print(f"[{_ts()}] Sweep {sweep + 1}/3: {len(remaining_candidates)} candidates to fetch.")
+
+        candidates_list = list(remaining_candidates)
+        for i in range(0, len(candidates_list), batch_size):
+            if not should_continue:
+                break
+            batch = candidates_list[i : i + batch_size]
+            data = fetch_data_for_batch(batch, ignore_chems, isname)
+            if data:
+                file_exists = os.path.isfile(temp_file)
+                mode = "a" if file_exists else "w"
+                with open(temp_file, mode) as f:
+                    if os.path.getsize(temp_file) == 0:
+                        f.write("improve_drug_id\tchem_name\tpubchem_id\tcanSMILES\tInChIKey\tformula\tweight\n")
+                    for entry in data:
+                        f.write(
+                            f"{entry['improve_drug_id']}\t{entry['name']}\t{entry.get('CID', '')}\t"
+                            f"{entry['SMILES']}\t{entry['InChIKey']}\t"
+                            f"{entry['MolecularFormula']}\t{entry['MolecularWeight']}\n"
+                        )
+                with open(ignore_chems, "a") as ig_f:
+                    for entry in data:
+                        if isname:
+                            ig_f.write(f"{entry['name']}\n")
+                        else:
+                            ig_f.write(f"{entry.get('CID', '')}\n")
 
     # --- 6) load combined temp results ---
     combined = pd.read_csv(temp_file, sep="\t")
@@ -437,7 +474,7 @@ def update_dataframe_and_write_tsv(unique_names,
     if keep_ids:
         final_df = combined[combined["improve_drug_id"].isin(keep_ids)].copy()
     else:
-        print("Warning: no relevant drugs were retained/fetched for the restriction set.")
+        print(f"[{_ts()}] Warning: no relevant drugs were retained/fetched for the restriction set.")
         final_df = pd.DataFrame(columns=combined.columns)
 
     # --- 10) write final filtered output ---
@@ -448,7 +485,7 @@ def update_dataframe_and_write_tsv(unique_names,
         try:
             os.remove(temp_file)
         except OSError as e:
-            print(f"Warning: failed to delete temp file {temp_file}: {e}")
+            print(f"[{_ts()}] Warning: failed to delete temp file {temp_file}: {e}")
 
 
     return final_df

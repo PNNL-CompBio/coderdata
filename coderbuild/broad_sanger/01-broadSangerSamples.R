@@ -22,8 +22,15 @@ library(XML)
 ###[1] "Panc-05-04"              "L3-3"                    "Panc-02-03"              "Panc-10-05"              "G-292-clone-A141B1"      "Hs-729"                  "Panc-03-27"              "Panc-04-03"              "Hs-688-A-T"
 ###[10] "Panc-08-13"              "PE-CA-PJ34-clone-C12"    "Hep-3B2-1-7"             "PE-CA-PJ41-clone-D2"     "PE-CA-PJ49"              "Ishikawa-Heraklio-02-ER"
 
-##here are all the models in depmap 23Q2, downloded on 10/11/2023
-depmap_models<-readr::read_csv('https://figshare.com/ndownloader/files/40448834')#|>
+## Fetch the latest DepMap Model.csv via the portal API (signed GCS URL, no auth needed).
+## The old figshare URL (40448834) stopped returning file content; DepMap moved to GCS.
+depmap_files <- readr::read_csv('https://depmap.org/portal/api/download/files', show_col_types=FALSE)
+depmap_model_url <- depmap_files |>
+  dplyr::filter(filename == 'Model.csv') |>
+  dplyr::arrange(dplyr::desc(release_date)) |>
+  dplyr::slice(1) |>
+  dplyr::pull(url)
+depmap_models<-readr::read_csv(depmap_model_url)#|>
 #  dplyr::rename(DepMap_ID='ModelID')
 
 sanger_models<-readr::read_csv("https://cog.sanger.ac.uk/cmp/download/model_list_20230923.csv")
@@ -72,14 +79,14 @@ print(paste('Got',nrow(full.res),'human cellosaurus samples'))
 allmod<-sanger_models|>
   dplyr::rename(ModelID='BROAD_ID')|>
   left_join(depmap_models)|>
-  dplyr::select(Sanger_ID='model_id',Depmap_ID='ModelID',PatientID,CellLineName,StrippedCellLineName,COSMIC_ID,CCLE_ID,RRID,cancer_type)|>
+  dplyr::select(Sanger_ID='model_id',Depmap_ID='ModelID',PatientID,CellLineName,StrippedCellLineName,COSMIC_ID,CCLE_ID,RRID,cancer_type,ModelType)|>
   subset(!is.na(RRID))|> ##only take those we can map to cellosaurus
   distinct()
 
 ##we missed a handful here, so let's add back
 missedmod<-subset(depmap_models,ModelID%in%setdiff(depmap_models$ModelID,allmod$Depmap_ID))|>
   subset(!is.na(RRID))|>
-  dplyr::select(Depmap_ID='ModelID',CCLE_ID='CCLEName',COSMIC_ID='COSMICID',CellLineName,StrippedCellLineName,Sanger_ID='SangerModelID',RRID,cancer_type='OncotreeSubtype')|>
+  dplyr::select(Depmap_ID='ModelID',CCLE_ID='CCLEName',COSMIC_ID='COSMICID',CellLineName,StrippedCellLineName,Sanger_ID='SangerModelID',RRID,cancer_type='OncotreeSubtype',ModelType)|>
   mutate(PatientID=NA)
 
 allmod<-rbind(allmod,missedmod)
@@ -122,7 +129,10 @@ long.df<-full.df%>%
   dplyr::select(-c(StrippedCellLineName))|>
   tidyr::pivot_longer(cols=c(PatientID,DepMap,Sanger,CCLE,COSMIC,Cellosaurus),names_to='other_id_source',
                       values_to='other_id')%>%
-  mutate(model_type='cell line')%>%
+  mutate(model_type=dplyr::case_when(
+    ModelType=='Organoid' ~ 'patient derived organoid',
+    TRUE                  ~ 'cell line'
+  ))%>%
   subset(!is.na(other_id))%>%
   subset(other_id!="")
 
