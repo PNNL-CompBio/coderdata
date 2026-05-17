@@ -288,6 +288,7 @@ enums:
       patient derived organoid:
       ex vivo:
       normal_tissue:
+      3D-MEDS:
   Variant:
     permissible_values:
       3'UTR:
