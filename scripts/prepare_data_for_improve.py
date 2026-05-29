@@ -203,10 +203,10 @@ def process_datasets(args):
                 ],
             )
             # conversion logic from mRECIST -> auc
-            experiment.loc[experiment['mRESCIST'] == 'CR', 'mRESCIST'] = 0.1
-            experiment.loc[experiment['mRESCIST'] == 'PR', 'mRESCIST'] = 0.2
-            experiment.loc[experiment['mRESCIST'] == 'SD', 'mRESCIST'] = 0.5
-            experiment.loc[experiment['mRESCIST'] == 'PD', 'mRESCIST'] = 1.0
+            experiment.loc[experiment['mRESCIST'] == 'CR', 'mRESCIST'] = "0.1"
+            experiment.loc[experiment['mRESCIST'] == 'PR', 'mRESCIST'] = "0.2"
+            experiment.loc[experiment['mRESCIST'] == 'SD', 'mRESCIST'] = "0.5"
+            experiment.loc[experiment['mRESCIST'] == 'PD', 'mRESCIST'] = "1.0"
 
             experiment.rename(columns={'mRESCIST': 'auc'}, inplace=True)
             experiments.append(experiment)
@@ -248,7 +248,9 @@ def process_datasets(args):
     response_data['improve_sample_id'] = "SAMPLE-ID-" + response_data['improve_sample_id'].astype(int).astype(str)
     # exporting the drug response data to 'y_data/response.tsv'
     outfile_path = args.WORKDIR.joinpath("data_out", "y_data", "response.tsv")
-    response_data.to_csv(
+    response_out = deepcopy(response_data)
+    response_out['study'] = response_out['study'].str.lower()
+    response_out.to_csv(
         path_or_buf=outfile_path,
         index=False,
         sep='\t',
