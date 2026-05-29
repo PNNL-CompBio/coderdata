@@ -1,0 +1,53 @@
+# Dockerfile.cnf - container for building the cNF (cutaneous neurofibroma)
+# organoid drug-response dataset for inclusion in coderdata.
+#
+# Conventions (matching coderbuild/docker/Dockerfile.<dataset>):
+#   * Working directory is /coderbuild/cnf
+#   * Standard utilities are mounted/copied to /coderbuild/utils (fit_curve.py,
+#     pubchem_retrieval.py, build_drug_descriptor_table.py)
+#   * Synapse auth via SYNAPSE_AUTH_TOKEN env var (passed at `docker run`)
+#   * Build scripts are invoked from build_dataset.py / build_all.py via the
+#     standard build_*.sh entry points
+#
+# Build:
+#   docker build -f coderbuild/docker/Dockerfile.cnf -t coderdata-cnf .
+#
+# Run (orchestrated by build_dataset.py / build_all.py):
+#   docker run --rm \
+#     -e SYNAPSE_AUTH_TOKEN=$SYNAPSE_AUTH_TOKEN \
+#     -e CNF_RNA_TPM_SYN_ID=$CNF_RNA_TPM_SYN_ID \
+#     -v $(pwd)/local_data:/coderbuild/local_data \
+#     coderdata-cnf bash build_samples.sh /coderbuild/local_data/prev_samples.csv
+
+FROM python:3.11-slim
+
+# System deps (rdkit-pypi pulls in some C libs; basic build tools for scipy)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential wget ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up coderbuild layout
+WORKDIR /coderbuild/cnf
+
+# Install Python deps. rdkit is brought in via the descriptor utility but
+# pinned here so the descriptor step is reproducible.
+COPY coderbuild/cnf/requirements.txt /coderbuild/cnf/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt rdkit-pypi
+
+# Copy the cNF build scripts
+COPY coderbuild/cnf/01-samples-cnf.py /coderbuild/cnf/
+COPY coderbuild/cnf/02-omics-cnf.py   /coderbuild/cnf/
+COPY coderbuild/cnf/03-drugs-cnf.py   /coderbuild/cnf/
+COPY coderbuild/cnf/04-experiments-cnf.py     /coderbuild/cnf/
+COPY coderbuild/cnf/build_samples.sh /coderbuild/cnf/
+COPY coderbuild/cnf/build_omics.sh   /coderbuild/cnf/
+COPY coderbuild/cnf/build_drugs.sh   /coderbuild/cnf/
+COPY coderbuild/cnf/build_exp.sh     /coderbuild/cnf/
+COPY coderbuild/cnf/cnf_utils.py     /coderbuild/cnf/
+COPY coderbuild/utils/build_drug_desc.py /coderbuild/cnf/
+
+RUN chmod +x /coderbuild/cnf/*.sh
+
+# Standard coderdata utilities (fit_curve.py, pubchem_retrieval.py,
+COPY coderbuild/utils /coderbuild/utils
+

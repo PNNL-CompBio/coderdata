@@ -45,11 +45,13 @@ def process_docker(dataset,validate):
         'cptac': ['cptac'],
         'sarcoma': ['sarcoma'],
         'genes': ['genes'],
+        'phosphosites': ['phosphosites'],
         'upload': ['upload'],
-        'colorectal': ['colorectal'], 
+        'colorectal': ['colorectal'],
         'bladder': ['bladder'],
         'liver': ['liver'],
-        'novartis': ['novartis']
+        'novartis': ['novartis'],
+        'cnf': ['cnf']
     }
 
     # Collect container names to build based on the dataset provided. Always build 'genes'.
@@ -57,7 +59,10 @@ def process_docker(dataset,validate):
     # Append upload if validation step is included
     if validate is True:
         datasets_to_build.append('upload')
-        
+    # phosphosites container is required when building cnf
+    if dataset == 'cnf':
+        datasets_to_build.append('phosphosites')
+
     datasets_to_build.extend(dataset_map.get(dataset, []))
 
     compose_command = ['docker', 'compose', '-f', compose_file, 'build'] + datasets_to_build
@@ -79,10 +84,26 @@ def process_docker(dataset,validate):
 
 def process_genes(executor):
     '''
-    Build the genes file if it does not exist.
+    Build the genes file if it does not exist. Returns a Future (or None if already built).
     '''
     if not os.path.exists('local/genes.csv'):
-        executor.submit(run_docker_cmd, ['genes', 'bash', 'build_genes.sh'], 'genes file')
+        return executor.submit(run_docker_cmd, ['genes', 'bash', 'build_genes.sh'], 'genes file')
+    return None
+
+
+def process_phosphosites(executor):
+    '''
+    Build the phosphosites reference file if it does not exist.
+    Only needed when the cnf dataset is being built. Returns a Future (or None).
+    Caller must ensure genes.csv exists before calling this.
+    '''
+    if not os.path.exists('local/phosphosites.csv'):
+        return executor.submit(
+            run_docker_cmd,
+            ['phosphosites', 'bash', 'build_phosphosites.sh', '/tmp/genes.csv'],
+            'phosphosites file',
+        )
+    return None
 
 def process_samples(executor, dataset, use_prev_dataset, should_continue):
     '''
@@ -133,7 +154,8 @@ def process_omics(executor, dataset, should_continue):
         'bladder': ['copy_number', 'mutations', 'transcriptomics'],
         'colorectal':['copy_number', 'mutations', 'transcriptomics'],
         'novartis':['copy_number', 'mutations', 'transcriptomics'],
-        'liver':['copy_number', 'mutations', 'transcriptomics','proteomics']
+        'liver':['copy_number', 'mutations', 'transcriptomics','proteomics'],
+        'cnf': ['transcriptomics', 'proteomics', 'phosphoproteomics'],
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])
@@ -167,7 +189,10 @@ def process_omics(executor, dataset, should_continue):
 
     di = 'broad_sanger_omics' if dataset == 'broad_sanger' else dataset
     filename = f'{dataset} omics'
-    executor.submit(run_docker_cmd, [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{dataset}_samples.csv'], filename)
+    omics_cmd = [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{dataset}_samples.csv']
+    if dataset == 'cnf':
+        omics_cmd.append('/tmp/phosphosites.csv')
+    executor.submit(run_docker_cmd, omics_cmd, filename)
 
 
 def process_experiments(executor, dataset, should_continue):
@@ -245,6 +270,8 @@ def run_schema_checker(dataset):
     '''
     # Prepare the directory with the built files
     prefixes = ['genes', dataset]
+    if dataset == 'cnf':
+        prefixes.append('phosphosites')
     datasets = [dataset]
     broad_sanger_datasets = ["ccle","ctrpv2","fimm","gdscv1","gdscv2","gcsi","prism","nci60"]
     all_files_dir = 'all_files_dir'
@@ -292,16 +319,25 @@ def main():
     if args.build:
         # Use ThreadPoolExecutor for parallel execution
         with ThreadPoolExecutor() as executor:
-            # Always build genes file
-            process_genes(executor)
+            # Genes must finish before phosphosites can start (phosphosites reads genes.csv)
+            genes_future = process_genes(executor)
+            if genes_future is not None:
+                genes_future.result()
 
-            # Build samples and drugs
+            # Now safe to start phosphosites (genes.csv is present)
+            phosphosites_future = None
+            if args.dataset == 'cnf':
+                phosphosites_future = process_phosphosites(executor)
+
+            # Build samples and drugs in parallel while phosphosites runs
             samples_future = executor.submit(process_samples, executor, args.dataset, args.use_prev_dataset, args.should_continue)
             drugs_future = executor.submit(process_drugs, executor, args.dataset, args.use_prev_dataset, args.should_continue)
 
             samples_future.result()
             drugs_future.result()
-            
+            if phosphosites_future is not None:
+                phosphosites_future.result()
+
         print("Samples and Drugs Files Completed.")
 
         with ThreadPoolExecutor() as executor:

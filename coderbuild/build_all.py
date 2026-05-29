@@ -41,7 +41,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     parser.add_argument('--figshare', action='store_true', help="Upload all local data to Figshare. FIGSHARE_TOKEN must be set in local environment.")
     parser.add_argument('--all',dest='all',default=False,action='store_true', help="Run all data build commands. This includes docker, samples, omics, drugs, exp arguments. This does not run the validate or figshare commands")
     parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true',help = "If you have 32 or more CPUs, this option is recommended. It will run many code portions in parallel. If you don't have enough memory, this will cause a run failure.")
-    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,beataml,pancreatic,bladder,sarcoma,liver,novartis,colorectal,mpnst,hcmi',help='Datasets to process. Defaults to all available.')
+    parser.add_argument('--dataset',dest='datasets',default='broad_sanger,beataml,pancreatic,bladder,sarcoma,liver,novartis,colorectal,mpnst,cnf,hcmi',help='Datasets to process. Defaults to all available.')
     parser.add_argument('--version', type=str, required=False, help='Version number for the Figshare upload title (e.g., "0.1.29"). This is required for Figshare upload. This must be a higher version than previously published versions.')
     parser.add_argument('--github-username', type=str, required=False, help='GitHub username for the repository.')
     parser.add_argument('--github-email', type=str, required=False, help='GitHub email for the repository.')
@@ -65,7 +65,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         print('running...'+filename)
         env = os.environ.copy()
         if 'SYNAPSE_AUTH_TOKEN' not in env.keys():
-            print('You need to set the SYNAPSE_AUTH_TOKEN to acess the MPNST, beatAML, bladder, pancreatic, liver, or sarcoma datasets')
+            print('You need to set the SYNAPSE_AUTH_TOKEN to acess the MPNST, beatAML, bladder, pancreatic, liver, sarcoma, cnf datasets')
             docker_run = ['docker','run','--rm','-v',env['PWD']+'/local/:/tmp/','--platform=linux/amd64']
         else:
             docker_run = ['docker','run','--rm','-v',env['PWD']+'/local/:/tmp/','-e','SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'],'--platform=linux/amd64']
@@ -113,13 +113,17 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             'colorectal': ['colorectal'],
             'cptac': ['cptac'],
             'genes': ['genes'],
+            'phosphosites': ['phosphosites'],
             'upload': ['upload'],
             'liver': ['liver'],
-            'novartis': ['novartis']
+            'novartis': ['novartis'],
+            'cnf': ['cnf']
         }
         
         # Collect container names to build based on the datasets provided. Always build genes and upload.
         datasets_to_build = ['genes', 'upload']
+        if 'cnf' in datasets:
+            datasets_to_build.append('phosphosites')
         for dataset in datasets:
             datasets_to_build.extend(dataset_map.get(dataset, []))
         
@@ -188,21 +192,35 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
                 last_sample_future = executor.submit(run_docker_cmd, [di, 'bash', 'build_samples.sh', sf], f'{da} samples')
                 sf = f'/tmp/{da}_samples.csv'
                 
-    def process_omics(executor, datasets,high_mem):
+    def process_phosphosites(executor):
+        '''
+        Build the phosphosites reference file if it does not exist.
+        Caller must ensure genes.csv exists first. Returns a Future (or None).
+        '''
+        if not os.path.exists('local/phosphosites.csv'):
+            return executor.submit(
+                run_docker_cmd,
+                ['phosphosites', 'bash', 'build_phosphosites.sh', '/tmp/genes.csv'],
+                'phosphosites file',
+            )
+        return None
+
+    def process_omics(executor, datasets, high_mem):
         '''
         Build all omics files concurrently
         '''
         last_omics_future = None
         for da in datasets:
             di = 'broad_sanger_omics' if da == 'broad_sanger' else da
-            #Run all at once:
+            omics_cmd = [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv']
+            if da == 'cnf':
+                omics_cmd.append('/tmp/phosphosites.csv')
             if high_mem:
-                executor.submit(run_docker_cmd, [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
-            #Run one at a time.
+                executor.submit(run_docker_cmd, omics_cmd, f'{da} omics')
             else:
                 if last_omics_future:
-                    last_omics_future.result() 
-                last_omics_future = executor.submit(run_docker_cmd, [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{da}_samples.csv'], f'{da} omics')
+                    last_omics_future.result()
+                last_omics_future = executor.submit(run_docker_cmd, omics_cmd, f'{da} omics')
         
     def process_experiments(executor, datasets, high_mem):
         '''
@@ -247,8 +265,9 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         
 
     def process_genes(executor):
-        if not os.path.exists('/tmp/genes.csv'):
-            executor.submit(run_docker_cmd,['genes','bash','build_genes.sh'],'gene file')
+        if not os.path.exists('local/genes.csv'):
+            return executor.submit(run_docker_cmd,['genes','bash','build_genes.sh'],'gene file')
+        return None
         
         
     def run_docker_upload_cmd(cmd_arr, all_files_dir, name, version):
@@ -320,9 +339,9 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     # Error handling for required tokens
     if args.figshare and not figshare_token:
         raise ValueError("FIGSHARE_TOKEN environment variable is not set.")
-    if any(dataset in args.datasets for dataset in ['beataml', 'mpnst', 'bladder', 'pancreatic','sarcoma','liver','novartis','colorectal']) and not synapse_auth_token:
+    if any(dataset in args.datasets for dataset in ['beataml', 'mpnst', 'bladder', 'pancreatic','sarcoma','liver','novartis','colorectal','cnf']) and not synapse_auth_token:
         if args.docker or args.samples or args.omics or args.drugs or args.exp or args.all: # Token only required if building data, not upload or validate.
-            raise ValueError("SYNAPSE_AUTH_TOKEN is required for accessing MPNST, beatAML, bladder, pancreatic, liver, novartis, colorectal or sarcoma datasets.")
+            raise ValueError("SYNAPSE_AUTH_TOKEN is required for accessing MPNST, beatAML, bladder, pancreatic, liver, novartis, colorectal, sarcoma, cnf datasets.")
        
     ######
     ### Begin Pipeline
@@ -342,25 +361,34 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         print("Docker image generation completed")
         
 
-    ### Build Drugs files, Samples files, and Genes file. These two steps are run in Parallel. 
+    ### Build Drugs files, Samples files, and Genes file. These two steps are run in Parallel.
     ### Within each step, sequential running is required.
     with ThreadPoolExecutor() as executor:
         if args.samples or args.all:
             sample_thread = executor.submit(process_samples,executor, datasets)
         if args.drugs or args.all:
             drug_thread = executor.submit(process_drugs,executor, datasets)
+
+        # Genes must finish before phosphosites can start (phosphosites reads genes.csv).
+        # Run genes now and wait; then submit phosphosites (which can overlap with samples/drugs).
         if args.samples or args.omics or args.exp or args.all:
-            gene_thread = executor.submit(process_genes,executor)
-        
-        # Wait for both processes to complete before proceeding to omics and experiments
+            genes_future = process_genes(executor)
+            if genes_future is not None:
+                genes_future.result()
+
+        phosphosite_future = None
+        if (args.omics or args.all) and 'cnf' in datasets:
+            phosphosite_future = process_phosphosites(executor)
+
+        # Wait for all remaining tasks to complete before proceeding to omics and experiments
         if args.drugs or args.all:
             drug_thread.result()
-        if args.samples or args.all:##need to wait for samples for all of these
+        if args.samples or args.all:
             sample_thread.result()
-        if args.samples or args.omics or args.exp or args.all:
-            gene_thread.result()
-            
-    print("All samples, drugs files, and genes file completed or skipped")
+        if phosphosite_future is not None:
+            phosphosite_future.result()
+
+    print("All samples, drugs files, genes, and phosphosites files completed or skipped")
 
 
     ### At this point in the pipeline, all samples and drugs files have been created. There are no blockers to proceed.
@@ -399,7 +427,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     # if args.figshare or args.validate:
         # FigShare File Prefixes:
         
-        prefixes = ['beataml', 'hcmi', 'cptac', 'pancreatic', 'bladder','sarcoma', 'genes', 'drugs', 'liver','novartis','colorectal','mpnst']
+        prefixes = ['beataml', 'hcmi', 'cptac', 'pancreatic', 'bladder', 'sarcoma', 'genes', 'drugs', 'liver', 'novartis', 'colorectal', 'mpnst', 'cnf', 'phosphosites']
         broad_sanger_datasets = ["ccle","ctrpv2","fimm","gdscv1","gdscv2","gcsi","prism","nci60"]
         if "broad_sanger" in datasets:
             prefixes.extend(broad_sanger_datasets)
