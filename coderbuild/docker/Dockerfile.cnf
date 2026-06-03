@@ -4,7 +4,7 @@
 # Conventions (matching coderbuild/docker/Dockerfile.<dataset>):
 #   * Working directory is /coderbuild/cnf
 #   * Standard utilities are mounted/copied to /coderbuild/utils (fit_curve.py,
-#     pubchem_retrieval.py, build_drug_descriptor_table.py)
+#     pubchem_retrieval.py, build_drug_desc.py)
 #   * Synapse auth via SYNAPSE_AUTH_TOKEN env var (passed at `docker run`)
 #   * Build scripts are invoked from build_dataset.py / build_all.py via the
 #     standard build_*.sh entry points

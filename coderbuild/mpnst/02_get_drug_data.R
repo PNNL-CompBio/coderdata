@@ -60,35 +60,54 @@ synLogin(authToken = token)
 manifest <- synTableQuery("select * from syn53503360")$asDataFrame() %>%
   rename(common_name = Sample)
 
-# 2) PDX-sourced drugs via annotations
-pdx_df <- manifest %>%
-  select(common_name, PDX_Drug_Data) %>%
-  distinct() %>%
-  filter(!is.na(PDX_Drug_Data))
+# 2) PDX-sourced drugs via Synapse IDs stored in the manifest drug column.
+#    Column was renamed PDX_Drug_Data → PDXDrugData in 2025; values may now be
+#    file names rather than Synapse IDs, so filter to syn* entries only.
+pdx_col <- if ("PDXDrugData" %in% names(manifest)) "PDXDrugData" else
+           if ("PDX_Drug_Data" %in% names(manifest)) "PDX_Drug_Data" else NULL
+pdx_drugs <- character(0)
+if (!is.null(pdx_col)) {
+  pdx_df <- manifest %>%
+    select(common_name, all_of(pdx_col)) %>%
+    rename(pdx_data = all_of(pdx_col)) %>%
+    distinct() %>%
+    filter(!is.na(pdx_data))
 
-pdx_ids <- unique(unlist(strsplit(pdx_df$PDX_Drug_Data, ",")))
-pdx_ids <- pdx_ids[ pdx_ids != "" & !is.na(pdx_ids) & pdx_ids != "NA" ]
+  pdx_ids <- unique(unlist(lapply(pdx_df$pdx_data, function(x) {
+    strsplit(paste(trimws(unlist(x)), collapse=","), ",")[[1]]
+  })))
+  pdx_ids <- pdx_ids[ pdx_ids != "" & !is.na(pdx_ids) & pdx_ids != "NA" ]
+  pdx_ids <- pdx_ids[ grepl("^syn[0-9]+$", trimws(pdx_ids), ignore.case = TRUE) ]
 
-get_pdx_drugs <- function(synid) {
-  q <- sprintf(
-    "select experimentalCondition from syn21993642 where id='%s'",
-    synid
-  )
-  df <- synTableQuery(q)$asDataFrame()
-  if (nrow(df)==0) return(character(0))
-  conds <- unlist(strsplit(df$experimentalCondition, ";"))
-  tolower(conds[conds!=""])
+  get_pdx_drugs <- function(synid) {
+    q <- sprintf(
+      "select experimentalCondition from syn21993642 where id='%s'",
+      synid
+    )
+    df <- synTableQuery(q)$asDataFrame()
+    if (nrow(df)==0) return(character(0))
+    conds <- unlist(strsplit(as.character(df$experimentalCondition), ";"))
+    tolower(conds[conds!=""])
+  }
+
+  if (length(pdx_ids) > 0) {
+    pdx_drugs <- unique(unlist(lapply(pdx_ids, get_pdx_drugs)))
+    pdx_drugs <- setdiff(pdx_drugs, "control")
+  } else {
+    message("No Synapse IDs found in ", pdx_col, "; skipping PDX Synapse drug extraction.")
+  }
+} else {
+  message("No PDX drug column found in manifest; skipping PDX drug extraction.")
 }
-
-pdx_drugs <- unique(unlist(lapply(pdx_ids, get_pdx_drugs)))
-pdx_drugs <- setdiff(pdx_drugs, "control")
 
 # 3) MicroTissue-sourced drugs via table "children"
 mts_df <- manifest %>%
   select(common_name, MicroTissueDrugFolder) %>%
   filter(!is.na(MicroTissueDrugFolder))
 
-mts_ids <- unique(unlist(strsplit(mts_df$MicroTissueDrugFolder, ",")))
+mts_ids <- unique(unlist(lapply(mts_df$MicroTissueDrugFolder, function(x) {
+  strsplit(paste(trimws(unlist(x)), collapse=","), ",")[[1]]
+})))
 mts_ids <- mts_ids[mts_ids != "" & !is.na(mts_ids) & mts_ids != "NA"]
 
 get_mts_drugs <- function(parentId) {

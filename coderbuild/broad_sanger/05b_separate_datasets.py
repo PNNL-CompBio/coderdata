@@ -37,9 +37,11 @@ def main():
         exp = pl.read_csv(exp_in_filename, separator="\t") # Keeping memory down, so I will not be making copies.
         exp = exp.filter(pl.col("study") == dataset)
 
-        # Extract information to separate out datasets
-        exp_improve_sample_ids = exp["improve_sample_id"].unique().to_list()
-        exp_improve_drug_ids = exp["improve_drug_id"].unique().to_list()
+        # Extract information to separate out datasets.
+        # improve_sample_id is always an integer (cast via Float64 to handle "1.0" TSV notation).
+        # improve_drug_id is always a string ("SMI_XXXXX"); cast to Utf8 for consistent is_in matching.
+        exp_improve_sample_ids = exp["improve_sample_id"].cast(pl.Float64).cast(pl.Int64).unique().to_list()
+        exp_improve_drug_ids = exp["improve_drug_id"].cast(pl.Utf8).unique().to_list()
         
         #Ensure that the improve_sample_id column is in integer form.
         exp = exp.with_columns(pl.col("improve_sample_id").cast(pl.Float64).cast(pl.Int64))
@@ -65,7 +67,7 @@ def main():
             
             samples_filename_out = f"/tmp/{dataset}_{samples}.csv".lower()
             samples_df = pl.read_csv(samples_filename_in)
-            samples_df = samples_df.filter(pl.col("improve_sample_id").is_in(exp_improve_sample_ids))
+            samples_df = samples_df.filter(pl.col("improve_sample_id").cast(pl.Float64).cast(pl.Int64).is_in(exp_improve_sample_ids))
             samples_df.write_csv(samples_filename_out) #csv
             
             #Rewrite as gzipped if needed
@@ -86,7 +88,7 @@ def main():
                 
             omics_filename_out = f"/tmp/{dataset}_{omics}.csv".lower()
             omics_df = pl.read_csv(omics_filename_in)
-            omics_df = omics_df.filter(pl.col("improve_sample_id").is_in(exp_improve_sample_ids))
+            omics_df = omics_df.filter(pl.col("improve_sample_id").cast(pl.Float64).cast(pl.Int64).is_in(exp_improve_sample_ids))
 #            omics_df = omics_df.filter(pl.col("source").is_in(dataset_sources[dataset]))
             omics_df.write_csv(omics_filename_out) #csv
             
@@ -116,7 +118,7 @@ def main():
             else:
                 drugs_df = pl.read_csv(drugs_filename_in,separator="\t")
 
-            drugs_df = drugs_df.filter(pl.col("improve_drug_id").is_in(exp_improve_drug_ids))
+            drugs_df = drugs_df.filter(pl.col("improve_drug_id").cast(pl.Utf8).is_in(exp_improve_drug_ids))
             drugs_df.write_csv(drugs_filename_out,separator="\t") #tsv
             
             if drugs_filename_in.endswith(".gz"):

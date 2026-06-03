@@ -265,6 +265,10 @@ enums:
         description: tumor growth inhibitiojn
       kulgap:
         description: kl divergence based metric
+      abc:
+        description: Area between curves for PDX in-vivo response
+      lmm:
+        description: Linear mixed model coefficient for PDX tumor growth response
       uM_viability:
         description:
           Single-dose viability fraction at 1 μM. Values near 1.0 indicate no
@@ -272,6 +276,8 @@ enums:
           above 1.0 are possible when treated cells proliferate beyond the
           untreated control. Used for organoid drug screens where dose-response
           curves were not collected for that drug.
+      delta_auc:
+        description: Difference in AUC between single-drug and combination treatment; used for MPNST treated-microtissue combination experiments.
   CellPerturbation:
     permissible_values:
       gene_ko:

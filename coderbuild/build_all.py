@@ -16,7 +16,13 @@ import threading
 import atexit
 import signal
 import tempfile
-    
+import yaml
+from datetime import datetime
+
+def _log(*args, **kwargs):
+    ts = datetime.now().strftime('[%Y-%m-%d %H:%M:%S]')
+    print(ts, *args, **kwargs)
+
 def main():
     parser=argparse.ArgumentParser(
         description="This script initializes all docker containers, builds datasets, validates them, and uploads to Figshare.",
@@ -39,6 +45,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     parser.add_argument('--samples',dest='samples',default=False,action='store_true', help="Build all sample files.")
     parser.add_argument('--omics',dest='omics',default=False,action='store_true', help="Build all omics files.")
     parser.add_argument('--drugs',dest='drugs',default=False,action='store_true', help="Build all drug files")
+    parser.add_argument('--prev_drugs', type=str, default='', help='Comma-separated list of previously built drug files (e.g. local_old/broad_sanger_drugs.tsv,local_old/beataml_drugs.tsv). Each matching dataset is still rebuilt, but its previous file seeds pubchem_retrieval so only genuinely new drugs are queried. Existing drugs are preserved; removed drugs fall off naturally.')
     parser.add_argument('--misc', action='store_true', help="Run the final misc post-build step (e.g., split broad_sanger datasets).")
     parser.add_argument('--exp',dest='exp',default=False,action='store_true', help="Build all experiment file.")
     parser.add_argument('--validate', action='store_true', help="Run schema checker on all local files. Note this will be run, whether specified or not, if figshare arguments are included.")
@@ -72,14 +79,14 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
                 with open(cid_file) as f:
                     cid = f.read().strip()
                 if cid:
-                    print(f"Cleaning up container {cid[:12]}...")
+                    _log(f"Cleaning up container {cid[:12]}...")
                     subprocess.run(['docker', 'kill', cid],
                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             except Exception:
                 pass
 
     def _signal_handler(_signum, _frame):
-        print("\nBuild interrupted — killing all running containers...")
+        _log("\nBuild interrupted — killing all running containers...")
         _kill_all_containers()
         sys.exit(1)
 
@@ -94,10 +101,10 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         '''
         retries = 3
         delays = [3 * 60, 10 * 60]  # 3 minutes, 10 minutes
-        print('running...' + filename)
+        _log('running...' + filename)
         env = os.environ.copy()
         if 'SYNAPSE_AUTH_TOKEN' not in env.keys():
-            print('You need to set the SYNAPSE_AUTH_TOKEN to acess the MPNST, beatAML, bladder, pancreatic, liver, sarcoma, cnf datasets')
+            _log('You need to set the SYNAPSE_AUTH_TOKEN to acess the MPNST, beatAML, bladder, pancreatic, liver, sarcoma, cnf datasets')
             docker_run = ['docker', 'run', '--rm', '-v', env['PWD']+'/local/:/tmp/', '--platform=linux/amd64']
         else:
             docker_run = ['docker', 'run', '--rm', '-v', env['PWD']+'/local/:/tmp/', '-e', 'SYNAPSE_AUTH_TOKEN='+env['SYNAPSE_AUTH_TOKEN'], '--platform=linux/amd64']
@@ -111,16 +118,16 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             with _cid_lock:
                 _active_cid_files.append(cid_file)
             try:
-                print(f"[{filename}] Attempt {attempt}/{retries}: {' '.join(cmd)}")
+                _log(f"[{filename}] Attempt {attempt}/{retries}: {' '.join(cmd)}")
                 res = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
                 if res.returncode == 0:
-                    print(f"[{filename}] succeeded on attempt {attempt}.")
+                    _log(f"[{filename}] succeeded on attempt {attempt}.")
                     return
                 else:
-                    print(f"[{filename}] failed (exit {res.returncode}).")
+                    _log(f"[{filename}] failed (exit {res.returncode}).")
                     if attempt < retries:
                         delay = delays[attempt - 1]
-                        print(f"[{filename}] waiting {delay//60} minutes before retrying...")
+                        _log(f"[{filename}] waiting {delay//60} minutes before retrying...")
                         time.sleep(delay)
             finally:
                 with _cid_lock:
@@ -177,40 +184,55 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         log_file_path = 'local/docker.log'
         env = os.environ.copy()
         
-        print(f"Docker-compose is building images for {', '.join(datasets_to_build)}. View output in {log_file_path}.")
+        _log(f"Docker-compose is building images for {', '.join(datasets_to_build)}. View output in {log_file_path}.")
         
         with open(log_file_path, 'w') as log_file:
             try:
                 # Execute the docker-compose command
                 res = subprocess.run(compose_command, env=env, stdout=log_file, stderr=log_file, text=True, check=True)
                 log_file.write("Docker images built successfully.\n")
-                print(f"Docker images for {', '.join(datasets_to_build)} built successfully. Details logged in {log_file_path}.")
+                _log(f"Docker images for {', '.join(datasets_to_build)} built successfully. Details logged in {log_file_path}.")
             except subprocess.CalledProcessError as e:
                 log_file.write(f"Docker compose build failed with error: {e}\n")
-                print(f"Docker compose build failed. See {log_file_path} for details.")
+                _log(f"Docker compose build failed. See {log_file_path} for details.")
                 raise
 
-    def process_drugs(executor, datasets):
+    def process_drugs(executor, datasets, prev_drugs=None):
         '''
-        Build all drug files sequentially
+        Build all drug files sequentially.
+
+        prev_drugs: list of local paths (e.g. ['local_old/broad_sanger_drugs.tsv', ...])
+            Files are copied into local/ and listed in local/prev_drug_files.txt.
+            pubchem_retrieval.py auto-loads this file on import and uses it as a
+            local cache: known drugs skip HTTP requests entirely, but ID assignment
+            proceeds exactly as in a fresh run (dflist chain is unchanged).
         '''
         last_drug_future = None
-        dflist = []  
-            
-        # WE NEED A METHOD TO CONFIRM THAT DRUG FILES ARE NOT INCOMPLETE
-        ##THIS IS BUILT IN- always rerun drug code to check
-        # Check for existing files and update dflist with processed files
-        for da in datasets:
-            if da not in ['cptac', 'hcmi']: 
-                file_path = f'local/{da}_drugs.tsv'
-                desc_path = f'local/{da}_drug_descriptor.tsv.gz'
-                #if os.path.exists(file_path): ##always rerun drug process
-                #    dflist.append(f'/tmp/{da}_drugs.tsv')  # Add to dflist if already processed
+        dflist = []
+
+        if prev_drugs:
+            docker_paths = []
+            for p in prev_drugs:
+                base = os.path.basename(p)
+                if base.endswith('.tsv.gz'):
+                    stem = base[:-len('.tsv.gz')]
+                    prev_name = f'{stem}_prev.tsv.gz'
+                elif base.endswith('.tsv'):
+                    stem = base[:-len('.tsv')]
+                    prev_name = f'{stem}_prev.tsv'
+                else:
+                    stem = os.path.splitext(base)[0]
+                    prev_name = f'{stem}_prev.tsv'
+                shutil.copy(p, f'local/{prev_name}')
+                docker_paths.append(f'/tmp/{prev_name}')
+                _log(f'Copied prev drug cache: {p} → local/{prev_name}')
+            with open('local/prev_drug_files.txt', 'w') as f:
+                f.write('\n'.join(docker_paths) + '\n')
+            _log(f'Wrote local/prev_drug_files.txt with {len(docker_paths)} cache file(s).')
 
         for da in datasets:
             if da not in ['cptac', 'hcmi']:
                 di = 'broad_sanger_exp' if da == 'broad_sanger' else da
-                #if not os.path.exists(f'local/{da}_drugs.tsv'):
                 if last_drug_future:
                     last_drug_future.result()  # Ensure the last drug process is completed before starting the next
                 last_drug_future = executor.submit(run_docker_cmd, [di, 'bash', 'build_drugs.sh', ','.join(dflist)], f'{da} drugs')
@@ -333,14 +355,14 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
 
         # Full command to run including version update
         docker_run.extend(cmd_arr)
-        print('Executing:', ' '.join(docker_run))
+        _log('Executing:', ' '.join(docker_run))
         # res = subprocess.run(docker_run, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         res = subprocess.run(docker_run, stdout=sys.stdout, stderr=sys.stderr)
         if res.returncode != 0:
-            print(res.stderr)
+            _log(res.stderr)
             exit(f'{name} failed')
         else:
-            print(f'{name} successful')
+            _log(f'{name} successful')
             
 
     def decompress_file(file_path):
@@ -402,7 +424,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     # Ouput is logged at local/docker.log
     if args.docker or args.all:
         process_docker(datasets)
-        print("Docker image generation completed")
+        _log("Docker image generation completed")
         
 
     ### Build Drugs files, Samples files, and Genes file. These two steps are run in Parallel.
@@ -411,7 +433,8 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         if args.samples or args.all:
             sample_thread = executor.submit(process_samples,executor, datasets)
         if args.drugs or args.all:
-            drug_thread = executor.submit(process_drugs,executor, datasets)
+            prev_drugs = [p.strip() for p in args.prev_drugs.split(',') if p.strip()]
+            drug_thread = executor.submit(process_drugs, executor, datasets, prev_drugs or None)
 
         # Genes must finish before phosphosites can start (phosphosites reads genes.csv).
         # Run genes now and wait; then submit phosphosites (which can overlap with samples/drugs).
@@ -432,7 +455,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         if phosphosite_future is not None:
             phosphosite_future.result()
 
-    print("All samples, drugs files, genes, and phosphosites files completed or skipped")
+    _log("All samples, drugs files, genes, and phosphosites files completed or skipped")
 
 
     ### At this point in the pipeline, all samples and drugs files have been created. There are no blockers to proceed.
@@ -447,10 +470,10 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             
         if args.omics or args.all:
             omics_thread.result()
-            print("All omics files completed")
+            _log("All omics files completed")
         if args.exp or args.all:
             exp_thread.result()
-            print("All experiments files completed")
+            _log("All experiments files completed")
 
 
     ### Final Step, some datasets may need an additional post build step. Add this here
@@ -461,7 +484,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             misc_thread = executor.submit(process_misc, executor, datasets, args.high_mem)
         if args.misc or args.all:
             misc_thread.result()
-            print("Final build step complete.")
+            _log("Final build step complete.")
 
 
     ######
@@ -471,10 +494,8 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     # if args.figshare or args.validate:
         # FigShare File Prefixes:
         
-        prefixes = ['beataml', 'hcmi', 'cptac', 'pancreatic', 'bladder', 'sarcoma', 'genes', 'drugs', 'liver', 'novartis', 'colorectal', 'mpnst', 'cnf', 'phosphosites']
         broad_sanger_datasets = ["ccle","ctrpv2","fimm","gdscv1","gdscv2","gcsi","prism","nci60"]
         if "broad_sanger" in datasets:
-            prefixes.extend(broad_sanger_datasets)
             datasets.extend(broad_sanger_datasets)
             datasets.remove("broad_sanger")
 
@@ -492,9 +513,21 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         if args.figshare and not args.version:
             raise ValueError("Version must be specified when pushing to figshare")
 
-        # Move relevant files to a designated directory
+        # Build exact allowlist from schema/expected_files.yaml so only
+        # schema-declared output files (not _prev caches, docker.log, etc.)
+        # end up in all_files_dir.
+        with open('schema/expected_files.yaml') as _f:
+            _schema = yaml.safe_load(_f)
+        expected_basenames = set()
+        for _entries in _schema.get('datasets', {}).values():
+            for _entry in _entries:
+                _bn = os.path.basename(_entry['file'])
+                expected_basenames.add(_bn)
+                expected_basenames.add(_bn + '.gz')
+
+        # Move only expected files to a designated directory
         for file in glob(os.path.join("local", '*.*')):
-            if any(file.startswith(os.path.join("local", prefix)) for prefix in prefixes):
+            if os.path.basename(file) in expected_basenames:
                 shutil.move(file, os.path.join(all_files_dir, os.path.basename(file)))
 
         # Decompress all compressed files in the directory for schema checking
@@ -502,20 +535,21 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             decompress_file(file)
 
         ### These should be done before schema checking.
-        sample_mapping_command = ['python3', 'scripts/map_improve_sample_ids.py', '--local_dir', "/tmp", '--version', args.version]
+        version_args = ['--version', args.version] if args.version is not None else []
+        sample_mapping_command = ['python3', 'scripts/map_improve_sample_ids.py', '--local_dir', "/tmp"] + version_args
         run_docker_upload_cmd(sample_mapping_command, 'all_files_dir', 'Map_Samples', args.version)
-        
-        drug_mapping_command = ['python3', 'scripts/map_improve_drug_ids.py', '--local_dir', "/tmp", '--version', args.version]
+
+        drug_mapping_command = ['python3', 'scripts/map_improve_drug_ids.py', '--local_dir', "/tmp"] + version_args
         run_docker_upload_cmd(drug_mapping_command, 'all_files_dir', 'Map_Drugs', args.version)
-        
-        drug_mapping_command_2 = ['python3', 'scripts/align_drug_descriptors.py', '--local_dir', "/tmp", '--version', args.version]
+
+        drug_mapping_command_2 = ['python3', 'scripts/align_drug_descriptors.py', '--local_dir', "/tmp"] + version_args
         run_docker_upload_cmd(drug_mapping_command_2, 'all_files_dir', 'Align_Drug_Descriptors', args.version)
 
         # Run schema checker - This will always run if uploading data.
         schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
         
-        print("Validation complete. Proceeding with file compression/decompression adjustments")
+        _log("Validation complete. Proceeding with file compression/decompression adjustments")
         
         # Compress or decompress files based on specific conditions after checking
         for file in glob(os.path.join(all_files_dir, '*')):
@@ -525,7 +559,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             elif not ('samples' in file or 'figshare' in file) and not is_compressed:
                 compress_file(file)
 
-        print("File compression and decompression adjustments are complete.")
+        _log("File compression and decompression adjustments are complete.")
     
         ### Upload to Figshare using Docker
         if args.figshare and args.version and figshare_token:

@@ -60,11 +60,12 @@ cas = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?versi
 #jan 2025
 cas = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=4&modificationDate=1735931080720&api=v2'
 
-conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=11&modificationDate=1712351454136&api=v2'
-##OCT 2024
-conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=13&modificationDate=1727922354561&api=v2'
+##oct 2024
+#conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=13&modificationDate=1727922354561&api=v2'
 #jan 2025
-conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=14&modificationDate=1735932462303&api=v2'
+#conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=14&modificationDate=1735932462303&api=v2'
+#may 2025
+conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=19&modificationDate=1775183341937&api=v2'
 
 def main():    
     parser = argparse.ArgumentParser()
@@ -100,13 +101,10 @@ def main():
     ##first filter to see if there are structures/drugs in teh data already. i dont think this does much.
     if os.path.exists(opts.output):
         curdrugs = pl.read_csv(opts.output,separator='\t')
-       # cs = set(curdrugs['isoSMILES'])
-        smiles = smiles.filter(pl.col('SMILES').is_not_null())
-        upper=[a.upper() for a in smiles['SMILES']]
-        smiles= pl.DataFrame({'NSC':smiles['NSC'],'upper':upper})#smiles.with_columns(upper=upper)
-        ##reduce to smiels only in current drugs
-        # ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['isoSMILES']))
-        ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['canSMILES']))
+        smiles_notnull = smiles.filter(pl.col('SMILES').is_not_null())
+        upper=[a.upper() for a in smiles_notnull['SMILES']]
+        smiles_upper = pl.DataFrame({'NSC':smiles_notnull['NSC'],'upper':upper})
+        ssmiles = smiles_upper.filter(~pl.col('upper').is_in(curdrugs['canSMILES']))
         pubchems = pubchems.filter(pl.col('NSC').is_in(ssmiles['NSC']))
         arr = set(pubchems['CID'])
         

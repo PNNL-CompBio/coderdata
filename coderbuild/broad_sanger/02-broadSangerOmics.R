@@ -6,6 +6,7 @@ library(tidyr)
 library(dplyr)
 library(rio)
 library(httr2)
+library(data.table)
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 
@@ -103,29 +104,29 @@ sanger_filenames=list(transcriptomics='https://cog.sanger.ac.uk/cmp/download/rna
 
 
 ###### VARIANT SCHEMA HARMONIZATION
-variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3prime_UTR_ess_splice'),
-                     `5'Flank`=c("FIVE_PRIME_FLANK","5'Flank",'upstream'),
-                     `5'UTR`=c("5'UTR",'5prime_UTR_variant','5prime_UTR_variant','5prime_UTR_ess_splice'),
-                     Undetermined=c('COULD_NOT_DETERMINE'),
+variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3prime_UTR_ess_splice','3_prime_UTR_variant'),
+                     `5'Flank`=c("FIVE_PRIME_FLANK","5'Flank",'upstream','upstream_gene_variant'),
+                     `5'UTR`=c("5'UTR",'5prime_UTR_variant','5prime_UTR_variant','5prime_UTR_ess_splice','5_prime_UTR_variant'),
+                     Undetermined=c('COULD_NOT_DETERMINE','protein_altering_variant'),
                      De_novo_Start_InFrame=c('DE_NOVO_START_IN_FRAME','De_novo_Start_InFrame'),
                      De_novo_Start_OutOfFrame=c('DE_NOVO_START_OUT_FRAME','De_novo_Start_OutOfFrame'),
-                     Frame_Shift_Del=c('FRAME_SHIFT_DEL','Frame_Shift_Del','frameshift'),
+                     Frame_Shift_Del=c('FRAME_SHIFT_DEL','Frame_Shift_Del','frameshift','frameshift_variant'),
                      Frame_Shift_Ins=c('FRAME_SHIFT_INS','Frame_Shift_Ins'),
-                     IGR=c('IGR','nc_variant'),
-                     In_Frame_Del=c('IN_FRAME_DEL','In_Frame_Del','inframe'),
-                     In_Frame_Ins=c('IN_FRAME_INS','In_Frame_Ins'),
-                     Intron=c('INTRON','Intron','intronic','intron'),
-                     Missense_Mutation=c('Missense_Mutation','MISSENSE','missense'),
-                     Nonsense_Mutation=c('Nonsense_Mutation','NONSENSE','nonsense'),
-                     Nonstop_Mutation=c('Nonstop_Mutation','NONSTOP'),
-                     RNA=c('RNA'),
+                     IGR=c('IGR','nc_variant','intergenic_variant','downstream_gene_variant'),
+                     In_Frame_Del=c('IN_FRAME_DEL','In_Frame_Del','inframe','inframe_deletion'),
+                     In_Frame_Ins=c('IN_FRAME_INS','In_Frame_Ins','inframe_insertion'),
+                     Intron=c('INTRON','Intron','intronic','intron','intron_variant'),
+                     Missense_Mutation=c('Missense_Mutation','MISSENSE','missense','missense_variant'),
+                     Nonsense_Mutation=c('Nonsense_Mutation','NONSENSE','nonsense','stop_gained'),
+                     Nonstop_Mutation=c('Nonstop_Mutation','NONSTOP','stop_lost'),
+                     RNA=c('RNA','non_coding_transcript_exon_variant','non_coding_transcript_variant'),
                      Start_Codon_SNP=c('START_CODON_SNP','Start_Codon_SNP'),
                      Start_Codon_Del=c('Start_Codon_Del','START_CODON_DEL','start_lost'),
                      Start_Codon_Ins=c('Start_Codon_Ins','START_CODON_INS'),
                      Stop_Codon_Del=c('Stop_Codon_Del','stop_lost'),
                      Stop_Codon_Ins=c('Stop_Codon_Ins'),
-                     Silent=c('Silent','SILENT','silent'),
-                     Splice_Site=c('Splice_Site','SPLICE_SITE','splice_region'),
+                     Silent=c('Silent','SILENT','silent','synonymous_variant'),
+                     Splice_Site=c('Splice_Site','SPLICE_SITE','splice_region','splice_donor_variant','splice_acceptor_variant','splice_region_variant','splice_polypyrimidine_tract_variant','splice_donor_region_variant','splice_donor_5th_base_variant'),
                      Translation_Start_Site=c('Translation_Start_Site','start_lost'))
 
 depmap_vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
@@ -164,7 +165,9 @@ sanger_files<-function(fi,value){
       #read in file
       local_cn <- file.path(tempdir(), "sanger_copy_number.csv.gz")
       robust_download_httr2(fi, local_cn)
-      exp_file <- readr::read_csv(local_cn)
+      exp_file <- data.table::fread(local_cn,
+        select = c("model_id","symbol","gatk_mean_log2_copy_ratio","source","data_type","cn_category"),
+        data.table = FALSE)
       # exp_file <- readr::read_csv(fi) ##already in long form <3 <3 <3
       # file.remove(fi)
       smap<-sanger_samples|>
@@ -188,7 +191,8 @@ sanger_files<-function(fi,value){
         dplyr::select(other_id,copy_number,entrez_id,Sanger='cn_category')|>
         left_join(smap)|>
           distinct()
-       rm(exp_file)
+       rm(exp_file); gc()
+       if (file.exists(local_cn)) file.remove(local_cn)
 
         print('copy call')
 
@@ -213,7 +217,7 @@ sanger_files<-function(fi,value){
         tidyr::pivot_longer(cols=c(IMPROVE,Sanger),
                             names_to='source',
                             values_to='copy_call')
-      rm(res)
+      rm(res); gc()
 #      full<-lres
 
     }else if(value=='methylation'){ ###IF DATA REPRESENT RRBS###
@@ -443,28 +447,38 @@ depmap_files<-function(fi,value){
     ##now every data type is parsed slightly differently, so we need to change our formatting
     ##and mapping to get it into a unified 3 column schema
     if(value=='copy_number'){
-      # exp_file <- readr::read_csv(fi)
       local_path <- "/tmp/depmap_copy_number.csv.gz"
       robust_download_httr2(fi, local_path)
-      exp_file <- readr::read_csv(local_path)
+      ## Use data.table::melt for memory-efficient wide->long conversion
+      exp_dt <- data.table::fread(local_path, data.table = TRUE)
+      id_col <- colnames(exp_dt)[1]
+      data.table::setnames(exp_dt, id_col, "other_id")
+      gene_cols <- setdiff(colnames(exp_dt), "other_id")
 
+      print('Long to wide (data.table melt)')
+      res <- data.table::melt(exp_dt, id.vars = "other_id",
+                              measure.vars = gene_cols,
+                              variable.name = "gene_entrez",
+                              value.name = "copy_number",
+                              variable.factor = FALSE)
+      rm(exp_dt, gene_cols); gc()
+      if (file.exists(local_path)) file.remove(local_path)
 
-      print('Long to wide')
-      res = exp_file|>
-        tidyr::pivot_longer(cols=c(2:ncol(exp_file)),
-                            names_to='gene_entrez',values_to='copy_number',
-                            values_transform=list(copy_number=as.numeric))|>
-        ## PortalOmicsCNGeneLog2 stores log2(absolute copies); convert to copy ratio
-        ## (relative to diploid = 2) so existing call thresholds still apply.
-        dplyr::mutate(copy_number = 2^copy_number / 2)|>
+      res <- as.data.frame(res) |>
+        dplyr::mutate(
+          copy_number = suppressWarnings(as.numeric(copy_number)),
+          ## PortalOmicsCNGeneLog2 stores log2(absolute copies); convert to ratio
+          copy_number = 2^copy_number / 2
+        ) |>
         dplyr::distinct()
-      rm(exp_file)
-
-      colnames(res)[1]<-'other_id'
 
       print('String manipulations')
-      res<-res|>
-          tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene_symbol','entrez_id'))
+      res <- res |>
+        dplyr::mutate(
+          gene_symbol = trimws(stringr::str_extract(gene_entrez, "^[^(]+")),
+          entrez_id   = stringr::str_extract(gene_entrez, "(?<=\\()\\d+(?=\\))")
+        ) |>
+        dplyr::select(-gene_entrez)
 
       print('join with gene')
       res<-res|>
@@ -515,9 +529,10 @@ depmap_files<-function(fi,value){
         robust_download_httr2(fi, local_mut)
 
         exp_file <- readr::read_csv(local_mut)|>
-          dplyr::filter(IsDefaultEntryForModel == TRUE)|>
+          dplyr::filter(IsDefaultEntryForModel %in% c(TRUE, "Yes"))|>
           dplyr::select(EntrezGeneID,HgncName,other_id='ModelID',VariantInfo,mutation='DNAChange')|>
-          distinct()
+          distinct()|>
+          dplyr::mutate(VariantInfo = sub("&.*", "", VariantInfo))
 
         res<-exp_file|>
           mutate(entrez_id=as.numeric(EntrezGeneID))|>
@@ -562,7 +577,7 @@ depmap_files<-function(fi,value){
         ## IsDefaultEntryForMC, IsDefaultEntryForModel) before the gene columns.
         ## Filter to one canonical run per model, then keep only ModelID + gene cols.
         exp_file <- readr::read_csv(local_tx, show_col_types = FALSE)|>
-          dplyr::filter(IsDefaultEntryForModel == TRUE)|>
+          dplyr::filter(IsDefaultEntryForModel %in% c(TRUE, "Yes"))|>
           dplyr::rename(other_id = ModelID)|>
           dplyr::select(other_id, dplyr::matches("\\(\\d+\\)"))
 
@@ -574,8 +589,12 @@ depmap_files<-function(fi,value){
         colnames(res)[1]<-'other_id'
 
         print('fixing gene names')
-        res<-res|>
-          tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene_symbol','entrez_par'))
+        res <- res |>
+          dplyr::mutate(
+            gene_symbol = trimws(stringr::str_extract(gene_entrez, "^[^(]+")),
+            entrez_par  = stringr::str_extract(gene_entrez, "(?<=\\()\\d+(?=\\))")
+          ) |>
+          dplyr::select(-gene_entrez)
 
       print('join with gene')
       res<-res|>
@@ -695,12 +714,10 @@ main<-function(){
         print(dt)
         temps<-sanger_files(sanger_filenames[[dt]],dt)|>tidyr::drop_na()|>dplyr::distinct()
         readr::write_csv(temps,file=paste0('/tmp/sanger_',dt,'.csv.gz'))
+        rm(temps); gc()
         tempd<-depmap_files(depmap_filenames[[dt]],dt)|>tidyr::drop_na()|>dplyr::distinct()
         readr::write_csv(tempd,file=paste0('/tmp/broad_',dt,'.csv.gz'))
-
-#        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv.gz'))
-        rm(tempd)
-        rm(temps)
+        rm(tempd); gc()
     })
 
 }

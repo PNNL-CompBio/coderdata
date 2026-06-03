@@ -26,14 +26,6 @@ sym    <- as.data.frame(org.Hs.egSYMBOL)
 ens    <- as.data.frame(org.Hs.egENSEMBL2EG)
 enst   <- as.data.frame(org.Hs.egENSEMBLTRANS)
 
-new.df <- tab |>
-  dplyr::rename(entrez_id = 'entrezgene_id', gene_symbol = 'hgnc_symbol',#rename existing columns
-                ensembl_transcript = 'ensembl_transcript_id', ensembl_gene = 'ensembl_gene_id') |>  #consistent with previous versions
-  subset(!is.na(entrez_id)) |> # we dont want missing entrez ids
-  tidyr::pivot_longer(cols = c('ensembl_gene','ensembl_transcript'), #compress these
-                      names_to = 'other_id_source',
-                      values_to = 'other_id')
-
 # ---- biomaRt with retry / mirror cycling -----------------------------------
 #
 # Strategy:

@@ -17,4 +17,3 @@ tqdm
 #itertools
 scikit-learn
 openpyxl
-mygene

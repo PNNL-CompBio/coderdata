@@ -361,6 +361,8 @@ dbg("drug_map unique chem_name=", length(unique(drug_map$chem_name)))
 manifest <- synTableQuery("select * from syn53503360")$asDataFrame() %>%
   rename(common_name = Sample) %>%
   as.data.table()
+if ("PDXDrugData" %in% names(manifest) && !"PDX_Drug_Data" %in% names(manifest))
+  setnames(manifest, "PDXDrugData", "PDX_Drug_Data")
 dbg_df(as.data.frame(manifest), "manifest")
 if (!all(c("common_name","MicroTissueDrugFolder") %in% names(manifest))) {
   dbg("manifest columns: ", paste(names(manifest), collapse=", "))
@@ -496,6 +498,10 @@ if (!(isTRUE(SKIP_MT) && isTRUE(SKIP_PDX) && isTRUE(SKIP_COMBINE) && isTRUE(SKIP
   # Build MT folder map
   mts_map <- manifest %>%
     select(common_name, MicroTissueDrugFolder) %>%
+    mutate(MicroTissueDrugFolder = sapply(MicroTissueDrugFolder, function(x) {
+      if (is.null(x) || (length(x)==1 && is.na(x))) return(NA_character_)
+      paste(trimws(unlist(x)), collapse=",")
+    })) %>%
     inner_join(mt_samps, by = "common_name") %>%
     separate_rows(MicroTissueDrugFolder, sep = ",") %>%
     filter(!is.na(MicroTissueDrugFolder), MicroTissueDrugFolder != "NA") %>%
@@ -669,10 +675,10 @@ if (!(isTRUE(SKIP_MT) && isTRUE(SKIP_PDX) && isTRUE(SKIP_COMBINE) && isTRUE(SKIP
     pdx_map <- do.call(rbind, lapply(seq_len(nrow(manifest)), function(i) {
       row <- manifest[i, ]
       samp <- pdx_samps[pdx_samps$common_name == row$common_name, ]
-      if (nrow(samp)==0 || is.na(row$PDX_Drug_Data) || row$PDX_Drug_Data %in% c("", "NA"))
-        return(NULL)
-      ids <- strsplit(row$PDX_Drug_Data, ",")[[1]]
-      ids <- trimws(ids[ids!=""])
+      if (nrow(samp) == 0) return(NULL)
+      raw <- tryCatch(paste(trimws(unlist(row$PDX_Drug_Data)), collapse=","), error=function(e) "")
+      ids <- regmatches(raw, gregexpr("syn[0-9]+", raw, ignore.case=TRUE))[[1]]
+      if (length(ids) == 0) return(NULL)
       data.frame(
         improve_sample_id = samp$improve_sample_id,
         child_id          = ids,

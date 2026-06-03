@@ -63,7 +63,7 @@ PUBCHEM_SCRIPT = os.environ.get(
 
 DESCRIPTOR_SCRIPT = os.environ.get(
     "CODERDATA_DESCRIPTOR_SCRIPT",
-    "/coderbuild/utils/build_drug_descriptor_table.py",
+    "/coderbuild/utils/build_drug_desc.py",
 )
 
 DEFAULT_OUT_DRUGS = "/tmp/cnf_drugs.tsv"
@@ -349,9 +349,9 @@ def call_descriptor_table(
     cmd = [
         "python",
         DESCRIPTOR_SCRIPT,
-        "--input",
+        "--drugtable",
         drug_file,
-        "--output",
+        "--desctable",
         out_desc,
     ]
 

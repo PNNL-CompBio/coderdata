@@ -75,7 +75,7 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     questions = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] == "?"].reset_index()  # all rows with ? 
     fixed_entrez = pd.merge(questions, entrez_data[['entrez_id','other_id','gene_symbol']], how='inner', left_on="Hugo_Symbol", right_on="other_id") # merge with our entrez database to see if we have additional matches
     for index_val in fixed_entrez['index'].values:
-        mapped_mutation_data.loc[index_val,'Entrez_Gene_Id'] = fixed_entrez[fixed_entrez['index'] == index_val]['entrez_id'].values  # for loop to replace these values with found entrez's
+        mapped_mutation_data.loc[index_val,'Entrez_Gene_Id'] = fixed_entrez[fixed_entrez['index'] == index_val]['entrez_id'].values[0]  # take first match; ambiguous aliases can map to multiple entrez IDs
     mapped_mutation_data = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] != "?"]  # remove rows with ? leftover
 
     # clean up column names and data types

@@ -5,7 +5,6 @@ import os
 import math
 import argparse
 import synapseclient
-import mygene
 
 # function for loading data
 def download_parse_omics_data(synID:str , save_path:str = None, synToken:str = None):
@@ -239,14 +238,11 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
 
     # first, convert genes, which are in ensembl id's to gene names
     transciptomics_data = transciptomics_data.rename(columns={'Unnamed: 0': 'stable_id'})
-    mg = mygene.MyGeneInfo()
-    ensembl_ids = transciptomics_data['stable_id'].values
-    gene_info_list = mg.getgenes(ensembl_ids, fields='symbol')
-    gene_df = pd.DataFrame.from_dict(gene_info_list)
-    for_tpm = pd.merge(transciptomics_data, gene_df[['query','symbol']], how = 'inner', left_on= "stable_id", right_on= "query")
-    for_tpm = for_tpm.dropna(subset=['symbol'])
-    for_tpm = for_tpm.drop(columns=['query','stable_id'])
-    for_tpm = for_tpm.rename(columns={'symbol':'stable_id'})
+    ensembl_map = entrez_data[entrez_data['other_id_source'] == 'ensembl_gene'][['other_id', 'gene_symbol']].drop_duplicates('other_id')
+    for_tpm = pd.merge(transciptomics_data, ensembl_map, how='inner', left_on='stable_id', right_on='other_id')
+    for_tpm = for_tpm.dropna(subset=['gene_symbol'])
+    for_tpm = for_tpm.drop(columns=['other_id', 'stable_id'])
+    for_tpm = for_tpm.rename(columns={'gene_symbol': 'stable_id'})
     for_tpm.to_csv("/tmp/counts_for_tpm_conversion.tsv", sep='\t')
 
 

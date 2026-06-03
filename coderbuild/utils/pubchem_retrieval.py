@@ -21,6 +21,71 @@ existing_synonyms = set()
 existing_structures = dict()
 existing_pubchemids = set()
 
+# ---------------------------------------------------------------------------
+# Local PubChem data cache — populated from previous-run drug files so that
+# retrieve_drug_info can return cached properties+synonyms without HTTP requests.
+# Keys: pubchem_id (str) AND chem_name (str.lower()).
+# Values: {'SMILES': ..., 'InChIKey': ..., 'MolecularFormula': ...,
+#          'MolecularWeight': ..., 'CID': ..., 'synonyms': [...]}
+# improve_drug_id is NOT stored here; ID assignment is always fresh.
+# ---------------------------------------------------------------------------
+_pubchem_data_cache = {}
+
+
+def load_pubchem_cache(file_paths):
+    """Populate _pubchem_data_cache from previously built drug TSV files.
+
+    Call this before the main drug-build loop to avoid re-querying PubChem for
+    drugs whose properties are already known.  ID assignment is unaffected.
+    """
+    global _pubchem_data_cache
+    if isinstance(file_paths, str):
+        file_paths = [p.strip() for p in file_paths.split(',') if p.strip()]
+    loaded = 0
+    for path in file_paths:
+        if not os.path.exists(path):
+            print(f"[{_ts()}] Cache hint: file not found, skipping: {path}")
+            continue
+        try:
+            df = pd.read_csv(path, sep='\t', quoting=3)
+        except Exception:
+            try:
+                df = pd.read_csv(path, sep='\t')
+            except Exception as e:
+                print(f"[{_ts()}] Could not read cache file {path}: {e}")
+                continue
+        needed = {'pubchem_id', 'chem_name', 'canSMILES', 'InChIKey', 'formula', 'weight'}
+        if not needed.issubset(set(df.columns)):
+            print(f"[{_ts()}] Cache file {path} missing expected columns, skipping.")
+            continue
+        for cid, group in df.groupby('pubchem_id', dropna=True):
+            synonyms = [str(n) for n in group['chem_name'].dropna().tolist()]
+            row = group.iloc[0]
+            entry = {
+                'SMILES': str(row['canSMILES']),
+                'InChIKey': str(row['InChIKey']),
+                'MolecularFormula': str(row['formula']),
+                'MolecularWeight': str(row['weight']),
+                'CID': str(cid),
+                'synonyms': synonyms,
+            }
+            _pubchem_data_cache[str(cid)] = entry
+            for syn in synonyms:
+                _pubchem_data_cache[str(syn).lower()] = entry
+            loaded += 1
+    print(f"[{_ts()}] PubChem cache: {loaded} drugs loaded from {len(file_paths)} file(s).")
+
+
+# Auto-load from hint file written by build_all.py before the container starts.
+_CACHE_HINT_FILE = "/tmp/prev_drug_files.txt"
+if os.path.exists(_CACHE_HINT_FILE):
+    try:
+        _hint_paths = [l.strip() for l in open(_CACHE_HINT_FILE) if l.strip()]
+        if _hint_paths:
+            load_pubchem_cache(_hint_paths)
+    except Exception as _cache_err:
+        print(f"[{_ts()}] Warning: could not load PubChem cache from {_CACHE_HINT_FILE}: {_cache_err}")
+
 
 def fetch_url(url, retries=4, backoff_factor=1):
     """
@@ -74,13 +139,13 @@ def fetch_url(url, retries=4, backoff_factor=1):
 
 def retrieve_drug_info(compound, ignore_chems, isname=True):
     """
-    Retrieves information for a given compound from PubChem.
+    Retrieves information for a given compound from PubChem (or local cache).
 
     Parameters:
     - compound (str or int): Name or CID of the compound.
     - ignore_chems (str): File path to log ignored compounds.
     - isname (bool): True if the compound is a name, False if it's a CID.
-    
+
     Returns:
     - list: List of dictionaries containing drug information, or None if unsuccessful.
     """
@@ -88,74 +153,82 @@ def retrieve_drug_info(compound, ignore_chems, isname=True):
     if pd.isna(compound):
         return None
 
-    if isname:
-        urls = {
-            "properties": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound}/property/SMILES,InChIKey,MolecularFormula,MolecularWeight/JSON",
-            "synonyms": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound}/synonyms/JSON"
+    # --- Check local cache before making any HTTP requests ---
+    cache_key = str(compound).lower() if isname else str(compound)
+    cached = _pubchem_data_cache.get(cache_key)
+    if cached is not None:
+        properties = {
+            'SMILES': cached['SMILES'],
+            'InChIKey': cached['InChIKey'],
+            'MolecularFormula': cached['MolecularFormula'],
+            'MolecularWeight': cached['MolecularWeight'],
+            'CID': cached['CID'],
         }
+        synonyms_list = cached['synonyms']
     else:
-        urls = {
-            "properties": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/{compound}/property/SMILES,InChIKey,MolecularFormula,MolecularWeight/JSON",
-            "synonyms": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/{compound}/synonyms/JSON"
-        }
+        # --- Normal PubChem fetch via HTTP ---
+        if isname:
+            urls = {
+                "properties": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound}/property/SMILES,InChIKey,MolecularFormula,MolecularWeight/JSON",
+                "synonyms": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound}/synonyms/JSON"
+            }
+        else:
+            urls = {
+                "properties": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/{compound}/property/SMILES,InChIKey,MolecularFormula,MolecularWeight/JSON",
+                "synonyms": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/{compound}/synonyms/JSON"
+            }
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        future_to_url = {executor.submit(fetch_url, url): key for key, url in urls.items()}
-        results = {}
-        for future in as_completed(future_to_url):
-            key = future_to_url[future]
-            try:
-                results[key] = future.result()
-            except FileNotFoundError:
-                print(f"[{_ts()}] {compound} not found in PubChem. Adding to ignore list.")
-                with open(ignore_chems, "a") as f:
-                    f.write(f"{compound}\n")
-                return None
-            except Exception as exc:
-                print(f"[{_ts()}] {compound} generated a transient exception: {exc}")
-                return None
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            future_to_url = {executor.submit(fetch_url, url): key for key, url in urls.items()}
+            results = {}
+            for future in as_completed(future_to_url):
+                key = future_to_url[future]
+                try:
+                    results[key] = future.result()
+                except FileNotFoundError:
+                    print(f"[{_ts()}] {compound} not found in PubChem. Adding to ignore list.")
+                    with open(ignore_chems, "a") as f:
+                        f.write(f"{compound}\n")
+                    return None
+                except Exception as exc:
+                    print(f"[{_ts()}] {compound} generated a transient exception: {exc}")
+                    return None
 
-    if all(key in results for key in ["properties", "synonyms"]):
+        if not all(key in results for key in ["properties", "synonyms"]):
+            return None
+
         properties = results["properties"]['PropertyTable']['Properties'][0]
         synonyms_list = results["synonyms"]['InformationList']['Information'][0]['Synonym']
 
-        # Check if this compound or any of its synonyms already has an assigned improve_drug_id
-        new_syns = set()
-        if isname:
-            sl = synonyms_list + [compound]
-        else:
-            sl = synonyms_list
-        for synonym in sl:
-            synonym_lower = str(synonym).lower()
-            if synonym_lower not in existing_synonyms:
-                new_syns.add(synonym_lower)
-        if len(new_syns) == 0:  # Ensure there are new synonyms before proceeding
-            return None
-        for synonym in new_syns:
-            synonym_lower = str(synonym).lower()
-            existing_synonyms.add(synonym_lower)
-
-        # Check for structure
-        if properties['SMILES'] in existing_structures.keys():
-            print(f'[{_ts()}] Found structure for {compound}')
-            SMI_assignment = existing_structures[properties['SMILES']]
-        else:
-            if improve_drug_id == 0:
-                improve_drug_id = 1
-            SMI_assignment = f"SMI_{improve_drug_id}"
-            existing_structures[properties['SMILES']] = SMI_assignment
-            improve_drug_id += 1
-        
-        #print(new_syns)
-        data_for_tsv = [{
-            'improve_drug_id': SMI_assignment,
-            'name': str(synonym).lower(),
-            **properties
-        } for synonym in new_syns]
-
-        return data_for_tsv
-    else:
+    # --- Shared: synonym dedup + SMI ID assignment (identical for both paths) ---
+    new_syns = set()
+    sl = synonyms_list + ([compound] if isname else [])
+    for synonym in sl:
+        synonym_lower = str(synonym).lower()
+        if synonym_lower not in existing_synonyms:
+            new_syns.add(synonym_lower)
+    if len(new_syns) == 0:
         return None
+    for synonym in new_syns:
+        existing_synonyms.add(str(synonym).lower())
+
+    if properties['SMILES'] in existing_structures:
+        print(f'[{_ts()}] Found structure for {compound}')
+        SMI_assignment = existing_structures[properties['SMILES']]
+    else:
+        if improve_drug_id == 0:
+            improve_drug_id = 1
+        SMI_assignment = f"SMI_{improve_drug_id}"
+        existing_structures[properties['SMILES']] = SMI_assignment
+        improve_drug_id += 1
+
+    data_for_tsv = [{
+        'improve_drug_id': SMI_assignment,
+        'name': str(synonym).lower(),
+        **properties
+    } for synonym in new_syns]
+
+    return data_for_tsv
 
 
 def fetch_data_for_batch(batch, ignore_chems, isname):

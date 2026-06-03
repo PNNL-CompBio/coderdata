@@ -133,6 +133,7 @@ long.df<-full.df%>%
     ModelType=='Organoid' ~ 'patient derived organoid',
     TRUE                  ~ 'cell line'
   ))%>%
+  dplyr::select(-ModelType)%>%
   subset(!is.na(other_id))%>%
   subset(other_id!="")
 
