@@ -56,9 +56,216 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     parser.add_argument('--version', type=str, required=False, help='Version number for the Figshare upload title (e.g., "0.1.29"). This is required for Figshare upload. This must be a higher version than previously published versions.')
     parser.add_argument('--github-username', type=str, required=False, help='GitHub username for the repository.')
     parser.add_argument('--github-email', type=str, required=False, help='GitHub email for the repository.')
-    
+    parser.add_argument('--continue', dest='resume', default=False, action='store_true',
+                        help='Resume a partial build: skip steps whose sentinel output already '
+                             'exists in local/, rebuild Docker images only for datasets that '
+                             'failed in the previous run, and log all activity to '
+                             'local/build_progress.log.')
+
     args = parser.parse_args()
-                    
+
+    # -------------------------------------------------------------------------
+    # Resume / progress tracking helpers
+    # -------------------------------------------------------------------------
+    PROGRESS_LOG = 'local/build_progress.log'
+    _progress_lock = threading.Lock()
+
+    def _step_sentinel(step_name):
+        """Return the file/dir whose existence proves this step completed."""
+        if step_name == 'genes file':
+            return 'local/genes.csv'
+        if step_name == 'phosphosites file':
+            return 'local/phosphosites.csv'
+        # All other steps are "{dataset} {type}" e.g. "colorectal omics"
+        da, _, stype = step_name.rpartition(' ')
+        if not stype:
+            return None
+        if stype == 'samples':
+            return f'local/{da}_samples.csv'
+        if stype == 'drugs':
+            return f'local/{da}_drugs.tsv'
+        if stype == 'omics':
+            # transcriptomics is the last large file written — proves full completion
+            for ext in ('.csv.gz', '.csv'):
+                candidate = f'local/{da}_transcriptomics{ext}'
+                if os.path.exists(candidate):
+                    return candidate
+            # default expectation for first-time check
+            gzip_ds = {'broad_sanger', 'beataml', 'pancreatic', 'hcmi'}
+            ext = '.csv.gz' if da in gzip_ds else '.csv'
+            return f'local/{da}_transcriptomics{ext}'
+        if stype == 'experiments':
+            return f'local/{da}_experiments.tsv'
+        if stype == 'misc':
+            return 'local/all_files_dir'
+        return None
+
+    def _sentinel_done(step_name):
+        """Return True if the sentinel for this step exists and is non-trivial."""
+        s = _step_sentinel(step_name)
+        if s is None:
+            return False
+        if os.path.isdir(s):
+            return bool(os.listdir(s))
+        return os.path.isfile(s) and os.path.getsize(s) > 100
+
+    def _step_cleanup_globs(step_name):
+        """Glob patterns (relative to cwd) to remove when a step fails."""
+        if step_name == 'genes file':
+            return ['local/genes.csv']
+        if step_name == 'phosphosites file':
+            return ['local/phosphosites.csv']
+        da, _, stype = step_name.rpartition(' ')
+        if not stype:
+            return []
+        if stype == 'samples':
+            return [f'local/{da}_samples.csv']
+        if stype == 'drugs':
+            return [f'local/{da}_drugs.tsv', f'local/{da}_drug_descriptors.tsv.gz']
+        if stype == 'omics':
+            if da == 'broad_sanger':
+                # broad_sanger omics produces both broad_* and sanger_* files
+                return [
+                    'local/broad_mutations*', 'local/broad_transcriptomics*',
+                    'local/broad_copy_number*', 'local/broad_proteomics*',
+                    'local/sanger_mutations*', 'local/sanger_transcriptomics*',
+                    'local/sanger_copy_number*', 'local/sanger_proteomics*',
+                ]
+            return [
+                f'local/{da}_mutations*', f'local/{da}_transcriptomics*',
+                f'local/{da}_copy_number*', f'local/{da}_proteomics*',
+                f'local/{da}_phosphoproteomics*',
+            ]
+        if stype == 'experiments':
+            return [f'local/{da}_experiments.tsv']
+        if stype == 'misc':
+            return ['local/all_files_dir']
+        return []
+
+    def _cleanup_step(step_name):
+        """Remove partial outputs from a failed step; log what was removed."""
+        removed = []
+        for pattern in _step_cleanup_globs(step_name):
+            for f in glob(pattern):
+                try:
+                    if os.path.isdir(f):
+                        shutil.rmtree(f)
+                    else:
+                        os.remove(f)
+                    removed.append(f)
+                except Exception as exc:
+                    _log(f'[cleanup] could not remove {f}: {exc}')
+        if removed:
+            _log(f'[cleanup] {step_name}: removed {len(removed)} file(s): {", ".join(removed)}')
+            _write_progress(step_name, 'CLEANUP', f'removed: {", ".join(removed)}')
+        else:
+            _log(f'[cleanup] {step_name}: nothing to remove')
+
+    def _clean_local_intermediates(reason='', protect_prefixes=()):
+        """Delete leftover intermediate files in local/ to bound disk usage
+        during the build (raw downloads like rnaseq_all_data_*.csv, cell.xml,
+        proteomics_all_*.csv, *.xlsx, etc. are never needed after the step that
+        consumed them and otherwise accumulate until a later step hits ENOSPC).
+
+        Safety: a file is KEPT if it is a schema-declared output (per
+        schema/expected_files.yaml -- these may still be sitting in local/ before
+        the move to all_files_dir), a reference file, an incremental-build cache,
+        build infrastructure, or matches one of protect_prefixes (e.g.
+        broad*/sanger*, which build_misc.sh still needs to split broad_sanger).
+        Only regular files matching local/*.* are considered (mirrors the move
+        step's own glob), so directories like all_files_dir are never touched.
+        """
+        try:
+            with open('schema/expected_files.yaml') as _f:
+                _schema = yaml.safe_load(_f)
+        except Exception as exc:
+            _log(f'[cleanup-intermediates] {reason}: skipped, cannot read schema: {exc}')
+            return
+        keep = set()
+        for _entries in _schema.get('datasets', {}).values():
+            for _entry in _entries:
+                _bn = os.path.basename(_entry['file'])
+                keep.add(_bn)
+                keep.add(_bn + '.gz')
+                if _bn.endswith('.gz'):
+                    keep.add(_bn[:-3])
+        protected_exact = {'genes.csv', 'phosphosites.csv', 'prev_drug_files.txt'}
+        removed, freed = 0, 0
+        for f in glob(os.path.join('local', '*.*')):
+            if os.path.isdir(f):
+                continue
+            bn = os.path.basename(f)
+            if bn in keep or bn in protected_exact:
+                continue
+            if '_prev.' in bn or bn.endswith(('.cid', '.log', '.jsonl')):
+                continue
+            if any(bn.startswith(p) for p in protect_prefixes):
+                continue
+            try:
+                sz = os.path.getsize(f)
+                os.remove(f)
+                removed += 1
+                freed += sz
+            except Exception as exc:
+                _log(f'[cleanup-intermediates] could not remove {f}: {exc}')
+        if removed:
+            _log(f'[cleanup-intermediates] {reason}: removed {removed} file(s), '
+                 f'freed {freed / 1e9:.2f} GB')
+        else:
+            _log(f'[cleanup-intermediates] {reason}: nothing to remove')
+
+    def _write_progress(step, status, note=''):
+        """Append one line to local/build_progress.log (thread-safe)."""
+        ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        line = f'{ts} | {status:<8} | {step}'
+        if note:
+            line += f'  ({note})'
+        line += '\n'
+        with _progress_lock:
+            try:
+                with open(PROGRESS_LOG, 'a') as f:
+                    f.write(line)
+            except Exception:
+                pass  # never let logging crash the build
+
+    def _step_to_docker_dataset(step_name):
+        """Map a step name to the dataset name used by process_docker."""
+        if step_name in ('genes file', 'gene file'):
+            return 'genes'
+        if step_name == 'phosphosites file':
+            return 'phosphosites'
+        da, _, stype = step_name.rpartition(' ')
+        if not stype:
+            return None
+        return da  # e.g. "colorectal", "broad_sanger", "liver"
+
+    def _last_run_failures():
+        """
+        Parse build_progress.log and return the set of step names that
+        FAILED in the most recent run (since the last START line) and were
+        not subsequently fixed (no SUCCESS line after the FAILURE).
+        """
+        if not os.path.exists(PROGRESS_LOG):
+            return set()
+        current_failures = set()
+        in_run = False
+        with open(PROGRESS_LOG) as f:
+            for line in f:
+                parts = [p.strip() for p in line.split('|', 2)]
+                if len(parts) < 3:
+                    continue
+                _ts, status, rest = parts
+                step = rest.split('(')[0].strip()  # strip any trailing note
+                if status == 'START':
+                    in_run = True
+                    current_failures = set()
+                elif in_run and status == 'FAILURE':
+                    current_failures.add(step)
+                elif in_run and status == 'SUCCESS':
+                    current_failures.discard(step)
+        return current_failures
+
+    # -------------------------------------------------------------------------
     # Simulation command for testing order of everything:
     # def run_docker_cmd(cmd_arr, filename):
     #     # Simulate running the command by printing what would be run
@@ -98,7 +305,16 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         '''
         Essentially a wrapper for 'docker run'. Also provides output.
         Tracks each container via --cidfile so they can be killed on exit/interrupt.
+        With --continue: skips steps whose sentinel file already exists, and
+        cleans up partial outputs after all retries are exhausted.
         '''
+        # --- Resume: skip if already done ---
+        if args.resume and _sentinel_done(filename):
+            sentinel = _step_sentinel(filename)
+            _log(f'[{filename}] skipping — already complete ({sentinel})')
+            _write_progress(filename, 'SKIPPED', f'sentinel: {sentinel}')
+            return
+
         retries = 3
         delays = [3 * 60, 10 * 60]  # 3 minutes, 10 minutes
         _log('running...' + filename)
@@ -122,6 +338,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
                 res = subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
                 if res.returncode == 0:
                     _log(f"[{filename}] succeeded on attempt {attempt}.")
+                    _write_progress(filename, 'SUCCESS')
                     return
                 else:
                     _log(f"[{filename}] failed (exit {res.returncode}).")
@@ -138,6 +355,10 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
                 except OSError:
                     pass
             attempt += 1
+
+        # All retries exhausted — log failure and remove partial outputs
+        _write_progress(filename, 'FAILURE', f'all {retries} attempts failed')
+        _cleanup_step(filename)
         raise RuntimeError(f"{filename} failed after {retries} attempts")
 
         
@@ -417,6 +638,9 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     if not os.path.exists('local'):
         os.mkdir('local')
 
+    # Record this run in the progress log
+    _write_progress('BUILD START', 'START', f'args={sys.argv[1:]}')
+
     # Get dataset names - default is all.
     datasets = args.datasets.split(',')
 
@@ -425,6 +649,24 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     if args.docker or args.all:
         process_docker(datasets)
         _log("Docker image generation completed")
+
+    # --continue: rebuild Docker images only for datasets that failed last run
+    if args.resume:
+        failed_steps = _last_run_failures()
+        if failed_steps:
+            failed_datasets = {
+                _step_to_docker_dataset(s) for s in failed_steps
+                if _step_to_docker_dataset(s)
+            }
+            # Only rebuild images for datasets we're actually processing
+            failed_datasets &= set(datasets) | {'genes', 'phosphosites'}
+            if failed_datasets:
+                _log(f'--continue: rebuilding Docker images for failed datasets: {sorted(failed_datasets)}')
+                process_docker(list(failed_datasets))
+            else:
+                _log('--continue: no failed datasets from last run match current dataset list — skipping Docker rebuild')
+        else:
+            _log('--continue: no failures found in build_progress.log — skipping Docker rebuild')
         
 
     ### Build Drugs files, Samples files, and Genes file. These two steps are run in Parallel.
@@ -475,6 +717,12 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             exp_thread.result()
             _log("All experiments files completed")
 
+    # Omics + experiments are done. Drop their large raw intermediates now
+    # (e.g. rnaseq_all_data_*.csv ~5GB, cell.xml, proteomics_all_*.csv), but keep
+    # broad*/sanger* — build_misc.sh still needs them to split broad_sanger.
+    _clean_local_intermediates(reason='after omics/experiments',
+                               protect_prefixes=('broad', 'sanger'))
+
 
     ### Final Step, some datasets may need an additional post build step. Add this here
     # Currently only the cell line datasets need this. This seperates broad_sanger into all of its component datasets.
@@ -485,6 +733,12 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         if args.misc or args.all:
             misc_thread.result()
             _log("Final build step complete.")
+
+    # misc has split broad_sanger into its per-dataset outputs, so the broad*/
+    # sanger* intermediates are no longer needed. Clear all remaining
+    # intermediates from local/ before the disk-heavy map/align/upload steps
+    # (this is where the previous build hit "No space left on device").
+    _clean_local_intermediates(reason='after misc (pre-upload)')
 
 
     ######

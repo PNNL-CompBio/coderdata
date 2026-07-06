@@ -320,3 +320,7 @@ datasets:
   phosphosites:
     - target_class: Phosphosite
       file: /tmp/phosphosites.csv
+
+  genes:
+    - target_class: Gene
+      file: /tmp/genes.csv
