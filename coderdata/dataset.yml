@@ -1,5 +1,5 @@
-figshare: https://api.figshare.com/v2/articles/29923646/files?page=1&page_size=500
-version: 2.2.1
+figshare: https://api.figshare.com/v2/articles/32906495/files?page=1&page_size=500
+version: 2.3
 datasets:
   beataml:
     description: Beat acute myeloid leukemia (BeatAML) focuses on acute myeloid leukemia tumor data. Data includes drug response, proteomics, and transcriptomics datasets.
@@ -42,6 +42,17 @@ datasets:
       - proteomics
       - mutations
       - copy number
+      - drug
+      - drug descriptor
+      - experiments
+
+  cnf:
+    description: Cutaneous Neurofibroma (cNF) patient-derived organoid drug screen. Cutaneous neurofibromas are benign nerve-sheath tumors that develop in patients with neurofibromatosis type 1 (NF1). Data includes transcriptomics, proteomics, phosphoproteomics, and drug response data derived from Synapse.
+    modalities:
+      - sample
+      - transcriptomics
+      - proteomics
+      - phosphoproteomics
       - drug
       - drug descriptor
       - experiments
