@@ -38,10 +38,11 @@ def align_to_linkml_schema(input_df):
     '2D Modified Conditionally Reprogrammed Cells': 'cell line',
     'Pleural Effusion': np.nan,
     'Human Original Cells': 'cell line',
-    'Not Reported': np.nan, 
+    'Not Reported': np.nan,
     'Mixed Adherent Suspension': 'cell line',
     'Cell': 'cell line',
-    'Saliva': np.nan
+    'Saliva': np.nan,
+    'Next Generation Cancer Model': 'patient derived organoid',
     }
 
     # Apply mapping
@@ -186,7 +187,7 @@ def extract_data(data):
                                     'sample_id': sample['sample_id'],
                                     'sample_type': sample['sample_type'],
                                     #'tumor_descriptor': sample.get('tumor_descriptor', None),
-                                    'composition': sample.get('composition', None),
+                                    'composition': sample.get('composition') or sample.get('sample_type', None),
                                     'id': aliquot['aliquot_id']
                                 })
     return pd.DataFrame(extracted)
@@ -318,7 +319,9 @@ def main():
         maxval = 0
     else:
         print("Previous Samples File Provided. Running HCMI Sample File Generation")
-        maxval = max(pd.read_csv(args.prev_samps).improve_sample_id)
+        _prev = pd.read_csv(args.prev_samps)
+        _max = _prev['improve_sample_id'].max()
+        maxval = int(_max) if pd.notna(_max) else 0
     
     output = filter_and_subset_data(df,maxval,args.map)
     aligned = align_to_linkml_schema(output)

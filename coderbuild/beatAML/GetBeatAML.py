@@ -120,7 +120,9 @@ def generate_samples_file(prev_samples_path):
     if prev_samples_path == "":
         maxval = 0
     else:
-        maxval = max(pd.read_csv(prev_samples_path).improve_sample_id)
+        _prev = pd.read_csv(prev_samples_path)
+        _max = _prev['improve_sample_id'].max()
+        maxval = int(_max) if pd.notna(_max) else 0
     mapping = {labId: i for i, labId in enumerate(all_samples['other_id'].unique(), start=(int(maxval)+1))}
     all_samples['improve_sample_id'] = all_samples['other_id'].map(mapping)
     all_samples.insert(1, 'improve_sample_id', all_samples.pop('improve_sample_id'))
@@ -458,7 +460,17 @@ if __name__ == "__main__":
             # New Transcriptomics Data
             print("Starting Transcriptomics Data")
             ##first run conversion tool
-            os.system("python tpmFromCounts.py --counts {} --out_file {}".format(transcriptomics_file,'tpm_'+transcriptomics_file))
+            # Check the exit status and clear any stale output first: os.system()
+            # returns a status rather than raising, so a failed conversion would
+            # otherwise fall through to the read below and reuse an old file.
+            _tpm_out = 'tpm_' + transcriptomics_file
+            if os.path.exists(_tpm_out):
+                os.remove(_tpm_out)
+            _rc = os.system("python tpmFromCounts.py --counts {} --out_file {}".format(transcriptomics_file, _tpm_out))
+            if _rc != 0:
+                raise RuntimeError(f"tpmFromCounts.py failed for beatAML (exit status {_rc}).")
+            if not os.path.exists(_tpm_out) or os.path.getsize(_tpm_out) == 0:
+                raise RuntimeError(f"tpmFromCounts.py produced no output at {_tpm_out}.")
             
             # Transcriptomic Data
             t_df = pd.read_csv('tpm_'+transcriptomics_file, sep = '\t')

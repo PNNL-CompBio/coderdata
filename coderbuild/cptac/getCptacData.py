@@ -244,7 +244,6 @@ def main():
                         help='Sample file to use to generate data. Returns data for samples')
     opts = parser.parse_args()
 
-    dat_files = {}
 
     # Decide whether to build samples, data, or both
     build_data = False
@@ -382,23 +381,55 @@ def main():
                     fdf = fdf.reset_index(drop=True)
                     dtype_key = dtype
 
-                if dtype_key in dat_files.keys():
-                    of = dat_files[dtype_key].dropna()
-                    fdf2 = pd.concat([of, fdf])
-                    dat_files[dtype_key] = fdf2
-                else:
-                    dat_files[dtype_key] = fdf.dropna()
+                # Append this cancer type straight to its output file.
+                #
+                # Previously every cohort was pd.concat-ed into dat_files and
+                # held until the write loop below, so all four data types across
+                # all ten cohorts sat in memory at once. Transcriptomics is the
+                # largest and the step was OOM-killed:
+                #
+                #   build_omics.sh: line 7: Killed  python getCptacData.py ...
+                #
+                # having written only mutations and proteomics. Peak memory is
+                # now one cohort of one data type, so it no longer scales with
+                # the number of cohorts CPTAC publishes.
+                _append_dtype(dtype_key, fdf)
                 
                 print(dtype_key)
 
-        # Now concatenate all the cancers into a single file
-        for dtype_key, df in dat_files.items():
-            print('Saving ' + "cptac_" + dtype_key + '.csv.gz' + ' file')
-            print(df.to_string())
-            df['entrez_id'] = df['entrez_id'].fillna(0)
-            df['entrez_id'] = df['entrez_id'].astype(int)
-            df = df[df.entrez_id != 0]
-            df.to_csv("/tmp/" + "cptac_" + dtype_key + '.csv.gz', sep=',', index=False, compression='gzip')
+        # Files were written incrementally above; just close them.
+        #
+        # The print(df.to_string()) that used to live here rendered the WHOLE
+        # frame as one string -- ~9.7M rows for proteomics alone -- which is
+        # both a large allocation and megabytes of build log. Row counts are
+        # reported instead.
+        for dtype_key in sorted(_dtype_writers):
+            entry = _dtype_writers[dtype_key]
+            entry[0].close()
+            print(f'Saved cptac_{dtype_key}.csv.gz ({entry[2]:,} rows)')
+
+# Output files are opened lazily and appended to, so no data type is ever held
+# whole in memory. Maps dtype_key -> [open handle, header_written, row count].
+_dtype_writers = {}
+
+
+def _append_dtype(dtype_key, fdf):
+    """Append one cohort's rows for one data type to its gzip output."""
+    fdf = fdf.dropna()
+    if 'entrez_id' in fdf.columns:
+        fdf = fdf.copy()
+        fdf['entrez_id'] = fdf['entrez_id'].fillna(0).astype(int)
+        fdf = fdf[fdf.entrez_id != 0]
+    if fdf.empty:
+        return
+    if dtype_key not in _dtype_writers:
+        path = "/tmp/" + "cptac_" + dtype_key + '.csv.gz'
+        _dtype_writers[dtype_key] = [gzip.open(path, 'wt', newline=''), False, 0]
+    entry = _dtype_writers[dtype_key]
+    fdf.to_csv(entry[0], sep=',', index=False, header=not entry[1])
+    entry[1] = True
+    entry[2] += len(fdf)
+
 
 if __name__ == '__main__':
     main()

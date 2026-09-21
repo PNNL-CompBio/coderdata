@@ -171,7 +171,27 @@ def map_transcriptomics_novPDX(transcriptomics_data, improve_id_data, entrez_dat
     transcriptomics_data.to_csv("/tmp/counts_for_tpm_conversion.tsv", sep='\t')
 
     # run tpmFromCounts.py to convert counts to tpm
-    os.system("python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.tsv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
+    # Convert counts to TPM.
+    #
+    # The exit code MUST be checked and the output MUST be cleared first.
+    # /tmp is a bind mount shared by every container, and liver, novartis and
+    # colorectal all use this same generic filename. os.system() returns a
+    # status rather than raising, so a failed conversion previously fell
+    # through to the read below and silently picked up ANOTHER dataset's
+    # leftover file -- producing a successful build with the wrong
+    # transcriptomics data rather than an error.
+    _tpm_out = "/tmp/transcriptomics_tpm.tsv"
+    if os.path.exists(_tpm_out):
+        os.remove(_tpm_out)
+    _rc = os.system(
+        "python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.tsv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
+    if _rc != 0:
+        raise RuntimeError(
+            f"tpmFromCounts.py failed for novartis (exit status {_rc}). "
+            f"It downloads the GRCh37 GTF from NCBI, so this is often a network failure.")
+    if not os.path.exists(_tpm_out) or os.path.getsize(_tpm_out) == 0:
+        raise RuntimeError(
+            f"tpmFromCounts.py produced no output at {_tpm_out} for novartis.")
 
     # read in amd melt dataframe so that there is an entrez and sample id per row
     tpm_transciptomics_data = pd.read_csv("/tmp/transcriptomics_tpm.tsv", sep="\t")
