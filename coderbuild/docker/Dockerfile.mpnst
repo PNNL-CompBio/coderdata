@@ -1,7 +1,37 @@
-FROM r-base:4.3.3
+# r-base:4.4.1 to match every other R image in this build (bladder, colorectal,
+# genes, liver, novartis, broad_sanger_exp, broad_sanger_omics).
+#
+# 4.3.3 could no longer build: its resident libssl3t64 (3.2.1-3) owns
+# /usr/lib/x86_64-linux-gnu/ossl-modules/legacy.so, while Debian sid has moved
+# that file into openssl-provider-legacy (3.6.3-1). Installing libssl-dev then
+# failed the layer with "trying to overwrite ... which is also in package
+# libssl3t64". 4.4.1 already ships libssl3t64 3.6.3-1, so libssl-dev installs
+# cleanly with no dpkg workaround.
+FROM r-base:4.4.1
 
 # Set environment to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
+
+
+# Keep scratch files OFF the /tmp bind mount.
+#
+# build_all.py bind-mounts the host's local/ directory at /tmp in every
+# container. Python 3.14 changed the default multiprocessing start method on
+# Linux from "fork" to "forkserver", which opens a Unix domain socket under
+# tempfile.gettempdir() -- i.e. /tmp, i.e. the bind mount. Docker's macOS file
+# sharing does not support chmod() on a socket there, so every Pool worker
+# fails with:
+#
+#   OSError: [Errno 22] Invalid argument: '/tmp/pymp-XXXX/sock-YYYY'
+#
+# This broke build_drug_desc.py and fit_curve.py on 2026-09-03, each at the end
+# of a multi-hour step, and it is deterministic so retries do not help.
+#
+# TMPDIR only affects tempfile.gettempdir() (Python) and tempdir() (R). Explicit
+# /tmp/<name> paths -- which is how every build OUTPUT is written -- still land
+# on the bind mount as before. Verified.
+RUN mkdir -p /opt/mp_tmp
+ENV TMPDIR=/opt/mp_tmp
 
 # Update package list and install required packages
 RUN apt-get update && \
