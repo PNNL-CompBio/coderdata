@@ -1,3 +1,4 @@
+# 00_sample_gen.R
 # This script generate a new sample table based on previous dataset's sample file (taking the max improve_sample_id)
 # Load required libraries
 library(data.table)
@@ -26,9 +27,14 @@ synapser::synLogin(authToken=synapse_token)
 manifest<-synapser::synTableQuery("select * from syn53503360")$asDataFrame()|>
                                                              as.data.frame()
 
-#Drop contaminated sample JH-2-009
+#Drop contaminated sample JH-2-009 and others with issues
 manifest <- manifest %>% 
-  filter(Sample != "JH-2-009")
+  filter(Sample != "JH-2-009") %>%
+  filter(Sample != "WU-545") %>%
+  filter(Sample != "WU-536") %>%
+  filter(Sample != "WU-505") %>%
+  filter(Sample != "MN-1") %>%
+  filter(Sample != "MN-3")
 
 
 ###sample file has a strict schema
@@ -56,7 +62,7 @@ sampTable<-manifest|>
 
 ##third, generate a sample for the MTs if they were generated
 pdxmt<-subset(sampTable,!is.na(MicroTissueDrugFolder))
-pdxmt$model_type=rep('xenograft derived organoid',nrow(pdxmt))
+pdxmt$model_type=rep('3D-MEDS',nrow(pdxmt))
 print(pdxmt)
 
 main<-rbind(sampTable,pdxmt)|>
