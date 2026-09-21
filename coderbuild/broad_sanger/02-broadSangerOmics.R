@@ -6,56 +6,34 @@ library(tidyr)
 library(dplyr)
 library(rio)
 library(httr2)
+library(data.table)
+
+## Shared retry/resume helpers (download_file_resumable, with_retries).
+source("retry_utils.R")
 
 Sys.setenv(VROOM_CONNECTION_SIZE=100000000)
 
 
 
+## Resumable, size-verified download.
+##
+## Kept under the original name so callers are unchanged, but the transport is
+## no longer httr2. req_retry() restarts the whole request instead of resuming
+## it, and the files pulled here are the largest in the pipeline -- Sanger ships
+## rnaseq_all at ~897MB and WES_pureCN_CNV_genes at ~935MB. On a link that drops
+## part-way, restarting a 935MB file just fails again at a similar point: build
+## v24 died exactly that way on a 112MB file, breaking 12MB in, three times.
+##
+## download_file_resumable() (coderbuild/utils/retry_utils.R) uses wget -c, so
+## each attempt continues from what is already on disk, and only promotes the
+## file once its size matches the server's.
+##
+## req_verbose() is also gone: full curl logging across ~2GB of transfers buried
+## the real errors in the build log.
 robust_download_httr2 <- function(url, dest,
-                                 max_tries   = 5,
-                                 timeout_secs = 1500) {
-  # browser-style User-Agent
-  message("Downloading: ", url)
-  ua <- "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
-
-  req <- request(url) |>
-    req_headers(
-      `User-Agent` = ua,
-      Accept       = "application/octet-stream"
-    ) |>
-    req_timeout(timeout_secs) |>
-    req_retry(max_tries = max_tries, retry_on_failure = TRUE) |>
-    req_verbose()   # ← turn on full curl logging
-
-  resp <- tryCatch(
-    {
-      req |> req_perform(path = dest)
-    },
-    error = function(e) {
-      message("🚨 Download failed for: ", url)
-      message("  • curl error: ", e$message)
-      if (file.exists(dest)) {
-        message("  • partial file size: ",
-                file.info(dest)$size, " bytes")
-      }
-      stop(e)  # re-throw so your script still aborts
-    }
-  )
-
-  # if we get here, the download succeeded; sanity-check length
-  hdrs <- resp |> resp_headers()
-  if (!is.null(hdrs$`content-length`)) {
-    expected <- as.numeric(hdrs$`content-length`)
-    actual   <- file.info(dest)$size
-    if (actual != expected) {
-      stop(sprintf(
-        "Incomplete download for %s: expected %d bytes but got %d",
-        url, expected, actual
-      ))
-    }
-  }
-
-  invisible(dest)
+                                  max_tries    = 5,
+                                  timeout_secs = 1500) {
+  download_file_resumable(url, dest, what = basename(dest))
 }
 
 
@@ -77,10 +55,69 @@ download_and_extract_zip_httr2 <- function(url, dest_zip, extract_dir, max_tries
 
 
 ##### DEPMAP FILES
+## ---------------------------------------------------------------------------
+## DEPMAP FILES ARE NO LONGER PROGRAMMATICALLY RETRIEVABLE.
+##
+## DepMap put a Cloudflare Turnstile ("verify you are a person") challenge in
+## front of https://depmap.org/portal/api/download/files. That endpoint now
+## returns an HTML challenge page with HTTP 200, so read_csv() silently parses
+## the HTML and every downstream column lookup fails. It cannot be scripted
+## around, and DepMap explicitly asks that the portal not be scraped.
+##
+## We therefore keep a STATIC COPY of the required DepMap files on Synapse, in
+## the "DepMap Raw" folder: https://www.synapse.org/Synapse:syn75028495
+##
+## build_omics.sh runs coderbuild/utils/fetch_depmap.py BEFORE this script,
+## which downloads them from Synapse into $DEPMAP_DIR. This script only reads
+## from disk -- it never contacts the DepMap portal.
+##
+## THE SYNAPSE COPY MUST BE MANUALLY UPDATED FOR EVERY NEW DEPMAP RELEASE:
+##   1. Download the files from https://depmap.org/portal/data_page/?tab=allData
+##      (accept the terms, then use the download button on each file)
+##   2. Upload them to syn75028495 as NEW VERSIONS of the existing entities
+##   3. Bump DEPMAP_RELEASE in coderbuild/utils/fetch_depmap.py
+##   4. Re-run the build with --depmap-ready
+##
+## Currently pinned to: DepMap Public 26Q1
+## ---------------------------------------------------------------------------
+## DEPMAP_DIR is exported by build_omics.sh from fetch_depmap.py, so the release
+## name is defined in exactly one place. The fallback keeps this script runnable
+## standalone for debugging.
+DEPMAP_DIR <- Sys.getenv("DEPMAP_DIR", unset = "/opt/depmap_data")
 
-depmap_filenames=list(copy_number='https://figshare.com/ndownloader/files/40448840',
-               transcriptomics='https://figshare.com/ndownloader/files/40449128',
-                              mutations='https://figshare.com/ndownloader/files/40449638')
+depmap_filenames = list(
+  copy_number     = file.path(DEPMAP_DIR, "PortalOmicsCNGeneLog2.csv"),
+  transcriptomics = file.path(DEPMAP_DIR, "OmicsExpressionTPMLogp1HumanProteinCodingGenes.csv"),
+  mutations       = file.path(DEPMAP_DIR, "OmicsSomaticMutations.csv")
+)
+
+missing_depmap <- unlist(depmap_filenames)[!file.exists(unlist(depmap_filenames))]
+if (length(missing_depmap) > 0) {
+  stop(sprintf(paste0(
+    "Required DepMap file(s) not found:\n  %s\n",
+    "They should have been downloaded from Synapse by fetch_depmap.py before\n",
+    "this script ran. DepMap files can no longer be downloaded from the DepMap\n",
+    "portal (Cloudflare challenge), so they are read from the Synapse folder\n",
+    "syn75028495. To refresh them for a new release, download from\n",
+    "https://depmap.org/portal/data_page/?tab=allData and re-upload to Synapse."),
+    paste(missing_depmap, collapse = "\n  ")))
+}
+message("Using DepMap files from Synapse copy in ", DEPMAP_DIR)
+
+## fetch_depmap.py has already downloaded these into a container-local scratch
+## directory, so there is nothing to download here -- we read them in place.
+##
+## Each file is deleted as soon as it has been read: they are transient build
+## inputs totalling ~1.3 GB, and this step is memory- and disk-sensitive (the
+## copy_number melt alone is large). Freeing each input before processing the
+## next keeps the container's footprint down. The container is `--rm` anyway,
+## so this is belt-and-braces, but it matters while the step is running.
+depmap_consume <- function(path) {
+  if (!is.null(path) && file.exists(path)) {
+    unlink(path)
+    message("Removed consumed DepMap input: ", path)
+  }
+}
 ##### SANGER FILES
 sanger_filenames=list(transcriptomics='https://cog.sanger.ac.uk/cmp/download/rnaseq_all_20220624.zip',
                copy_number='https://cog.sanger.ac.uk/cmp/download/WES_pureCN_CNV_genes_latest.csv.gz',
@@ -88,29 +125,29 @@ sanger_filenames=list(transcriptomics='https://cog.sanger.ac.uk/cmp/download/rna
 
 
 ###### VARIANT SCHEMA HARMONIZATION
-variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3prime_UTR_ess_splice'),
-                     `5'Flank`=c("FIVE_PRIME_FLANK","5'Flank",'upstream'),
-                     `5'UTR`=c("5'UTR",'5prime_UTR_variant','5prime_UTR_variant','5prime_UTR_ess_splice'),
-                     Undetermined=c('COULD_NOT_DETERMINE'),
+variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3prime_UTR_ess_splice','3_prime_UTR_variant'),
+                     `5'Flank`=c("FIVE_PRIME_FLANK","5'Flank",'upstream','upstream_gene_variant'),
+                     `5'UTR`=c("5'UTR",'5prime_UTR_variant','5prime_UTR_variant','5prime_UTR_ess_splice','5_prime_UTR_variant'),
+                     Undetermined=c('COULD_NOT_DETERMINE','protein_altering_variant'),
                      De_novo_Start_InFrame=c('DE_NOVO_START_IN_FRAME','De_novo_Start_InFrame'),
                      De_novo_Start_OutOfFrame=c('DE_NOVO_START_OUT_FRAME','De_novo_Start_OutOfFrame'),
-                     Frame_Shift_Del=c('FRAME_SHIFT_DEL','Frame_Shift_Del','frameshift'),
+                     Frame_Shift_Del=c('FRAME_SHIFT_DEL','Frame_Shift_Del','frameshift','frameshift_variant'),
                      Frame_Shift_Ins=c('FRAME_SHIFT_INS','Frame_Shift_Ins'),
-                     IGR=c('IGR','nc_variant'),
-                     In_Frame_Del=c('IN_FRAME_DEL','In_Frame_Del','inframe'),
-                     In_Frame_Ins=c('IN_FRAME_INS','In_Frame_Ins'),
-                     Intron=c('INTRON','Intron','intronic','intron'),
-                     Missense_Mutation=c('Missense_Mutation','MISSENSE','missense'),
-                     Nonsense_Mutation=c('Nonsense_Mutation','NONSENSE','nonsense'),
-                     Nonstop_Mutation=c('Nonstop_Mutation','NONSTOP'),
-                     RNA=c('RNA'),
+                     IGR=c('IGR','nc_variant','intergenic_variant','downstream_gene_variant'),
+                     In_Frame_Del=c('IN_FRAME_DEL','In_Frame_Del','inframe','inframe_deletion'),
+                     In_Frame_Ins=c('IN_FRAME_INS','In_Frame_Ins','inframe_insertion'),
+                     Intron=c('INTRON','Intron','intronic','intron','intron_variant'),
+                     Missense_Mutation=c('Missense_Mutation','MISSENSE','missense','missense_variant'),
+                     Nonsense_Mutation=c('Nonsense_Mutation','NONSENSE','nonsense','stop_gained'),
+                     Nonstop_Mutation=c('Nonstop_Mutation','NONSTOP','stop_lost'),
+                     RNA=c('RNA','non_coding_transcript_exon_variant','non_coding_transcript_variant'),
                      Start_Codon_SNP=c('START_CODON_SNP','Start_Codon_SNP'),
                      Start_Codon_Del=c('Start_Codon_Del','START_CODON_DEL','start_lost'),
                      Start_Codon_Ins=c('Start_Codon_Ins','START_CODON_INS'),
                      Stop_Codon_Del=c('Stop_Codon_Del','stop_lost'),
                      Stop_Codon_Ins=c('Stop_Codon_Ins'),
-                     Silent=c('Silent','SILENT','silent'),
-                     Splice_Site=c('Splice_Site','SPLICE_SITE','splice_region'),
+                     Silent=c('Silent','SILENT','silent','synonymous_variant'),
+                     Splice_Site=c('Splice_Site','SPLICE_SITE','splice_region','splice_donor_variant','splice_acceptor_variant','splice_region_variant','splice_polypyrimidine_tract_variant','splice_donor_region_variant','splice_donor_5th_base_variant'),
                      Translation_Start_Site=c('Translation_Start_Site','start_lost'))
 
 depmap_vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
@@ -149,7 +186,9 @@ sanger_files<-function(fi,value){
       #read in file
       local_cn <- file.path(tempdir(), "sanger_copy_number.csv.gz")
       robust_download_httr2(fi, local_cn)
-      exp_file <- readr::read_csv(local_cn)
+      exp_file <- data.table::fread(local_cn,
+        select = c("model_id","symbol","gatk_mean_log2_copy_ratio","source","data_type","cn_category"),
+        data.table = FALSE)
       # exp_file <- readr::read_csv(fi) ##already in long form <3 <3 <3
       # file.remove(fi)
       smap<-sanger_samples|>
@@ -173,7 +212,8 @@ sanger_files<-function(fi,value){
         dplyr::select(other_id,copy_number,entrez_id,Sanger='cn_category')|>
         left_join(smap)|>
           distinct()
-       rm(exp_file)
+       rm(exp_file); gc()
+       if (file.exists(local_cn)) file.remove(local_cn)
 
         print('copy call')
 
@@ -198,7 +238,7 @@ sanger_files<-function(fi,value){
         tidyr::pivot_longer(cols=c(IMPROVE,Sanger),
                             names_to='source',
                             values_to='copy_call')
-      rm(res)
+      rm(res); gc()
 #      full<-lres
 
     }else if(value=='methylation'){ ###IF DATA REPRESENT RRBS###
@@ -294,7 +334,7 @@ sanger_files<-function(fi,value){
       dat<-exp_file[-c(1:4),-1]
       colnames(dat)[1]<-'gene_symbol'
 
-      rm(exp_file)
+      rm(exp_file); gc()
 
       ddat<-apply(dat,2,unlist)|>
           as.data.frame()|>
@@ -302,14 +342,19 @@ sanger_files<-function(fi,value){
         left_join(genes)|>
         dplyr::select(-gene_symbol)
 
-      rm(dat)
+      ## gc() here matters: without it R still holds dat when pivot_longer
+      ## allocates the long frame, which is the peak of the whole step.
+      ## Measured on a 20k gene x 800 sample matrix (16M output rows):
+      ## peak RSS 1,351MB -> 1,219MB, run time 8.2s -> 8.1s. The other
+      ## branches in this function already pair rm() with gc().
+      rm(dat); gc()
       ddat$entrez_id<-as.numeric(ddat$entrez_id)
       res = tidyr::pivot_longer(data=as.data.frame(ddat),cols=c(1:(ncol(ddat)-1)),
                                 names_to='other_id',values_to='transcriptomics',
                                 values_transform=list(expression=as.numeric))|>
           distinct()
 
-      rm(ddat)
+      rm(ddat); gc()
       smap<-samps|>
         dplyr::select(improve_sample_id,other_id,study,source)|>distinct()
 
@@ -428,25 +473,38 @@ depmap_files<-function(fi,value){
     ##now every data type is parsed slightly differently, so we need to change our formatting
     ##and mapping to get it into a unified 3 column schema
     if(value=='copy_number'){
-      # exp_file <- readr::read_csv(fi)
-      local_path <- "/tmp/depmap_copy_number.csv.gz"
-      robust_download_httr2(fi, local_path)
-      exp_file <- readr::read_csv(local_path)
+      local_path <- fi
+      ## Use data.table::melt for memory-efficient wide->long conversion
+      exp_dt <- data.table::fread(local_path, data.table = TRUE)
+      depmap_consume(local_path)  # read into memory; drop the on-disk copy
+      id_col <- colnames(exp_dt)[1]
+      data.table::setnames(exp_dt, id_col, "other_id")
+      gene_cols <- setdiff(colnames(exp_dt), "other_id")
 
+      print('Long to wide (data.table melt)')
+      res <- data.table::melt(exp_dt, id.vars = "other_id",
+                              measure.vars = gene_cols,
+                              variable.name = "gene_entrez",
+                              value.name = "copy_number",
+                              variable.factor = FALSE)
+      rm(exp_dt, gene_cols); gc()
+      ## (the DepMap input was already removed by depmap_consume above)
 
-      print('Long to wide')
-      res = exp_file|>
-        tidyr::pivot_longer(cols=c(2:ncol(exp_file)),
-                            names_to='gene_entrez',values_to='copy_number',
-                            values_transform=list(copy_number=as.numeric))|>
+      res <- as.data.frame(res) |>
+        dplyr::mutate(
+          copy_number = suppressWarnings(as.numeric(copy_number)),
+          ## PortalOmicsCNGeneLog2 stores log2(absolute copies); convert to ratio
+          copy_number = 2^copy_number / 2
+        ) |>
         dplyr::distinct()
-      rm(exp_file)
-
-      colnames(res)[1]<-'other_id'
 
       print('String manipulations')
-      res<-res|>
-          tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene_symbol','entrez_id'))
+      res <- res |>
+        dplyr::mutate(
+          gene_symbol = trimws(stringr::str_extract(gene_entrez, "^[^(]+")),
+          entrez_id   = stringr::str_extract(gene_entrez, "(?<=\\()\\d+(?=\\))")
+        ) |>
+        dplyr::select(-gene_entrez)
 
       print('join with gene')
       res<-res|>
@@ -493,12 +551,14 @@ depmap_files<-function(fi,value){
 
       }else if(value=='mutations'){ ####IF DATA REPRESENTS MUTATIONS#####
 
-        local_mut <- file.path(tempdir(), "depmap_mutations.csv.gz")
-        robust_download_httr2(fi, local_mut)
+        local_mut <- fi
 
         exp_file <- readr::read_csv(local_mut)|>
+          dplyr::filter(IsDefaultEntryForModel %in% c(TRUE, "Yes"))|>
           dplyr::select(EntrezGeneID,HgncName,other_id='ModelID',VariantInfo,mutation='DNAChange')|>
-          distinct()
+          distinct()|>
+          dplyr::mutate(VariantInfo = sub("&.*", "", VariantInfo))
+        depmap_consume(local_mut)  # read into memory; drop the on-disk copy
 
         res<-exp_file|>
           mutate(entrez_id=as.numeric(EntrezGeneID))|>
@@ -537,9 +597,15 @@ depmap_files<-function(fi,value){
         return(full)
       }else if(value=='transcriptomics'){ #if gene expression
         # exp_file <- readr::read_csv(fi)
-        local_tx <- file.path(tempdir(), "depmap_transcriptomics.csv.gz")
-        robust_download_httr2(fi, local_tx)
-        exp_file <- readr::read_csv(local_tx)
+        local_tx <- fi
+        ## 26Q1 format has metadata columns (SequencingID, ModelConditionID,
+        ## IsDefaultEntryForMC, IsDefaultEntryForModel) before the gene columns.
+        ## Filter to one canonical run per model, then keep only ModelID + gene cols.
+        exp_file <- readr::read_csv(local_tx, show_col_types = FALSE)|>
+          dplyr::filter(IsDefaultEntryForModel %in% c(TRUE, "Yes"))|>
+          dplyr::rename(other_id = ModelID)|>
+          dplyr::select(other_id, dplyr::matches("\\(\\d+\\)"))
+        depmap_consume(local_tx)  # read into memory; drop the on-disk copy
 
         print("wide to long")
         res = tidyr::pivot_longer(data=exp_file,cols=c(2:ncol(exp_file)),
@@ -549,8 +615,12 @@ depmap_files<-function(fi,value){
         colnames(res)[1]<-'other_id'
 
         print('fixing gene names')
-        res<-res|>
-          tidyr::separate_wider_delim(gene_entrez,' ',names=c('gene_symbol','entrez_par'))
+        res <- res |>
+          dplyr::mutate(
+            gene_symbol = trimws(stringr::str_extract(gene_entrez, "^[^(]+")),
+            entrez_par  = stringr::str_extract(gene_entrez, "(?<=\\()\\d+(?=\\))")
+          ) |>
+          dplyr::select(-gene_entrez)
 
       print('join with gene')
       res<-res|>
@@ -670,12 +740,10 @@ main<-function(){
         print(dt)
         temps<-sanger_files(sanger_filenames[[dt]],dt)|>tidyr::drop_na()|>dplyr::distinct()
         readr::write_csv(temps,file=paste0('/tmp/sanger_',dt,'.csv.gz'))
+        rm(temps); gc()
         tempd<-depmap_files(depmap_filenames[[dt]],dt)|>tidyr::drop_na()|>dplyr::distinct()
         readr::write_csv(tempd,file=paste0('/tmp/broad_',dt,'.csv.gz'))
-
-#        readr::write_csv(rbind(tempd,temps),file=paste0('/tmp/broad_sanger_',dt,'.csv.gz'))
-        rm(tempd)
-        rm(temps)
+        rm(tempd); gc()
     })
 
 }
