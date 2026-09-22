@@ -110,7 +110,9 @@ def download(
     if name != "all":
         filtered_files = [
             f for f in all_files
-            if (f.get('name', '').casefold().startswith(name)) or ('genes' in f.get('name', '').casefold())
+            if (f.get('name', '').casefold().startswith(name))
+            or ('genes' in f.get('name', '').casefold())
+            or ('phosphosites' in f.get('name', '').casefold())
         ]
     else:
         filtered_files = all_files
