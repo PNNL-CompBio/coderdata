@@ -10,6 +10,31 @@ import argparse
 import pubchem_retrieval as pr
 import random as rand
 from urllib import request
+import download_utils
+import io
+
+_BROWSER_UA = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+
+def _fetch(url: str) -> bytes:
+    """Download url with a browser User-Agent (NCI wiki blocks Python's default)."""
+    req = request.Request(url, headers={"User-Agent": _BROWSER_UA})
+    with request.urlopen(req) as resp:
+        return resp.read()
+
+def _read_csv_url(url: str, **kwargs) -> pl.DataFrame:
+    return pl.read_csv(io.BytesIO(_fetch(url)), **kwargs)
+
+def _retrieve_url(url: str, dest: str) -> None:
+    """Download url to dest, resuming an interrupted transfer.
+
+    This also fetches the ~346MB DOSERESP.zip, and _fetch() reads the whole
+    body into memory in one call -- the same shape that truncated with
+    IncompleteRead in build v32. Small CSVs still go through _fetch().
+    """
+    download_utils.retrieve_url(url, dest, headers={"User-Agent": _BROWSER_UA})
 
 ##drug files
 smi_strings='https://wiki.nci.nih.gov/download/attachments/155844992/nsc_smiles.csv?version=1&modificationDate=1710381820000&api=v2&download=true'
@@ -41,11 +66,12 @@ cas = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?versi
 #jan 2025
 cas = 'https://wiki.nci.nih.gov/download/attachments/155844992/nsc_cas.csv?version=4&modificationDate=1735931080720&api=v2'
 
-conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=11&modificationDate=1712351454136&api=v2'
-##OCT 2024
-conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=13&modificationDate=1727922354561&api=v2'
+##oct 2024
+#conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=13&modificationDate=1727922354561&api=v2'
 #jan 2025
-conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=14&modificationDate=1735932462303&api=v2'
+#conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=14&modificationDate=1735932462303&api=v2'
+#may 2025
+conc_data = 'https://wiki.nci.nih.gov/download/attachments/147193864/DOSERESP.zip?version=19&modificationDate=1775183341937&api=v2'
 
 def main():    
     parser = argparse.ArgumentParser()
@@ -58,15 +84,20 @@ def main():
           'InChIKey':[],'formula':[],'weight':[],'pubchem_id':[]}
 
     print('Downloading NSC identifiers for nci60 data')
-    names = pl.read_csv(chemnames,ignore_errors=True)
+    names = _read_csv_url(chemnames, ignore_errors=True)
     #castab = pd.read_csv(cas)
-    pubchems = pl.read_csv(pc_ids)
-    smiles = pl.read_csv(smi_strings)
+    pubchems = _read_csv_url(pc_ids)
+    smiles = _read_csv_url(smi_strings)
 
     print('Getting experimental data to filter drugs')
     if not os.path.exists('DOSERESP.csv'):
-        resp = request.urlretrieve(conc_data,'doseresp.zip')
-        os.system('unzip doseresp.zip')
+        _retrieve_url(conc_data, 'doseresp.zip')
+        # -o overwrites without prompting; the exit status is checked so a
+        # corrupt or truncated archive fails here rather than surfacing later
+        # as a confusing parse error on a stale DOSERESP.csv.
+        _rc = os.system('unzip -o doseresp.zip')
+        if _rc != 0:
+            raise RuntimeError(f"unzip of doseresp.zip failed (exit status {_rc}).")
     dose_resp = pl.read_csv("DOSERESP.csv",quote_char='"',infer_schema_length=10000000,ignore_errors=True)
     pubchems = pubchems.filter(pl.col('NSC').is_in(dose_resp['NSC']))
     smiles = smiles.filter(pl.col("NSC").is_in(dose_resp['NSC'])
@@ -81,13 +112,10 @@ def main():
     ##first filter to see if there are structures/drugs in teh data already. i dont think this does much.
     if os.path.exists(opts.output):
         curdrugs = pl.read_csv(opts.output,separator='\t')
-       # cs = set(curdrugs['isoSMILES'])
-        smiles = smiles.filter(pl.col('SMILES').is_not_null())
-        upper=[a.upper() for a in smiles['SMILES']]
-        smiles= pl.DataFrame({'NSC':smiles['NSC'],'upper':upper})#smiles.with_columns(upper=upper)
-        ##reduce to smiels only in current drugs
-        # ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['isoSMILES']))
-        ssmiles = smiles.filter(~pl.col('upper').is_in(curdrugs['canSMILES']))
+        smiles_notnull = smiles.filter(pl.col('SMILES').is_not_null())
+        upper=[a.upper() for a in smiles_notnull['SMILES']]
+        smiles_upper = pl.DataFrame({'NSC':smiles_notnull['NSC'],'upper':upper})
+        ssmiles = smiles_upper.filter(~pl.col('upper').is_in(curdrugs['canSMILES']))
         pubchems = pubchems.filter(pl.col('NSC').is_in(ssmiles['NSC']))
         arr = set(pubchems['CID'])
         
