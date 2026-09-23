@@ -20,3 +20,11 @@ build/lib
 build/local
 coderdata/_version.py
 local/
+
+# Build logs and PID files.
+# Build logs capture full `docker run` command lines. Those command lines pass
+# credentials as `-e NAME=value`, so older logs contain a live
+# SYNAPSE_AUTH_TOKEN in cleartext (build_all_v19.log had 47 copies).
+# coderbuild/build_all.py now redacts them via _redact(), but never commit these.
+*.log
+build_v*.pid
