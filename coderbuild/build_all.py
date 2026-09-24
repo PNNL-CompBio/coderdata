@@ -430,17 +430,17 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             decompress_file(file)
 
         ### These should be done before schema checking.
-        sample_mapping_command = ['python3', 'scripts/map_improve_sample_ids.py', '--local_dir', "/tmp", '--version', args.version]
+        sample_mapping_command = ['python3', 'coderbuild/utils/map_improve_sample_ids.py', '--local_dir', "/tmp", '--version', args.version]
         run_docker_upload_cmd(sample_mapping_command, 'all_files_dir', 'Map_Samples', args.version)
         
-        drug_mapping_command = ['python3', 'scripts/map_improve_drug_ids.py', '--local_dir', "/tmp", '--version', args.version]
+        drug_mapping_command = ['python3', 'coderbuild/utils/map_improve_drug_ids.py', '--local_dir', "/tmp", '--version', args.version]
         run_docker_upload_cmd(drug_mapping_command, 'all_files_dir', 'Map_Drugs', args.version)
         
-        drug_mapping_command_2 = ['python3', 'scripts/align_drug_descriptors.py', '--local_dir', "/tmp", '--version', args.version]
+        drug_mapping_command_2 = ['python3', 'coderbuild/utils/align_drug_descriptors.py', '--local_dir', "/tmp", '--version', args.version]
         run_docker_upload_cmd(drug_mapping_command_2, 'all_files_dir', 'Align_Drug_Descriptors', args.version)
 
         # Run schema checker - This will always run if uploading data.
-        schema_check_command = ['python3', 'scripts/check_schema.py', '--datasets'] + datasets
+        schema_check_command = ['python3', 'coderbuild/utils/check_schema.py', '--datasets'] + datasets
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
         
         print("Validation complete. Proceeding with file compression/decompression adjustments")
@@ -457,7 +457,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     
         ### Upload to Figshare using Docker
         if args.figshare and args.version and figshare_token:
-            figshare_command = ['python3', 'scripts/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--version', args.version, '--publish']
+            figshare_command = ['python3', 'coderbuild/utils/push_to_figshare.py', '--directory', "/tmp", '--title', f"CODERData{args.version}", '--token', os.getenv('FIGSHARE_TOKEN'), '--project_id', '189342', '--version', args.version, '--publish']
             run_docker_upload_cmd(figshare_command, 'all_files_dir', 'Figshare', args.version)
 
             ### Push changes to GitHub using Docker
