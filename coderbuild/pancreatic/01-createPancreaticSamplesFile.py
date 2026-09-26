@@ -1,19 +1,71 @@
 import pandas as pd
+import time
 import requests
 import os
 import argparse
 import numpy as np
+import io
 
+_BROWSER_UA = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
 
 #this is table S1 - it has a mapping from patient number to organoid
-sample_mapping='https://aacr.silverchair-cdn.com/aacr/content_public/journal/cancerdiscovery/8/9/10.1158_2159-8290.cd-18-0349/5/21598290cd180349-sup-199398_2_supp_4775186_p95dln.xlsx?Expires=1738004990&Signature=yngaaKNaXfIPCr-xLS2bDjX49n9py8JC7NBwi3q7m7ARYnK573eZwavFYmJOZVanL555vUWAr5x5k9b7IKj4VWHtZ-dts7BDzHd14AZh15LbsorJh-r3gjPliF7v1PIoAcGnEXjma2~kosmoDmyK0EDWXQCOE48tAaG5hFtaWAMMAINRMeBNgtDYk937Npc3Wb0IcGAdlgD2TJd8KJW2jQmcRspY1hfYssiS3BcWzuJrP-DVJeb-1V7-BnVNL6cVCkr7zHhau50H6aVgMVzk33F0gjCphl4r90OIx9UwE59hyNHbN9rFeeW26kDQpgCQKCj98Ol6CNQfLDsb2Zc5dQ__&Key-Pair-Id=APKAIE5G5CRDK6RD3PGA'
+## Patient-Derived Organoid Cohort mapping (patient number -> organoid id).
+##
+## Source: Tiriac H, Belleau P, Engle DD, Plenker D, Deschenes A, Somerville TDD,
+## et al. "Organoid Profiling Identifies Common Responders to Chemotherapy in
+## Pancreatic Cancer." Cancer Discovery (2018) 8(9):1112-1129.
+## doi:10.1158/2159-8290.CD-18-0349
+##
+## Fetched from Figshare. The aacr.silverchair-cdn.com link that used to be here
+## was a CloudFront SIGNED url whose Expires=1738004990 lapsed on 2025-01-27, so
+## it returns 403 permanently. A freshly issued replacement expires roughly five
+## weeks later, so pasting in a new one only resets the clock. Figshare download
+## links do not expire. (The drug table in 03-getPancreaticDrugs.py had the same
+## problem and the same fix.)
+##
+## Verified: this workbook has a 'Patient-Derived Organoid Cohort' sheet with
+## 'Patient number' and 'Organoid' columns and 57 hT*/hF* organoid ids.
+sample_mapping='https://ndownloader.figstatic.com/files/39996304'
+
+_RETRY_SLEEPS = (60, 180, 600, 900)
 
 
 def get_organoid_samples(sample_tab):
     '''
     takes as input a processed list of samples from HCMI and appends it with the 'organoid' identifier from the papers table S1 described above
     '''
-    map = pd.read_excel(sample_mapping, sheet_name='Patient-Derived Organoid Cohort', skiprows=1)
+    # Deliberately NOT sending _BROWSER_UA here.
+    #
+    # That header exists to get past the AACR CDN, which this no longer uses.
+    # Figshare responds to it with "202 Accepted" and an EMPTY body, which then
+    # fails in read_excel as "Excel file format cannot be determined". With the
+    # default requests user-agent it redirects to S3 and returns the file.
+    # Measured: browser UA -> 202, 0 bytes; default UA -> 200, 36,891 bytes.
+    last_error = None
+    for attempt in range(len(_RETRY_SLEEPS) + 1):
+        try:
+            resp = requests.get(sample_mapping, timeout=120)
+            resp.raise_for_status()
+            if not resp.content:
+                raise RuntimeError(f"empty body (HTTP {resp.status_code})")
+            break
+        except Exception as e:                    # noqa: BLE001 - network shapes vary
+            last_error = e
+            if attempt < len(_RETRY_SLEEPS):
+                wait = _RETRY_SLEEPS[attempt]
+                print(f"  fetching {sample_mapping} failed ({e}); attempt "
+                      f"{attempt + 1}/{len(_RETRY_SLEEPS) + 1}, retrying in "
+                      f"{wait // 60} min", flush=True)
+                time.sleep(wait)
+    else:
+        raise RuntimeError(
+            f"Could not fetch the pancreatic organoid mapping from "
+            f"{sample_mapping} after {len(_RETRY_SLEEPS) + 1} attempts: {last_error}")
+
+    map = pd.read_excel(io.BytesIO(resp.content), sheet_name='Patient-Derived Organoid Cohort', skiprows=1)
     pmap = map[['Patient number','Organoid']]
     pmap = pmap.rename(columns={'Patient number':'common_name','Organoid':'experimentId'})
     
@@ -60,10 +112,11 @@ def align_to_linkml_schema(input_df):
     '2D Modified Conditionally Reprogrammed Cells': 'cell line',
     'Pleural Effusion': np.nan,
     'Human Original Cells': 'cell line',
-    'Not Reported': np.nan, 
+    'Not Reported': np.nan,
     'Mixed Adherent Suspension': 'cell line',
     'Cell': 'cell line',
-    'Saliva': np.nan
+    'Saliva': np.nan,
+    'Next Generation Cancer Model': 'patient derived organoid',
     }
 
     # Apply mapping
@@ -205,7 +258,7 @@ def extract_data(data):
                                     'sample_id': sample['sample_id'],
                                     'sample_type': sample['sample_type'],
                                     #'tumor_descriptor': sample.get('tumor_descriptor', None),
-                                    'composition': sample.get('composition', None),
+                                    'composition': sample.get('composition') or sample.get('sample_type', None),
                                     'id': aliquot['aliquot_id']
                                 })
     return pd.DataFrame(extracted)
@@ -349,12 +402,33 @@ def main():
         maxval = 0
     else:
         print("Previous Samples File Provided. Running pancreatic Sample File Generation")
-        maxval = max(pd.read_csv(args.prev_samps).improve_sample_id)
+        _prev = pd.read_csv(args.prev_samps)
+        _max = _prev['improve_sample_id'].max()
+        maxval = int(_max) if pd.notna(_max) else 0
     
     output = filter_and_subset_data(df,maxval,args.map)
     aligned = align_to_linkml_schema(output)
     print(aligned)
+    # Do NOT swallow a failure here.
+    #
+    # This used to catch everything and print a warning, so when the AACR link
+    # started returning 403 the samples step still reported success -- just
+    # without the experimentId rows, which are the hT*/hF* organoid ids. The
+    # omics step keys its CNV and mutation files on exactly those ids, so every
+    # one of its 96 downloads was skipped with "Missing sample id for hT58" and
+    # it died on pd.concat([]) two steps later, far from the real cause.
     aligned = get_organoid_samples(aligned)
+
+    # The organoid ids are load-bearing for omics, so confirm they arrived
+    # rather than trusting that the merge found anything.
+    n_org = int((aligned['other_id_source'] == 'experimentId').sum())
+    if n_org == 0:
+        raise RuntimeError(
+            "No experimentId (organoid) rows were added to pancreatic samples. "
+            "The omics step keys its CNV and mutation files on those hT*/hF* ids "
+            "and will skip every file without them, so the build is stopping here.")
+    print(f"Added {n_org} organoid (experimentId) rows to pancreatic samples.")
+
     aligned.to_csv("/tmp/pancreatic_samples.csv",index=False)
  
 main()

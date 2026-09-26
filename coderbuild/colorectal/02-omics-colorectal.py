@@ -75,7 +75,7 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     questions = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] == "?"].reset_index()  # all rows with ? 
     fixed_entrez = pd.merge(questions, entrez_data[['entrez_id','other_id','gene_symbol']], how='inner', left_on="Hugo_Symbol", right_on="other_id") # merge with our entrez database to see if we have additional matches
     for index_val in fixed_entrez['index'].values:
-        mapped_mutation_data.loc[index_val,'Entrez_Gene_Id'] = fixed_entrez[fixed_entrez['index'] == index_val]['entrez_id'].values  # for loop to replace these values with found entrez's
+        mapped_mutation_data.loc[index_val,'Entrez_Gene_Id'] = fixed_entrez[fixed_entrez['index'] == index_val]['entrez_id'].values[0]  # take first match; ambiguous aliases can map to multiple entrez IDs
     mapped_mutation_data = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] != "?"]  # remove rows with ? leftover
 
     # clean up column names and data types
@@ -106,7 +106,27 @@ def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
     transciptomics_data.to_csv("/tmp/counts_for_tpm_conversion.tsv", sep='\t')
 
     # run tpmFromCounts.py to convert counts to tpm
-    os.system("python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.tsv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
+    # Convert counts to TPM.
+    #
+    # The exit code MUST be checked and the output MUST be cleared first.
+    # /tmp is a bind mount shared by every container, and liver, novartis and
+    # colorectal all use this same generic filename. os.system() returns a
+    # status rather than raising, so a failed conversion previously fell
+    # through to the read below and silently picked up ANOTHER dataset's
+    # leftover file -- producing a successful build with the wrong
+    # transcriptomics data rather than an error.
+    _tpm_out = "/tmp/transcriptomics_tpm.tsv"
+    if os.path.exists(_tpm_out):
+        os.remove(_tpm_out)
+    _rc = os.system(
+        "python3 tpmFromCounts.py --counts /tmp/counts_for_tpm_conversion.tsv --genome_build https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.13_GRCh37/GCF_000001405.13_GRCh37_genomic.gtf.gz --gene_col stable_id --exclude_col stable_id --out_file /tmp/transcriptomics_tpm.tsv")
+    if _rc != 0:
+        raise RuntimeError(
+            f"tpmFromCounts.py failed for colorectal (exit status {_rc}). "
+            f"It downloads the GRCh37 GTF from NCBI, so this is often a network failure.")
+    if not os.path.exists(_tpm_out) or os.path.getsize(_tpm_out) == 0:
+        raise RuntimeError(
+            f"tpmFromCounts.py produced no output at {_tpm_out} for colorectal.")
     
     # get output from script (in tsv format) and average across organoids from each patient ]
     tpm_transciptomics_data = pd.read_csv("/tmp/transcriptomics_tpm.tsv", sep="\t")
@@ -183,7 +203,16 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     copy_number_data.to_csv("sample_copy_num.csv")
 
     # get gene names using chr, start, and end using CNV-segfile-annotation.R
-    os.system("Rscript --vanilla CNV-segfile-annotation.R sample_copy_num.csv output_copy_num.csv")
+    # Clear the output and check the exit status: os.system() returns a status
+    # rather than raising, so a failed annotation would otherwise fall through
+    # to the read below and reuse a stale output_copy_num.csv.
+    if os.path.exists("output_copy_num.csv"):
+        os.remove("output_copy_num.csv")
+    _rc = os.system("Rscript --vanilla CNV-segfile-annotation.R sample_copy_num.csv output_copy_num.csv")
+    if _rc != 0:
+        raise RuntimeError(f"CNV-segfile-annotation.R failed (exit status {_rc}).")
+    if not os.path.exists("output_copy_num.csv"):
+        raise RuntimeError("CNV-segfile-annotation.R produced no output_copy_num.csv.")
     mapped_cn_df = pd.read_csv("output_copy_num.csv")
 
     # do copy_number calculation from score and get copy call column

@@ -162,6 +162,50 @@ def fetch_metadata(uuids):
     return response.json()
 
 
+def drop_controlled_access(newfm, batch=400):
+    """Remove dbGaP controlled-access files from a manifest slice.
+
+    gdc-client cannot fetch controlled-access files without dbGaP
+    authorisation, so they fail every retry and never come down -- in one
+    hcmi build the missing count fell 373 -> 150 -> 27 -> 7 and then stuck at
+    7 through every remaining attempt, all seven controlled. They also could
+    not be published even if we had them: coderdata is an open dataset and
+    dbGaP controlled data cannot be redistributed.
+
+    The GDC manifest carries no access column, so ask the API. If the query
+    fails we keep the manifest untouched and let the retry loop deal with it;
+    this is an optimisation, not a correctness gate.
+    """
+    ids = newfm['id'].astype(str).tolist()
+    if not ids:
+        return newfm
+    open_ids = set()
+    try:
+        for i in range(0, len(ids), batch):
+            chunk = ids[i:i + batch]
+            payload = {
+                "filters": {"op": "and", "content": [
+                    {"op": "in", "content": {"field": "files.file_id", "value": chunk}},
+                    {"op": "in", "content": {"field": "files.access", "value": ["open"]}}]},
+                "fields": "file_id", "format": "JSON", "size": str(len(chunk))}
+            r = requests.post("https://api.gdc.cancer.gov/files", json=payload, timeout=60)
+            r.raise_for_status()
+            open_ids.update(h["file_id"] for h in r.json()["data"]["hits"])
+    except Exception as e:
+        print(f"  Could not check GDC access levels ({e}); keeping the full manifest.")
+        return newfm
+
+    controlled = [i for i in ids if i not in open_ids]
+    if controlled:
+        print(f"  Skipping {len(controlled)} of {len(ids)} files that are dbGaP "
+              f"controlled-access and cannot be downloaded or redistributed.")
+        _c = sorted(controlled)
+        print(f"    ids: {_c[:20]}"
+              + (f" ... and {len(_c) - 20} more" if len(_c) > 20 else ""))
+        newfm = newfm[newfm['id'].astype(str).isin(open_ids)]
+    return newfm
+
+
 def use_gdc_tool(manifest_data, data_type, download_data):
     """
     Use the gdc-client tool to download data based on the provided manifest and data type.
@@ -175,6 +219,7 @@ def use_gdc_tool(manifest_data, data_type, download_data):
     fm = pd.read_csv(manifest_data, sep='\t')
     fm['include'] = [tdict[data_type] in a for a in fm.filename]
     newfm = fm[fm.include]
+    newfm = drop_controlled_access(newfm)
     newfm.to_csv('new_manifest.txt', sep='\t', index=False)
     
     manifest_loc = "full_manifest_files"
@@ -254,7 +299,31 @@ def use_gdc_tool(manifest_data, data_type, download_data):
             retries += 1
             if retries > max_retries:
                 print(f"\nFailed to download or verify {len(missing_or_corrupt_ids)} files after {max_retries} retries.")
-                print("Proceeding with available files.")
+                # GDC moves files around between releases and some are dbGaP
+                # controlled-access, so a handful being unreachable is normal churn rather
+                # than a build problem. Retry hard (above), then continue with what we have
+                # -- but say so loudly, and list the ids, so the omission is auditable
+                # instead of silent.
+                #
+                # The one thing still worth failing on is a catastrophic shortfall: if most
+                # of the manifest is missing, that is a broken network or a bad token, not
+                # churn, and publishing pancreatic omics from a fraction of its files would be
+                # wrong. GDC_MAX_MISSING_FRACTION tunes that ceiling (default 0.20).
+                _total = len(expected_files)
+                _frac = (len(missing_or_corrupt_ids) / _total) if _total else 0.0
+                _ceiling = float(os.environ.get("GDC_MAX_MISSING_FRACTION", "0.20"))
+                print(
+                    f"\n*** pancreatic: proceeding WITHOUT {len(missing_or_corrupt_ids)} of {_total} "
+                    f"files ({_frac:.1%}) that GDC did not serve after {max_retries} retries. ***")
+                _ids = sorted(missing_or_corrupt_ids)
+                print(f"    skipped ids: {_ids[:20]}"
+                      + (f" ... and {len(_ids) - 20} more" if len(_ids) > 20 else ""))
+                if _frac > _ceiling:
+                    raise RuntimeError(
+                        f"{len(missing_or_corrupt_ids)} of {_total} pancreatic GDC files ({_frac:.1%}) could "
+                        f"not be retrieved, above the {_ceiling:.0%} ceiling. That is too much to be "
+                        f"normal GDC churn -- check the network and any GDC token. "
+                        f"Set GDC_MAX_MISSING_FRACTION to raise the ceiling deliberately.")
                 break
 
             print(f"\nRetrying download for {len(missing_or_corrupt_ids)} files (Attempt {retries}/{max_retries}):")
@@ -284,7 +353,31 @@ def use_gdc_tool(manifest_data, data_type, download_data):
 
         if missing_or_corrupt_ids:
             print(f"\nFailed to download or verify {len(missing_or_corrupt_ids)} files after {max_retries} retries.")
-            print("Proceeding with available files.")
+            # GDC moves files around between releases and some are dbGaP
+            # controlled-access, so a handful being unreachable is normal churn rather
+            # than a build problem. Retry hard (above), then continue with what we have
+            # -- but say so loudly, and list the ids, so the omission is auditable
+            # instead of silent.
+            #
+            # The one thing still worth failing on is a catastrophic shortfall: if most
+            # of the manifest is missing, that is a broken network or a bad token, not
+            # churn, and publishing pancreatic omics from a fraction of its files would be
+            # wrong. GDC_MAX_MISSING_FRACTION tunes that ceiling (default 0.20).
+            _total = len(expected_files)
+            _frac = (len(missing_or_corrupt_ids) / _total) if _total else 0.0
+            _ceiling = float(os.environ.get("GDC_MAX_MISSING_FRACTION", "0.20"))
+            print(
+                f"\n*** pancreatic: proceeding WITHOUT {len(missing_or_corrupt_ids)} of {_total} "
+                f"files ({_frac:.1%}) that GDC did not serve after {max_retries} retries. ***")
+            _ids = sorted(missing_or_corrupt_ids)
+            print(f"    skipped ids: {_ids[:20]}"
+                  + (f" ... and {len(_ids) - 20} more" if len(_ids) > 20 else ""))
+            if _frac > _ceiling:
+                raise RuntimeError(
+                    f"{len(missing_or_corrupt_ids)} of {_total} pancreatic GDC files ({_frac:.1%}) could "
+                    f"not be retrieved, above the {_ceiling:.0%} ceiling. That is too much to be "
+                    f"normal GDC churn -- check the network and any GDC token. "
+                    f"Set GDC_MAX_MISSING_FRACTION to raise the ceiling deliberately.")
 
     # Extract UUIDs and fetch metadata
     print("Extracting UUIDs from manifest...")
