@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 import json
 import os
+import sys
 import csv
 import argparse
 from datetime import datetime
 import gzip
 import shutil
+
+# Drug synonym fields can legitimately be long, and a quoting bug in
+# pubchem_retrieval.py (fixed 2026-08-29) historically inflated some chem_name
+# values well past Python's default 131072-byte csv field limit. Matches the
+# limit already set in align_drug_descriptors.py so the two stay consistent.
+csv.field_size_limit(min(sys.maxsize, 2**31 - 1))
 
 ##### Load, make structure, save functions for improve_drug_mapping.json
 def load_mapping(mapping_file='improve_drug_mapping.json'):
