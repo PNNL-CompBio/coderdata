@@ -75,9 +75,9 @@ The following table summarizes the number of drugs associated with each dose-res
 Types of dose-response metrics collected include:
 
 - AAC - Area above the response curve; the complement value of AUC.
-- ABC - Area between curves, the difference between the AUC of the control and the treated cells.
+- ABC - Area between curves, the difference between the AUC of the control and the treated cells. (PDX)
 - AUC - Area under the fitted hill slope curve across all doses present. Lower AUC signifies lower levels of growth.
-- DSS - A multiparametric dose response value that takes into account control and treated cells.
+- DSS - A multiparametric dose response value, that takes into account control and treated cells; the Drug Sensitivity Score is described in Yadav et al., 2014.
 - fit_auc - Area under the fitted hill slope curve across the common interval of −log10[M], where the molar concentration ranges from 10⁻⁴ to 10⁻¹⁰.
 - fit_ec50 - The fitted curve prediction of the −log10M concentration at which 50% of the maximal effect is observed.
 - fit_ec50se - Standard error of the Fit_EC50 estimate.
@@ -85,10 +85,10 @@ Types of dose-response metrics collected include:
 - fit_hs - The estimated hill slope binding cooperativity, calculated as the slope of the sigmoidal hill curve.
 - fit_ic50 - The fitted curve prediction of the −log10M concentration required to reduce tumor growth by 50%.
 - fit_r2 - Coefficient of determination between observed growth and the fitted hill slope curve, indicating goodness of fit.
-- lmm - The resulting “time and treatment interaction” in a linear mixed model with fixed effects as time and treatment and patient as a random effect. Indicates how much the treatment changes the slope of log(volume) over time compared to the control.
-- mRESCIST - Disease status classified into PD (progressive disease), SD (stable disease), PR (partial response), and CR (complete response), based on percent volume change and cumulative average response.
+- lmm - The resulting “time and treatment interaction” in a linear mixed model with fixed effects as time and treatment and with patient as a random effect. This indicates how much the treatment changes the slope of log(volume) over time compared to the control. (PDX)
+- mRECIST - Disease status is classified into four categories: PD (progressive disease), SD (stable disease), PR (partial response), and CR (complete response). This is calculated as Day 10 percent volume change (%ΔV) and its cumulative average response under the following methods: CR if best %ΔV < −95% and avg < −40%, PR if %ΔV < −50% and avg < −20%, SD if %ΔV < +35% and avg < +30%, otherwise PD. (PDX)
 - published_auc - Published Area Under the Curve
-- TG - Tumor growth inhibition between the control and treatment time-volume curves.
+- TGI - The tumor growth inhibition (TGI) between the control and treatment time-volume curves. (PDX)
 
 
 
