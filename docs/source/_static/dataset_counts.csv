@@ -1,0 +1,19 @@
+dataset,model_type,samples,drugs,genes,experiments,transcriptomics,proteomics,phosphoproteomics,mutations,copy_number,drug_descriptors,combinations,dose_response_metrics
+beataml,ex vivo,1022,164,19221,324980,13573491,1437831,0,7233,0,264696,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+bladder,patient derived organoid;tumor;patient derived xenograft;xenograft derived organoid,134,50,19403,33000,815975,0,0,3568,1135661,80700,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+ccle,cell line,503,24,19380,115430,9114448,2180178,0,224974,6788934,38736,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+colorectal,patient derived organoid;tumor,61,10,20839,1400,156993,0,0,44634,689155,16140,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+cptac,tumor,1139,0,19278,0,21170373,9486498,0,252398,19261183,0,0,
+ctrpv2,cell line,848,460,19381,3101330,15739656,3011948,0,389773,10906812,742440,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+fimm,cell line,53,52,19353,26630,919104,250970,0,12743,760509,83928,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+gcsi,cell line,571,43,19380,132290,10148440,2247800,0,276904,7197012,69402,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+gdscv1,cell line,985,291,19158,2454890,18501510,4694495,0,3385316,37266972,469674,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+gdscv2,cell line,807,170,19158,1146910,15192913,3879361,0,2852337,30512750,274380,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+hcmi,patient derived organoid,1087,0,19218,0,12540435,0,0,100602,6044025,0,0,
+liver,patient derived organoid,62,76,27163,44530,1063454,452662,0,12810,1686901,122664,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+mpnst,3D-MEDS;patient derived xenograft;tumor,47,39,19731,27985,1612748,52638,0,84720,541907,62946,75,aac;abc;auc;delta_auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2;lmm;mrecist;tgi
+nci60,cell line,84,23267,19368,12364040,1340360,387298,0,54400,1094391,37551324,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+novartis,patient derived xenograft,348,25,19042,6950,6215451,0,0,106692,6219933,40350,0,abc;lmm;mrecist;tgi
+pancreatic,patient derived organoid,49,25,19070,1900,1031014,0,0,78589,955688,40350,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+prism,cell line,479,1418,19381,6385340,9076152,2144440,0,249890,6992973,2288652,0,aac;auc;dss;fit_auc;fit_ec50;fit_ec50se;fit_einf;fit_hs;fit_ic50;fit_r2
+sarcoma,tumor;patient derived organoid,36,34,17895,275,573198,0,0,92,0,54876,0,published_auc

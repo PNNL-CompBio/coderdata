@@ -65,9 +65,10 @@ To update pages navigate to `docs/source/`, all .rst and .md files live here. He
 | Tutorial         | docsite_tutorial.ipynb                                                  | Deep Learning Tutorial         |
 | Contributing     | contribution_guide.rst *includes contribution.md and add_code_guide.md* | Contribution Guide             |
 
-**Note:** 
-- When adding pages, reStructuredText files are the most sphinx friendly and allow for use of helpful directives. However, Markdown files can be used and will render properly when the myst-parser extension is used. 
-- New pages must be added to the `.. toctree::` in the `index.rst` to be recognized by Sphinx. 
+**Note:**
+- When adding pages, reStructuredText files are the most sphinx friendly and allow for use of helpful directives. However, Markdown files can be used and will render properly when the myst-parser extension is used.
+- New pages must be added to the `.. toctree::` in the `index.rst` to be recognized by Sphinx.
+- The counts on the Datasets page (`datasets_included.rst`) are generated directly from a local CoderData build using `scripts/gen_dataset_stats.py`, which writes a machine-readable summary to `docs/source/_static/dataset_counts.csv`. To refresh the numbers for a new release, run `python scripts/gen_dataset_stats.py --build-dir <build_output_dir> --output docs/source/_static/dataset_counts.csv` and update the tables in `datasets_included.rst` accordingly.
 - Currently the API reference does not include documentation for `plot_2D_respones_metric`, `format`, `split_train_test_validate`, and `split_train_other`. It seems that the most updated `coderdata` directory currently does not include docstrings for these functions.
 
 ### Tutorial
