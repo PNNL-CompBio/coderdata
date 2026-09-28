@@ -36,6 +36,6 @@ Dataset Object
    :show-inheritance:
 
 .. automodule:: coderdata.utils.stats
-   :members: summarize_response_metric, plot_response_metric, plot_2D_respones_metric
+   :members: summarize_response_metric, plot_response_metric, plot_2d_respones_metric
    :no-undoc-members:
    :show-inheritance:
