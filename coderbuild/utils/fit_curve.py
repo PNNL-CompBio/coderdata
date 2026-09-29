@@ -17,6 +17,10 @@ from itertools import islice
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 import multiprocessing
+from datetime import datetime
+
+def _log(msg):
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {msg}', flush=True)
 
 #import uno_data as ud
 
@@ -225,26 +229,69 @@ def process_single_drug(name_group_tuple):
     metrics = compute_fit_metrics(xdata, ydata, popt, pcov)
     return name, metrics
 
-def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None):
-    cols = ['source', 'improve_sample_id', 'Drug', 'study','time','time_unit']
-    groups = df.groupby(cols)
-    count = count or (4484081 - start)
-    groups = islice(groups, start, start+count)
+def process_df_part(df, fname, beataml=False, sep='\t', start=0, count=None,
+                    workers=None, chunk_size=50000):
+    cols = ['source', 'improve_sample_id', 'Drug', 'study', 'time', 'time_unit']
     cores = multiprocessing.cpu_count()
-    poolsize = round(cores-1)
-    print('we have '+str(cores)+' cores and '+str(poolsize)+' threads')
-    with multiprocessing.Pool(processes=poolsize) as pool:
-        results = pool.map(process_single_drug, groups)
+    poolsize = workers if workers is not None else max(1, round(cores * 3 / 4))
 
-    with open(f'{fname}.{start}', 'w') as f:
-        header = None
-        for result in results:
-            name, metrics = result
-            if header is None:
-                header = cols + metrics.index.tolist()
-                print(sep.join(header), file=f)
-            print(sep.join(str(n) for n in name), end=sep, file=f)
-            print(sep.join(f'{x:.4g}' for x in metrics), file=f)
+    # Stream lazily — never materialise more than one chunk at a time so
+    # fork() workers only copy chunk-sized data, not the entire groupby result.
+    groups_iter = islice(df.groupby(cols), start, start + count if count else None)
+
+    output_file = f'{fname}.{start}'
+    if os.path.exists(output_file):
+        os.remove(output_file)
+    header_written = False
+    groups_done = 0
+    chunks_skipped = 0
+    chunk_idx = 0
+
+    _log(f'fitting {fname}: {cores} cores, {poolsize} workers, chunk_size={chunk_size}')
+
+    while True:
+        chunk = list(islice(groups_iter, chunk_size))
+        if not chunk:
+            break
+        chunk_idx += 1
+        chunk_workers = poolsize
+
+        for attempt in range(1, 4):
+            try:
+                _log(f'  chunk {chunk_idx} '
+                     f'(groups {groups_done + 1}-{groups_done + len(chunk)}, '
+                     f'attempt {attempt}/3, {chunk_workers} workers)')
+                with multiprocessing.Pool(processes=chunk_workers) as pool:
+                    results = pool.map(process_single_drug, chunk)
+
+                with open(output_file, 'a') as f:
+                    for result in results:
+                        name, metrics = result
+                        if not header_written:
+                            header = cols + metrics.index.tolist()
+                            print(sep.join(header), file=f)
+                            header_written = True
+                        print(sep.join(str(n) for n in name), end=sep, file=f)
+                        print(sep.join(f'{x:.4g}' for x in metrics), file=f)
+
+                groups_done += len(chunk)
+                _log(f'  chunk {chunk_idx} complete ({groups_done} groups so far)')
+                break
+
+            except Exception as e:
+                _log(f'  chunk {chunk_idx} failed '
+                     f'(attempt {attempt}/3): {type(e).__name__}: {e}')
+                if attempt < 3:
+                    chunk_workers = max(1, chunk_workers // 2)
+                    _log(f'  retrying with {chunk_workers} workers')
+                else:
+                    _log(f'  WARNING: chunk {chunk_idx} skipped after 3 failed attempts')
+                    groups_done += len(chunk)
+                    chunks_skipped += 1
+
+    _log(f'fitting complete: {fname} — {groups_done} groups, '
+         f'{chunks_skipped} chunk(s) skipped, output: {output_file}')
+    return chunks_skipped
 
 
 def main():
@@ -261,9 +308,11 @@ def main():
     parser.add_argument('--output', help='prefix of output file')
     parser.add_argument('--beataml', action='store_true', help='Include this if for BeatAML')
     parser.add_argument('--debug',action='store_true',default=False)
-    
+    parser.add_argument('--workers', type=int, default=None, help='Number of parallel worker processes (default: 3/4 of available CPUs)')
+    parser.add_argument('--chunk_size', type=int, default=50000, help='Max drug-groups per pool.map call (default: 50000; reduce for very large datasets)')
+
     args = parser.parse_args()
-    print(args.input)
+    _log(f'loading {args.input}')
     df_all = pd.read_table(args.input)
     if args.debug:
         df_all = df_all.iloc[0:1000000]
@@ -274,12 +323,18 @@ def main():
     df_all.DOSE = -1.0 * np.log10(df_all.DOSE/1000000.0)
     ##need data to be between 0 and 1, not 0 and 100
     df_all.GROWTH=df_all.GROWTH/100.00
-    print(df_all.head)
+    _log(f'loaded {len(df_all)} rows — starting curve fitting')
     fname = args.output or 'combined_single_response_agg'
-    process_df_part(df_all, fname, beataml=args.beataml)#, start=args.start, count=args.count)
-    
-#    if args.beataml == False:
+    skipped = process_df_part(df_all, fname, beataml=args.beataml, workers=args.workers,
+                              chunk_size=args.chunk_size)
+    # Free the large input DataFrame before the schema-formatting step
+    del df_all
+    import gc; gc.collect()
+    _log(f'done: {fname}')
     format_coderd_schema(fname+'.0')
+    if skipped:
+        _log(f'ERROR: {skipped} chunk(s) permanently skipped — output is incomplete')
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

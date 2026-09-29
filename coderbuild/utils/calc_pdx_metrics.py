@@ -111,7 +111,7 @@ def mrecist(time, volume, min_time=10, return_detail=False):
 
     exdf["volume_change"] = tumor_volume_change(volume)
     exdf["average_response"] = avg_response(exdf["volume_change"])
-    nxdf = {'metric':'mRESCIST','value':None}
+    nxdf = {'metric':'mrecist','value':None}
 
     df = pd.DataFrame({"time": time, "volume": volume})
     df = df[df['time'] >= min_time]
@@ -131,7 +131,7 @@ def mrecist(time, volume, min_time=10, return_detail=False):
         best_average_response = exdf["best_average_response"][0]
 
         mrecist = None
-        nxdf = {'metric':'mRESCIST','value':mrecist}
+        nxdf = {'metric':'mrecist','value':mrecist}
 #        exdf["mRECIST"] = mrecist
 
         if best_response is not None and best_average_response is not None:
@@ -148,7 +148,7 @@ def mrecist(time, volume, min_time=10, return_detail=False):
                 mrecist = "CR"
 
 #            exdf["mRECIST"] = mrecist
-            nxdf = {'metric':'mRESCIST','value':mrecist}
+            nxdf = {'metric':'mrecist','value':mrecist}
     if not return_detail:
         return nxdf
 
@@ -211,7 +211,7 @@ def TGI(contr_volume, treat_volume,time):
     
     # Simulated batch response class object
     rtx = {
-        "metric": "TGI",
+        "metric": "tgi",
         "value": tgi,
         'time': np.max(time)
     }
