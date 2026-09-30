@@ -448,7 +448,7 @@ def process_datasets(args):
 
         discretized_copy_number = merged_copy_number.apply(
             pd.cut,
-            bins = [-np.inf, 0.5210507, 0.7311832, 1.214125, 1.422233, np.inf],
+            bins = [0, 0.5210507, 0.7311832, 1.214125, 1.422233, np.inf],
             labels = [-2, -1, 0, 1, 2],
             include_lowest=True
         )
