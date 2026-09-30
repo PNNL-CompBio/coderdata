@@ -493,9 +493,8 @@ depmap_files<-function(fi,value){
 
       res <- as.data.frame(res) |>
         dplyr::mutate(
-          copy_number = suppressWarnings(as.numeric(copy_number)),
-          ## PortalOmicsCNGeneLog2 stores log2(absolute copies); convert to ratio
-          copy_number = 2^copy_number / 2
+          ## PortalOmicsCNGeneLog2 is already log2(relative CN + 1); keep as-is
+          copy_number = suppressWarnings(as.numeric(copy_number))
         ) |>
         dplyr::distinct()
 
