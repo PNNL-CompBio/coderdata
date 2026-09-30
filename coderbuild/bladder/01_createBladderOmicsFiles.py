@@ -20,7 +20,8 @@ def get_copy_call(a):
     if math.isnan(a):
         return float('nan')
 
-    a_val = math.log2(float(a)+0.000001)
+    # a is on the DepMap scale, log2(relative CN + 1), where normal = 1.0
+    a_val = float(a)
     if a_val < 0.5210507:
         return 'deep del'
     elif a_val < 0.7311832:
@@ -118,7 +119,8 @@ def get_bladder_copynumber(synObject, samples, genes):
     segfile_df.to_csv("bladder_segfile.csv")
     subprocess.call (["/usr/bin/Rscript", "--vanilla", "CNV-segfile-annotation.R", "bladder_segfile.csv", "bladder_annotated_segfile.csv"])
     copynumber = pd.read_csv("bladder_annotated_segfile.csv")
-    copynumber['copy_number'] = np.exp2(copynumber['score'].div(2))*2
+    # score is the segment log2 ratio; convert to the DepMap scale log2(relative CN + 1), normal = 1.0
+    copynumber['copy_number'] = np.log2(np.exp2(copynumber['score']) + 1)
     copynumber['copy_call'] = [get_copy_call(a) for a in copynumber['copy_number']]
     copynumber_with_improveids = copynumber.merge(samples, left_on='ID', right_on = 'other_id', how='left')
     copynumber_with_correct_colnames = copynumber_with_improveids.rename({"ENTREZID":'entrez_id'}, axis=1)

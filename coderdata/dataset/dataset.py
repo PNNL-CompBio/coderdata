@@ -792,7 +792,7 @@ def format(
         if copy_call:
             ret = ret.apply(
                 pd.cut,
-                bins = [0, 0.5210507, 0.7311832, 1.214125, 1.422233, 2],
+                bins = [-np.inf, 0.5210507, 0.7311832, 1.214125, 1.422233, np.inf],
                 labels = ['deep del', 'het loss', 'diploid', 'gain', 'amp'],
                 include_lowest=True
             )

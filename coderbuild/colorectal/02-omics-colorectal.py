@@ -173,7 +173,8 @@ def get_copy_call(a):
     if math.isnan(a):
         return float('nan')
 
-    a_val = math.log2(float(a)+0.000001)
+    # a is on the DepMap scale, log2(relative CN + 1), where normal = 1.0
+    a_val = float(a)
     if a_val < 0.5210507:
         return 'deep del'
     elif a_val < 0.7311832:
@@ -216,7 +217,8 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     mapped_cn_df = pd.read_csv("output_copy_num.csv")
 
     # do copy_number calculation from score and get copy call column
-    mapped_cn_df['copy_number'] = np.exp2(mapped_cn_df['score'].div(2))*2
+    # score is the segment log2 ratio; convert to the DepMap scale log2(relative CN + 1), normal = 1.0
+    mapped_cn_df['copy_number'] = np.log2(np.exp2(mapped_cn_df['score']) + 1)
     mapped_cn_df['copy_call'] = [get_copy_call(a) for a in mapped_cn_df['copy_number']]
 
     # map ID to improve_ID

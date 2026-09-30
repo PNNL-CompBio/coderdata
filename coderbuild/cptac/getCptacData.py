@@ -198,8 +198,10 @@ def formatData(df,dtype,ctype,samp_names,source,genes,samples):
     
     mlongdf = mlongdf[['entrez_id','improve_sample_id',dtype]].drop_duplicates()
 
-    ##if its copy number we need to include copy number call
+    ##if its copy number, convert the log2 ratio to the DepMap scale log2(relative CN + 1)
+    ##(normal = 1.0) and add the copy number call
     if dtype=='copy_number': ##deep del < 0.5210507 < het loss < 0.7311832 < diploid < 1.214125 < gain < 1.422233 < amp
+       mlongdf['copy_number'] = np.log2(np.power(2.0, mlongdf['copy_number'].astype(float)) + 1)
        mlongdf[['copy_call']] = mlongdf[['copy_number']].apply(copy_num)
 
 
@@ -211,18 +213,18 @@ def formatData(df,dtype,ctype,samp_names,source,genes,samples):
 
 def copy_num(arr):
     '''
-    Converts copy number values to categorical calls.
+    Converts copy number values (DepMap scale, log2(relative CN + 1)) to categorical calls.
     '''
     copy_call=[]
     for a in arr:
-        a = 2**float(a)
-        if float(a) < 0.5210507:
+        a = float(a)
+        if a < 0.5210507:
             b = 'deep del'
-        elif float(a) < 0.7311832:
+        elif a < 0.7311832:
             b = 'het loss'
-        elif float(a) < 1.214125:
+        elif a < 1.214125:
             b = 'diploid'
-        elif float(a) <1.42233:
+        elif a < 1.422233:
             b = 'gain'
         else:
             b = 'amp'
