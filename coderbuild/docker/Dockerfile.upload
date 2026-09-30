@@ -47,3 +47,4 @@ RUN apt-get update && \
 
 ADD schema schema
 ADD scripts scripts
+ADD coderbuild/utils coderbuild/utils
