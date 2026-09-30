@@ -17,7 +17,8 @@ def get_copy_call(a):
     if math.isnan(a):
         return float('nan')
 
-    a_val = math.log2(float(a)+0.000001)
+    # a is on the DepMap scale, log2(relative CN + 1), where normal = 1.0
+    a_val = float(a)
     if a_val < 0.5210507:
         return 'deep del'
     elif a_val < 0.7311832:
@@ -115,7 +116,9 @@ def map_copy_number_novPDX(copy_number_data, improve_id_data, entrez_data):
     # get entrez id's from Sample
     entrez_cn_df = pd.merge(long_cn_df, entrez_data[['other_id','entrez_id']].drop_duplicates(), how = 'inner', left_on= "Sample", right_on= "other_id")
 
-    # get copy call from value column (aka copy number)
+    # value is absolute copy number (normal = 2); convert to the DepMap scale
+    # log2(relative CN + 1), normal = 1.0, then get the copy call
+    entrez_cn_df['value'] = np.log2(entrez_cn_df['value'].astype(float) / 2 + 1)
     entrez_cn_df['copy_call'] = [get_copy_call(a) for a in entrez_cn_df['value']]
     
     # get improve sample id

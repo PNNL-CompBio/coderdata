@@ -234,7 +234,8 @@ cnv_list <- lapply(
       filter(!is.na(entrez_id)) %>%
       select(entrez_id, log2) %>%
       distinct() %>%
-      mutate(copy_number = 2^log2) %>%
+      ## log2 ratio -> DepMap scale log2(relative CN + 1); normal = 1.0
+      mutate(copy_number = log2(2^log2 + 1)) %>%
       select(-log2)
 
     df <- df_long %>%
