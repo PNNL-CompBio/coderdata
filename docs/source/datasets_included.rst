@@ -1,45 +1,46 @@
 Datasets Included
 =================
 
-This page provides an overview of the datasets included in CoderData version 2.2.0. This package collects 18 diverse sets of paired molecular datasets with corresponding drug sensitivity data. All data here is reprocessed and standardized so it can be easily used as a benchmark dataset for drug response prediction machine learning models.
+This page provides an overview of the datasets included in CoderData version 2.4. This package collects 18 diverse sets of paired molecular datasets with corresponding drug sensitivity data. All data here is reprocessed and standardized so it can be easily used as a benchmark dataset for drug response prediction machine learning models.
 
 The dataset files are in csv format and are available at the link below:
 
-Figshare record: https://api.figshare.com/v2/articles/28823159
+Figshare record: https://api.figshare.com/v2/articles/33990850
 
-Version: 2.2.0
+Version: 2.4
 
 ---------------------------
 Dataset Overview
 ---------------------------
 .. csv-table:: Datasets and Modalities
-   :header: "Dataset", "References", "Sample", "Drug", "Drug Descriptor", "Experiments", "Transcriptomics", "Proteomics", "Mutations", "Copy Number"
-   :widths: 14, 12, 6, 8, 15, 12, 12, 12, 12, 12
+   :header: "Dataset", "References", "Model Type", "Sample", "Drug", "Drug Descriptor", "Experiments", "Transcriptomics", "Proteomics", "Mutations", "Copy Number"
+   :widths: 12, 10, 16, 6, 7, 12, 10, 10, 10, 10, 10
 
-   "BeatAML", "[1]_, [2]_", "1022", "164", "X", "X", "X", "X", "X", ""
-   "Bladder", "[3]_", "134", "50", "X", "X", "X", "", "X", "X"
-   "CCLE", "[4]_", "502", "24", "X", "X", "X", "X", "X", "X"
-   "Colorectal ", "[18]_", "61", "10", "X", "", "X", "", "X", "X"
-   "CPTAC", "[5]_", "1139", "", "", "", "X", "X", "X", "X"
-   "CTRPv2", "[6]_, [7]_, [8]_", "846", "459", "X", "X", "X", "", "X", "X"
-   "FIMM", "[9]_, [10]_", "52", "52", "X", "X", "X", "", "", ""
-   "GDSC v1", "[23]_, [24]_, [25]_", "984", "294", "X", "", "X", "X", "X", "X"
-   "GDSC v2", "[23]_, [24]_, [25]_", "806", "171", "X", "", "X", "X", "X", "X"
-   "gCSI", "[21]_, [22]_", "569", "44", "X", "", "X", "X", "X", "X"
-   "HCMI", "[11]_", "886", "", "", "", "X", "", "X", "X"
-   "Liver", "[19]_", "62", "76", "X", "", "X", "", "X", "X"
-   "MPNST", "[12]_", "50", "30", "X", "X", "X", "X", "X", "X"
-   "NCI60", "[13]_", "83", "55157", "X", "X", "X", "X", "X", ""
-   "Novartis", "[20]_", "386", "25", "X", "", "X", "", "X", "X"
-   "Pancreatic", "[14]_", "70", "25", "X", "X", "X", "", "X", "X"
-   "PRISM", "[15]_, [16]_", "478", "1419", "X", "X", "X", "", "", ""
-   "Sarcoma", "[17]_", "36", "34", "X", "X", "X", "", "X", ""
+   "BeatAML", "[1]_, [2]_", "ex vivo", "1022", "164", "X", "X", "X", "X", "X", ""
+   "Bladder", "[3]_", "patient derived organoid; patient derived xenograft; tumor; xenograft derived organoid", "134", "50", "X", "X", "X", "", "X", "X"
+   "CCLE", "[4]_", "cell line", "503", "24", "X", "X", "X", "X", "X", "X"
+   "Colorectal", "[18]_", "patient derived organoid; tumor", "61", "10", "X", "X", "X", "", "X", "X"
+   "CPTAC", "[5]_", "tumor", "1139", "", "", "", "X", "X", "X", "X"
+   "CTRPv2", "[6]_, [7]_, [8]_", "cell line", "848", "460", "X", "X", "X", "X", "X", "X"
+   "FIMM", "[9]_, [10]_", "cell line", "53", "52", "X", "X", "X", "X", "X", "X"
+   "GDSC v1", "[23]_, [24]_, [25]_", "cell line", "985", "291", "X", "X", "X", "X", "X", "X"
+   "GDSC v2", "[23]_, [24]_, [25]_", "cell line", "807", "170", "X", "X", "X", "X", "X", "X"
+   "gCSI", "[21]_, [22]_", "cell line", "571", "43", "X", "X", "X", "X", "X", "X"
+   "HCMI", "[11]_", "patient derived organoid", "1087", "", "", "", "X", "", "X", "X"
+   "Liver", "[19]_", "patient derived organoid", "62", "76", "X", "X", "X", "X", "X", "X"
+   "MPNST", "[12]_", "3D-MEDS; patient derived xenograft; tumor", "47", "39", "X", "X", "X", "X", "X", "X"
+   "NCI60", "[13]_", "cell line", "84", "23267", "X", "X", "X", "X", "X", "X"
+   "Novartis", "[20]_", "patient derived xenograft", "348", "25", "X", "X", "X", "", "X", "X"
+   "Pancreatic", "[14]_", "patient derived organoid", "49", "25", "X", "X", "X", "", "X", "X"
+   "PRISM", "[15]_, [16]_", "cell line", "479", "1418", "X", "X", "X", "X", "X", "X"
+   "Sarcoma", "[17]_", "tumor; patient derived organoid", "36", "34", "X", "X", "X", "", "X", ""
 
 
-The table above lists the datasets included in CoderData version 2.2.0, along with references to their original publications, counts of samples and drugs, and the types of data available for each dataset.
+The table above lists the datasets included in CoderData version 2.4, along with references to their original publications, counts of samples and drugs, and the types of data available for each dataset.
 
 CoderData includes the following data:
 
+- Model Type - the biological model the samples derive from (cell line, patient derived organoid, patient derived xenograft, tumor, ex vivo, or 3D-MEDS microtissue)
 - Sample - cell lines, patient-derived samples, or patient-derived organoids
 - Drug - compounds tested for sensitivity
 - Drug Descriptor - molecular descriptors for each drug (computed using RDKit)
