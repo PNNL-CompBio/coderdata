@@ -235,27 +235,27 @@ enums:
   ResponseMetric:
     permissible_values:
       fit_auc:
-        description: Area under the fitted curve
+        description: Area under the fitted hill slope curve across the common interval of -log10[M], where the molar concentration (M) ranges from 10^-4 to 10^-10.
       fit_ic50:
-        description: Concetration at which inhibitor binding is reduced by half
+        description: The fitted curve prediction of the -log10M concentration required to reduce tumor growth by 50%.
       fit_ec50:
-        description: Concentration required to have half cells with adverse effect
+        description: The fitted curve prediction of the -log10M concentration at which 50% of the maximal effect is observed.
       fit_ec50se:
-        description: Standard error in EC50 calculation
+        description: Standard error of the fit_EC50 estimate.
       fit_einf:
-        description: Fraction of cells not susceptible to the drug
+        description: The fraction of cells that are unaffected even at an infinite dose concentration. Calculated as the lower asymptote of the hill slope function.
       fit_hs:
-        description: Hill slop binding cooperativity
+        description: The estimated hill slope binding cooperativity, calculated as the slope of the sigmoidal hill curve.
       fit_r2:
-        description: R2 value between fit and actual data
+        description: Coefficient of determination between observed growth and the fitted hill slope curve, indicating goodness of fit.
       aac:
-        description: Area above curve measured by integrating the data points
+        description: Area above the response curve; the complement value of AUC.
       auc:
-        description: Area under the curve measured by integrating data points
+        description: Area under the fitted hill slope curve across all doses present. Lower AUC signifies lower levels of growth.
       dss:
-        description: Drug sensistivity score.
+        description: A multiparametric dose response value, that takes into account control and treated cells; the Drug Sensitivity Score is described in Yadav et al., 2014.
       mrecist:
-        description: For PDX data this value should be either Progressive Disease, Stable Disease, Partial Response or Complete Response.
+        description: "Disease status is classified into four categories: PD (progressive disease), SD (stable disease), PR (partial response), and CR (complete response). This is calculated as Day 10 percent volume change (%ΔV) and its cumulative average response under the following methods: CR if best %ΔV < -95% and avg < -40%, PR if %ΔV < -50% and avg < -20%, SD if %ΔV < +35% and avg < +30%, otherwise PD."
       published_auc:
         description: AUC that has been published with the study. Currently used in organoid data.
       gc_auc:
@@ -265,7 +265,7 @@ enums:
       os:
         description: overall survival
       tgi:
-        description: tumor growth inhibitiojn
+        description: The tumor growth inhibition (TGI) between the control and treatment time-volume curves.
       kulgap:
         description: kl divergence based metric
       abc:
