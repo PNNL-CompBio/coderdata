@@ -1,5 +1,26 @@
 FROM python:3.9
 
+# Keep scratch files OFF the /tmp bind mount.
+#
+# build_all.py bind-mounts the host's local/ directory at /tmp in every
+# container. Python 3.14 changed the default multiprocessing start method on
+# Linux from "fork" to "forkserver", which opens a Unix domain socket under
+# tempfile.gettempdir() -- i.e. /tmp, i.e. the bind mount. Docker's macOS file
+# sharing does not support chmod() on a socket there, so every Pool worker
+# fails with:
+#
+#   OSError: [Errno 22] Invalid argument: '/tmp/pymp-XXXX/sock-YYYY'
+#
+# This broke build_drug_desc.py and fit_curve.py on 2026-09-03, each at the end
+# of a multi-hour step, and it is deterministic so retries do not help.
+#
+# TMPDIR only affects tempfile.gettempdir() (Python) and tempdir() (R). Explicit
+# /tmp/<name> paths -- which is how every build OUTPUT is written -- still land
+# on the bind mount as before. Verified.
+RUN mkdir -p /opt/mp_tmp
+ENV TMPDIR=/opt/mp_tmp
+
+
 WORKDIR /usr/src/app
 
 # Set MPLCONFIGDIR to a writable directory
