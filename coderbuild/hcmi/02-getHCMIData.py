@@ -690,7 +690,7 @@ def map_and_combine_stream(
     if data_type == "copy_number":
         ploidy_map = fetch_ascat_ploidy(meta_df["aliquot_id"].to_list())
         ploidy_df = meta_df.select(["file_id", "aliquot_id"]).with_columns(
-            pl.col("aliquot_id").replace_strict(ploidy_map, default=None, return_dtype=pl.Float64).alias("ploidy")
+            pl.col("aliquot_id").map_dict(ploidy_map, default=None, return_dtype=pl.Float64).alias("ploidy")
         ).select(["file_id", "ploidy"])
         print(f"ASCAT ploidy found for {ploidy_df['ploidy'].is_not_null().sum()} of {ploidy_df.height} copy number files")
 
