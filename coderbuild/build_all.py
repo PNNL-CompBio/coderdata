@@ -120,6 +120,10 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
             ext = '.csv.gz' if da in gzip_ds else '.csv'
             return f'local/{output_prefix}_transcriptomics{ext}'
         if stype == 'experiments':
+            for ext in ('.tsv', '.tsv.gz'):
+                candidate = f'local/{da}_experiments{ext}'
+                if os.path.exists(candidate):
+                    return candidate
             return f'local/{da}_experiments.tsv'
         if stype == 'misc':
             return 'local/all_files_dir'
@@ -162,7 +166,7 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
                 f'local/{da}_phosphoproteomics*',
             ]
         if stype == 'experiments':
-            return [f'local/{da}_experiments.tsv']
+            return [f'local/{da}_experiments.tsv', f'local/{da}_experiments.tsv.gz']
         if stype == 'misc':
             return ['local/all_files_dir']
         return []
