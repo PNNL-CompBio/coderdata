@@ -549,7 +549,7 @@ def stream_clean_files(data_type: str):
                 # ---- read single file ------------------------------
                 if fpath.endswith(".gz"):  # mutation data is always gzipped
                     try:
-                        df = pl.read_csv(fpath, separator="\t", skip_rows=7)
+                        df = pl.read_csv(fpath, separator="\t", skip_rows=7, dtypes={"PUBMED": pl.Utf8})
                     except Exception as e:
                         print(f"[warn] skipping MAF due to read error: {fpath} ({type(e).__name__}: {e})")
                         continue
