@@ -107,15 +107,18 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         if stype == 'drugs':
             return f'local/{da}_drugs.tsv'
         if stype == 'omics':
+            # broad_sanger writes broad_transcriptomics, while all other datasets
+            # use their dataset name as the output prefix.
+            output_prefix = 'broad' if da == 'broad_sanger' else da
             # transcriptomics is the last large file written — proves full completion
             for ext in ('.csv.gz', '.csv'):
-                candidate = f'local/{da}_transcriptomics{ext}'
+                candidate = f'local/{output_prefix}_transcriptomics{ext}'
                 if os.path.exists(candidate):
                     return candidate
             # default expectation for first-time check
             gzip_ds = {'broad_sanger', 'beataml', 'pancreatic', 'hcmi'}
             ext = '.csv.gz' if da in gzip_ds else '.csv'
-            return f'local/{da}_transcriptomics{ext}'
+            return f'local/{output_prefix}_transcriptomics{ext}'
         if stype == 'experiments':
             return f'local/{da}_experiments.tsv'
         if stype == 'misc':
