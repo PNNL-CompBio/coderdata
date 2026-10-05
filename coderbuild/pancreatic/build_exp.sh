@@ -11,4 +11,4 @@ python fit_curve.py --input /tmp/pancreatic_doserep.tsv --output /tmp/pancreatic
 mv /tmp/pancreatic_doserep.tsv.0 /tmp/pancreatic_experiments.tsv
 
 python 05-addPrecalcAUC.py --samples $1 --drugs $2 --expfile /tmp/pancreatic_experiments.tsv
-gzip /tmp/pancreatic_experiments.tsv
+gzip -f /tmp/pancreatic_experiments.tsv
