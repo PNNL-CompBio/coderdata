@@ -167,7 +167,8 @@ sanger_files<-function(fi,value){
 
       res<-exp_file|>
         dplyr::select(other_id='model_id',gene_symbol='symbol',gatk_mean_log2_copy_ratio,source,data_type,cn_category)|>
-        mutate(copy_number=2^gatk_mean_log2_copy_ratio,.keep='all')|>
+        ## log2 ratio -> DepMap scale log2(relative CN + 1); normal = 1.0
+        mutate(copy_number=log2(2^gatk_mean_log2_copy_ratio+1),.keep='all')|>
         distinct()|>
         left_join(gmap)|>
         dplyr::select(other_id,copy_number,entrez_id,Sanger='cn_category')|>

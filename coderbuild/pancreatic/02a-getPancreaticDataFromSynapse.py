@@ -6,7 +6,8 @@ import math
 
 def get_copy_call(a):
     """
-    Helper Function - Determine copy call for a value.
+    Helper Function - Determine copy call for a copy number value on the
+    DepMap scale, log2(relative CN + 1), where normal = 1.0.
     """
 
     if a is None:
@@ -15,19 +16,17 @@ def get_copy_call(a):
     if math.isnan(a):
         return float('nan')
     
-    a_val = a##math.log2(float(a)+0.000001) ###this should not be exponent, should be log!!! 2**float(a)
-    if a_val < 0.0: #0.5210507:
+    a_val = float(a)
+    if a_val < 0.5210507:
         return 'deep del'
     elif a_val < 0.7311832:
         return 'het loss'
     elif a_val < 1.214125:
         return 'diploid'
-    elif a_val < 1.731183:
+    elif a_val < 1.422233:
         return 'gain'
     else:
         return 'amp'
-    
-    return pl.Series([get_copy_call(a) for a in arr])
 
 def parseCNVFile(fpath, sampid, genes):
     log2data = pd.read_csv(fpath, sep='\t', header=None)
@@ -37,6 +36,8 @@ def parseCNVFile(fpath, sampid, genes):
     newdat['study']='pancreatic'
     newdat['source']='TiriacEtal'
     newdat = newdat[['improve_sample_id','entrez_id','copy_number','source','study']]
+    ## input is a log2 ratio; convert to the DepMap scale log2(relative CN + 1), normal = 1.0
+    newdat['copy_number'] = [math.log2(2**float(a) + 1) for a in newdat['copy_number']]
     newdat['copy_call'] = [get_copy_call(a) for a in newdat['copy_number']]
     return newdat
 

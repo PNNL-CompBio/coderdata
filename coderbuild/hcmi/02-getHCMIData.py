@@ -194,6 +194,46 @@ def fetch_metadata(uuids):
     return response.json()
 
 
+def fetch_ascat_ploidy(aliquot_ids, batch=200):
+    """
+    Look up ASCAT tumor ploidy for the given tumor aliquots.
+
+    GDC stores ``tumor_ploidy`` on the ASCAT "Allele-specific Copy Number Segment"
+    files (not on the gene-level files we download), so query those by aliquot.
+
+    Returns
+    -------
+    dict
+        tumor aliquot_id -> tumor_ploidy (float). Aliquots with no ploidy are omitted.
+    """
+    ploidy = {}
+    ids = [a for a in dict.fromkeys(aliquot_ids) if a]
+    for i in range(0, len(ids), batch):
+        chunk = ids[i:i + batch]
+        payload = {
+            "filters": {"op": "and", "content": [
+                {"op": "in", "content": {"field": "data_type", "value": ["Allele-specific Copy Number Segment"]}},
+                {"op": "in", "content": {"field": "cases.samples.portions.analytes.aliquots.aliquot_id", "value": chunk}}]},
+            "fields": "tumor_ploidy,cases.samples.tissue_type,cases.samples.portions.analytes.aliquots.aliquot_id",
+            "format": "JSON",
+            "size": str(len(chunk) * 4)
+        }
+        r = requests.post("https://api.gdc.cancer.gov/files", json=payload, timeout=120)
+        r.raise_for_status()
+        for h in r.json()["data"]["hits"]:
+            if h.get("tumor_ploidy") is None:
+                continue
+            for c in h.get("cases", []):
+                for smp in c.get("samples", []):
+                    if smp.get("tissue_type") != "Tumor":
+                        continue
+                    for por in smp.get("portions", []):
+                        for ana in por.get("analytes", []):
+                            for al in ana.get("aliquots", []):
+                                ploidy[al["aliquot_id"]] = float(h["tumor_ploidy"])
+    return ploidy
+
+
 def drop_controlled_access(newfm, batch=400):
     """Remove dbGaP controlled-access files from a manifest slice.
 
@@ -509,7 +549,7 @@ def stream_clean_files(data_type: str):
                 # ---- read single file ------------------------------
                 if fpath.endswith(".gz"):  # mutation data is always gzipped
                     try:
-                        df = pl.read_csv(fpath, separator="\t", skip_rows=7)
+                        df = pl.read_csv(fpath, separator="\t", skip_rows=7, dtypes={"PUBMED": pl.Utf8})
                     except Exception as e:
                         print(f"[warn] skipping MAF due to read error: {fpath} ({type(e).__name__}: {e})")
                         continue
@@ -645,6 +685,15 @@ def map_and_combine_stream(
                       for h in md_hits],
     })
 
+    # per-file tumor ploidy, only needed for copy number
+    ploidy_df = None
+    if data_type == "copy_number":
+        ploidy_map = fetch_ascat_ploidy(meta_df["aliquot_id"].to_list())
+        ploidy_df = meta_df.select(["file_id", "aliquot_id"]).with_columns(
+            pl.col("aliquot_id").map_dict(ploidy_map, default=None, return_dtype=pl.Float64).alias("ploidy")
+        ).select(["file_id", "ploidy"])
+        print(f"ASCAT ploidy found for {ploidy_df['ploidy'].is_not_null().sum()} of {ploidy_df.height} copy number files")
+
     for df in dataframe_iter:
         if data_type == "transcriptomics":
             df = (
@@ -663,6 +712,17 @@ def map_and_combine_stream(
                 df.join(genes, left_on="gene_name", right_on="gene_symbol", how="left")
                   .with_columns(pl.col("copy_number").cast(pl.Float64))          # <- cast once
                   .select(["entrez_id", "copy_number", "file_id"])
+            )
+
+            # ASCAT copy_number is an absolute copy count. Divide by the sample's
+            # tumor ploidy (2 if unknown) and convert to the DepMap scale
+            # log2(relative CN + 1), where normal = 1.0.
+            df = (
+                df.join(ploidy_df, on="file_id", how="left")
+                  .with_columns(
+                      (pl.col("copy_number") / pl.col("ploidy").fill_null(2.0) + 1)
+                      .log(base=2).alias("copy_number"))
+                  .drop("ploidy")
             )
 
             # build categorical copy_call from the concrete Series, not Expr
@@ -745,7 +805,8 @@ def copy_num(arr):
         if math.isnan(a):
             return float('nan')
 
-        a_val = math.log2(float(a)+0.000001)
+        # a is on the DepMap scale, log2(relative CN + 1), where normal = 1.0
+        a_val = float(a)
         if a_val < 0.5210507:
             return 'deep del'
         elif a_val < 0.7311832:
