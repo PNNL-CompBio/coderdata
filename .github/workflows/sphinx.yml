@@ -3,12 +3,21 @@ name: Sphinx-docs
 on:
   push:
     branches:
-      - main
       - documentation-staging
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment, cancel in-progress runs for the same ref.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  pages:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -24,20 +33,18 @@ jobs:
     - name: Build HTML
       run: python -m sphinx.cmd.build -M html docs/source docs/build
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        name: html-docs
-        path: docs/build/html/
+        path: docs/build/html
 
-    # - name: Deploy
-    #   uses: sphinx-notes/pages@v3
-    #   with:
-    #     publish: true
-    
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.DOCSITE_TOKEN }}
-        publish_branch: gh-pages
-        publish_dir: docs/build/html
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
