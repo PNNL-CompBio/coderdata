@@ -49,7 +49,7 @@ source_suffix = {'.rst': 'restructuredtext',
 
 # docstrings changes
 autosummary_generate = True
-autodoc_typehints = ["none"]
+autodoc_typehints = "none"
 
 
 # -- Options for HTML output -------------------------------------------------
