@@ -328,21 +328,27 @@ def rewrite_drugs_file(file_path, drug_id_mapping, datasets=None):
          open(tmp_path, 'w', newline='', encoding='utf-8') as fout:
         reader = csv.DictReader(fin, delimiter='\t')
         fieldnames = reader.fieldnames
-        if "improve_drug_id" not in fieldnames:
+        id_columns = [
+            column for column in
+            ("improve_drug_id", "improve_drug_1", "improve_drug_2")
+            if column in fieldnames
+        ]
+        if not id_columns:
             recompress_if_needed(file_path_decompressed, was_gz, original_path=file_path if was_gz else None)
-            print(f"'improve_drug_id' column not found in {file_path_decompressed}")
+            print(f"No improve drug ID column found in {file_path_decompressed}")
             return
         writer = csv.DictWriter(fout, fieldnames=fieldnames, delimiter='\t')
         writer.writeheader()
         for row in reader:
-            original_id = row.get("improve_drug_id", "").strip()
-            key = (dataset, original_id)
-            if key in drug_id_mapping:
-                new_id = drug_id_mapping[key]
-                if original_id != new_id:
-                    print(f"Replacing improve_drug_id '{original_id}' with stable_id '{new_id}' in {file_path_decompressed}")
-                    row["improve_drug_id"] = new_id
-                    changes_made = True
+            for column in id_columns:
+                original_id = row.get(column, "").strip()
+                key = (dataset, original_id)
+                if key in drug_id_mapping:
+                    new_id = drug_id_mapping[key]
+                    if original_id != new_id:
+                        print(f"Replacing {column} '{original_id}' with stable_id '{new_id}' in {file_path_decompressed}")
+                        row[column] = new_id
+                        changes_made = True
             writer.writerow(row)
 
     if changes_made:
@@ -373,7 +379,7 @@ so their TSV files are properly rewritten.
                         help='Comma-separated list of datasets.')
     parser.add_argument('--local_dir', default='data',
                         help='Directory containing TSV files.')
-    parser.add_argument('--other_files', default='drug_descriptors,experiments',
+    parser.add_argument('--other_files', default='drug_descriptors,experiments,combinations',
                         help='Comma-separated list of other file types to rewrite.')
     parser.add_argument('--input_files', nargs='+',
                         help='List of input files to process. If specified, only these files will be processed.')
