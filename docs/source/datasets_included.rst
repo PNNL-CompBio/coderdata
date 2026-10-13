@@ -18,21 +18,21 @@ Dataset Overview
 
    "BeatAML", "[1]_, [2]_", "ex vivo", "1022", "164", "X", "X", "X", "X", "X", ""
    "Bladder", "[3]_", "patient derived organoid; patient derived xenograft; tumor; xenograft derived organoid", "134", "50", "X", "X", "X", "", "X", "X"
-   "CCLE", "[4]_", "cell line", "503", "24", "X", "X", "X", "X", "X", "X"
+   "CCLE", "[4]_", "cell line", "502", "24", "X", "X", "X", "X", "X", "X"
    "Colorectal", "[18]_", "patient derived organoid; tumor", "61", "10", "X", "X", "X", "", "X", "X"
    "CPTAC", "[5]_", "tumor", "1139", "", "", "", "X", "X", "X", "X"
-   "CTRPv2", "[6]_, [7]_, [8]_", "cell line", "848", "460", "X", "X", "X", "X", "X", "X"
-   "FIMM", "[9]_, [10]_", "cell line", "53", "52", "X", "X", "X", "X", "X", "X"
-   "GDSC v1", "[23]_, [24]_, [25]_", "cell line", "985", "291", "X", "X", "X", "X", "X", "X"
-   "GDSC v2", "[23]_, [24]_, [25]_", "cell line", "807", "170", "X", "X", "X", "X", "X", "X"
-   "gCSI", "[21]_, [22]_", "cell line", "571", "43", "X", "X", "X", "X", "X", "X"
+   "CTRPv2", "[6]_, [7]_, [8]_", "cell line", "847", "460", "X", "X", "X", "X", "X", "X"
+   "FIMM", "[9]_, [10]_", "cell line", "52", "52", "X", "X", "X", "X", "X", "X"
+   "GDSC v1", "[23]_, [24]_, [25]_", "cell line", "984", "291", "X", "X", "X", "X", "X", "X"
+   "GDSC v2", "[23]_, [24]_, [25]_", "cell line", "806", "169", "X", "X", "X", "X", "X", "X"
+   "gCSI", "[21]_, [22]_", "cell line", "570", "43", "X", "X", "X", "X", "X", "X"
    "HCMI", "[11]_", "patient derived organoid", "1087", "", "", "", "X", "", "X", "X"
    "Liver", "[19]_", "patient derived organoid", "62", "76", "X", "X", "X", "X", "X", "X"
-   "MPNST", "[12]_", "3D-MEDS; patient derived xenograft; tumor", "47", "39", "X", "X", "X", "X", "X", "X"
-   "NCI60", "[13]_", "cell line", "84", "23267", "X", "X", "X", "X", "X", "X"
-   "Novartis", "[20]_", "patient derived xenograft", "348", "25", "X", "X", "X", "", "X", "X"
+   "MPNST", "[12]_", "3D-MEDS; patient derived xenograft; tumor", "133", "39", "X", "X", "X", "X", "X", "X"
+   "NCI60", "[13]_", "cell line", "83", "55143", "X", "X", "X", "X", "X", "X"
+   "Novartis", "[20]_", "patient derived xenograft", "386", "25", "X", "X", "X", "", "X", "X"
    "Pancreatic", "[14]_", "patient derived organoid", "49", "25", "X", "X", "X", "", "X", "X"
-   "PRISM", "[15]_, [16]_", "cell line", "479", "1418", "X", "X", "X", "X", "X", "X"
+   "PRISM", "[15]_, [16]_", "cell line", "478", "1416", "X", "X", "X", "X", "X", "X"
    "Sarcoma", "[17]_", "tumor; patient derived organoid", "36", "34", "X", "X", "X", "", "X", ""
 
 
@@ -78,6 +78,7 @@ Types of dose-response metrics collected include:
 - AAC - Area above the response curve; the complement value of AUC.
 - ABC - Area between curves, the difference between the AUC of the control and the treated cells. (PDX)
 - AUC - Area under the fitted hill slope curve across all doses present. Lower AUC signifies lower levels of growth.
+- delta_auc - Difference in AUC between a single drug and its combination (single-drug AUC minus combination AUC); used for MPNST treated-microtissue combination experiments.
 - DSS - A multiparametric dose response value, that takes into account control and treated cells; the Drug Sensitivity Score is described in Yadav et al., 2014.
 - fit_auc - Area under the fitted hill slope curve across the common interval of −log10[M], where the molar concentration ranges from 10⁻⁴ to 10⁻¹⁰.
 - fit_ec50 - The fitted curve prediction of the −log10M concentration at which 50% of the maximal effect is observed.
