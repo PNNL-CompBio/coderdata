@@ -1,6 +1,7 @@
 import synapseclient
 import pandas as pd
 import os
+import re
 import wget
 from synapseclient import Project, Folder, File, Link
 import requests
@@ -264,6 +265,37 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
     return final_dataframe
 
 
+def _lookup(drug_df, map_df, value_col):
+    """
+    Return value_col for each drug row, looked up by dbgap_rnaseq_sample and
+    falling back to dbgap_dnaseq_sample. Rows with a missing key, and map rows
+    with a missing key, never match.
+    """
+    result = pd.Series(pd.NA, index=drug_df.index, dtype=object)
+    for key in ('dbgap_rnaseq_sample', 'dbgap_dnaseq_sample'):
+        lut = map_df.dropna(subset=[key]).drop_duplicates(subset=[key]).set_index(key)[value_col]
+        result = result.combine_first(drug_df[key].map(lut))
+    return result
+
+
+def resolve_drug_names(names, drug_df):
+    """
+    Map raw inhibitor names onto chem_name values present in the drugs file.
+
+    Raw names such as "afatinib (bibw-2992)" carry an alias in parentheses
+    that is not itself a chem_name. Exact matches are kept; otherwise the name
+    without the parenthetical is tried, then the alias. Unmatched names are
+    returned unchanged and drop out at the drug merge.
+    """
+    known = set(drug_df['chem_name'].str.lower())
+    resolved = {}
+    for name in pd.unique(names):
+        candidates = [name, re.sub(r'\s*\(.*\)\s*$', '', name).strip()]
+        candidates += re.findall(r'\((.*?)\)', name)
+        resolved[name] = next((c for c in candidates if c in known), name)
+    return names.map(resolved)
+
+
 def generate_raw_drug_file(original_drug_file, sample_mapping_file, updated_raw_drug_file, wave_file):
     """
     Generate the formatted raw drug file to input into the curve fitting algorithm.
@@ -288,28 +320,15 @@ def generate_raw_drug_file(original_drug_file, sample_mapping_file, updated_raw_
                                         "inhibitor": "DRUG"})
     drug_mod['DRUG'] = [a.lower() for a in drug_mod['DRUG']]
     
+    # Map dbGaP sample ids to labId with key lookups rather than merges. A
+    # merge matches NaN keys to each other (about 71k raw rows have no
+    # rnaseq id), which multiplied rows, and assigning the merged column back
+    # by position then attached responses to the wrong specimens.
     sample_map = pd.read_excel(sample_mapping_file)
-    primary_mapping = drug_mod.merge(sample_map[['dbgap_rnaseq_sample', 'labId']], 
-                                     left_on='dbgap_rnaseq_sample', 
-                                     right_on='dbgap_rnaseq_sample', 
-                                     how='left')
-    secondary_mapping = drug_mod.merge(sample_map[['dbgap_dnaseq_sample', 'labId']], 
-                                       left_on='dbgap_dnaseq_sample', 
-                                       right_on='dbgap_dnaseq_sample', 
-                                       how='left')
-    drug_mod['CELL'] = primary_mapping['labId'].combine_first(secondary_mapping['labId'])
-    
+    drug_mod['CELL'] = _lookup(drug_mod, sample_map, 'labId')
+
     cohort_data = pd.read_excel(wave_file, skiprows=1)
-    cohort_merge = drug_mod.merge(cohort_data[['dbgap_rnaseq_sample', 'cohort']],
-                                  left_on='dbgap_rnaseq_sample',
-                                  right_on='dbgap_rnaseq_sample',
-                                  how='left')
-    cohort_merge_secondary = drug_mod.merge(cohort_data[['dbgap_dnaseq_sample', 'cohort']],
-                                            left_on='dbgap_dnaseq_sample',
-                                            right_on='dbgap_dnaseq_sample',
-                                            how='left')
-    
-    drug_mod['source'] = cohort_merge['cohort'].combine_first(cohort_merge_secondary['cohort'])
+    drug_mod['source'] = _lookup(drug_mod, cohort_data, 'cohort')
     drug_mod['study'] = "BeatAML"
     drug_mod = drug_mod[['CELL', 'DRUG', 'DOSE', 'GROWTH', 'source', 'study']]
     drug_mod = drug_mod.sort_values(by=['DRUG', 'CELL'])
@@ -518,8 +537,13 @@ if __name__ == "__main__":
             generate_raw_drug_file(original_drug_file,sample_mapping_file, updated_raw_drug_file,supplimentary_file)
             d_df = pd.read_csv(updated_raw_drug_file,sep='\t')
             d_res = d_df.rename(columns={"CELL":"other_id","AUC":"fit_auc",'DRUG':'chem_name'})
-            d_res = d_res.merge(imp_samp_map, on='other_id')
-            d_res = d_res.merge(imp_drug_map,on='chem_name')
+            # One improve_sample_id per labId; the samples file can carry more
+            # than one metadata row per sample, which would duplicate doses.
+            samp_lut = imp_samp_map[['other_id', 'improve_sample_id']].drop_duplicates()
+            d_res = d_res.merge(samp_lut, on='other_id')
+            d_res['chem_name'] = resolve_drug_names(d_res['chem_name'], imp_drug_map)
+            drug_lut = imp_drug_map[['chem_name', 'improve_drug_id']].drop_duplicates()
+            d_res = d_res.merge(drug_lut, on='chem_name')
             d_res = d_res.rename(columns = {'improve_drug_id':'Drug'}) ## stupid but we have to change aks later
             d_res.to_csv(updated_raw_drug_file,sep='\t')
 
