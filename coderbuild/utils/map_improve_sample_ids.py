@@ -416,7 +416,7 @@ update improve_sample_mapping.json, and rewrite files by replacing improve_sampl
                         help='Comma-separated list of datasets, e.g., beataml,ccle')
     parser.add_argument('--local_dir', default='data',
                         help='Directory containing all CSV/TSV files.')
-    parser.add_argument('--other_files', default='transcriptomics,proteomics,mutations,copy_number,experiments',
+    parser.add_argument('--other_files', default='transcriptomics,proteomics,mutations,copy_number,experiments,combinations',
                         help='Comma-separated list of other file types to rewrite, e.g., transcriptomics,proteomics')
     args = parser.parse_args()
     # Set build_date

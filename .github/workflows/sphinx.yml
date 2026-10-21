@@ -3,7 +3,6 @@ name: Sphinx-docs
 on:
   push:
     branches:
-      - main
       - documentation-staging
   workflow_dispatch:
 

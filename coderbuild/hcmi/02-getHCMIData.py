@@ -186,7 +186,7 @@ def fetch_metadata(uuids):
                 "value": uuids
             }
         },
-        "fields": "cases.sample_ids,cases.case_id,cases.samples.sample_id,cases.samples.portions.analytes.aliquots.aliquot_id",
+        "fields": "cases.sample_ids,cases.case_id,cases.samples.sample_id,cases.samples.tissue_type,cases.samples.portions.analytes.aliquots.aliquot_id",
         "format": "JSON",
         "size": str(len(uuids))
     }
@@ -661,6 +661,11 @@ def stream_clean_files(data_type: str):
     
 #     return final_dataframe
 
+def _tumor_sample(samples):
+    """Return the first non-normal sample of a file, or the first sample."""
+    return next((s for s in samples if s.get("tissue_type") != "Normal"), samples[0])
+
+
 def map_and_combine_stream(
         dataframe_iter,
         data_type: str,
@@ -676,13 +681,15 @@ def map_and_combine_stream(
 
     # materialize tiny metadata once
     md_hits = metadata["data"]["hits"]
+    # Mutation and copy number files list a tumor/model sample and its matched
+    # normal, in no fixed order. Attribute each file to its tumor sample.
+    samples = [_tumor_sample(h["cases"][0]["samples"]) for h in md_hits]
     meta_df = pl.DataFrame({
         "file_id":  [h["id"]                               for h in md_hits],
         "case_id":  [h["cases"][0]["case_id"]              for h in md_hits],
-        "sample_id":[h["cases"][0]["samples"][0]["sample_id"] for h in md_hits],
-        "aliquot_id":[h["cases"][0]["samples"][0]["portions"][0]
-                         ["analytes"][0]["aliquots"][0]["aliquot_id"]
-                      for h in md_hits],
+        "sample_id":[s["sample_id"] for s in samples],
+        "aliquot_id":[s["portions"][0]["analytes"][0]["aliquots"][0]["aliquot_id"]
+                      for s in samples],
     })
 
     # per-file tumor ploidy, only needed for copy number
