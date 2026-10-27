@@ -15,6 +15,30 @@ source("pinned_psets.R")
 source("retry_utils.R")
 
 all.dsets<-PharmacoGx::availablePSets()
+
+#' one_drug_per_name
+#' A drug name can sit under more than one improve_drug_id (e.g. a synonym
+#' shared by two records of one chemical). Joining on it copied every
+#' experiment to each id, which later surfaced as duplicate or copied drug
+#' responses (issue #512). Keep the lowest SMI id for each name.
+one_drug_per_name<-function(d.map,studyName){
+    d.map<-d.map|>
+        mutate(smi_num=as.numeric(sub('SMI_','',improve_drug_id)))
+    multi<-d.map|>
+        group_by(chem_name)|>
+        summarize(n=n_distinct(improve_drug_id),.groups='drop')|>
+        subset(n>1)
+    if(nrow(multi)>0)
+        print(paste('WARNING:',nrow(multi),'drug names in',studyName,
+                    'match more than one drug id; keeping the lowest id for:',
+                    paste(head(multi$chem_name,20),collapse=', ')))
+    d.map|>
+        group_by(chem_name)|>
+        dplyr::filter(smi_num==min(smi_num))|>
+        ungroup()|>
+        dplyr::select(-smi_num)
+}
+
 ##first define a generic dose response function
 
 
@@ -52,6 +76,7 @@ getDoseRespData<-function(dset,studyName,improve_samples,drug.map){
     ###reduced drug and sample maps
     new.d.map<-subset(drug.map,chem_name%in%mapping$treatmentid)|>
         mutate(chem_name=tolower(chem_name))
+    new.d.map<-one_drug_per_name(new.d.map,studyName)
     new.s.map<-subset(improve_samples,other_names%in%mapping$sampleid)
 
 

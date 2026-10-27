@@ -3,6 +3,7 @@ import requests
 import csv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+import re
 import threading
 import time
 import signal
@@ -32,17 +33,56 @@ existing_pubchemids = set()
 # ---------------------------------------------------------------------------
 _pubchem_data_cache = {}
 
+# NCI60 NSC names ('nsc-<id>') are added by 03a-nci60Drugs.py from NCI's own
+# NSC->CID table each build, so the cache must not carry them forward.
+_NSC_NAME = re.compile(r'^nsc-\d+$', re.IGNORECASE)
+
+
+def _cid_key(cid):
+    """
+    CID as plain integer text. Concatenating files where any pubchem_id is
+    blank makes pandas read the column as float, and str(359323.0) would
+    neither match lookups by CID nor be a valid pubchem_id in the output.
+    """
+    try:
+        return str(int(float(cid)))
+    except (TypeError, ValueError):
+        return str(cid)
+
+
+def _cache_row(group):
+    """
+    Pick the one row whose properties represent a CID in the cache.
+
+    A CID can sit under several drug rows, e.g. NCI60 NSC rows that carry
+    NCI's SMILES string next to the PubChem-derived row. The PubChem row is
+    the one with an InChIKey; ties go to the lowest SMI id.
+    """
+    has_key = group['InChIKey'].notna() & ~group['InChIKey'].astype(str).str.strip().isin(['', 'nan'])
+    pool = group[has_key] if has_key.any() else group
+    if 'improve_drug_id' in pool.columns:
+        num = pool['improve_drug_id'].astype(str).str.extract(r'SMI_(\d+)', expand=False)
+        pool = pool.assign(_n=pd.to_numeric(num, errors='coerce')).sort_values('_n', kind='stable')
+    return pool.iloc[0]
+
 
 def load_pubchem_cache(file_paths):
     """Populate _pubchem_data_cache from previously built drug TSV files.
 
     Call this before the main drug-build loop to avoid re-querying PubChem for
     drugs whose properties are already known.  ID assignment is unaffected.
+
+    All files are combined before grouping so every CID gets exactly one
+    entry (one structure) regardless of file order, and every name for the
+    CID resolves to that entry. Previously each CID took the first row it
+    met and later files overwrote earlier ones, so a cached "PubChem" SMILES
+    could be NCI's string and names of one chemical could resolve to two
+    structures -- which gave one chemical two drug ids (issue #512).
     """
     global _pubchem_data_cache
     if isinstance(file_paths, str):
         file_paths = [p.strip() for p in file_paths.split(',') if p.strip()]
-    loaded = 0
+    frames = []
     for path in file_paths:
         if not os.path.exists(path):
             print(f"[{_ts()}] Cache hint: file not found, skipping: {path}")
@@ -59,22 +99,35 @@ def load_pubchem_cache(file_paths):
         if not needed.issubset(set(df.columns)):
             print(f"[{_ts()}] Cache file {path} missing expected columns, skipping.")
             continue
+        frames.append(df)
+    loaded = 0
+    uncached = 0
+    if frames:
+        df = pd.concat(frames, ignore_index=True)
         for cid, group in df.groupby('pubchem_id', dropna=True):
-            synonyms = [str(n) for n in group['chem_name'].dropna().tolist()]
-            row = group.iloc[0]
+            row = _cache_row(group)
+            synonyms = list(dict.fromkeys(
+                str(n) for n in group['chem_name'].dropna().tolist() if not _NSC_NAME.match(str(n))))
+            if not synonyms:
+                # Only NSC names (e.g. CID 24202157, whose one PubChem synonym
+                # is 'nsc-630659'). A cache entry with no names writes no rows,
+                # so the drug would be dropped; leave it to be fetched live.
+                uncached += 1
+                continue
             entry = {
                 'SMILES': str(row['canSMILES']),
                 'InChIKey': str(row['InChIKey']),
                 'MolecularFormula': str(row['formula']),
                 'MolecularWeight': str(row['weight']),
-                'CID': str(cid),
+                'CID': _cid_key(cid),
                 'synonyms': synonyms,
             }
-            _pubchem_data_cache[str(cid)] = entry
+            _pubchem_data_cache[_cid_key(cid)] = entry
             for syn in synonyms:
                 _pubchem_data_cache[str(syn).lower()] = entry
             loaded += 1
-    print(f"[{_ts()}] PubChem cache: {loaded} drugs loaded from {len(file_paths)} file(s).")
+    print(f"[{_ts()}] PubChem cache: {loaded} drugs loaded from {len(file_paths)} file(s); "
+          f"{uncached} with only NSC names left to fetch live.")
 
 
 # Auto-load from hint file written by build_all.py before the container starts.
