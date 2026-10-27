@@ -44,6 +44,8 @@ class Dataset:
             name: Optional[str]=None,
             transcriptomics: Optional[pd.DataFrame]=None,
             proteomics: Optional[pd.DataFrame]=None,
+            phosphoproteomics: Optional[pd.DataFrame]=None,
+            phosphosites: Optional[pd.DataFrame]=None,
             mutations: Optional[pd.DataFrame]=None,
             copy_number: Optional[pd.DataFrame]=None,
             samples: Optional[pd.DataFrame]=None,
@@ -95,6 +97,8 @@ class Dataset:
         self.name = name
         self.transcriptomics = transcriptomics
         self.proteomics = proteomics
+        self.phosphoproteomics = phosphoproteomics
+        self.phosphosites = phosphosites
         self.mutations = mutations
         self.copy_number = copy_number
         self.samples = samples
@@ -149,6 +153,32 @@ class Dataset:
     @proteomics.deleter
     def proteomics(self):
         del self._proteomics
+
+
+    @property
+    def phosphoproteomics(self):
+        return self._phosphoproteomics
+
+    @phosphoproteomics.setter
+    def phosphoproteomics(self, value):
+        self._phosphoproteomics = value
+
+    @phosphoproteomics.deleter
+    def phosphoproteomics(self):
+        del self._phosphoproteomics
+
+
+    @property
+    def phosphosites(self):
+        return self._phosphosites
+
+    @phosphosites.setter
+    def phosphosites(self, value):
+        self._phosphosites = value
+
+    @phosphosites.deleter
+    def phosphosites(self):
+        del self._phosphosites
 
 
     @property
@@ -513,6 +543,8 @@ class Dataset:
         data_types = [
             'transcriptomics',
             'proteomics',
+            'phosphoproteomics',
+            'phosphosites',
             'mutations',
             'copy_number',
             'samples',
@@ -521,6 +553,7 @@ class Dataset:
             'experiments',
             'methylation',
             'metabolomics',
+            'combinations',
             'genes',
             ]
         data_types_present = []
@@ -609,6 +642,7 @@ def load(
     data_types_to_load = (
         'transcriptomics',
         'proteomics',
+        'phosphoproteomics',
         'mutations',
         'copy_number',
         'samples',
@@ -618,7 +652,11 @@ def load(
         'experiments',
         'methylation',
         'metabolomics',
+        'combinations',
+        # reference tables are loaded last so they can be subset to the
+        # identifiers present in the data types loaded above
         'genes',
+        'phosphosites',
     )
 
     if type(local_path) is not Path:
@@ -649,6 +687,9 @@ def load(
         for p in local_path.glob(f'genes*'):
             if p.name.endswith(accepted_file_endings) and p.is_file():
                 files['genes'] = p
+        for p in local_path.glob(f'phosphosites*'):
+            if p.name.endswith(accepted_file_endings) and p.is_file():
+                files['phosphosites'] = p
 
         for dataset_type in data_types_to_load:
             if dataset_type not in files:
@@ -659,7 +700,7 @@ def load(
                     )
                 continue
             file = files[dataset_type]
-            if dataset_type != 'genes':
+            if dataset_type not in ('genes', 'phosphosites'):
                 print(
                     f"Importing '{dataset_type}' from {file} ...",
                     end=' ',
@@ -668,6 +709,34 @@ def load(
                 if hasattr(dataset, dataset_type):
                     setattr(dataset, dataset_type, _load_file(file))
                     print("DONE", file=sys.stderr)
+            elif dataset_type == 'phosphosites':
+                '''
+                The phosphosites table is a universal reference (analogous
+                to 'genes') mapping phosphosite_id -> gene / residue info.
+                It is only relevant when the dataset has phosphoproteomics,
+                and is subset to the phosphosite_ids present in that data.
+                '''
+                if dataset.phosphoproteomics is None:
+                    print(
+                        f"'phosphosites' skipped for {name} "
+                        f"(no phosphoproteomics present)",
+                        file=sys.stderr
+                        )
+                    continue
+                print(
+                    f"Importing 'phosphosites' from {file} ...",
+                    end=' ',
+                    file=sys.stderr
+                    )
+                dataset.phosphosites = _load_file(file)
+                if 'phosphosite_id' in dataset.phosphoproteomics.columns:
+                    site_ids = set(
+                        dataset.phosphoproteomics['phosphosite_id'].unique()
+                        )
+                    dataset.phosphosites = dataset.phosphosites[
+                        dataset.phosphosites['phosphosite_id'].isin(site_ids)
+                        ]
+                print("DONE", file=sys.stderr)
             else:
                 '''
                 The genes dataset available in the online repository is

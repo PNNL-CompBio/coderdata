@@ -194,21 +194,21 @@ def process_datasets(args):
 
         # Logic for PDX datasets that don't have `auc` but mRECIST (note
         # the typo currently in the `drugresponse_metric` column).
-        elif experiments_raw['dose_response_metric'].isin(['mRESCIST']).any():
+        elif experiments_raw['dose_response_metric'].isin(['mrecist']).any():
             experiment = data_sets[data_set].format(
                 data_type='experiments',
                 shape='wide',
                 metrics=[
-                    'mRESCIST',
+                    'mrecist',
                 ],
             )
             # conversion logic from mRECIST -> auc
-            experiment.loc[experiment['mRESCIST'] == 'CR', 'mRESCIST'] = "0.1"
-            experiment.loc[experiment['mRESCIST'] == 'PR', 'mRESCIST'] = "0.2"
-            experiment.loc[experiment['mRESCIST'] == 'SD', 'mRESCIST'] = "0.5"
-            experiment.loc[experiment['mRESCIST'] == 'PD', 'mRESCIST'] = "1.0"
+            experiment.loc[experiment['mrecist'] == 'CR', 'mrecist'] = "0.1"
+            experiment.loc[experiment['mrecist'] == 'PR', 'mrecist'] = "0.2"
+            experiment.loc[experiment['mrecist'] == 'SD', 'mrecist'] = "0.5"
+            experiment.loc[experiment['mrecist'] == 'PD', 'mrecist'] = "1.0"
 
-            experiment.rename(columns={'mRESCIST': 'auc'}, inplace=True)
+            experiment.rename(columns={'mrecist': 'auc'}, inplace=True)
             experiments.append(experiment)
 
         # The remaining datasets should have `auc` as

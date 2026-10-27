@@ -45,11 +45,13 @@ def process_docker(dataset,validate):
         'cptac': ['cptac'],
         'sarcoma': ['sarcoma'],
         'genes': ['genes'],
+        'phosphosites': ['phosphosites'],
         'upload': ['upload'],
-        'colorectal': ['colorectal'], 
+        'colorectal': ['colorectal'],
         'bladder': ['bladder'],
         'liver': ['liver'],
-        'novartis': ['novartis']
+        'novartis': ['novartis'],
+        'cnf': ['cnf']
     }
 
     # Collect container names to build based on the dataset provided. Always build 'genes'.
@@ -57,7 +59,10 @@ def process_docker(dataset,validate):
     # Append upload if validation step is included
     if validate is True:
         datasets_to_build.append('upload')
-        
+    # phosphosites container is required when building cnf
+    if dataset == 'cnf':
+        datasets_to_build.append('phosphosites')
+
     datasets_to_build.extend(dataset_map.get(dataset, []))
 
     compose_command = ['docker', 'compose', '-f', compose_file, 'build'] + datasets_to_build
@@ -79,10 +84,26 @@ def process_docker(dataset,validate):
 
 def process_genes(executor):
     '''
-    Build the genes file if it does not exist.
+    Build the genes file if it does not exist. Returns a Future (or None if already built).
     '''
     if not os.path.exists('local/genes.csv'):
-        executor.submit(run_docker_cmd, ['genes', 'bash', 'build_genes.sh'], 'genes file')
+        return executor.submit(run_docker_cmd, ['genes', 'bash', 'build_genes.sh'], 'genes file')
+    return None
+
+
+def process_phosphosites(executor):
+    '''
+    Build the phosphosites reference file if it does not exist.
+    Only needed when the cnf dataset is being built. Returns a Future (or None).
+    Caller must ensure genes.csv exists before calling this.
+    '''
+    if not os.path.exists('local/phosphosites.csv'):
+        return executor.submit(
+            run_docker_cmd,
+            ['phosphosites', 'bash', 'build_phosphosites.sh', '/tmp/genes.csv'],
+            'phosphosites file',
+        )
+    return None
 
 def process_samples(executor, dataset, use_prev_dataset, should_continue):
     '''
@@ -133,7 +154,8 @@ def process_omics(executor, dataset, should_continue):
         'bladder': ['copy_number', 'mutations', 'transcriptomics'],
         'colorectal':['copy_number', 'mutations', 'transcriptomics'],
         'novartis':['copy_number', 'mutations', 'transcriptomics'],
-        'liver':['copy_number', 'mutations', 'transcriptomics','proteomics']
+        'liver':['copy_number', 'mutations', 'transcriptomics','proteomics'],
+        'cnf': ['transcriptomics', 'proteomics', 'phosphoproteomics'],
     }
 
     expected_omics = dataset_omics_files.get(dataset, [])
@@ -167,7 +189,10 @@ def process_omics(executor, dataset, should_continue):
 
     di = 'broad_sanger_omics' if dataset == 'broad_sanger' else dataset
     filename = f'{dataset} omics'
-    executor.submit(run_docker_cmd, [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{dataset}_samples.csv'], filename)
+    omics_cmd = [di, 'bash', 'build_omics.sh', '/tmp/genes.csv', f'/tmp/{dataset}_samples.csv']
+    if dataset == 'cnf':
+        omics_cmd.append('/tmp/phosphosites.csv')
+    executor.submit(run_docker_cmd, omics_cmd, filename)
 
 
 def process_experiments(executor, dataset, should_continue):
@@ -245,6 +270,8 @@ def run_schema_checker(dataset):
     '''
     # Prepare the directory with the built files
     prefixes = ['genes', dataset]
+    if dataset == 'cnf':
+        prefixes.append('phosphosites')
     datasets = [dataset]
     broad_sanger_datasets = ["ccle","ctrpv2","fimm","gdscv1","gdscv2","gcsi","prism","nci60"]
     all_files_dir = 'all_files_dir'
@@ -280,8 +307,62 @@ def main():
     parser.add_argument('--build', action='store_true', help='Run data build.')
     parser.add_argument('--validate', action='store_true', help='Run schema checker on the built files')
     parser.add_argument('--continue', dest='should_continue', action='store_true', help='Continue from where the build left off by skipping existing files')
+    parser.add_argument('--depmap-ready', dest='depmap_ready', default=False, action='store_true',
+                        help='Confirm that the static DepMap files on Synapse are up to date for the '
+                             'current DepMap release. Required when building broad_sanger.')
 
     args = parser.parse_args()
+
+    # DepMap freshness gate -- see the matching block in build_all.py for the
+    # full rationale. DepMap files can no longer be fetched from the DepMap
+    # portal (Cloudflare challenge), so coderdata reads a static copy from
+    # Synapse (fetch_depmap.py downloads it in-container). That copy is
+    # hand-maintained and must be confirmed current before a broad_sanger build.
+    DEPMAP_SYNAPSE_FOLDER = 'syn75028495'
+    DEPMAP_REQUIRED_FILES = [
+        'Model.csv',
+        'OmicsSomaticMutations.csv',
+        'OmicsExpressionTPMLogp1HumanProteinCodingGenes.csv',
+        'PortalOmicsCNGeneLog2.csv',
+    ]
+    if args.dataset == 'broad_sanger' and args.build:
+        if not args.depmap_ready:
+            raise SystemExit(
+                "\n"
+                "=====================================================================\n"
+                " STOP: DepMap files must be confirmed up to date before building\n"
+                "=====================================================================\n"
+                " broad_sanger requires DepMap data.\n"
+                "\n"
+                " DepMap files can NO LONGER be downloaded from the DepMap portal --\n"
+                " it now serves a Cloudflare 'verify you are a person' challenge.\n"
+                " coderdata reads a STATIC COPY from Synapse instead, which must be\n"
+                " updated MANUALLY for each new DepMap release.\n"
+                "\n"
+                f"   Synapse folder: https://www.synapse.org/Synapse:{DEPMAP_SYNAPSE_FOLDER}\n"
+                "\n"
+                " To refresh the files for a new DepMap release:\n"
+                "   1. Download them from the DepMap download page:\n"
+                "        https://depmap.org/portal/data_page/?tab=allData\n"
+                "      (accept the terms, then use the download button on each file)\n"
+                f"   2. Upload them to {DEPMAP_SYNAPSE_FOLDER} as NEW VERSIONS of the\n"
+                "      existing entities (this keeps the syn IDs stable)\n"
+                "   3. Bump DEPMAP_RELEASE in coderbuild/utils/fetch_depmap.py\n"
+                "\n"
+                " Files tracked (4 total, ~1.29 GB):\n"
+                + ''.join(f"   - {f}\n" for f in DEPMAP_REQUIRED_FILES) +
+                "\n"
+                " Repository: https://github.com/PNNL-CompBio/coderdata\n"
+                "\n"
+                " Once you have confirmed the DepMap files on Synapse are current,\n"
+                " re-run this command with:\n"
+                "\n"
+                "     --depmap-ready\n"
+                "\n"
+                "=====================================================================\n"
+            )
+        print(f"DepMap files confirmed current on Synapse ({DEPMAP_SYNAPSE_FOLDER}) "
+              f"via --depmap-ready; fetch_depmap.py will download them in-container.")
 
     if not os.path.exists('local'):
         os.mkdir('local')
@@ -292,16 +373,25 @@ def main():
     if args.build:
         # Use ThreadPoolExecutor for parallel execution
         with ThreadPoolExecutor() as executor:
-            # Always build genes file
-            process_genes(executor)
+            # Genes must finish before phosphosites can start (phosphosites reads genes.csv)
+            genes_future = process_genes(executor)
+            if genes_future is not None:
+                genes_future.result()
 
-            # Build samples and drugs
+            # Now safe to start phosphosites (genes.csv is present)
+            phosphosites_future = None
+            if args.dataset == 'cnf':
+                phosphosites_future = process_phosphosites(executor)
+
+            # Build samples and drugs in parallel while phosphosites runs
             samples_future = executor.submit(process_samples, executor, args.dataset, args.use_prev_dataset, args.should_continue)
             drugs_future = executor.submit(process_drugs, executor, args.dataset, args.use_prev_dataset, args.should_continue)
 
             samples_future.result()
             drugs_future.result()
-            
+            if phosphosites_future is not None:
+                phosphosites_future.result()
+
         print("Samples and Drugs Files Completed.")
 
         with ThreadPoolExecutor() as executor:

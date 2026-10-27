@@ -1,3 +1,4 @@
+# 01_combined_omics.R
 #!/usr/bin/env Rscript
 
 # Combined MPNST & MPNST-PDX Data Extraction Script
@@ -31,7 +32,7 @@ genes_df <- fread(genes)
 # Subset by model type
 pdx_samps   <- filter(samples_df, model_type == "patient derived xenograft")
 tumor_samps<- filter(samples_df, model_type == "tumor")
-mt_samps    <- filter(samples_df, model_type == "xenograft derived organoid")  # These end up being the same as pdx_samps in the manifest.
+mt_samps    <- filter(samples_df, model_type == "3D-MEDS")  # These end up being the same as pdx_samps in the manifest.
 
 # Retrieve manifest table from Synapse
 manifest <- synTableQuery("select * from syn53503360")$asDataFrame() %>%
@@ -58,7 +59,7 @@ tumor_data <- manifest %>%
   mutate(Proteomics = "") %>%
   filter(!is.na(improve_sample_id))
 
-mt_data <- manifest %>%                     #Note, this is the same as pdx_data but I think we default to "xenograft derived organoid" if present (based on original files)
+mt_data <- manifest %>%                     #Note, this is the same as pdx_data but I think we default to "3D-MEDS" if present (based on original files)
   select(common_name, starts_with("PDX")) %>%
   left_join(mt_samps, by = "common_name") %>%
   select(improve_sample_id, common_name, model_type,
@@ -78,7 +79,7 @@ study_label <- function(type) {
   case_when(
     type == "patient derived xenograft"     ~ "MPNST PDX",
     type == "tumor"                          ~ "MPNST Tumor",
-    type == "xenograft derived organoid"     ~ "MPNST PDX MT",
+    type == "3D-MEDS"     ~ "MPNST PDX MT",
     TRUE                                       ~ "MPNST"
   )
 }
@@ -147,13 +148,28 @@ transcriptomics_list <- lapply(
     if (is.null(meta)) return(NULL)
 
     df <- tryCatch({
-      fread(synGet(id)$path) %>%
+      raw <- fread(synGet(id)$path) %>%
         separate(Name, into = c("other_id","vers"), sep = "\\.") %>%
-        select(-vers) %>%
+        select(-vers)
+
+      is_enst_input <- all(grepl("^ENST", raw$other_id))
+
+      mapped <- raw %>%
         left_join(genes_df) %>%
-        select(entrez_id, transcriptomics = TPM) %>%
-        filter(!is.na(entrez_id), transcriptomics != 0) %>%
-        distinct()
+        select(entrez_id, other_id, transcriptomics = TPM) %>%
+        filter(!is.na(entrez_id), transcriptomics != 0)
+
+      if (is_enst_input) {
+        mapped <- mapped %>%
+          group_by(entrez_id) %>%
+          summarise(transcriptomics = sum(transcriptomics), .groups = "drop")
+      } else {
+        mapped <- mapped %>%
+          select(entrez_id, transcriptomics) %>%
+          distinct()
+      }
+
+      mapped
     }, error = function(e) NULL)
 
     i_safe_extract(

@@ -9,6 +9,11 @@ library(readr)
 library(dplyr)
 #}
 
+## Pinned PSet list shared with 03-createDrugFile.R
+source("pinned_psets.R")
+## Retry/caching helpers for flaky third-party downloads
+source("retry_utils.R")
+
 all.dsets<-PharmacoGx::availablePSets()
 ##first define a generic dose response function
 
@@ -137,7 +142,7 @@ getDoseRespData<-function(dset,studyName,improve_samples,drug.map){
 
   ##now map  drugs, samples, genes to ids in database files
 
-  write.table(doseRep,file=paste0(tolower(studyName),'DoseResponse'),sep='\t',row.names=F,quote=F)
+  write.table(doseRep,file=dose_response_cache_path(studyName),sep='\t',row.names=F,quote=F)
   doseRep
 
 }
@@ -154,9 +159,10 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
   all.dose.rep<-do.call(rbind,lapply(cell.lines,function(cel){
 
   # print(cel)
-      files<-subset(all.dsets,`Dataset Name`==cel)%>%
-          dplyr::select(`PSet Name`)%>%
-      unlist()
+      ## PSets are pinned (see coderbuild/utils/pinned_psets.R) and resolved
+      ## through the same helper the drugs step uses, so drugs and experiments
+      ## can never disagree about which PSets are in the release.
+      files<-psets_for_dataset(all.dsets, cel)
 
 
     res<-do.call(rbind,lapply(files,function(f){
@@ -165,12 +171,24 @@ getCellLineDoseData<-function(cell.lines=c('CTRPv2','FIMM','gCSI','PRISM','GDSC'
         cel='GDSCv2'
       if(f=='GDSC_2020(v1-8.2)')
         cel='GDSCv1'
-      tmpfile<-paste0(cel,'doseResponse')
+      ## Resume support: if this PSet's dose-response was already computed on
+      ## an earlier attempt, read it back instead of re-downloading the PSet
+      ## and recomputing.
+      ##
+      ## This check was previously broken and silently never matched: it looked
+      ## for paste0(cel,'doseResponse') while getDoseRespData() wrote
+      ## paste0(tolower(studyName),'DoseResponse') -- different case on both
+      ## halves, so e.g. CTRPv2 wrote 'ctrpv2DoseResponse' and this looked for
+      ## 'CTRPv2doseResponse'. Every attempt therefore redid all the work.
+      ## Both sides now go through dose_response_cache_path(), and the file
+      ## lives under /tmp so it survives between container attempts.
+      tmpfile<-dose_response_cache_path(cel)
 
       if(file.exists(tmpfile)){
+        message(sprintf("[04a] Reusing cached dose-response for '%s' (%s)", cel, tmpfile))
         dres<-read.table(tmpfile,sep='\t',header=T)
       }else{
-        dset<<-downloadPSet(f,saveDir='.',timeout=10000)
+        dset<<-download_pset_retry(f)
 
         url=subset(all.dsets,`PSet Name`==f)$Download
       #print(url)

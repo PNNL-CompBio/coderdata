@@ -1,0 +1,35 @@
+FROM python:3.11-slim
+
+# Keep scratch files OFF the /tmp bind mount.
+#
+# build_all.py bind-mounts the host's local/ directory at /tmp in every
+# container. Python 3.14 changed the default multiprocessing start method on
+# Linux from "fork" to "forkserver", which opens a Unix domain socket under
+# tempfile.gettempdir() -- i.e. /tmp, i.e. the bind mount. Docker's macOS file
+# sharing does not support chmod() on a socket there, so every Pool worker
+# fails with:
+#
+#   OSError: [Errno 22] Invalid argument: '/tmp/pymp-XXXX/sock-YYYY'
+#
+# This broke build_drug_desc.py and fit_curve.py on 2026-09-03, each at the end
+# of a multi-hour step, and it is deterministic so retries do not help.
+#
+# TMPDIR only affects tempfile.gettempdir() (Python) and tempdir() (R). Explicit
+# /tmp/<name> paths -- which is how every build OUTPUT is written -- still land
+# on the bind mount as before. Verified.
+RUN mkdir -p /opt/mp_tmp
+ENV TMPDIR=/opt/mp_tmp
+
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /coderbuild/phosphosites
+
+RUN pip install --no-cache-dir pandas>=2.0 synapseclient>=4.0 openpyxl>=3.1
+
+COPY coderbuild/phosphosites/00-buildPhosphositeFile.py /coderbuild/phosphosites/
+COPY coderbuild/phosphosites/build_phosphosites.sh      /coderbuild/phosphosites/
+
+RUN chmod +x /coderbuild/phosphosites/build_phosphosites.sh

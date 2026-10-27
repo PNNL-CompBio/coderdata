@@ -2,9 +2,57 @@ FROM r-base:4.4.1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update and upgrade packages, then install required packages.
+
+# Keep scratch files OFF the /tmp bind mount.
+#
+# build_all.py bind-mounts the host's local/ directory at /tmp in every
+# container. Python 3.14 changed the default multiprocessing start method on
+# Linux from "fork" to "forkserver", which opens a Unix domain socket under
+# tempfile.gettempdir() -- i.e. /tmp, i.e. the bind mount. Docker's macOS file
+# sharing does not support chmod() on a socket there, so every Pool worker
+# fails with:
+#
+#   OSError: [Errno 22] Invalid argument: '/tmp/pymp-XXXX/sock-YYYY'
+#
+# This broke build_drug_desc.py and fit_curve.py on 2026-09-03, each at the end
+# of a multi-hour step, and it is deterministic so retries do not help.
+#
+# TMPDIR only affects tempfile.gettempdir() (Python) and tempdir() (R). Explicit
+# /tmp/<name> paths -- which is how every build OUTPUT is written -- still land
+# on the bind mount as before. Verified.
+RUN mkdir -p /opt/mp_tmp
+ENV TMPDIR=/opt/mp_tmp
+
+# Install required packages.
+#
+# Do NOT add `apt-get upgrade -y` here. r-base:4.4.1 pins R at 4.4.1, but its
+# apt sources point at Debian sid, where the r-cran-* packages have since been
+# rebuilt against R 4.5.x. Upgrading therefore replaces the base image's
+# consistent R library set with binaries built for a different R, and loading
+# any of them fails with:
+#
+#   /usr/lib/R/library/Matrix/libs/Matrix.so: undefined symbol: ANY_ATTRIB
+#
+# which cascades: Matrix breaks survival, which breaks reticulate, tidyverse
+# and PharmacoGx, ~50 minutes into the image build. Verified: on a clean
+# r-base:4.4.1 Matrix loads; after `apt-get upgrade -y` it does not.
+#
+# The upgrade is also unnecessary -- this apt list installs cleanly without it,
+# and 4.4.1 already ships libssl3t64 3.6.3-1 so there is no openssl conflict.
+#
+# The lib*-dev entries below are build dependencies for CRAN packages that
+# compile from source here. They are not optional:
+#   libuv1-dev         fs. Without it fs fails to configure, taking down
+#                      sass -> bslib -> rmarkdown/shiny -> DT/htmlwidgets ->
+#                      piano -> CoreGx -> PharmacoGx.
+#   libfontconfig1-dev systemfonts (needs fontconfig + freetype2)
+#   libharfbuzz-dev    textshaping
+#   libfribidi-dev     textshaping
+#   libfreetype6-dev   ragg -> tidyverse
+#   libpng/tiff/jpeg   ragg image backends
+# Each failure surfaces only as "dependency X is not available", an hour in,
+# so the root cause is easy to misread as a CRAN outage.
 RUN apt-get update --fix-missing && \
-    apt-get upgrade -y && \
     apt-get install -y --fix-missing --allow-unauthenticated \
       build-essential \
       python3-pip \
@@ -15,7 +63,15 @@ RUN apt-get update --fix-missing && \
       libglpk-dev \
       libxml2-dev \
       libpq-dev \
-      ca-certificates && \
+      ca-certificates \
+      libuv1-dev \
+      libfontconfig1-dev \
+      libharfbuzz-dev \
+      libfribidi-dev \
+      libfreetype6-dev \
+      libpng-dev \
+      libtiff5-dev \
+      libjpeg-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create and upgrade the Python virtual environment.

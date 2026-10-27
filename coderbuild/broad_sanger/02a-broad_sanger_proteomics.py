@@ -1,3 +1,5 @@
+import os
+import time
 import pandas as pd
 import argparse
 from zipfile import ZipFile
@@ -5,28 +7,98 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-def robust_download(url, dest_path, max_retries=5):
-    session = requests.Session()
+# Waits between whole-download attempts: 1, 3, 10 and 15 minutes, matching
+# coderbuild/utils/retry_utils.R. Long enough to ride out a real incident
+# rather than only a momentary blip; if all attempts fail the build fails.
+RETRY_SLEEPS = (60, 180, 600, 900)
+
+
+def robust_download(url, dest_path, sleeps=RETRY_SLEEPS):
+    """Download `url` to `dest_path`, resuming an interrupted transfer.
+
+    The previous implementation mounted a urllib3 Retry adapter and assumed that
+    made it robust. It did not: Retry only covers connection setup and HTTP
+    status codes. Once the response body is streaming, a truncated body raises
+    ChunkedEncodingError/ProtocolError out of iter_content(), which went straight
+    to the except clause and became a fatal RuntimeError -- no retry, no resume.
+
+    That is exactly how build v24 died, 12MB into a 112MB file:
+
+      Failed to download .../Proteomics_20221214.zip:
+      ('Connection broken: IncompleteRead(12353536 bytes read,
+        100318054 more expected)')
+
+    So: retry the whole transfer, and RESUME it with a Range request rather than
+    starting over, since restarting a large file on a flaky link tends to fail
+    again at a similar point. Verified that this host sends accept-ranges: bytes
+    and answers a Range request with 206.
+
+    Bytes accumulate in "<dest>.part", which is renamed onto dest_path only once
+    the finished size matches the server's Content-Length. An unverified or
+    partial file therefore never appears at the destination.
+    """
+    part = dest_path + ".part"
+
     retry_strategy = Retry(
-        total=max_retries,
+        total=3,
         backoff_factor=1,
         status_forcelist=[429, 500, 502, 503, 504],
         allowed_methods={"GET", "HEAD"},
         raise_on_status=False,
     )
     adapter = HTTPAdapter(max_retries=retry_strategy)
+    session = requests.Session()
     session.mount("https://", adapter)
     session.mount("http://", adapter)
 
+    expected = None
     try:
-        with session.get(url, stream=True, timeout=(5, 60)) as r:
-            r.raise_for_status()
-            with open(dest_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1024 * 1024):
-                    if chunk:  # filter out keep-alive chunks
-                        f.write(chunk)
-    except requests.exceptions.RequestException as e:
-        raise RuntimeError(f"Failed to download {url}: {e}") from e
+        head = session.head(url, timeout=(5, 30), allow_redirects=True)
+        if head.ok and head.headers.get("Content-Length"):
+            expected = int(head.headers["Content-Length"])
+    except requests.exceptions.RequestException:
+        pass  # size unknown; completeness is then judged by a clean stream end
+
+    last_error = None
+    for attempt in range(len(sleeps) + 1):
+        have = os.path.getsize(part) if os.path.exists(part) else 0
+        try:
+            headers = {"Range": f"bytes={have}-"} if have else {}
+            with session.get(url, stream=True, timeout=(5, 60), headers=headers) as r:
+                if have and r.status_code == 206:
+                    mode = "ab"                     # server honoured the resume
+                else:
+                    if have:
+                        print(f"  server ignored Range for {url}; restarting", flush=True)
+                    r.raise_for_status()
+                    mode, have = "wb", 0
+                with open(part, mode) as f:
+                    for chunk in r.iter_content(chunk_size=1024 * 1024):
+                        if chunk:                   # filter out keep-alive chunks
+                            f.write(chunk)
+
+            got = os.path.getsize(part)
+            if expected is not None and got != expected:
+                raise IOError(f"incomplete: {got} of {expected} bytes")
+
+            os.replace(part, dest_path)
+            return
+
+        except (requests.exceptions.RequestException, IOError) as e:
+            last_error = e
+            got = os.path.getsize(part) if os.path.exists(part) else 0
+            # Keep the .part file: the next attempt resumes from here. Deleting
+            # it would mean a flaky link could never accumulate a large file.
+            if attempt < len(sleeps):
+                wait = sleeps[attempt]
+                print(f"  download of {url} failed at {got} bytes "
+                      f"({e}); attempt {attempt + 1}/{len(sleeps) + 1}, "
+                      f"resuming in {wait // 60} min", flush=True)
+                time.sleep(wait)
+
+    raise RuntimeError(
+        f"Failed to download {url} after {len(sleeps) + 1} attempts: {last_error}"
+    )
 
 
 def main():
