@@ -29,6 +29,10 @@ def get_complete_novartis_sample_sheet(synObject):
     allsamplesheet['other_id_source'] = 'Synapse'
     allsamplesheet['other_names'] = ''
     finalsamplesheet = allsamplesheet[['other_id', 'common_name', 'other_id_source', 'other_names', 'cancer_type', 'species', 'model_type']]
+    # Omics and drug responses are per model and are joined on common_name, so
+    # a model listed under two sample IDs (NIBRX-2043: CPDM_0338X_PDX_PNR_01
+    # and _02) got two improve ids carrying identical data. Keep one per model.
+    finalsamplesheet = finalsamplesheet.drop_duplicates(subset='common_name', keep='first')
     return finalsamplesheet
 
 if __name__ == "__main__":

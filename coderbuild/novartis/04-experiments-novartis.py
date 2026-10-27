@@ -38,7 +38,12 @@ def get_novartis_pdx_experiments_file(synObject, samples_df):
     nomissingcontrols=novartis_curvefile[~novartis_curvefile['experiment'].isin(missingcontrols)]
     #merge on drug names done in calc_pdx_metrics.py
     #final_w_drugIDs = finaldf.merge(drug_df, how='left',right_on='chem_name', left_on="treatment")
-    final_allIDs = nomissingcontrols.merge(samples_df, how='left', right_on='common_name', left_on='model_id') 
+    final_allIDs = nomissingcontrols.merge(samples_df, how='left', right_on='common_name', left_on='model_id')
+    # Models missing from the samples file left NaN ids, which turned the whole
+    # column into floats and published ids like '3524.0' that match nothing.
+    # calc_pdx_metrics.py drops those rows anyway, so drop them here.
+    final_allIDs = final_allIDs.dropna(subset=['improve_sample_id'])
+    final_allIDs['improve_sample_id'] = final_allIDs['improve_sample_id'].astype(int)
     final_allIDs = final_allIDs.drop('model_id', axis=1)
     finalDF = final_allIDs.rename({'improve_sample_id':'model_id'}, axis=1)
     finalcurvefile = finalDF[['model_id', 'time', 'volume', 'treatment', 'experiment', 'dose']]
