@@ -67,8 +67,12 @@ def _check(report, scope):
 
 
 def test_dataset(build_report, dataset):
+    # Fails if this dataset has any errors. Its warnings are shown in the pytest
+    # output without failing.
     _check(build_report, dataset)
 
 
 def test_cross_dataset(build_report):
+    # Same as above, for checks that compare datasets (shared sample IDs,
+    # mapping files).
     _check(build_report, 'all')
