@@ -41,8 +41,8 @@ def create_bladder_drugs_file(synObject, prevDrugFilepath, outputPath):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="This script handles downloading, processing and formatting of drug data files for the Lee Bladder PDO project")
-    parser.add_argument('-d', '--prevDrugFilePath', help='Path to a previous drug file for sarcpdo', nargs="?", default = None)
-    parser.add_argument('-o', '--outputPath', help='Output path for updated sarcpdo drug file', default = "/tmp/sarcpdo_drugs.tsv") 
+    parser.add_argument('-d', '--prevDrugFilePath', help='Path to a previous drug file for bladder', nargs="?", default = None)
+    parser.add_argument('-o', '--outputPath', help='Output path for updated bladder drug file', default = "/tmp/bladder_drugs.tsv") 
     parser.add_argument('-t', '--token', help='Synapse token')
 
     args = parser.parse_args()

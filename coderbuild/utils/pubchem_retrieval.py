@@ -271,7 +271,7 @@ def update_dataframe_and_write_tsv(unique_names,
     New features:
     - Accepts previous drug file(s) via `prev_drug_filepaths` (comma-separated) to temp existing entries and
       continue SMI numbering from the global max across those and the existing output.
-    - Only retains drugs relevant to `restrict_to_raw_names` (e.g., liverpdo/bladderpdo raw drug names).
+    - Only retains drugs relevant to `restrict_to_raw_names` (e.g., liver/bladder raw drug names).
     - Avoids re-querying names/IDs already present in either previous files or existing output.
     
     Parameters:
