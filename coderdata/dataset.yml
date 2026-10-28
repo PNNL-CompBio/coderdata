@@ -127,7 +127,7 @@ datasets:
       - drug descriptor
       - experiments
 
-  pancreas:
+  pancreatic:
     description: Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer. Data includes transcriptomics, mutations, copy number, and drug response data.
     references:
       - citation: "Tiriac H, Belleau P, Engle DD, et al. Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer. Cancer Discov. 2018;8(9):1112-1129."

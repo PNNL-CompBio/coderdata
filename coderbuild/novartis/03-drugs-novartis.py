@@ -47,7 +47,7 @@ def create_novartis_pdx_drugs_file(synObject, prevDrugFilepath, outputPath):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="This script handles downloading, processing and formatting of drug data files for the Novartis PDX data")
-    parser.add_argument('-d', '--prevDrugFilePath', help='Path to a previous drug file for bladderpdo', nargs="?", default = None)
+    parser.add_argument('-d', '--prevDrugFilePath', help='Path to a previous drug file for novartis', nargs="?", default = None)
     parser.add_argument('-o', '--outputPath', help='Output path for updated novartis drug file', default = "/tmp/novartis_drugs.tsv") 
     parser.add_argument('-t', '--token', help='Synapse token')
 

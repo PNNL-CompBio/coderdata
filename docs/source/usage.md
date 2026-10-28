@@ -85,25 +85,27 @@ Available datasets
 ------------------
 
 beataml: Beat acute myeloid leukemia (BeatAML) focuses on acute myeloid leukemia tumor data. Data includes drug response, proteomics, and transcriptomics datasets.
-bladderpdo: Tumor Evolution and Drug Response in Patient-Derived Organoid models of Bladder Cancer Data includes transcriptomics, mutations, copy number, and drug response data.
+bladder: Tumor Evolution and Drug Response in Patient-Derived Organoid Models of Bladder Cancer. Data includes transcriptomics, mutations, copy number, and drug response data.
 ccle: Cancer Cell Line Encyclopedia (CCLE).
 cptac: The Clinical Proteomic Tumor Analysis Consortium (CPTAC) project is a collaborative network funded by the National Cancer Institute (NCI) focused on improving our understanding of cancer biology through the integration of transcriptomic, proteomic, and genomic data.
-ctrpv2: Cancer Therapeutics Response Portal version 2 (CTRPv2).
+ctrpv2: Cancer Therapeutics Response Portal version 2 (CTRPv2)
 fimm: Institute for Molecular Medicine Finland (FIMM) dataset.
-gcsi: The Genentech Cell Line Screening Initiative (gCSI).
-gdscv1: Genomics of Drug Sensitivity in Cancer (GDSC) v1.
-gdscv2: Genomics of Drug Sensitivity in Cancer (GDSC) v2.
-hcmi: Human Cancer Models Initiative (HCMI) encompasses numerous cancer types and includes cell line, organoid, and tumor data. Data includes the transcriptomics, somatic mutation, and copy number datasets.
+hcmi: Human Cancer Models Initiative (HCMI) encompasses numerous cancer types and includes cell line, organoid, and tumor data. The models and the data are from the Human Cancer Models Initiative (HCMI) www.cancer.gov/ccg/research/functional-genomics/hcmi; dbGaP accession number phs001486.
 mpnst: Malignant Peripheral Nerve Sheath Tumor is a rare, aggressive sarcoma that affects peripheral nerves throughout the body.
-mpnstpdx: Patient derived xenograft data for MPNST.
 nci60: National Cancer Institute 60.
-pancpdo: Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer Data includes transcriptomics, mutations, copy number, and drug response data.
+pancreatic: Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer. Data includes transcriptomics, mutations, copy number, and drug response data.
 prism: Profiling Relative Inhibition Simultaneously in Mixtures.
-sarcpdo: The landscape of drug sensitivity and resistance in sarcoma Data includes transcriptomics, mutations, and drug response data.
+sarcoma: The landscape of drug sensitivity and resistance in sarcoma. Data includes transcriptomics, mutations, and drug response data.
+colorectal: Living organoid biobank of colorectal cancer patients.
+liver: Pharmaco-proteogenomic characterization of liver cancer organoids for precision oncology.
+novartis: Patient-derived tumor xenografts for drug response prediction.
+gcsi: The Genentech Cell Line Screening Initiative (gCSI)
+gdscv1: Genomics of Drug Sensitivity in Cancer version 1 (GDSCv1)
+gdscv2: Genomics of Drug Sensitivity in Cancer version 2 (GDSCv2)
 
 ------------------
 
-To download individual datasets run "coderdata download -name DATASET_NAME" where "DATASET_NAME" is for example "beataml".
+To download individual datasets run "coderdata download --name DATASET_NAME" where "DATASET_NAME" is for example "beataml".
 ```
 
 #### Windows User

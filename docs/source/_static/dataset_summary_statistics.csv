@@ -1,5 +1,5 @@
 dataset,sample_drug_pairs,sample_drug_transcript_pairs,sample_drug_transcriptomics_mutation_pairs,sample_drug_transcriptomics_copynumber_pairs,sample_drug_mutation_copynumber_pairs
-beataml,32211,4176,3995,,
+beataml,62707,52985,48724,,
 bladder,3300,840,640,640,3100
 ccle,11543,10933,10885,8375,8398
 colorectal,140,60,60,60,140
@@ -12,8 +12,8 @@ gdscv2,113964,112911,111387,111085,111687
 hcmi,,,,,
 liver,4453,4453,4453,4453,4453
 mpnst,2736,2657,181,181,181
-nci60,2909092,2318378,2318362,2063572,2063572
-novartis,1766,1734,1734,1723,1723
+nci60,2940159,2343136,2343121,2085608,2085608
+novartis,1757,1725,1725,1714,1714
 pancreatic,190,190,185,185,185
 prism,637674,632199,632199,497743,499088
 sarcoma,275,234,187,,
