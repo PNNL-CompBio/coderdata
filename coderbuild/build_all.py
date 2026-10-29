@@ -71,6 +71,11 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
     parser.add_argument('--high_mem',dest='high_mem',default=False,action='store_true',help = "If you have 32 or more CPUs, this option is recommended. It will run many code portions in parallel. If you don't have enough memory, this will cause a run failure.")
     parser.add_argument('--dataset',dest='datasets',default='broad_sanger,beataml,pancreatic,bladder,sarcoma,liver,novartis,colorectal,mpnst,cptac,hcmi',help='Datasets to process. Defaults to all available.')
     parser.add_argument('--version', type=str, required=False, help='Version number for the Figshare upload title (e.g., "0.1.29"). This is required for Figshare upload. This must be a higher version than previously published versions.')
+    parser.add_argument('--previous-summary', dest='previous_summary', default=None,
+                        help='validation_summary.json(.gz) from an earlier build or release; --validate then '
+                             'warns on large changes in samples, drugs, pairs, omics coverage and model types.')
+    parser.add_argument('--skip-build-checks', dest='skip_build_checks', default=False, action='store_true',
+                        help='Skip validate_build.py data checks during --validate (not recommended).')
     parser.add_argument('--github-username', type=str, required=False, help='GitHub username for the repository.')
     parser.add_argument('--github-email', type=str, required=False, help='GitHub email for the repository.')
     parser.add_argument('--depmap-ready', dest='depmap_ready', default=False, action='store_true',
@@ -1019,10 +1024,45 @@ Upload the latest data to Figshare (ensure tokens are set in the local environme
         drug_mapping_command_2 = ['python3', 'coderbuild/utils/align_drug_descriptors.py', '--local_dir', "/tmp"] + version_args
         run_docker_upload_cmd(drug_mapping_command_2, 'all_files_dir', 'Align_Drug_Descriptors', args.version)
 
+        # Data checks the schema cannot express (duplicate results, orphan or
+        # overlapping ids, copied responses, large changes from the previous
+        # build). The summary is written into all_files_dir so it is published
+        # with the release and can be the next build's --previous-summary.
+        # Errors stop the build after the schema check has also reported.
+        build_check_failed = False
+        if not args.skip_build_checks:
+            summary_path = os.path.join(all_files_dir, 'validation_summary.json')
+            check_cmd = [sys.executable, 'coderbuild/utils/validate_build.py', '--dir', all_files_dir,
+                         '--write-summary', summary_path]
+            if args.previous_summary:
+                check_cmd += ['--previous-summary', args.previous_summary]
+            _log('Running build data checks')
+            # The summary is written once every check has run, so its absence
+            # means the checker never finished.
+            if os.path.exists(summary_path):
+                os.remove(summary_path)
+            sys.stdout.flush()
+            # stdin can be closed when the build runs under nohup ... &, and a
+            # new Python then dies at startup (init_sys_streams: Bad file descriptor).
+            rc = subprocess.run(check_cmd, stdin=subprocess.DEVNULL).returncode
+            build_check_failed = rc != 0
+            if rc == 0:
+                _log('Build data checks passed')
+            elif os.path.exists(summary_path):
+                _log(f'Build data checks found errors (exit code {rc}); see the results above')
+            else:
+                # The 2.4 rebuild stopped here with no output.
+                _log(f'Build data checks did not finish (exit code {rc}). '
+                     f'Rerun by hand: {" ".join(check_cmd)}')
+
         # Run schema checker - This will always run if uploading data.
         schema_check_command = ['python3', 'coderbuild/utils/check_schema.py', '--datasets'] + datasets
         run_docker_upload_cmd(schema_check_command, 'all_files_dir', 'validate', args.version)
-        
+
+        if build_check_failed:
+            raise RuntimeError('Build data checks failed; see the log above. '
+                               'Fix them, or rerun with --skip-build-checks to override.')
+
         _log("Validation complete. Proceeding with file compression/decompression adjustments")
         
         # Compress or decompress files based on specific conditions after checking
