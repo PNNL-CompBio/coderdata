@@ -1,0 +1,321 @@
+---
+title: "Figure 1"
+author:
+- name: Yannick Mahlich
+  affiliation: Pacific Northwest National Laboratory
+date: "`r Sys.Date()`"
+engine: knitr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Table of Contents"
+    toc-location: right
+    number-sections: true
+---
+
+# Dependenies & Preparation
+
+First we import the required libraries and set up the paths.
+We also assume that the `coderdata` package is installed and available in the Python environment and that we have downloaded the most recent coderdata dataset.
+
+This can be done with the following command in the terminal:
+```bash
+coderdata download --local_path PATH_TO_SAVE_DATASET
+```
+Additionally we will use `reticulate` to interface with Python from R.
+
+```{r}
+#| label: imports-and-setup
+#| warning: false
+
+# r libraries
+library(reticulate)
+library(ggplot2)
+library(tidyr)
+library(patchwork)
+
+# path setup
+data_dir <- "/tmp/coderdata/data/"
+
+# defines the python environment to use
+py_require("coderdata")
+
+# import the coderdata package from python
+cd <- import("coderdata")
+```
+
+Once we have loaded the `coderdata` package, we can check the version and list the available datasets to confirm that we have the correct version and datasets available.
+```{r}
+#| label: confirm-version-and-datasets
+cd$version()
+cd$list_datasets()
+```
+
+# Data import
+Now we are ready to load the datasets and format them for analysis. We will load the `ccle` and `ctrpv2` datasets and format them to extract the relevant metrics for our analysis.
+Note how this is done using the `reticulate` functionality to call Python functions from R via `cd$load(...)` and `datasets[[name]]$format(...)`.
+
+```{r}
+#| label: load-datasets
+#| warning: false
+
+
+datasetnames <- c("ccle", "ctrpv2", "nci60", "prism", "gdscv1", "gdscv2", "fimm")
+datasets <- list()
+
+for (name in datasetnames) {
+  datasets[[name]] <- cd$load(name, local_path = data_dir)
+}
+
+experiments <- list()
+for (name in datasetnames) {
+  experiments[[name]] <- datasets[[name]]$format(
+    "experiments",
+    shape = "wide",
+    metrics = c("auc", "fit_auc", "fit_r2")
+  )
+}
+```
+
+We also perform some basic data cleaning to remove any rows with invalid values for the metrics of interest. We will filter the datasets to only include rows where the `fit_auc`, `auc`, and `fit_r2` values are between 0 and 1.
+
+
+```{r}
+#| label: filter-datasets
+#| 
+dfs <- list()
+for (name in datasetnames) {
+  dfs[[name]] <- experiments[[name]] %>%
+    .[
+      .$fit_auc >= 0 &
+      .$fit_auc <= 1 &
+      .$auc >= 0 &
+      .$auc <= 1 &
+      .$fit_r2 >= 0 &
+      .$fit_r2 <= 1,
+    ]
+}
+
+head(dfs[['ccle']])
+```
+
+For the sake of transparency, we will also report the number of rows that were removed from each dataset during the filtering process. This will help us understand the impact of the filtering on the datasets and ensure that we are not losing too much information.
+```{r}
+#| label: report-filtering
+for (name in datasetnames) {
+  original_rows <- nrow(experiments[[name]])
+  filtered_rows <- nrow(dfs[[name]])
+  removed_rows <- original_rows - filtered_rows
+  cat(paste0("Dataset: ", name, " - Original rows: ", original_rows, ", Filtered rows: ", filtered_rows, ", Removed rows: ", removed_rows, "\n"))
+}
+```
+
+# Generating the figure(s)
+
+## Defining the plotting function
+
+For the figure, we will create a multi-panel plot that shows the relationships between the metrics of interest.
+We will create scatter plots for `fit_auc` vs `auc` and `fit_auc` vs `fit_r2`, along with marginal histograms for each of the metrics.
+
+In order to be able to reuse the plotting code for different datasets, we are defining a function `generate_figure()` that takes a dataframe and a dataset name as input and returns a combined plot object. To achieve this we are going to make use of the `patchwork` package to create a multi-panel figure that shows the relationships between the metrics of interest. We will create scatter plots for `fit_auc` vs `auc` and `fit_auc` vs `fit_r2`, along with marginal histograms for each of the metrics. To that end we first generate the individual plots and then combine them later on into a single figure using the `patchwork` package.
+
+Once all of the plot objects have been created, we can combine them into a single figure using the `patchwork` package. We will use the `plot_layout()` function to specify the layout of the plots and the `area()` function to define the areas for each plot.
+
+```{r}
+#| label: generate-figure
+
+generate_figure <- function(df, dataset_name) {
+  p_main_auc <- ggplot(df, aes(x = auc, y = fit_auc)) +
+    geom_point(alpha = 0.05) +
+    geom_density2d() +
+    labs(
+      x = "AUC",
+      y = "Fit AUC"
+    ) +
+    xlim(0, 1) +
+    ylim(0, 1) +
+    theme_minimal()
+
+  p_main_r2 <- ggplot(df, aes(x = fit_r2, y = fit_auc)) +
+    geom_point(alpha = 0.05) +
+    geom_density2d() +
+    labs(
+      x = "Fit R2",
+      y = "Fit AUC"
+    ) +
+    xlim(0, 1) +
+    ylim(0, 1) +
+    theme_minimal()
+
+  p_margin_left <- ggplot(df, aes(x = auc)) +
+    geom_histogram(fill = "steelblue", color = "white", bins = 30) +
+    labs(x = NULL, y = NULL) +
+    coord_flip() +
+    scale_y_reverse() +
+    theme_minimal() +
+    theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+
+  p_margin_top_auc <- ggplot(df, aes(x = fit_auc)) +
+    geom_histogram(fill = "steelblue", color = "white", bins = 30) +
+    labs(x = NULL, y = NULL) +
+    theme_minimal() +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+  p_margin_top_r2 <- ggplot(df, aes(x = fit_r2)) +
+    geom_histogram(fill = "steelblue", color = "white", bins = 30) +
+    labs(x = NULL, y = NULL) +
+    theme_minimal() +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+  layout <- c(
+  area(t = 1, l = 2, b = 1, r = 3), # Top marginal (auc)
+  area(t = 1, l = 4, b = 1, r = 5), # Top marginal (r2)
+  area(t = 2, l = 1, b = 3, r = 1), # Left marginal (fit_auc)
+  area(t = 2, l = 2, b = 3, r = 3), # Main plot auc)
+  area(t = 2, l = 4, b = 3, r = 5) # Main plot (fit_r2)
+)
+
+  # plot(layout)
+  plot <- p_margin_top_auc +
+    p_margin_top_r2 +
+    p_margin_left +
+    p_main_auc +
+    p_main_r2 +
+    plot_layout(
+      design = layout,
+      widths = c(1, 4, 1),
+      heights = c(1, 4),
+      axes = 'collect_y'
+    ) + 
+    plot_annotation(title = paste("Dataset:", dataset_name))
+
+  plot
+}
+
+```
+
+## Combined dataset plot
+
+```{r}
+#| label: combine-datasets
+#| warning: false
+#| fig.width: 10
+#| fig.height: 6
+#| fig-align: center
+#| fig.cap: "Figure 1: Multi-panel plot showing the relationships between AUC, Fit AUC, and Fit R2 for the combined datasets."
+
+df_combined <- do.call(rbind, dfs)
+df_plot <- df_combined[sample(nrow(df_combined), 100000), ]
+plot <- generate_figure(df_plot, "Combined Datasets")
+plot
+```
+
+## Generating the plots for each dataset
+
+Now that the function to generate the figure has been defined, we can use it to create the plots for each dataset. We will store the plots in a list and then print them one by one.
+
+```{r}
+#| label: generate-plots
+
+plots <- list()
+for (name in names(dfs)) {
+  plots[[name]] <- generate_figure(dfs[[name]], name)
+}
+
+```
+
+Now we can print the plots for each dataset. This will display the multi-panel figures for each dataset, allowing us to visually compare the relationships between the metrics of interest across the different datasets.
+
+### CCLE
+```{r}
+#| label: print-plot-ccle
+#| warning: false
+#| fig.width: 10
+#| fig.height: 6
+#| fig.align: center
+#| fig.cap: "Figure 2: Multi-panel plot showing the relationships between AUC, Fit AUC, and Fit R2 for the CCLE dataset."
+
+print(plots[["ccle"]])
+```
+
+### CTRPv2
+```{r}
+#| label: print-plot-ctrpv2
+#| warning: false
+#| fig.width: 10
+#| fig.height: 6
+#| fig.align: center
+#| fig.cap: "Figure 3: Multi-panel plot showing the relationships between AUC, Fit AUC, and Fit R2 for the CTRPv2 dataset."
+print(plots[["ctrpv2"]])
+```
+
+### GDSCv1
+```{r}
+#| label: print-plot-gdscv1
+#| warning: false
+#| fig.width: 10
+#| fig.height: 6
+#| fig.align: center
+#| fig.cap: "Figure 4: Multi-panel plot showing the relationships between AUC, Fit AUC, and Fit R2 for the GDSCv1 dataset."
+print(plots[["gdscv1"]])
+```
+
+### GDSCv2
+```{r}
+#| label: print-plot-gdscv2
+#| warning: false
+#| fig.width: 10
+#| fig.height: 6
+#| fig.align: center
+#| fig.cap: "Figure 5: Multi-panel plot showing the relationships between AUC, Fit AUC, and Fit R2 for the GDSCv2 dataset."
+print(plots[["gdscv2"]])
+```
+
+### NCI60
+```{r}
+#| label: print-plot-nci60
+#| warning: false
+#| fig.width: 10
+#| fig.height: 6
+#| fig.align: center
+#| fig.cap: "Figure 6: Multi-panel plot showing the relationships between AUC, Fit AUC, and Fit R2 for the NCI60 dataset."
+print(plots[["nci60"]])
+```
+
+### PRISM
+```{r}
+#| label: print-plot-prism
+#| warning: false
+#| fig.width: 10
+#| fig.height: 6
+#| fig.align: center
+#| fig.cap: "Figure 7: Multi-panel plot showing the relationships between AUC, Fit AUC, and Fit R2 for the PRISM dataset."
+print(plots[["prism"]])
+```
+
+### FIMM
+```{r}
+#| label: print-plot-fimm
+#| warning: false
+#| fig.width: 10
+#| fig.height: 6
+#| fig.align: center
+#| fig.cap: "Figure 8: Multi-panel plot showing the relationships between AUC, Fit AUC, and Fit R2 for the FIMM dataset."
+print(plots[["fimm"]])
+```
+
+
+## Saving the plots to disk
+Finally we save the plots to disk as PNG files.
+
+```{r}
+#| label: save-plots
+#| warning: false
+#| eval: false
+
+for (name in names(plots)) {
+  ggsave(filename = paste0("figure_1_", name, ".png"), plot = plots[[name]], width = 10, height = 6, dpi = 300)
+}
+
+```
