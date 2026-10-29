@@ -344,9 +344,19 @@ def rewrite_drugs_file(file_path, drug_id_mapping, datasets=None):
             recompress_if_needed(file_path_decompressed, was_gz, original_path=file_path if was_gz else None)
             print(f"No improve drug ID column found in {file_path_decompressed}")
             return
+        # Response rows are keyed by every column except the measured value.
+        # Old ids that unify to one stable id would leave two rows with the
+        # same key (two results for one sample/drug), so check for that here.
+        check_keys = '_experiments' in filename or '_combinations' in filename
+        key_cols = [c for c in fieldnames if c not in ('dose_response_value', 'drug_combination_value')]
+        # Only ids that absorb a remapped id can collide, so track just those.
+        merged_ids = {new for (ds, old), new in drug_id_mapping.items() if ds == dataset and old != new}
+        seen_keys = {}
+        collisions = []
         writer = csv.DictWriter(fout, fieldnames=fieldnames, delimiter='\t')
         writer.writeheader()
         for row in reader:
+            original_ids = tuple(row.get(c, "").strip() for c in id_columns)
             for column in id_columns:
                 original_id = row.get(column, "").strip()
                 key = (dataset, original_id)
@@ -356,7 +366,22 @@ def rewrite_drugs_file(file_path, drug_id_mapping, datasets=None):
                         print(f"Replacing {column} '{original_id}' with stable_id '{new_id}' in {file_path_decompressed}")
                         row[column] = new_id
                         changes_made = True
+            if check_keys and any(row[c] in merged_ids for c in id_columns):
+                row_key = tuple(row.get(c, '') for c in key_cols)
+                if row_key in seen_keys and seen_keys[row_key] != original_ids:
+                    collisions.append((row_key, seen_keys[row_key], original_ids))
+                seen_keys.setdefault(row_key, original_ids)
             writer.writerow(row)
+
+    if collisions:
+        os.remove(tmp_path)
+        recompress_if_needed(file_path_decompressed, was_gz, original_path=file_path if was_gz else None)
+        examples = '; '.join(f"{'/'.join(a)} and {'/'.join(b)}" for _, a, b in collisions[:5])
+        raise RuntimeError(
+            f"{filename}: unifying drug ids would give {len(collisions)} rows the same key, i.e. "
+            f"more than one result for a sample/drug/metric (old ids e.g. {examples}). The drug "
+            f"step assigned one chemical several ids; fix that upstream rather than publishing "
+            f"duplicate responses.")
 
     if changes_made:
         os.replace(tmp_path, file_path_decompressed)
