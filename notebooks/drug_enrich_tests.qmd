@@ -1,0 +1,234 @@
+---
+title: "CoderEnrich: a data driven drug enrichment test"
+author:
+- name: Sara Gosline
+  affiliation: Pacific Northwest National Laboratory
+date: "`r Sys.Date()`"
+engine: knitr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Table of Contents"
+    toc-location: right
+    number-sections: true
+---
+
+# Dependencies & Preparation
+
+First we import the required libraries and set up the paths.
+We also assume that the `coderdata` package is installed and available in the Python environment and that we have downloaded the most recent coderdata dataset.
+
+This can be done with the following command in the terminal:
+
+```bash
+coderdata download --local_path PATH_TO_SAVE_DATASET
+```
+Additionally we will use `reticulate` to interface with Python from R.
+
+```{r}
+#| label: imports-and-setup
+#| warning: false
+
+# r libraries
+library(reticulate)
+library(ggplot2)
+library(tidyr)
+library(patchwork)
+library(GSVA) ##do to the enrichment statistics
+
+# path setup
+data_dir <- "/tmp/"
+use_virtualenv("r-reticulate", required = TRUE)
+
+# defines the python environment to use
+py_require("coderdata")
+
+# import the coderdata package from python
+cd <- import("coderdata")
+```
+
+Once we have loaded the `coderdata` package, we can check the version and list the available datasets to confirm that we have the correct version and datasets available.
+```{r}
+#| label: confirm-version-and-datasets
+cd$version()
+cd$list_datasets()
+```
+
+# Drug data import
+Now we are ready to load the datasets and format them for analysis. We will load the `ccle` and `ctrpv2` datasets and format them to extract the relevant metrics for our analysis.
+Note how this is done using the `reticulate` functionality to call Python functions from R via `cd$load(...)` and `datasets[[name]]$format(...)`.
+
+```{r}
+#| label: load-datasets
+#| warning: false
+
+
+datasetnames <- c("ccle", "ctrpv2", "prism", "gdscv1", "gdscv2", "fimm", 'nci60')
+datasets <- list()
+
+for (name in datasetnames) {
+  datasets[[name]] <- cd$load(name, local_path = data_dir)
+}
+
+experiments <- list()
+transcripts <- list()
+proteomics <- list()
+for (name in datasetnames) {
+  experiments[[name]] <- datasets[[name]]$format(
+    "experiments",
+    shape = "wide",
+    metrics = "fit_auc"
+  ) #|>
+    #left_join(datasets[[name]]$drugs)
+
+    transcripts[[name]] <- datasets[[name]]$format(
+    "transcriptomics",
+    shape = "matrix",
+    metrics = "transcripomics"
+  )
+    proteomics[[name]] <- datasets[[name]]$format(
+    "proteomics",
+    shape = "matrix",
+    metrics = "proteomics"
+  )
+}
+```
+
+
+Now we have the transcripts data, each as a matrix. We can take a set of genes and identify 
+specific drugs that are correlated with samples that are active in those.
+
+
+## Test dataset
+We can evaluate a test dataset based on a specific cell line? 
+
+Quick test:
+1. take a drug of interest
+2. rank cell lines by the AUC
+For each cell line:
+  3. those that are the most negative - get genes that overlap?
+  4. can we get those genes and find drug again? 
+
+```{r genelist}
+
+##let's take some test gene lists from the chr8 paper, genes and proteins that are correlated with chr8
+
+RNA.genelist.chr8 = c("SIX2","TRMT12","MSC","TENM3","LRRC14","PTP4A3","AIMP2","TGIF2","ZNF7","C1orf56",
+                      "KIF18B","PIF1","EXOSC4","MAF1","RP11-613M10.8","SRD5A3","BOP1","DDX54","SCRIB","TMEM70","DSCC1","RHBDL3",
+                      "KIF26A","TIGD5","PROKR2","DNMT3B","GLE1","MEGF10","RRS1","C8orf88","CCDC167","JPH1","MEX3A","MRPL14",
+                      "REXO4","SIX4","C11orf84","DBF4B","RPUSD2","SLC52A2","TYSND1","ZNF668","RP11-426L16.10","SIRT4","AHCY",
+                      "TIMMDC1","VCPIP1","CHAC1","GBX1","CDCA5","FASN","NPM3","SHE","SLC25A32","THOP1","URB2","WDR5","MAGEA6",
+                      "RP1-27O5.3","TEX40","MYOD1","C18orf56","CLCN4","CTHRC1","SPATA20","TONSL","ZNF517","ZNF689","SNAI2",
+                      "ANAPC11","COL13A1","CPSF1","FLNC","KIAA1614","MMAB","OXLD1","PSRC1","RBM12B","SSSCA1","SURF6","TOR3A",
+                      "C22orf26","NKX2-5","ABL1","CCDC86","COMMD5","DCHS1","FUBP3","HIST2H2AA3","LAPTM4B","MRPS16","PTRHD1",
+                      "RPUSD3","ZNF696","ZBTB18","C19orf43","CBWD5","HSF2BP","TFAM","TRIM47","ZNF354A","ZNHIT2","C5orf55",
+                      "ZFP91-CNTF","C8orf82","DACT1","ELP6","FAM92A1","GPR75","HIST1H2AE","MED30","MRPS28","SEMA6C","MEA1",
+                      "ARL9","C8orf76","CCDC137","CDCA4","EEF1D","METTL23","MRPL32","NDUFB6","NUTM2D","OGFOD3","PHLPP1",
+                      "RECQL4","RMDN1","SHARPIN","SLC2A6","SNTB1","SPTBN2","TMEM251","ZC3H3","ZNF250","ZNF511","STEAP1")
+RNA.genelist.wt = c("MT-ND5","A3GALT2","A4GALT","FAM228B","CDHR4","AAMDC","AC079602.1","NEDD4","RP11-159D12.5","BMPR1A",
+                    "AL807752.1","AATK","ABCA2","ABCA9","ABCB10","ABCB11","MS4A10","AC112218.1","GATAD2B","ABCC6","ABCD1",
+                    "MAS1","AC140481.2","ABCF2","MT-ATP6","ABCG8","RP11-830F9.6","LINC00908","SPINK9")
+
+
+prot.genelist.chr8 = c("NRM","AMBP","SLC5A3","PARVG","SUPV3L1","CILP","FAT3","ITM2A","MAD1L1","MRPS11","RGL2","SLC16A3","HAPLN3",
+                      "HAUS4","IL33","PDE1A","PHKA1","COL6A6","ERG28","EXT1","L2HGDH","NDUFS2","SPRY2","UBL4A","GFM2","PPP1R3G","UBE2V2",
+                      "ZNF219","ADSSL1","COL4A1","DIS3","DSCC1","EPHA3","FAM49B","FAT1","GATM","IGDCC4","INTS5","ITGB1BP1","LARS2","MAP4K2",
+                      "PDK1","PIGT","PRRC2A","SORBS3","ZNF22","ZNF316","ZSCAN12","BIRC5","PLEKHF2","MAPK6","APOOL","C14orf119","CAP2",
+                      "DDX56","GINS4","GTF2H2","HEATR6","IVD","MIOS","MRPL13","SERPINB13","THAP4","ARHGEF2","BCL7C","CCZ1","ENY2",
+                      "MRPL54","NDC1","ACAD9","ANAPC4","BTAF1","CCDC134","CGAS","CLIC6","CSK","CUL5","DUS1L","FLNC","GMEB2","GMFB",
+                      "LYPLA1","LYPLA2","MPPED2","MRPL10","MTHFD2","NEDD1","NELL2","NUDCD1","PIGK","POLD2","POLR1B","PRG4","PRPH",
+                      "RB1CC1","RNF19A","RPIA","SNUPN","TIMM9","TMEM209","YARS2")
+
+prot.genelist.wt = c("GOLPH3","SRI","DDX1","PPFIA1","VPS53","AP1B1","AP3D1","CD9","DNAJC1","REPS1","MUC13","PDE4DIP",
+                      "PPP5C","RHBDD3","TTC38","COX5B","GDE1","RBM47","SCYL2","TOM1L2","VPS51","COX6B1","DUSP22","LMTK2","MICAL3",
+                      "SESTD1","TMEM9B","PLAC9","WWTR1","ACTR10","C2CD2L","CALML3","CLTB","FAM177A1","FLNB","GNPTAB","IFT88",
+                      "KIF3B","MAT2A","PKN2","RAB11B","ROCK1","TAF15","TMED9","UGT2B15","FURIN","CCDC102B","SIAE","B9D1",
+                      "CALM1","CAPN5","CHMP2A","COPB2","DNM1","GFER","HAGH","KIFAP3","NCKIPSD","SMAP2","TCN2","ZBTB20",
+                      "ZBTB40","DNAJB9","ARCN1","ATP6V0D1","CHPF2","COPA","LRRC8D","OTUB1","TBC1D17","TRPT1","AGPAT4",
+                      "AIFM2","ANKIB1","ANPEP","AP2A2","AP3B1","ATP2A2","C1QTNF2","CALD1","CAV1","CES2","CLEC16A",
+                      "CLINT1","CYP4F11","FAM160A2","FBLIM1","GAK","GALNT16","GALNT7","H2AFY","IFT27","LCORL","MDP1",
+                      "MON1B","MYL12A","MYLK2","NUDT2","PDE6D","PODN","SH3GL1","SIL1","SLC25A20","SPTAN1","SPTBN1",
+                      "SRSF4","THBS2","UBXN4","USO1","WDR54","YTHDC2","C11orf95","KIAA1107","STIM2","APLP1","ARHGAP32",
+                      "CAPZA1","CHCHD4","COX4I1","GBA3","TENT4B","WRB","RELB")
+
+```
+
+These are just example lists, but the idea is that we know that up-regulation should show PLK1 inhibitors and EGFR should show up in down-regulated
+
+
+```{r test prot vs gene}
+
+source("coderdata_drug_rank.R")
+convert_genes <- function(genelist, genemapping){
+  res <- genemapping |> 
+    subset(gene_symbol %in%genelist)
+  return(unique(res$entrez_id))
+}
+
+rna.results <- do.call(rbind, lapply(datasetnames, function(ds){
+  rank_coderdata_drugs(
+     omics_matrix = t(transcripts[[ds]]),
+     experiment_data = experiments[[ds]],
+     signatures = list(chr8 = convert_genes(RNA.genelist.chr8, datasets[[ds]]$genes),
+                        wt = convert_genes(RNA.genelist.wt, datasets[[ds]]$genes)),
+     #drug_data = datasets[[ds]]$drugs,
+     modality = "transcriptomics",
+     method = "ssgsea",
+     association = "spearman"
+  )$ranking |> 
+    mutate(dataset = ds)
+}))
+
+top_rna <- subset(rna.results, fdr<0.05) |>
+  subset(association <0) |>
+  group_by(improve_drug_id, signature)|> 
+  summarize(ndatasets= n_distinct(dataset)) 
+
+
+subset(rna.results, fdr<0.05) |> 
+  subset(dataset!='fimm') |> 
+  ggplot(aes(x=association, fill = dataset)) + geom_density() + facet_grid(signature~.)
+
+```
+
+Now we have the transcriptomics results we can now look at the proteomics results.
+```{r proteomics}
+
+prot.results <- do.call(rbind, lapply(datasetnames, function(ds){
+  rank_coderdata_drugs(
+     omics_matrix = t(proteomics[[ds]]),
+     experiment_data = experiments[[ds]],
+     signatures = list(chr8 = convert_genes(prot.genelist.chr8, datasets[[ds]]$genes),
+                        wt = convert_genes(prot.genelist.wt, datasets[[ds]]$genes)),
+     #drug_data = datasets[[ds]]$drugs,
+     modality = "proteomics",
+     method = "ssgsea",
+     association = "spearman"
+  )$ranking |> 
+    mutate(dataset = ds)
+}))
+
+top_prot <- subset(prot.results, fdr<0.05) |>
+  subset(association <0) |>
+  group_by(improve_drug_id, signature)|> 
+  summarize(ndatasets= n_distinct(dataset)) 
+
+subset(prot.results, fdr<0.05) |> subset(dataset!='fimm') |> ggplot(aes(x=association, fill = dataset)) + geom_density() + facet_grid(signature~.)
+
+```
+
+Now we can combine the two
+
+```{r combined results}
+
+rbind(prot.results, rna.results) |>
+  subset(fdr<0.05) |> 
+  subset(dataset!='fimm') |> 
+  ggplot(aes(x=association, fill = dataset)) + geom_density() + facet_grid(signature~modality) +
+  ggtitle("Significant associations with drug response across signatures and omes")
+```
+
+## Interpreting results from a screen
+
+The challenge we have is trying to figure out which 
