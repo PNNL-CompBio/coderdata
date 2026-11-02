@@ -91,9 +91,8 @@ def test_duplicate_results_fail(tmp_path):
 
 
 def test_decimal_sample_ids_are_orphans(tmp_path):
-    # Sample IDs written as decimals ("1.0") don't match the samples file, so
-    # they should fail, and the message should say why. Novartis shipped
-    # IDs like "3524.0" in 2.4.
+    # Sample IDs written as decimals ("1.0", "3524.0") don't match the samples file,
+    # so they should fail, and the message should say why.
     _clean_build(tmp_path)
     _exp(tmp_path, 'liver', [['syn', '1.0', 'SMI_1', 'L', '72', 'hrs', 'fit_auc', '0.5']])
     report, _ = vb.validate(str(tmp_path))
@@ -102,7 +101,7 @@ def test_decimal_sample_ids_are_orphans(tmp_path):
 
 
 def test_orphan_drug_ids_fail(tmp_path):
-    # A response for a drug that isn't in the drugs file should fail.
+    # An experimental response for a drug that isn't in the drugs file should fail.
     _clean_build(tmp_path)
     _exp(tmp_path, 'liver', [['syn', 1, 'SMI_9', 'L', '72', 'hrs', 'fit_auc', '0.5']])
     report, _ = vb.validate(str(tmp_path))
@@ -122,8 +121,8 @@ def test_copied_responses_warn(tmp_path):
 
 
 def test_sample_ids_shared_by_two_datasets_fail(tmp_path):
-    # Two datasets using the same sample ID should fail (cell lines are the
-    # exception, see the next test).
+    # Two datasets using the same sample ID should fail. Cell lines (broad/sanger)
+    # are allowed to have overlap, see the next test.
     _clean_build(tmp_path)
     _samples(tmp_path, 'bladder', [3, 4])
     report, _ = vb.validate(str(tmp_path))
@@ -142,7 +141,7 @@ def test_cell_lines_may_share_ids(tmp_path):
 
 def test_conflicting_model_types_fail(tmp_path):
     # One sample ID listed with two model types (e.g. tumor and organoid)
-    # should fail.
+    # should fail. These should have different sample IDs.
     _clean_build(tmp_path)
     rows = [['X1', 1, 'n1', 'c1', 'Colon cancer', 'tumor', 'src', 'Homo sapiens'],
             ['X1b', 1, 'n1', 'c1', 'Colon cancer', 'patient derived organoid', 'src2', 'Homo sapiens'],
@@ -168,7 +167,7 @@ def test_drug_with_two_structures_or_split_cid_fails(tmp_path):
 
 
 def test_blank_ids_fail(tmp_path):
-    # Blank sample or drug IDs should fail. Each blank is reported once, not
+    # Empty sample or drug IDs should fail. Each empty is reported once, not
     # again as an ID missing from the samples or drugs file.
     _clean_build(tmp_path)
     _exp(tmp_path, 'liver', [['syn', 1, 'SMI_1', 'L', '72', 'hrs', 'fit_auc', '0.5'],
@@ -182,7 +181,7 @@ def test_blank_ids_fail(tmp_path):
 
 def test_decimal_ids_in_the_samples_file_fail(tmp_path):
     # IDs written as decimals in every file still match each other, so only
-    # the decimal check catches them. They should still fail.
+    # the decimal check catches them. They should still fail. (Should be int)
     _clean_build(tmp_path)
     _tsv(tmp_path / 'liver_samples.csv', [[f'X{i}', f'{i}.0', f'n{i}', f'c{i}', 'Colon cancer',
                                            'patient derived organoid', 'src', 'Homo sapiens'] for i in (1, 2, 3)],
@@ -215,6 +214,7 @@ def test_categorical_metrics_are_not_range_checked(tmp_path):
 
 
 def test_release_changes_and_large_drops_warn(tmp_path):
+    # This is a cross build comparison ---
     # Compared with the previous build, these should all warn (not fail):
     # samples dropping by more than half, a model type disappearing, an
     # omics type disappearing, and a dataset no longer being built. HCMI
