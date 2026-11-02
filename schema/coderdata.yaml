@@ -114,7 +114,12 @@ classes:
         description: PubChem Identifier for this drug, can be many.
         range: int
   Drug Descriptor:
-    description: Computational summary of drug chemical properties
+    description: >-
+      Computational summary of drug chemical properties, calculated from each
+      drug's canonical SMILES: a Morgan fingerprint from RDKit
+      (https://www.rdkit.org/docs/GettingStartedInPython.html#morgan-fingerprints-circular-fingerprints)
+      and 2D descriptors from Mordred
+      (https://mordred-descriptor.github.io/documentation/master/descriptors.html).
     slots:
       - improve_drug_id
     attributes:

@@ -43,15 +43,28 @@ CoderData includes the following data:
 - Model Type - the biological model the samples derive from (cell line, patient derived organoid, patient derived xenograft, tumor, ex vivo, or 3D-MEDS microtissue)
 - Sample - cell lines, patient-derived samples, or patient-derived organoids
 - Drug - compounds tested for sensitivity
-- Drug Descriptor - molecular descriptors for each drug (computed using RDKit)
+- Drug Descriptor - molecular descriptors for each drug (Morgan fingerprints from RDKit and 2D descriptors from Mordred; see Data Processing below)
 - Experiments - dose-response experiments (various metrics such as AUC, IC50, etc.)
 - Transcriptomics - gene expression (in transcripts per million, TPM)
-- Proteomics - protein expression (in log2 ratio to reference)
+- Proteomics - protein expression (log2 ratio to reference)
 - Mutations - gene mutations (variant calls)
-- Copy Number - gene copy number variations (number of copies of each gene, 2 being diploid)
+- Copy Number - gene copy number on the DepMap scale, log2(relative copy number + 1), where 1 is diploid, plus a copy call for each gene
 
 An "X" indicates the presence of a particular data type for the corresponding dataset.  Each sample in the datasets corresponds to either a cancer cell line, a patient-derived xenograft, or a patient-derived organoid, depending on the specific dataset.
 
+
+---------------------------
+Data Processing
+---------------------------
+Every dataset is reprocessed into the same formats, so data can be compared and combined across datasets. Genes are identified by Entrez ID, samples by ``improve_sample_id`` and drugs by ``improve_drug_id``.
+
+- Transcriptomics - gene expression in transcripts per million (TPM). CPTAC values are kept on the log2 scale provided by the `cptac Python package <https://github.com/PayneLab/cptac>`_.
+- Proteomics - log2 ratio of each protein to the study's reference. CPTAC values are kept on the log2 scale provided by the cptac package.
+- Mutations - somatic variants for each gene, with variant types given MAF-style names (e.g. ``Missense_Mutation``, ``Frame_Shift_Del``, ``Silent``). A few sources keep their own name for some types, e.g. ``Frameshift_Variant`` in BeatAML, Pancreatic and Sarcoma.
+- Copy Number - each source's values are converted to the DepMap scale, log2(relative copy number + 1), where 1 is diploid. Each value is also binned into a copy call: deep del (below 0.52), het loss (0.52 to 0.73), diploid (0.73 to 1.21), gain (1.21 to 1.42) and amp (above 1.42).
+- Drugs - drug names are matched to `PubChem <https://pubchem.ncbi.nlm.nih.gov/>`_ to get each drug's structure (canonical SMILES and InChIKey), and drugs with the same structure share one ``improve_drug_id`` across datasets.
+- Drug Descriptors - computed from each drug's canonical SMILES. Each drug has a ``morgan fingerprint`` (1024 bits, radius 2, from `RDKit <https://www.rdkit.org/docs/GettingStartedInPython.html#morgan-fingerprints-circular-fingerprints>`_) and about 1,600 2D descriptors from `Mordred <https://mordred-descriptor.github.io/documentation/master/descriptors.html>`_. The ``structural_descriptor`` column holds the descriptor name.
+- Experiments - for datasets screened in culture (cell lines, organoids, microtissues and BeatAML's ex vivo samples), a Hill curve (Einf, EC50 and Hill slope) is fit to each sample and drug's dose-response data, and the curve metrics below are calculated from that fit. PDX datasets (MPNST and Novartis) use tumor volume metrics (ABC, LMM, mRECIST, TGI) instead. Sarcoma has the published AUC only.
 
 ---------------------------
 Dataset Summary Statistics
@@ -68,6 +81,8 @@ For example, the "Sample-Drug-Transcriptomics-Mutations" column indicates the nu
 Drug Curve Metrics Collected
 ---------------------------------
 The following table summarizes the number of drugs associated with each dose-response metric across the datasets.
+
+To compare drug response across datasets, use ``fit_auc``. It is calculated over the same dose range (10⁻¹⁰ to 10⁻⁴ M) for every dataset with dose-response curves, so values are on the same scale. ``auc``, ``aac`` and ``dss`` use each study's own dose range.
 
     .. csv-table:: Drug Curve Metrics Summary
        :file: _static/dataset_curve_metrics_wide.csv
