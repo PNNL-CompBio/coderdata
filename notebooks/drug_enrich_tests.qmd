@@ -47,8 +47,8 @@ data_dir <- "/tmp/"
 
 #wd <- tempdir()
 #setwd(wd)
-
-import("coderdata")
+reticulate::use_virtualenv('r-reticulate')
+reticulate::import("coderdata")
 
 # defines the python environment to use
 py_require("coderdata")
@@ -76,8 +76,8 @@ Note how this is done using the `reticulate` functionality to call Python functi
 
 ```{r}
 #| label: load-datasets
-#| warning: false
-#| message: false
+#| warning: FALSE
+#| echo: FALSE
 
 
 datasetnames <- c("ccle", "ctrpv2", "prism", "gdscv1", "gdscv2", "nci60")
@@ -113,8 +113,6 @@ for (name in datasetnames) {
 
 Now we have the transcripts data, each as a matrix. We can take a set of genes and identify 
 specific drugs that are correlated with samples that are active in those.
-
-
 
 
 # Run on known dataset
@@ -179,7 +177,7 @@ just reverse the sign for each condition.
 #| warning: false
 
 ##load in coderdata file. remember we're working in a random directory because of reticulate issues. 
-source("~/code/coderdata/notebooks/coderdata_drug_rank.R")
+source("../scripts/coderdata_drug_rank.R")
 convert_genes <- function(genelist, genemapping){
   res <- genemapping |> 
     subset(gene_symbol %in%genelist)
@@ -246,15 +244,22 @@ top_prot <- subset(prot.results, fdr<0.05) |>
 subset(prot.results, fdr<0.05) |> 
   ggplot(aes(x=association, fill = dataset)) + 
   geom_density() + 
-  facet_grid(signature~.)
+  facet_grid(signature~.) + 
+  ggtitle("Correlations with protein scores, negative implies increase drug sensitivity")
 
 ```
 
+Now we can use a second script I added to create a mapping of common drug names.
+```{bash}
+
+python ../scripts/create_common_drug_names.py --data-dir='/tmp/'
+
+```
 Now we can combine the two and add in the new drug annotation file that we might keep. 
 
 ```{r combined results}
 
-drug_names <-readr::read_csv('/tmp/common_drug_names.csv')
+drug_names <-readr::read_csv('common_drug_names.csv')
 
 combined.res <- rbind(prot.results, rna.results) |>
   left_join(drug_names)
@@ -279,7 +284,12 @@ ranks <- combined.res |>
     summarize(mrank = median(rank), ndataset = n_distinct(dataset)) |>
     arrange(mrank)
 
-subset(ranks, ndataset>3)|>subset(mrank < 150)|> ggplot(aes(x=common_name, y=mrank, size = ndataset, shape = signature, col=modality))+geom_point() + coord_flip() + ggplot('Top drugs for Chr8 amplified vs WT MPNST')
+subset(ranks, ndataset>2) |>
+  subset(mrank < 150) |> 
+  ggplot(aes(x=common_name, y=mrank, size = ndataset, shape = signature, col=modality))+
+  geom_point() + 
+  coord_flip() + 
+  ggtitle('Top drugs for Chr8 amplified vs WT MPNST')
 
 ```
 
