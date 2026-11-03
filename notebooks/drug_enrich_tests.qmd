@@ -17,18 +17,23 @@ format:
 # Dependencies & Preparation
 
 First we import the required libraries and set up the paths.
-We also assume that the `coderdata` package is installed and available in the Python environment and that we have downloaded the most recent coderdata dataset.
+We also assume that the `coderdata` package is installed and available in the Python environment. 
 
-This can be done with the following command in the terminal:
+We can then download the latest version of the coderdata dataset, using the following command in the terminal:
 
-```bash
-coderdata download --local_path PATH_TO_SAVE_DATASET
+```{bash}
+#| label: download data
+#| warning: FALSE
+#| eval: FALSE
+coderdata download --local_path '/tmp'
 ```
-Additionally we will use `reticulate` to interface with Python from R.
+
+We can now set up `reticulate` to interface with Python from R.
+
 
 ```{r}
 #| label: imports-and-setup
-#| warning: false
+#| warning: FALSE
 
 # r libraries
 library(reticulate)
@@ -37,18 +42,25 @@ library(tidyr)
 library(patchwork)
 library(GSVA) ##do to the enrichment statistics
 
-# path setup
+# path setupd
 data_dir <- "/tmp/"
-use_virtualenv("r-reticulate", required = TRUE)
+
+#wd <- tempdir()
+#setwd(wd)
+
+import("coderdata")
 
 # defines the python environment to use
 py_require("coderdata")
 
 # import the coderdata package from python
 cd <- import("coderdata")
+
+
 ```
 
-Once we have loaded the `coderdata` package, we can check the version and list the available datasets to confirm that we have the correct version and datasets available.
+Once we have loaded the `coderdata` package, we can check the version and list the 
+available datasets to confirm that we have the correct version and datasets available.
 ```{r}
 #| label: confirm-version-and-datasets
 cd$version()
@@ -56,15 +68,19 @@ cd$list_datasets()
 ```
 
 # Drug data import
-Now we are ready to load the datasets and format them for analysis. We will load the `ccle` and `ctrpv2` datasets and format them to extract the relevant metrics for our analysis.
+Now we are ready to load the datasets and format them for analysis. We will load the
+ cell line datasets to load the relevant experimental,
+drug, proteomic, and transcriptomic data for each dataset.
+
 Note how this is done using the `reticulate` functionality to call Python functions from R via `cd$load(...)` and `datasets[[name]]$format(...)`.
 
 ```{r}
 #| label: load-datasets
 #| warning: false
+#| message: false
 
 
-datasetnames <- c("ccle", "ctrpv2", "prism", "gdscv1", "gdscv2", "fimm", 'nci60')
+datasetnames <- c("ccle", "ctrpv2", "prism", "gdscv1", "gdscv2", "nci60")
 datasets <- list()
 
 for (name in datasetnames) {
@@ -74,13 +90,12 @@ for (name in datasetnames) {
 experiments <- list()
 transcripts <- list()
 proteomics <- list()
+
 for (name in datasetnames) {
   experiments[[name]] <- datasets[[name]]$format(
     "experiments",
     shape = "wide",
-    metrics = "fit_auc"
-  ) #|>
-    #left_join(datasets[[name]]$drugs)
+    metrics = "fit_auc")
 
     transcripts[[name]] <- datasets[[name]]$format(
     "transcriptomics",
@@ -100,18 +115,16 @@ Now we have the transcripts data, each as a matrix. We can take a set of genes a
 specific drugs that are correlated with samples that are active in those.
 
 
-## Test dataset
-We can evaluate a test dataset based on a specific cell line? 
 
-Quick test:
-1. take a drug of interest
-2. rank cell lines by the AUC
-For each cell line:
-  3. those that are the most negative - get genes that overlap?
-  4. can we get those genes and find drug again? 
+
+# Run on known dataset
+
+Currently evaluating lists of genes and proteins correlated and anti-correlated
+with chr8 status in MPNST from Garana et al, under review at the moment.
 
 ```{r genelist}
-
+#| label: chr8-genelists
+#| warning: false
 ##let's take some test gene lists from the chr8 paper, genes and proteins that are correlated with chr8
 
 RNA.genelist.chr8 = c("SIX2","TRMT12","MSC","TENM3","LRRC14","PTP4A3","AIMP2","TGIF2","ZNF7","C1orf56",
@@ -156,10 +169,17 @@ prot.genelist.wt = c("GOLPH3","SRI","DDX1","PPFIA1","VPS53","AP1B1","AP3D1","CD9
 
 These are just example lists, but the idea is that we know that up-regulation should show PLK1 inhibitors and EGFR should show up in down-regulated
 
+## RNA-based correlations with drug response
 
-```{r test prot vs gene}
+We can try to do two-sided test to ask if there is enrichment on both ends, and then
+just reverse the sign for each condition.
 
-source("coderdata_drug_rank.R")
+```{r}
+#| label: collect test results fo gene
+#| warning: false
+
+##load in coderdata file. remember we're working in a random directory because of reticulate issues. 
+source("~/code/coderdata/notebooks/coderdata_drug_rank.R")
 convert_genes <- function(genelist, genemapping){
   res <- genemapping |> 
     subset(gene_symbol %in%genelist)
@@ -167,12 +187,14 @@ convert_genes <- function(genelist, genemapping){
 }
 
 rna.results <- do.call(rbind, lapply(datasetnames, function(ds){
+  print(paste('ranking',ds))
   rank_coderdata_drugs(
      omics_matrix = t(transcripts[[ds]]),
      experiment_data = experiments[[ds]],
      signatures = list(chr8 = convert_genes(RNA.genelist.chr8, datasets[[ds]]$genes),
                         wt = convert_genes(RNA.genelist.wt, datasets[[ds]]$genes)),
      #drug_data = datasets[[ds]]$drugs,
+     adjust_scope = 'global',
      modality = "transcriptomics",
      method = "ssgsea",
      association = "spearman"
@@ -187,14 +209,20 @@ top_rna <- subset(rna.results, fdr<0.05) |>
 
 
 subset(rna.results, fdr<0.05) |> 
-  subset(dataset!='fimm') |> 
   ggplot(aes(x=association, fill = dataset)) + geom_density() + facet_grid(signature~.)
 
 ```
 
 Now we have the transcriptomics results we can now look at the proteomics results.
-```{r proteomics}
 
+## Proteomics based drug correlations
+
+We can run the same code on the proteomics data
+
+```{r}
+#| label: proteomics lists
+#| warning: false
+#| 
 prot.results <- do.call(rbind, lapply(datasetnames, function(ds){
   rank_coderdata_drugs(
      omics_matrix = t(proteomics[[ds]]),
@@ -204,6 +232,7 @@ prot.results <- do.call(rbind, lapply(datasetnames, function(ds){
      #drug_data = datasets[[ds]]$drugs,
      modality = "proteomics",
      method = "ssgsea",
+     adjust_scope = 'global',
      association = "spearman"
   )$ranking |> 
     mutate(dataset = ds)
@@ -214,21 +243,57 @@ top_prot <- subset(prot.results, fdr<0.05) |>
   group_by(improve_drug_id, signature)|> 
   summarize(ndatasets= n_distinct(dataset)) 
 
-subset(prot.results, fdr<0.05) |> subset(dataset!='fimm') |> ggplot(aes(x=association, fill = dataset)) + geom_density() + facet_grid(signature~.)
+subset(prot.results, fdr<0.05) |> 
+  ggplot(aes(x=association, fill = dataset)) + 
+  geom_density() + 
+  facet_grid(signature~.)
 
 ```
 
-Now we can combine the two
+Now we can combine the two and add in the new drug annotation file that we might keep. 
 
 ```{r combined results}
 
-rbind(prot.results, rna.results) |>
+drug_names <-readr::read_csv('/tmp/common_drug_names.csv')
+
+combined.res <- rbind(prot.results, rna.results) |>
+  left_join(drug_names)
+
+combined.res |>
   subset(fdr<0.05) |> 
-  subset(dataset!='fimm') |> 
   ggplot(aes(x=association, fill = dataset)) + geom_density() + facet_grid(signature~modality) +
   ggtitle("Significant associations with drug response across signatures and omes")
+
+
+drug.counts <- combined.res |> 
+    subset(fdr<0.05) |> 
+    subset(association <0) |>
+    group_by(signature, improve_drug_id) |> 
+    summarize(ndat = n_distinct(dataset), num_modes = n_distinct(modality)) |> 
+    subset(ndat>1 | num_modes>1) |>
+    arrange(desc(ndat))
+
+###list the drugs with an average rank below 10?
+ranks <- combined.res |>
+    group_by(signature, common_name, modality) |> 
+    summarize(mrank = median(rank), ndataset = n_distinct(dataset)) |>
+    arrange(mrank)
+
+subset(ranks, ndataset>3)|>subset(mrank < 150)|> ggplot(aes(x=common_name, y=mrank, size = ndataset, shape = signature, col=modality))+geom_point() + coord_flip() + ggplot('Top drugs for Chr8 amplified vs WT MPNST')
+
 ```
 
-## Interpreting results from a screen
+# Empircal testing
+We can evaluate a test dataset based on a specific cell line? 
+
+Quick test:
+1. take a drug of interest
+2. rank cell lines by the AUC
+For each cell line:
+  3. those that are the most negative - get genes that overlap?
+  4. can we get those genes and find drug again? 
+
+
+
 
 The challenge we have is trying to figure out which 

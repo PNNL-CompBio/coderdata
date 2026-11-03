@@ -11,6 +11,7 @@ suppressPackageStartupMessages({
 })
 
 
+# file to read in signatures into lists from GMT and Json. not tested
 read_signatures <- function(path) {
   if (grepl("\\.gmt$", path, ignore.case = TRUE)) {
     lines <- readLines(path)
@@ -106,6 +107,9 @@ normalize_signatures <- function(
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
+## this is a key function that applies a normalized signature
+## to a matrix using either ssgsea or GSVA
+## it is used to score the coderdata data as needed
 score_signatures <- function(
     matrix,
     normalized,
@@ -155,8 +159,8 @@ score_signatures <- function(
 
 #' Rank drugs associated with transcriptomic or proteomic signatures
 #'
-#' @param omics Long-form CoderData transcriptomics or proteomics table.
-#' @param experiments Long-form CoderData experiments table.
+#' @param omics_matrix CoderData object formatted as matrix
+#' @param experiment_data CoderData experiments table formatted as 'wide' with 'fit_auc'
 #' @param signatures Named list. Values can be feature vectors or
 #'   list(up = ..., down = ...).
 #' @param modality "transcriptomics" or "proteomics".
@@ -171,11 +175,7 @@ rank_coderdata_drugs <- function(
     method = c("ssgsea", "gsva"),
     association = c("spearman", "pearson", "quartile"),
     sample_col = "improve_sample_id",
-    #feature_col = "entrez_id",
-    #value_col = NULL,
     drug_col = "improve_drug_id",
-    #drug_name_col = NULL,
-   # drug_data, 
     response_col = "fit_auc",
     lower_is_sensitive = TRUE,
     min_samples = 20L,
@@ -192,13 +192,7 @@ rank_coderdata_drugs <- function(
   max_missing_fraction <- max_missing_fraction %||%
     if (modality == "proteomics") 0.75 else 0.50
 
-#  omics_matrix <- prepare_omics(
-#    omics,
-#    sample_col,
-#    feature_col,
-#    value_col,
-#    max_missing_fraction
-#  )
+
 
   normalized <- normalize_signatures(
     signatures,
@@ -214,35 +208,9 @@ rank_coderdata_drugs <- function(
   ) |>
     mutate(improve_sample_id = as.numeric(sample_id))
 
-#  required <- c(sample_col, drug_col, response_col)
-#  required <- required[!is.na(required) & nzchar(required)]
-#  missing_columns <- setdiff(required, names(experiments))
-#  if (length(missing_columns) > 0) {
-#    stop("Missing experiment columns: ",
-#         paste(missing_columns, collapse = ", "))
-#  }
 
-#  experiment_data <- experiments %>%
-#    transmute(
-#      sample_id = as.character(.data[[sample_col]]),
-#      drug_id = as.character(.data[[drug_col]]),
-#      drug_name = if (is.null(drug_name_col)) {
-#        as.character(.data[[drug_col]])
-#      } else {
-#        as.character(.data[[drug_name_col]])
-#      },
-#      response = suppressWarnings(as.numeric(.data[[response_col]]))
-#    ) %>%
-#    filter(
-#      !is.na(sample_id), sample_id != "",
-#      !is.na(drug_id), drug_id != "",
-#      is.finite(response)
-#    ) %>%
-#    group_by(sample_id, drug_id, drug_name) %>%
-#    summarize(response = median(response, na.rm = TRUE), .groups = "drop")
 
-  joined <- inner_join(scores, experiment_data, by = "improve_sample_id") #|>
- #   inner_join(drug_data, by = 'improve_drug_id')
+  joined <- inner_join(scores, experiment_data, by = "improve_sample_id") 
   if (nrow(joined) == 0) {
     stop("No overlapping samples between omics and experiments.")
   }
@@ -328,7 +296,8 @@ rank_coderdata_drugs <- function(
       )
     ) %>%
     group_by(signature) %>%
-    arrange(fdr, desc(sensitivity_effect), .by_group = TRUE) %>%
+    #arrange(fdr, #what if we just rank by sensitivity? 
+    arrange(desc(sensitivity_effect), .by_group = TRUE) %>%
     mutate(rank = row_number()) %>%
     ungroup() %>%
     select(
