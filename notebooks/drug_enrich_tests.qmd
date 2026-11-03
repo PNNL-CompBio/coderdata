@@ -284,6 +284,8 @@ ranks <- combined.res |>
     summarize(mrank = median(rank), ndataset = n_distinct(dataset)) |>
     arrange(mrank)
 
+ranks$common_name <- as.factor(ranks$common_name, levels = unique(ranks$common_name))
+
 subset(ranks, ndataset>2) |>
   subset(mrank < 150) |> 
   ggplot(aes(x=common_name, y=mrank, size = ndataset, shape = signature, col=modality))+
