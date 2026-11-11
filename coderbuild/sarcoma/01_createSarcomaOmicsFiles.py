@@ -78,6 +78,12 @@ def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTabl
     #merge with improve_ids 
     samplesTable['other_id_no_dash'] = samplesTable['other_id'].str.replace("-2", "_2")
     mutation_merged_2 = mutation_merged_select.merge(samplesTable, left_on='Sample_ID_Tumor', right_on='other_id_no_dash', how='left')
+    # the mutations were sequenced from the patient tumors; drug responses are on the
+    # organoids, so also attach each tumor's mutations to its patient's organoid sample
+    organoid_rows = mutation_merged_select.assign(
+        Sample_ID_Organoid=mutation_merged_select['Sample_ID_Tumor'].str.replace("_Tumor$", "_Organoid", regex=True))
+    organoid_rows = organoid_rows.merge(samplesTable, left_on='Sample_ID_Organoid', right_on='other_id_no_dash', how='inner')
+    mutation_merged_2 = pd.concat([mutation_merged_2, organoid_rows], ignore_index=True)
     # select desired columns - entrez_id, improve_sample_id, mutation, variant_classificaton, source, study
     mutation_merged_2['other_id_source'] = "Synapse"
     mutation_merged_2['study'] = "Landscape of Sarcoma"
