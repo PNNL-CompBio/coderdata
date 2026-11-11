@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import math
+import re
 import argparse
 import synapseclient
 
@@ -219,6 +220,33 @@ def map_transcriptomics_novPDX(transcriptomics_data, improve_id_data, entrez_dat
 
 
 
+def classify_protein_change(change):
+    """
+    Variant class for a Novartis PDXE protein change.
+
+    Notation in the source: "K1831N" substitution, "R24*" stop gained,
+    "G518GR" / "-423SR" residues inserted, "TS178T" / "PP43-" residues deleted,
+    and frameshifts as a bare position ("-659", "-1554?", "-349P?").
+    """
+    if re.fullmatch(r'-\d+([A-Z*]+)?\?|-\d+', change):
+        return 'Frameshift_Variant'
+    if re.fullmatch(r'[A-Z*]+\d+-', change):
+        return 'In_Frame_Del'
+    if re.fullmatch(r'-\d+[A-Z*]+', change):
+        return 'In_Frame_Ins'
+    if re.fullmatch(r'[A-Z]\d+\*', change):
+        return 'Nonsense_Mutation'
+    if re.fullmatch(r'\*\d+[A-Z]+', change):
+        return 'Nonstop_Mutation'
+    m = re.fullmatch(r'([A-Z*]+)\d+([A-Z*]+)', change)
+    if m:
+        ref, alt = m.groups()
+        if len(ref) == len(alt):
+            return 'Silent' if ref == alt else 'Missense_Mutation'
+        return 'In_Frame_Ins' if len(alt) > len(ref) else 'In_Frame_Del'
+    return 'Undetermined'
+
+
 def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
     """
     Maps transcriptomics data to improved sample id's and entrez gene data. Also does some data formatting.
@@ -252,15 +280,15 @@ def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
     # include only rows that are mutations (data had both cn and mutations)
     mutations_only_df = mutation_data[mutation_data['Category'].isin(["MutNovel","MutKnownFunctional","MutLikelyFunctional"])]
 
-    # turn details column into mutation column
+    # turn details column into mutation column (Details is "<protein change>,<allele frequency>")
     mutations_only_df['mutation'] = mutations_only_df['Details'].str.split(pat = ",", expand=True).iloc[:,0]
-    mutations_only_df[~mutations_only_df['mutation'].str.contains(r'\?')] # 1866 rows have a "?" in them. remove
 
-    # create variant classifications with information that we have
-    mutations_only_df['variant_classification'] = np.nan
-    mutations_only_df.loc[mutations_only_df['mutation'].str.contains("-"),['variant_classification']] = "Frame_Shift_Del"
-    mutations_only_df.loc[mutations_only_df['mutation'].str.contains(r'[A-Za-z]\d+[A-Za-z]$', regex=True, na=False),['variant_classification']] = "Missense_Mutation"
-    mutations_only_df['variant_classification'] = mutations_only_df['variant_classification'].fillna("Undetermined")
+    # Variant classes from the protein change. Frameshifts are written without
+    # residues ("-659", "-1554?", e.g. RNF43 G659fs, APC T1556fs) and don't say
+    # whether bases were inserted or deleted, so they stay Frameshift_Variant.
+    mutations_only_df['variant_classification'] = mutations_only_df['mutation'].astype(str).map(classify_protein_change)
+    # protein-level changes, marked "p." like HGVS (also keeps "-659" from reading as a number)
+    mutations_only_df['mutation'] = 'p.' + mutations_only_df['mutation'].astype(str)
     
     # missing entrex id's are not in genes.csv, so get rid of those rows
     mutations_only_df =  mutations_only_df[mutations_only_df['Entrez'].notna()]
@@ -276,7 +304,6 @@ def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
     mutations_final['source'] = "CPDM"
     mutations_final['study'] = "novartis"
     mutations_final = mutations_final.astype({'entrez_id':'int', 'mutation':'str'})
-    mutations_final['mutation'] = mutations_final['mutation'].astype('|S')
 
     return(mutations_final)
 
