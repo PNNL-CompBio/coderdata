@@ -59,12 +59,17 @@ Data Processing
 Every dataset is reprocessed into the same formats, so data can be compared and combined across datasets. Genes are identified by Entrez ID, samples by ``improve_sample_id`` and drugs by ``improve_drug_id``.
 
 - Transcriptomics - gene expression in transcripts per million (TPM). CPTAC values are kept on the log2 scale provided by the `cptac Python package <https://github.com/PayneLab/cptac>`_.
-- Proteomics - log2 ratio of each protein to the study's reference. CPTAC values are kept on the log2 scale provided by the cptac package.
-- Mutations - somatic variants for each gene, with variant types given MAF-style names (e.g. ``Missense_Mutation``, ``Frame_Shift_Del``, ``Silent``). A few sources keep their own name for some types, e.g. ``Frameshift_Variant`` in BeatAML, Pancreatic and Sarcoma.
+- Proteomics - log2 values. Each source's own normalization is kept where it has one:
+
+  - CCLE-based datasets (CCLE, CTRPv2, PRISM, gCSI, NCI60, FIMM): log2 ratio to a reference (bridge) sample, centered per protein, as published by Nusinow et al.
+  - BeatAML, Liver and MPNST: log2 values normalized per sample, as published.
+  - GDSC and CPTAC: published without centering, so each protein is centered on its median, across cell lines for GDSC and within each cancer cohort for CPTAC.
+
+- Mutations - somatic variants for each gene, with variant types listed in our schema (e.g. ``Missense_Mutation``, ``Frame_Shift_Del``, ``Silent``). Novartis reports protein changes only (written as ``p.R24*``), so its frameshifts can't be split into insertions and deletions and are labeled ``Frameshift_Variant``. Variants outside a transcript, such as promoter mutations, have no transcript-level change, so their ``mutation`` value is blank.
 - Copy Number - each source's values are converted to the DepMap scale, log2(relative copy number + 1), where 1 is diploid. Each value is also binned into a copy call: deep del (below 0.52), het loss (0.52 to 0.73), diploid (0.73 to 1.21), gain (1.21 to 1.42) and amp (above 1.42).
 - Drugs - drug names are matched to `PubChem <https://pubchem.ncbi.nlm.nih.gov/>`_ to get each drug's structure (canonical SMILES and InChIKey), and drugs with the same structure share one ``improve_drug_id`` across datasets.
 - Drug Descriptors - computed from each drug's canonical SMILES. Each drug has a ``morgan fingerprint`` (1024 bits, radius 2, from `RDKit <https://www.rdkit.org/docs/GettingStartedInPython.html#morgan-fingerprints-circular-fingerprints>`_) and about 1,600 2D descriptors from `Mordred <https://mordred-descriptor.github.io/documentation/master/descriptors.html>`_. The ``structural_descriptor`` column holds the descriptor name.
-- Experiments - for datasets screened in culture (cell lines, organoids, microtissues and BeatAML's ex vivo samples), a Hill curve (Einf, EC50 and Hill slope) is fit to each sample and drug's dose-response data, and the curve metrics below are calculated from that fit. PDX datasets (MPNST and Novartis) use tumor volume metrics (ABC, LMM, mRECIST, TGI) instead. Sarcoma has the published AUC only.
+- Experiments - for datasets screened in culture (cell lines, organoids, microtissues and BeatAML's ex vivo samples), a Hill curve (Einf, EC50 and Hill slope) is fit to each sample and drug's dose-response data, and the curve metrics below are calculated from that fit. PDX datasets (MPNST and Novartis) use tumor volume metrics (ABC, LMM, mRECIST, TGI) instead. Sarcoma has only the published AUC, measured on the organoids. Its mutations were sequenced from the matched tumors and are attached to both the tumor and the organoid sample.
 
 ---------------------------
 Dataset Summary Statistics
