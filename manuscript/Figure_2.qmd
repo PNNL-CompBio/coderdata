@@ -25,6 +25,7 @@ We can then download the latest version of the coderdata dataset, using the foll
 #| label: download data
 #| warning: FALSE
 #| eval: FALSE
+#| echo: FALSE
 coderdata download --local_path '/tmp'
 ```
 
@@ -34,6 +35,7 @@ We can now set up `reticulate` to interface with Python from R.
 ```{r}
 #| label: imports-and-setup
 #| warning: FALSE
+#| echo: FALSE
 
 # r libraries
 library(reticulate)
@@ -73,8 +75,12 @@ Note how this is done using the `reticulate` functionality to call Python functi
 #| echo: FALSE
 
 
-cell_lines <- c("ccle", "ctrpv2", "prism", "gdscv1", "gdscv2", "nci60",'fimm')
-exvivo <- c('beataml','bladder','pancreatic','sarcoma','colorectal','liver')
+cell_lines <- c("ccle", "ctrpv2", "gcsi",
+ "prism", "gdscv1", "gdscv2", "nci60",'fimm')
+
+##actually only need to load 2 datasets
+cell_lines <- c('gdscv2','ctrpv2')
+exvivo <- c('beataml','bladder','pancreatic','sarcoma','colorectal','liver','mpnst','hcmi','cptac')
 
 datasets <- list()
 
@@ -168,13 +174,16 @@ ev_mu <- do.call(rbind, lapply(exvivo, function(ds){
 
 comb <- rbind(cl_mu, ev_mu)
 
-common <-  comb |> group_by(variant_classification) |> 
-  summarize(ndatasets=n_distinct(dataset)) |> subset(ndatasets>5)
+comb |> group_by(variant_classification) |> 
+  summarize(ndatasets=n_distinct(dataset)) 
 
-comb |> 
+comb |>  
   group_by(variant_classification, dataset, improve_sample_id) |> 
-  summarize(genes_per_sample = n_distinct(entrez_id)) |>
-  ggplot(aes(x= variant_classification, y= genes_per_sample, fill = dataset)) + geom_boxplot()
+  summarize(genes_per_sample = n_distinct(entrez_id)) |> 
+  group_by(variant_classification, dataset) |>
+  summarize(mean_genes = mean(genes_per_sample)) |>
+  ggplot(aes(x= variant_classification, y= mean_genes, fill = dataset)) + scale_y_log10()+geom_bar(stat='identity',position='dodge') + coord_flip()
+
 
 
 ```
@@ -182,6 +191,10 @@ comb |>
 This is too many, and most aren't in all datasets
 
 ```{r}
+
+common <-  comb |> group_by(variant_classification) |> 
+  summarize(ndatasets=n_distinct(dataset)) |> subset(ndatasets>5)
+
 comb |> subset(variant_classification %in% common$variant_classification)|>
   group_by(variant_classification, dataset, improve_sample_id) |> summarize(n_genes = n_distinct(entrez_id)) |> ggplot(aes(x=n_genes, y=dataset, fill=variant_classification, alpha = 0.5)) + ggridges::geom_density_ridges2() +scale_x_log10() 
 ```
@@ -209,29 +222,45 @@ ev_tr <- do.call(rbind, lapply(exvivo, function(ds){
 
 comb <- rbind(cl_tr, ev_tr)
 
-pats <- comb |> 
-  dplyr::select(improve_sample_id, dataset)|>
-  distinct() #|>
-# tibble::column_to_rownames('improve_sample_id')
-
 ggplot(comb, aes(x=dataset, y = transcriptomics))+ 
   geom_boxplot() + scale_y_log10() 
 ```
 
-Now can we make a PCA?
+Now can we make a UMAP?
 
 ```{r}
 
-library(ggfortify)
-cmat <- comb[, c('entrez_id','transcriptomics','improve_sample_id')]|> 
-  tidyr::pivot_wider(names_from='improve_sample_id',
+#library(ggfortify)
+library(umap) 
+
+nu <- comb |>
+  tidyr::unite(dataset, improve_sample_id, col='sample',sep='-', remove=FALSE) 
+
+
+cmat <- nu[,c('entrez_id','transcriptomics','sample')] |> 
+  tidyr::pivot_wider(names_from='sample',
     values_from='transcriptomics',values_fn=mean)
 
 cm <- tibble::column_to_rownames(cmat,'entrez_id') |>
   drop_na()
 
-cols <- intersect(colnames(cm),pats$improve_sample_id)
-autoplot(prcomp(t(cm[,cols])), data=subset(pats, improve_sample_id%in%cols))
+pats <- nu[,c('sample','dataset')] |>
+  distinct() #|>
+  #subset(dataset!='beataml')
+
+cols <- intersect(colnames(cm),pats$sample)
+#pca <- prcomp(t(cm[,cols]))
+#autoplot(pca, data=subset(pats, sample%in%cols),color='dataset')
+
+cmm <- log2(cm + 1)
+tumap = umap(t(cmm[,cols]), n_components = 2, random_state = 15) 
+
+layout <- tumap[["layout"]] 
+layout <- data.frame(layout) 
+final <- cbind(layout, subset(pats, sample%in%cols)) 
+
+ggplot(final, aes(x=X1,y=X2,col=dataset)) +geom_point() + 
+  ggtitle("UMAP of log TPM of RNA-Seq datasets")
 
 ```
 
@@ -239,9 +268,9 @@ autoplot(prcomp(t(cm[,cols])), data=subset(pats, improve_sample_id%in%cols))
 
 boxplot of values
 
-PCA of values
 ```{r}
 #| label: proteomics
+
 
 cl_pr <- do.call(rbind, lapply(cell_lines, function(ds){
   cv <- datasets[[ds]]$proteomics
@@ -260,4 +289,42 @@ ev_pr <- do.call(rbind, lapply(exvivo, function(ds){
 
 comb <- rbind(cl_pr, ev_pr)
 
+ggplot(comb, aes(x=dataset, y = proteomics))+ 
+  geom_boxplot() + scale_y_log10() 
 ```
+
+Now try to do PCA
+
+```{r}
+
+nu <- comb |>
+  tidyr::unite(dataset, improve_sample_id, col='sample',sep='-', remove=FALSE) 
+
+
+cmat <- nu[,c('entrez_id','proteomics','sample')] |> 
+  tidyr::pivot_wider(names_from='sample',
+    values_from='proteomics',values_fn=mean)
+
+cm <- tibble::column_to_rownames(cmat,'entrez_id') |>
+  drop_na()
+
+pats <- nu[,c('sample','dataset')] |>
+  distinct() #|>
+  #subset(dataset!='beataml')
+
+cols <- intersect(colnames(cm),pats$sample)
+#pca <- prcomp(t(cm[,cols]))
+#autoplot(pca, data=subset(pats, sample%in%cols),color='dataset')
+
+cmm <- apply(cm,2,function(x) (x-mean(x))/sd(x))#cm#log2(cm + 1)
+tumap = umap(t(cmm[,cols]), n_components = 2, random_state = 15) 
+
+layout <- tumap[["layout"]] 
+layout <- data.frame(layout) 
+final <- cbind(layout, subset(pats, sample%in%cols)) 
+
+ggplot(final, aes(x=X1,y=X2,col=dataset)) +geom_point() + 
+  ggtitle("UMAP of Proteomics datasets")
+```
+
+Now that we have the four figures we can assemble into a single omics QC plo
