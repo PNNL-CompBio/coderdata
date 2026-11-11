@@ -79,9 +79,9 @@ def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTabl
     samplesTable['other_id_no_dash'] = samplesTable['other_id'].str.replace("-2", "_2")
     mutation_merged_2 = mutation_merged_select.merge(samplesTable, left_on='Sample_ID_Tumor', right_on='other_id_no_dash', how='left')
     # select desired columns - entrez_id, improve_sample_id, mutation, variant_classificaton, source, study
-    mutation_merged_2['other_id_source'] = "Synapse"
+    mutation_merged_2['source'] = "Synapse"
     mutation_merged_2['study'] = "Landscape of Sarcoma"
-    mutationData = mutation_merged_2[['entrez_id',  'Name', 'variant_classification',  'improve_sample_id', 'study']]
+    mutationData = mutation_merged_2[['entrez_id',  'Name', 'variant_classification',  'improve_sample_id', 'source', 'study']]
     mutationData =mutationData.rename({"Name": "mutation"}, axis=1)
     # drop duplicates
     mutationData = mutationData.drop_duplicates()

@@ -83,7 +83,7 @@ def get_bladder_transcriptomics(GEO_id_link_table, samples, genes):
         tx_with_ids[["entrez_id", "value", "improve_sample_id"]]
         .drop_duplicates()
         .assign(source="Gene Expression Omnibus",
-                study="Lee et al. 2018 Bladder PDOs")
+                study="Lee etal 2018 Bladder PDOs")
     )
     final_tx.rename(columns= {"value":"transcriptomics"},inplace=True)
     final_tx = final_tx.drop_duplicates()
@@ -103,6 +103,7 @@ def get_bladder_mutations(synObject, samples, genes):
     merged_mutations = selectioncols_mutations.merge(samples, left_on="Tumor_Sample_Barcode", right_on="other_id", how="left")
     merged_mutations_renamed = merged_mutations.rename({"Entrez_Gene_Id" : 'entrez_id', 'Variant_Classification' : "variant_classification"}, axis=1)
     final_mutations = merged_mutations_renamed[['entrez_id', "mutation", "variant_classification", "improve_sample_id"]]
+    final_mutations['source'] = "Synapse"
     final_mutations['study'] = "Lee etal 2018 Bladder PDOs"
     final_mutations = final_mutations.dropna(subset=["entrez_id"])
     final_mutations["improve_sample_id"] = final_mutations["improve_sample_id"].astype(int)    

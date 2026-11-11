@@ -34,7 +34,7 @@ def parseCNVFile(fpath, sampid, genes):
     log2data['improve_sample_id']=sampid
     newdat =  pd.merge(log2data,genes)[['improve_sample_id','entrez_id','copy_number']].drop_duplicates()
     newdat['study']='pancreatic'
-    newdat['source']='TiriacEtal'
+    newdat['source']='TiriacEtAl2018'
     newdat = newdat[['improve_sample_id','entrez_id','copy_number','source','study']]
     ## input is a log2 ratio; convert to the DepMap scale log2(relative CN + 1), normal = 1.0
     newdat['copy_number'] = [math.log2(2**float(a) + 1) for a in newdat['copy_number']]
@@ -79,7 +79,7 @@ def parseMutFile(fpath, sampid,genes):
     fullfile = pd.merge(mutfile,pd.DataFrame({'SNPEFF_EFFECT':mutmap.keys(),'variant_classification':mutmap.values()}))
     fullfile = pd.merge(fullfile,genes)
     fullfile['improve_sample_id'] = sampid
-    fullfile['source']='TiriacEtAl'
+    fullfile['source']='TiriacEtAl2018'
     fullfile['study']='pancreatic'
     fullfile = fullfile[['improve_sample_id','entrez_id','source','study','mutation','variant_classification']]
     fullfile = fullfile.dropna().drop_duplicates()

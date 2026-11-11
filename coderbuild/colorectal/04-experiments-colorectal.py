@@ -70,6 +70,8 @@ def create_experiments_data(experiment_data_path:str, samples_data_path:str, dru
     sample_drug_experiment_merge = sample_drug_experiment_merge.rename(columns = {'CONC':'DOSE','viability':'GROWTH','improve_drug_id':'Drug','DURATION':'time','RESEARCH_PROJECT':'study'})
     sample_drug_experiment_merge['time_unit'] = "days"
     sample_drug_experiment_merge['source'] = "vandeWetering_2015"
+    # same study label as the colorectal omics files (the raw file's RESEARCH_PROJECT is "GDSC_Org")
+    sample_drug_experiment_merge['study'] = "colorectal"
     sample_drug_experiment_merge = sample_drug_experiment_merge.drop(columns=['DRUG_NAME_LOWER','CELL_LINE_NAME','DRUG_NAME','chem_name','patient_number'])
     return(sample_drug_experiment_merge)
 
