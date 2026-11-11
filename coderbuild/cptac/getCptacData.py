@@ -204,6 +204,12 @@ def formatData(df,dtype,ctype,samp_names,source,genes,samples):
        mlongdf['copy_number'] = np.log2(np.power(2.0, mlongdf['copy_number'].astype(float)) + 1)
        mlongdf[['copy_call']] = mlongdf[['copy_number']].apply(copy_num)
 
+    ##proteomics are log2 abundances; centre each protein on its median across this
+    ##cohort's samples to give log2 ratios like the other datasets
+    if dtype=='proteomics':
+        kept = mlongdf['improve_sample_id'].notna() & mlongdf['entrez_id'].notna()
+        medians = mlongdf[kept].groupby('entrez_id')['proteomics'].median()
+        mlongdf['proteomics'] = mlongdf['proteomics'] - mlongdf['entrez_id'].map(medians)
 
     mlongdf[['source']] = source
     mlongdf[['study']] = 'CPTAC3'

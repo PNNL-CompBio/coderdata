@@ -166,13 +166,16 @@ def main():
     robust_download(sanger_protfile, sanger_loc)
     with ZipFile(sanger_loc, "r") as zf:
         zf.extractall(path="/tmp/")
+    # log2 intensities (not the z-scored matrix), centred on each protein's
+    # median across cell lines to give log2 ratios like the CCLE data above
     pdat = pd.read_csv(
-        "/tmp/Protein_matrix_averaged_zscore_20221214.tsv",
+        "/tmp/Protein_matrix_averaged_20221214.tsv",
         sep="\t",
         skiprows=[0],
     )
     
     vv=pdat.columns[2:]
+    pdat[vv] = pdat[vv] - pdat[vv].median()
     plong = pd.melt(pdat,id_vars='symbol',value_vars=vv)
     pres = plong.rename({'symbol':'other_names','variable':'gene_symbol','value':'proteomics'},axis=1)
     pres = pres.merge(genes,on='gene_symbol')
