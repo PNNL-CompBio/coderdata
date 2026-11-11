@@ -1,0 +1,263 @@
+---
+title: "Figure 2: coderdata qc analysis of omics"
+author:
+- name: Sara Gosline
+  affiliation: Pacific Northwest National Laboratory
+date: "`r Sys.Date()`"
+engine: knitr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Table of Contents"
+    toc-location: right
+    number-sections: true
+---
+
+# Dependencies & Preparation
+
+First we import the required libraries and set up the paths.
+We also assume that the `coderdata` package is installed and available in the Python environment. 
+
+We can then download the latest version of the coderdata dataset, using the following command in the terminal:
+
+```{bash}
+#| label: download data
+#| warning: FALSE
+#| eval: FALSE
+coderdata download --local_path '/tmp'
+```
+
+We can now set up `reticulate` to interface with Python from R.
+
+
+```{r}
+#| label: imports-and-setup
+#| warning: FALSE
+
+# r libraries
+library(reticulate)
+library(ggplot2)
+library(tidyr)
+library(patchwork)
+library(GSVA) ##do to the enrichment statistics
+
+# path setupd
+data_dir <- "/tmp/"
+
+#wd <- tempdir()
+#setwd(wd)
+reticulate::use_virtualenv('r-reticulate')
+reticulate::import("coderdata")
+
+# defines the python environment to use
+py_require("coderdata")
+
+# import the coderdata package from python
+cd <- import("coderdata")
+
+
+```
+
+
+# Omics import
+Now we are ready to load the datasets and format them for analysis. We will load the
+ cell line datasets to load the relevant experimental,
+drug, proteomic, and transcriptomic data for each dataset.
+
+Note how this is done using the `reticulate` functionality to call Python functions from R via `cd$load(...)` and `datasets[[name]]$format(...)`.
+
+```{r}
+#| label: load-datasets
+#| warning: FALSE
+#| echo: FALSE
+
+
+cell_lines <- c("ccle", "ctrpv2", "prism", "gdscv1", "gdscv2", "nci60",'fimm')
+exvivo <- c('beataml','bladder','pancreatic','sarcoma','colorectal','liver')
+
+datasets <- list()
+
+for (name in c(cell_lines, exvivo)) {
+  datasets[[name]] <- cd$load(name, local_path = data_dir)
+}
+
+# experiments <- list()
+# transcripts <- list()
+# proteomics <- list()
+
+# for (name in datasetnames) {
+
+#     transcripts[[name]] <- datasets[[name]]$format(
+#     "transcriptomics",
+#     shape = "matrix",
+#     metrics = "transcripomics"
+#   )
+#     proteomics[[name]] <- datasets[[name]]$format(
+#     "proteomics",
+#     shape = "matrix",
+#     metrics = "proteomics"
+#   )
+# }
+```
+
+
+Now we have the transcripts data, each as a matrix. We can take a set of genes and identify 
+specific drugs that are correlated with samples that are active in those.
+
+## Panel A: Copy number
+
+Let's plot copy number types across datasets
+
+```{r}
+#| label: plot-mutations
+
+library(dplyr)
+library(tidyr)
+
+cl_cn <- do.call(rbind, lapply(cell_lines, function(ds){
+  datasets[[ds]]$copy_number |>
+    dplyr::rename(dataset = study)
+})) |>
+  distinct() #obviously this is kind of a pain and time consuming
+
+ev_cn <- do.call(rbind, lapply(exvivo, function(ds){
+  cv <- datasets[[ds]]$copy_number 
+  if (!is.null(cv))
+    return(cv|> mutate(dataset=ds))
+})) |>
+  dplyr::select(-study)
+
+comb <- rbind(cl_cn, ev_cn)
+##now how can we plot these?
+tot_counts <- comb |>
+  group_by(dataset) |> summarize(total_genes = n_distinct(entrez_id))
+
+print(tot_counts)
+var_counts <- comb |> 
+  group_by(copy_call, dataset, improve_sample_id) |> 
+  summarize(genes = n_distinct(entrez_id))
+
+ggplot(var_counts, aes(x=genes, fill = copy_call,y=dataset, alpha = 0.5)) + 
+  ggridges::geom_density_ridges2() + 
+  scale_fill_viridis_d()
+
+```
+
+
+## Panel B: Mutations
+Now we can do the same with mutation types.
+
+```{r}
+#| label: mutations
+#| 
+cl_mu <- do.call(rbind, lapply(cell_lines, function(ds){
+  cv <- datasets[[ds]]$mutations
+  cv[,c('entrez_id','variant_classification','improve_sample_id','study')] |> 
+    dplyr::rename(dataset = study) 
+})) |>
+  distinct() #obviously this is kind of a pain and time consuming
+
+ev_mu <- do.call(rbind, lapply(exvivo, function(ds){
+  cv <- datasets[[ds]]$mutations 
+  print(paste(names(cv),collapse=','))
+  if (!is.null(cv))
+    return(cv[,c('entrez_id','variant_classification','improve_sample_id')]|> 
+      mutate(dataset=ds))
+})) 
+
+comb <- rbind(cl_mu, ev_mu)
+
+common <-  comb |> group_by(variant_classification) |> 
+  summarize(ndatasets=n_distinct(dataset)) |> subset(ndatasets>5)
+
+comb |> 
+  group_by(variant_classification, dataset, improve_sample_id) |> 
+  summarize(genes_per_sample = n_distinct(entrez_id)) |>
+  ggplot(aes(x= variant_classification, y= genes_per_sample, fill = dataset)) + geom_boxplot()
+
+
+```
+
+This is too many, and most aren't in all datasets
+
+```{r}
+comb |> subset(variant_classification %in% common$variant_classification)|>
+  group_by(variant_classification, dataset, improve_sample_id) |> summarize(n_genes = n_distinct(entrez_id)) |> ggplot(aes(x=n_genes, y=dataset, fill=variant_classification, alpha = 0.5)) + ggridges::geom_density_ridges2() +scale_x_log10() 
+```
+
+## Panel C: Transcriptomics
+boxplot of values? 
+
+```{r}
+#| label: transcriptomics
+
+cl_tr <- do.call(rbind, lapply(cell_lines, function(ds){
+  cv <- datasets[[ds]]$transcriptomics
+  cv[,c('entrez_id','transcriptomics','improve_sample_id','study')] |> 
+    dplyr::rename(dataset = study) 
+})) |>
+  distinct() #obviously this is kind of a pain and time consuming
+
+ev_tr <- do.call(rbind, lapply(exvivo, function(ds){
+  #print(ds)
+  cv <- datasets[[ds]]$transcriptomics 
+  if (!is.null(cv))
+    return(cv[,c('entrez_id','transcriptomics','improve_sample_id')]|> 
+      mutate(dataset=ds))
+})) 
+
+comb <- rbind(cl_tr, ev_tr)
+
+pats <- comb |> 
+  dplyr::select(improve_sample_id, dataset)|>
+  distinct() #|>
+# tibble::column_to_rownames('improve_sample_id')
+
+ggplot(comb, aes(x=dataset, y = transcriptomics))+ 
+  geom_boxplot() + scale_y_log10() 
+```
+
+Now can we make a PCA?
+
+```{r}
+
+library(ggfortify)
+cmat <- comb[, c('entrez_id','transcriptomics','improve_sample_id')]|> 
+  tidyr::pivot_wider(names_from='improve_sample_id',
+    values_from='transcriptomics',values_fn=mean)
+
+cm <- tibble::column_to_rownames(cmat,'entrez_id') |>
+  drop_na()
+
+cols <- intersect(colnames(cm),pats$improve_sample_id)
+autoplot(prcomp(t(cm[,cols])), data=subset(pats, improve_sample_id%in%cols))
+
+```
+
+## Panel D: Proteomics
+
+boxplot of values
+
+PCA of values
+```{r}
+#| label: proteomics
+
+cl_pr <- do.call(rbind, lapply(cell_lines, function(ds){
+  cv <- datasets[[ds]]$proteomics
+  cv[,c('entrez_id','proteomics','improve_sample_id','study')] |> 
+    dplyr::rename(dataset = study) 
+})) |>
+  distinct() #obviously this is kind of a pain and time consuming
+
+ev_pr <- do.call(rbind, lapply(exvivo, function(ds){
+  #print(ds)
+  cv <- datasets[[ds]]$proteomics 
+  if (!is.null(cv))
+    return(cv[,c('entrez_id','proteomics','improve_sample_id')]|> 
+      mutate(dataset=ds))
+}))
+
+comb <- rbind(cl_pr, ev_pr)
+
+```
