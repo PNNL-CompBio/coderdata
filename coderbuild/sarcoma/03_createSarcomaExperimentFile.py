@@ -38,10 +38,11 @@ if __name__ == "__main__":
 
     # inner merge with samples because there are samples without experiment info and many Sample_ID's in experiments data without sample info
     experiments = drug_data.merge(sarcoma_drugs, how='left').merge(sarcoma_samples, how='inner')
-    # drop rows corresponding to organoids
-    tumor_only = experiments[~experiments['model_type'].str.contains("organoid")]
+    # drugs were screened on the organoids, so keep only organoid rows
+    # (patients without an organoid sample have no drug response)
+    organoid_only = experiments[experiments['model_type'].str.contains("organoid")]
     # select relevant columns 
-    final_experiment = tumor_only[['improve_sample_id', 'improve_drug_id', 'Viability_Score']]
+    final_experiment = organoid_only[['improve_sample_id', 'improve_drug_id', 'Viability_Score']]
     # add static info
     final_experiment.loc[:,['study']] = 'Landscape of Sarcoma'
     final_experiment.loc[:,['source']] = 'AlShihabietal2024'
