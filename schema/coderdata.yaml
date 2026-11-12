@@ -11,6 +11,7 @@ default_prefix: coderdata
 
 slots:
   entrez_id:
+    required: true
     description: Gene id according to NCBI
     range: integer
   phosphosite_id:
@@ -27,19 +28,24 @@ slots:
     identifier: true
     slot_uri: schema:identifier
   time:
+    required: true
     range: float
     description: Time at which measurement was administered, unit below.
   time_unit:
+    required: true
     description: Unit of time in which drug treatment was measured, e.g. minutes, hours, weeks.
   source:
+    required: true
     description: Source of data generated. 
   study:
+    required: true
     description: Study informatiom identifying where/when data was collected.
   other_id:
     description: other identifier
     recommended: true
     range: linkml:Any
   other_id_source:
+    required: true
     description: source of other identifier
 
 classes:
@@ -49,6 +55,9 @@ classes:
       - entrez_id
       - other_id
       - other_id_source
+    slot_usage:
+      other_id:
+        required: true
     attributes:
       gene_symbol:
         required: true
@@ -79,16 +88,20 @@ classes:
       - other_id_source
     attributes:
       common_name:
+        required: true
         description: name for drug
         range: linkml:Any
       cancer_type:
+        required: true
         description: Type of cancer
       other_names:
         description: Other name for sample
         range: linkml:Any
       species:
+        required: true
         description: Species
       model_type:
+        required: true
         description: Type of model, must be confined to our existing set of definitions
         range: Models
   Drug:
@@ -97,9 +110,11 @@ classes:
       - improve_drug_id
     attributes:
       chem_name:
+        required: true
         description: Name of drug
         range: linkml:Any
       canSMILES:
+        required: true
         description: Canonical SMILE string
       isoSMILES:
         description: Isomeric SMILE string
@@ -111,6 +126,7 @@ classes:
         description: Molecular weight
         range: linkml:Any
       pubchem_id:
+        required: true
         description: PubChem Identifier for this drug, can be many.
         range: int
   Drug Descriptor:
@@ -124,8 +140,10 @@ classes:
       - improve_drug_id
     attributes:
       structural_descriptor:
+        required: true
         description: string name describing structural descriptor
       descriptor_value:
+        required: true
         range: linkml:Any
         description: value representing descriptor value
   Transcriptomics:
@@ -137,6 +155,7 @@ classes:
       - study
     attributes:
       transcriptomics:
+         required: true
          range: float
          description: Transcripts per million of sample at baseline.
   Proteomics:
@@ -147,6 +166,7 @@ classes:
       - study
     attributes:
       proteomics:
+         required: true
          range: float
          description: Log-normalized log ratio of proteomics measurements of sample at baseline.
   Phosphoproteomics:
@@ -167,9 +187,11 @@ classes:
       - study
     attributes:
       copy_number:
+        required: true
         range: float
         description: Copy number measurements of sample at baseline
       copy_call:
+        required: true
         range: CopyCall
         description: Categorical variable defining copy number measurement.
   Mutations:
@@ -182,6 +204,7 @@ classes:
       mutation:
         description: Description of the mutation, when available. 
       variant_classification:
+        required: true
         description: Classification of the variant
         range: Variant
   Experiments:
@@ -194,6 +217,7 @@ classes:
       - time_unit
     attributes:
       dose_response_metric:
+        required: true
         range: ResponseMetric
         description: Metric by which dose response value is measured
       dose_response_value:
@@ -228,12 +252,16 @@ classes:
       - time_unit
     attributes:
       improve_drug_1:
+        required: true
         description: improve_drug_id of first drug
       improve_drug_2:
+        required: true
         description: imrrove_drug_id of second drug
       drug_combination_metric:
+        required: true
         description: metric calculated for synergy, or other metric of two drugs
       drug_combination_value:
+        required: true
         range: linkml:Any
         description: value of metric for synergy or combination
 enums:
