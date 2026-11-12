@@ -48,3 +48,6 @@ RUN apt-get update && \
 ADD schema schema
 ADD scripts scripts
 ADD coderbuild/utils coderbuild/utils
+# Previous release's ID mappings, read by map_improve_*_ids.py so IDs stay stable
+ADD coderbuild/improve_sample_mapping.json coderbuild/improve_sample_mapping.json
+ADD coderbuild/improve_drug_mapping.json coderbuild/improve_drug_mapping.json
