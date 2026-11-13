@@ -70,6 +70,12 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     
     # the data's variant classification matches scheme well, except "Non-coding_Transcript".  let's change those to RNA
     mapped_mutation_data.loc[mapped_mutation_data['Variant_Classification'] == "Non-coding_Transcript",'Variant_Classification'] = "RNA"
+    # Start_Codon_* / Stop_Codon_* are named Translation_Start_Site / Nonstop_Mutation
+    # in the other datasets
+    mapped_mutation_data['Variant_Classification'] = mapped_mutation_data['Variant_Classification'].replace(
+        {'Start_Codon_SNP': 'Translation_Start_Site', 'Start_Codon_Del': 'Translation_Start_Site',
+         'Start_Codon_Ins': 'Translation_Start_Site', 'Stop_Codon_Del': 'Nonstop_Mutation',
+         'Stop_Codon_Ins': 'Nonstop_Mutation'})
 
     # some of the entrezID's have ?, but it must be an integer.  check to see if we have an entrez ID using the hugo symbol and mapping using entrez_data. if there's any leftover, put in nothing
     questions = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] == "?"].reset_index()  # all rows with ? 

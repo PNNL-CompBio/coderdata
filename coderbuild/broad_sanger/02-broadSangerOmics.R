@@ -139,16 +139,40 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
                      Intron=c('INTRON','Intron','intronic','intron','intron_variant'),
                      Missense_Mutation=c('Missense_Mutation','MISSENSE','missense','missense_variant'),
                      Nonsense_Mutation=c('Nonsense_Mutation','NONSENSE','nonsense','stop_gained'),
-                     Nonstop_Mutation=c('Nonstop_Mutation','NONSTOP','stop_lost'),
+                     ## each source value must appear once in this list: a value listed under
+                     ## two classes gives every such mutation two rows (start_lost and
+                     ## stop_lost used to be listed twice)
+                     Nonstop_Mutation=c('Nonstop_Mutation','NONSTOP','stop_lost','Stop_Codon_Del','Stop_Codon_Ins'),
                      RNA=c('RNA','non_coding_transcript_exon_variant','non_coding_transcript_variant'),
-                     Start_Codon_SNP=c('START_CODON_SNP','Start_Codon_SNP'),
-                     Start_Codon_Del=c('Start_Codon_Del','START_CODON_DEL','start_lost'),
-                     Start_Codon_Ins=c('Start_Codon_Ins','START_CODON_INS'),
-                     Stop_Codon_Del=c('Stop_Codon_Del','stop_lost'),
-                     Stop_Codon_Ins=c('Stop_Codon_Ins'),
                      Silent=c('Silent','SILENT','silent','synonymous_variant'),
                      Splice_Site=c('Splice_Site','SPLICE_SITE','splice_region','splice_donor_variant','splice_acceptor_variant','splice_region_variant','splice_polypyrimidine_tract_variant','splice_donor_region_variant','splice_donor_5th_base_variant'),
-                     Translation_Start_Site=c('Translation_Start_Site','start_lost'))
+                     Translation_Start_Site=c('Translation_Start_Site','start_lost','START_CODON_SNP','Start_Codon_SNP',
+                                              'Start_Codon_Del','START_CODON_DEL','Start_Codon_Ins','START_CODON_INS'))
+
+## protein_altering_variant (and other undetermined) indels in coding sequence get
+## their class from the HGVS c. change: inserted/deleted length divisible by 3
+## is in-frame, otherwise a frameshift. Intronic/UTR changes (+, -, * offsets) stay
+## Undetermined.
+indel_class <- function(mutation) {
+  m <- sub('^.*:', '', as.character(mutation))
+  coding <- grepl('^c\\.[0-9]+(_[0-9]+)?(del|ins|dup)', m)
+  start <- suppressWarnings(as.numeric(sub('^c\\.([0-9]+).*$', '\\1', m)))
+  end <- suppressWarnings(as.numeric(ifelse(grepl('^c\\.[0-9]+_[0-9]+', m), sub('^c\\.[0-9]+_([0-9]+).*$', '\\1', m), start)))
+  span <- end - start + 1
+  seqlen <- function(tag) ifelse(grepl(paste0(tag, '[ACGTN]+$'), m), nchar(sub(paste0('^.*', tag, '([ACGTN]+)$'), '\\1', m)), NA)
+  delins <- grepl('delins', m)
+  net <- ifelse(delins, seqlen('delins') - span,
+         ifelse(grepl('del', m), -ifelse(is.na(seqlen('del')), span, seqlen('del')),
+         ifelse(grepl('dup', m), ifelse(is.na(seqlen('dup')), span, seqlen('dup')),
+         ifelse(grepl('ins', m), seqlen('ins'), NA))))
+  cls <- ifelse(is.na(net) | net == 0, NA,
+         paste0(ifelse(net %% 3 == 0, 'In_Frame_', 'Frame_Shift_'), ifelse(net > 0, 'Ins', 'Del')))
+  ifelse(coding, cls, NA)
+}
+refine_undetermined <- function(variant_classification, mutation) {
+  cls <- indel_class(mutation)
+  ifelse(!is.na(variant_classification) & variant_classification == 'Undetermined' & !is.na(cls), cls, variant_classification)
+}
 
 depmap_vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
 colnames(depmap_vtab)<-c('variant_classification','VariantInfo')
@@ -286,7 +310,8 @@ sanger_files<-function(fi,value){
         left_join(smap)|>
           mutate(study='Sanger')|>
           dplyr::select(-c(other_id,gene_symbol))|>
-          left_join(as.data.frame(sanger_vtab))
+          left_join(as.data.frame(sanger_vtab))|>
+          mutate(variant_classification=refine_undetermined(variant_classification, mutation))
 
       ##now many variants are missing???
       missing<-res|>
@@ -563,7 +588,8 @@ depmap_files<-function(fi,value){
         res<-exp_file|>
           mutate(entrez_id=as.numeric(EntrezGeneID))|>
             filter(entrez_id %in% genes$entrez_id) |>
-            left_join(as.data.frame(depmap_vtab))
+            left_join(as.data.frame(depmap_vtab))|>
+            mutate(variant_classification=refine_undetermined(variant_classification, mutation))
 
               ##now many variants are missing???
         missing<-res|>

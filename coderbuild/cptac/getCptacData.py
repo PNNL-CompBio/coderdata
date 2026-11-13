@@ -30,16 +30,14 @@ def reclass_var(arr):
         'Intron': ['Intron'],
         'Missense_Mutation': ['Missense_Mutation'],
         'Nonsense_Mutation': ['Nonsense_Mutation'],
-        'Nonstop_Mutation': ['Nonstop_Mutation'],
+        # Stop_Codon_* / Start_Codon_* are named Nonstop_Mutation / Translation_Start_Site
+        # in the other datasets
+        'Nonstop_Mutation': ['Nonstop_Mutation', 'Stop_Codon_Del', 'Stop_Codon_Ins'],
         'RNA': ['RNA'],
-        'Start_Codon_SNP': ['START_CODON_SNP', 'Start_Codon_SNP'],
-        'Start_Codon_Del': ['Start_Codon_Del'],
-        'Start_Codon_Ins': ['Start_Codon_Ins', 'START_CODON_INS'],
-        'Stop_Codon_Del': ['Stop_Codon_Del'],
-        'Stop_Codon_Ins': ['Stop_Codon_Ins'],
         'Silent': ['Silent'],
         'Splice_Site': ['Splice_Site'],
-        'Translation_Start_Site': ['Translation_Start_Site']
+        'Translation_Start_Site': ['Translation_Start_Site', 'START_CODON_SNP', 'Start_Codon_SNP', 'Start_Codon_Del',
+                                   'Start_Codon_Ins', 'START_CODON_INS']
     }
 
     newarr = []

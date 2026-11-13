@@ -71,8 +71,12 @@ def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTabl
     mutation_merged.replace({'variant_classification': "synonymous"}, "Silent", inplace=True)
     mutation_merged.replace({'variant_classification': "Inframe_Del"}, "In_Frame_Del", inplace=True)
     mutation_merged.replace({'variant_classification': "5_prime_UTR"}, "5'UTR", inplace=True)
-    mutation_merged.replace({'variant_classification': "Frameshift"}, "Frameshift_Variant", inplace=True)
-    mutation_merged.replace({'variant_classification': "intergenic_variant"}, "Silent", inplace=True)
+    # Other datasets split frameshifts by indel type; HGVS dup/ins add bases, del removes them
+    frameshift = mutation_merged['variant_classification'] == "Frameshift"
+    is_ins = mutation_merged['Name'].astype(str).str.contains("dup|ins") & ~mutation_merged['Name'].astype(str).str.contains("del")
+    mutation_merged.loc[frameshift & is_ins, 'variant_classification'] = "Frame_Shift_Ins"
+    mutation_merged.loc[frameshift & ~is_ins, 'variant_classification'] = "Frame_Shift_Del"
+    mutation_merged.replace({'variant_classification': "intergenic_variant"}, "IGR", inplace=True)
 
     mutation_merged_select = mutation_merged[['entrez_id', 'Sample_ID_Tumor', 'Name', 'variant_classification']]
     #merge with improve_ids 

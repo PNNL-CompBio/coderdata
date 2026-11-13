@@ -212,19 +212,26 @@ def map_and_combine(df, data_type, entrez_map_file, improve_map_file, map_file=N
         mapped_df["mutation"] = mapped_df["mutation"].astype(str).str.split(":", n=1).str[-1]
 
         variant_mapping = {
-            'frameshift_variant': 'Frameshift_Variant',
             'missense_variant': 'Missense_Mutation',
             'stop_gained': 'Nonsense_Mutation',
             'inframe_deletion': 'In_Frame_Del',
-            'protein_altering_variant': 'Protein_Altering_Variant',
             'splice_acceptor_variant': 'Splice_Site',
             'splice_donor_variant': 'Splice_Site',
-            'start_lost': 'Start_Codon_Del',
+            'start_lost': 'Translation_Start_Site',
             'inframe_insertion': 'In_Frame_Ins',
             'stop_lost': 'Nonstop_Mutation'
         }
 
-        mapped_df['variant_classification'] = mapped_df['variant_classification'].map(variant_mapping)
+        # Other datasets split these by indel type; HGVS dup/ins add bases, del removes them
+        # (protein_altering_variant here is in-frame insertions, e.g. c.283_284insGCG)
+        vc = mapped_df['variant_classification']
+        is_ins = mapped_df['mutation'].str.contains("dup|ins") & ~mapped_df['mutation'].str.contains("del")
+        indel_class = pd.Series(None, index=mapped_df.index, dtype=object)
+        indel_class[(vc == 'frameshift_variant') & is_ins] = 'Frame_Shift_Ins'
+        indel_class[(vc == 'frameshift_variant') & ~is_ins] = 'Frame_Shift_Del'
+        indel_class[(vc == 'protein_altering_variant') & is_ins] = 'In_Frame_Ins'
+        indel_class[(vc == 'protein_altering_variant') & ~is_ins] = 'In_Frame_Del'
+        mapped_df['variant_classification'] = vc.map(variant_mapping).fillna(indel_class)
 
     elif data_type == "proteomics":
         mapped_ids['sampleID'] = mapped_ids['sampleID'].str.split('_').apply(lambda x: x[2])
