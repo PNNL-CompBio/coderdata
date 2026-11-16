@@ -14,6 +14,13 @@ def get_bladder_experiments(synObject, samples, drugs):
     conversion_table_df[3] = conversion_table_df[2].str.replace(".", "_")
     #print(conversion_table_df.head)
 
+    # The screen was run on the organoid lines, so responses go only to each line's
+    # organoid samples (other_id "<line>_Organoid_P<n>"), not to the parental tumor,
+    # xenografts or xenograft-derived organoids of the same patient. Users can link
+    # those through common_name.
+    organoids = samples[samples['model_type'] == 'patient derived organoid'].copy()
+    organoids['line'] = organoids['other_id'].str.replace(r'_Organoid_P\d+$', '', regex=True)
+
     # initiate empty pd.dat.frame
     drug_df = pd.DataFrame()
     # for each drug, 
@@ -28,7 +35,7 @@ def get_bladder_experiments(synObject, samples, drugs):
         melted_single_drug['linkID'] = melted_single_drug['sample'].str.split(".", expand=True)[0] 
         drugdata = melted_single_drug.merge(conversion_table_df, left_on = 'linkID', right_on = 0, how='left')[['Unnamed: 0', 'value', 3]]
         #print(drugdata.head)
-        drugdata_with_improvesample = drugdata.merge(samples, left_on = 3, right_on='common_name')
+        drugdata_with_improvesample = drugdata.merge(organoids, left_on = 3, right_on='line')
     
     #   print(drugdata_with_improvesample.head)
         drugdata_with_improvesample = drugdata_with_improvesample[['Unnamed: 0', 'value', 'improve_sample_id']]
