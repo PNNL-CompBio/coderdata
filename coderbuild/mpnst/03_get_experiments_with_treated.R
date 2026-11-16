@@ -344,7 +344,13 @@ samples_df <- samples_all %>%
 dbg_df(samples_df, "samples_df")
 
 pdx_samps <- filter(samples_df, model_type == "patient derived xenograft")
-mt_samps  <- filter(samples_df, model_type == "3D-MEDS")
+# The MT screen was run on the untreated microtissue of each patient. The treated
+# microtissues (EXACT, other_id ending in "hr_treated_microtissue") share that
+# common_name, so they are left out here or each MT response is copied to them.
+mt_samps  <- samples_all %>%
+  filter(model_type == "3D-MEDS", !grepl("hr_treated_microtissue$", as.character(other_id))) %>%
+  select(improve_sample_id, common_name, model_type) %>%
+  distinct()
 dbg_df(pdx_samps, "pdx_samps")
 dbg_df(mt_samps,  "mt_samps")
 
