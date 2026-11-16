@@ -18,13 +18,11 @@ def reclass_var(arr):
     variant_schema = {
         "3'UTR": ["3'UTR"],
         "5'Flank": ["5'Flank"],
-        "5'UTR": ["5'UTR"],
-        'Undetermined': ['COULD_NOT_DETERMINE'],
-        'De_novo_Start_InFrame': ['DE_NOVO_START_IN_FRAME', 'De_novo_Start_InFrame'],
-        'De_novo_Start_OutOfFrame': ['DE_NOVO_START_OUT_FRAME', 'De_novo_Start_OutOfFrame'],
+        # a de novo start is a new start codon in the 5'UTR
+        "5'UTR": ["5'UTR", 'DE_NOVO_START_IN_FRAME', 'De_novo_Start_InFrame',
+                  'DE_NOVO_START_OUT_FRAME', 'De_novo_Start_OutOfFrame'],
         'Frame_Shift_Del': ['Frame_Shift_Del'],
         'Frame_Shift_Ins': ['Frame_Shift_Ins'],
-        'IGR': ['IGR'],
         'In_Frame_Del': ['In_Frame_Del'],
         'In_Frame_Ins': ['In_Frame_Ins'],
         'Intron': ['Intron'],
@@ -49,8 +47,9 @@ def reclass_var(arr):
                 found = True
                 break
         if not found:
-            print(f"Variant {a} not found, returning 'Undetermined'")
-            newarr.append('Undetermined')
+            # not one of the schema's variant types (e.g. COULD_NOT_DETERMINE); the row is dropped
+            print(f"Variant {a} not found, dropping it")
+            newarr.append(None)
     print(f'Updated {len(arr)} old variants with {len(newarr)} new ones')
     return newarr
 
@@ -149,6 +148,7 @@ def formatMutData(df, dtype, ctype, samp_names, source, genes, samples):
 
     if len(blongdf) > 0:
         blongdf['variant_classification'] = reclass_var(blongdf['variant_classification'])
+        blongdf = blongdf[blongdf['variant_classification'].notna()]
     else:
         blongdf['variant_classification'] = blongdf['variant_classification']
 

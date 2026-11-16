@@ -76,7 +76,8 @@ def download_and_format_genomic_mutation(synLoginObject, genesTable, samplesTabl
     is_ins = mutation_merged['Name'].astype(str).str.contains("dup|ins") & ~mutation_merged['Name'].astype(str).str.contains("del")
     mutation_merged.loc[frameshift & is_ins, 'variant_classification'] = "Frame_Shift_Ins"
     mutation_merged.loc[frameshift & ~is_ins, 'variant_classification'] = "Frame_Shift_Del"
-    mutation_merged.replace({'variant_classification': "intergenic_variant"}, "IGR", inplace=True)
+    # intergenic variants are not in any gene and are not one of the schema's variant types
+    mutation_merged = mutation_merged[mutation_merged['variant_classification'] != "intergenic_variant"]
 
     mutation_merged_select = mutation_merged[['entrez_id', 'Sample_ID_Tumor', 'Name', 'variant_classification']]
     #merge with improve_ids 

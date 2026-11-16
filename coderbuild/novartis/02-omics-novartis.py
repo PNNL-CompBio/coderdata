@@ -244,7 +244,8 @@ def classify_protein_change(change):
         if len(ref) == len(alt):
             return 'Silent' if ref == alt else 'Missense_Mutation'
         return 'In_Frame_Ins' if len(alt) > len(ref) else 'In_Frame_Del'
-    return 'Undetermined'
+    # any other notation is not one of the schema's variant types; the row is dropped
+    return None
 
 
 def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
@@ -287,6 +288,7 @@ def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
     # residues ("-659", "-1554?", e.g. RNF43 G659fs, APC T1556fs) and don't say
     # whether bases were inserted or deleted, so they stay Frameshift_Variant.
     mutations_only_df['variant_classification'] = mutations_only_df['mutation'].astype(str).map(classify_protein_change)
+    mutations_only_df = mutations_only_df[mutations_only_df['variant_classification'].notna()]
     # protein-level changes, marked "p." like HGVS (also keeps "-659" from reading as a number)
     mutations_only_df['mutation'] = 'p.' + mutations_only_df['mutation'].astype(str)
     

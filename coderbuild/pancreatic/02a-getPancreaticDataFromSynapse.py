@@ -50,7 +50,6 @@ mutmap = {'CODON_CHANGE_PLUS_CODON_DELETION':'In_Frame_Del', ##this isn't a grea
           'FRAME_SHIFT':'Frameshift_Variant',
           'FRAME_SHIFT+SPLICE_SITE_ACCEPTOR+SPLICE_SITE_REGION+INTRON':'Frameshift_Variant',
           'FRAME_SHIFT+SPLICE_SITE_REGION':'Frameshift_Variant',
-          'INTERGENIC':'IGR',
           'INTRON':'Intron',
           'NON_SYNONYMOUS_CODING':'Missense_Mutation',
           'NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION':'Missense_Mutation',

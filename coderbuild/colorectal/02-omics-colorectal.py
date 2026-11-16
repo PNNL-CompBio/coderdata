@@ -76,6 +76,8 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
         {'Start_Codon_SNP': 'Translation_Start_Site', 'Start_Codon_Del': 'Translation_Start_Site',
          'Start_Codon_Ins': 'Translation_Start_Site', 'Stop_Codon_Del': 'Nonstop_Mutation',
          'Stop_Codon_Ins': 'Nonstop_Mutation'})
+    # intergenic (IGR) variants are not in any gene and are not one of the schema's variant types
+    mapped_mutation_data = mapped_mutation_data[mapped_mutation_data['Variant_Classification'] != "IGR"]
 
     # some of the entrezID's have ?, but it must be an integer.  check to see if we have an entrez ID using the hugo symbol and mapping using entrez_data. if there's any leftover, put in nothing
     questions = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] == "?"].reset_index()  # all rows with ? 

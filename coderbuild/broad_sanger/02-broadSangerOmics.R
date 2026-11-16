@@ -127,13 +127,15 @@ sanger_filenames=list(transcriptomics='https://cog.sanger.ac.uk/cmp/download/rna
 ###### VARIANT SCHEMA HARMONIZATION
 variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3prime_UTR_ess_splice','3_prime_UTR_variant'),
                      `5'Flank`=c("FIVE_PRIME_FLANK","5'Flank",'upstream','upstream_gene_variant'),
-                     `5'UTR`=c("5'UTR",'5prime_UTR_variant','5prime_UTR_variant','5prime_UTR_ess_splice','5_prime_UTR_variant'),
+                     ## a de novo start is a new start codon in the 5'UTR
+                     `5'UTR`=c("5'UTR",'5prime_UTR_variant','5prime_UTR_variant','5prime_UTR_ess_splice','5_prime_UTR_variant',
+                               'DE_NOVO_START_IN_FRAME','De_novo_Start_InFrame','DE_NOVO_START_OUT_FRAME','De_novo_Start_OutOfFrame'),
+                     ## Undetermined is only a placeholder for refine_undetermined() below; rows
+                     ## it can't resolve are dropped, as are source values not listed here
+                     ## (e.g. intergenic variants)
                      Undetermined=c('COULD_NOT_DETERMINE','protein_altering_variant'),
-                     De_novo_Start_InFrame=c('DE_NOVO_START_IN_FRAME','De_novo_Start_InFrame'),
-                     De_novo_Start_OutOfFrame=c('DE_NOVO_START_OUT_FRAME','De_novo_Start_OutOfFrame'),
                      Frame_Shift_Del=c('FRAME_SHIFT_DEL','Frame_Shift_Del','frameshift','frameshift_variant'),
                      Frame_Shift_Ins=c('FRAME_SHIFT_INS','Frame_Shift_Ins'),
-                     IGR=c('IGR','nc_variant','intergenic_variant','downstream_gene_variant'),
                      In_Frame_Del=c('IN_FRAME_DEL','In_Frame_Del','inframe','inframe_deletion'),
                      In_Frame_Ins=c('IN_FRAME_INS','In_Frame_Ins','inframe_insertion'),
                      Intron=c('INTRON','Intron','intronic','intron','intron_variant'),
@@ -151,8 +153,8 @@ variant_schema =list(`3'UTR`=c("3'UTR",'THREE_PRIME_UTR','3prime_UTR_variant','3
 
 ## protein_altering_variant (and other undetermined) indels in coding sequence get
 ## their class from the HGVS c. change: inserted/deleted length divisible by 3
-## is in-frame, otherwise a frameshift. Intronic/UTR changes (+, -, * offsets) stay
-## Undetermined.
+## is in-frame, otherwise a frameshift. Intronic/UTR changes (+, -, * offsets) can't
+## be resolved and become NA (dropped).
 indel_class <- function(mutation) {
   m <- sub('^.*:', '', as.character(mutation))
   coding <- grepl('^c\\.[0-9]+(_[0-9]+)?(del|ins|dup)', m)
@@ -171,7 +173,7 @@ indel_class <- function(mutation) {
 }
 refine_undetermined <- function(variant_classification, mutation) {
   cls <- indel_class(mutation)
-  ifelse(!is.na(variant_classification) & variant_classification == 'Undetermined' & !is.na(cls), cls, variant_classification)
+  ifelse(!is.na(variant_classification) & variant_classification == 'Undetermined', cls, variant_classification)
 }
 
 depmap_vtab<-do.call('rbind',sapply(names(variant_schema),function(x) cbind(rep(x,length(variant_schema[[x]])),unlist(variant_schema[[x]]))))
@@ -323,6 +325,7 @@ sanger_files<-function(fi,value){
 ###TODO double check to see if any variants are missing
       res<-res|>dplyr::select(-effect)|>
           subset(!is.na(improve_sample_id))|>
+          subset(!is.na(variant_classification))|> ##not one of the schema's variant types
           distinct()
 
       rm(exp_file)
@@ -601,7 +604,8 @@ depmap_files<-function(fi,value){
         res<-res|>
             dplyr::select(-c(EntrezGeneID,VariantInfo))|>
             distinct()|>
-          subset(!is.na(entrez_id)) ##removes thos with unknonw entrez
+          subset(!is.na(entrez_id))|> ##removes thos with unknonw entrez
+          subset(!is.na(variant_classification)) ##not one of the schema's variant types
 
         rm(exp_file)
 
