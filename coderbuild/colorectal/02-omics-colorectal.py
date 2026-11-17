@@ -72,7 +72,9 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     mapped_mutation_data.loc[mapped_mutation_data['Variant_Classification'] == "Non-coding_Transcript",'Variant_Classification'] = "RNA"
 
     # some of the entrezID's have ?, but it must be an integer.  check to see if we have an entrez ID using the hugo symbol and mapping using entrez_data. if there's any leftover, put in nothing
-    questions = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'] == "?"].reset_index()  # all rows with ? 
+    # the source also gives 0 for some mutations in named genes, so look those up too
+    # (rows still 0 afterwards, e.g. intergenic "Unknown", are left as they are)
+    questions = mapped_mutation_data[mapped_mutation_data['Entrez_Gene_Id'].astype(str).isin(["?", "0"])].reset_index()  # all rows with ? or 0
     fixed_entrez = pd.merge(questions, entrez_data[['entrez_id','other_id','gene_symbol']], how='inner', left_on="Hugo_Symbol", right_on="other_id") # merge with our entrez database to see if we have additional matches
     for index_val in fixed_entrez['index'].values:
         mapped_mutation_data.loc[index_val,'Entrez_Gene_Id'] = fixed_entrez[fixed_entrez['index'] == index_val]['entrez_id'].values[0]  # take first match; ambiguous aliases can map to multiple entrez IDs
