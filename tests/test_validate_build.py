@@ -321,3 +321,15 @@ def test_same_size_samples_with_different_data_are_not_copies(tmp_path):
     _mappings(tmp_path)
     report, _ = vb.validate(str(tmp_path))
     assert 'copied-samples' not in _checks(report, 'warnings')
+
+
+def test_empty_or_missing_folder_fails(tmp_path):
+    # A folder with no datasets, or one that doesn't exist, has nothing to
+    # check and should fail rather than pass.
+    report, _ = vb.validate(str(tmp_path))
+    assert 'no-datasets' in _checks(report)
+    assert vb.main(['--dir', str(tmp_path)]) == 1
+    missing = tmp_path / 'not_there'
+    report, _ = vb.validate(str(missing))
+    assert 'missing-dir' in _checks(report)
+    assert vb.main(['--dir', str(missing)]) == 1
