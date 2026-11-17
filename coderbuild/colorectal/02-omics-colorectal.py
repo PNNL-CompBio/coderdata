@@ -84,6 +84,8 @@ def map_mutations(mutation_data, improve_id_data, entrez_data):
     mapped_mutation_data['source'] = "vandeWetering_2015"
     mapped_mutation_data['study'] = "colorectal"
     mapped_mutation_data = mapped_mutation_data.astype({'entrez_id':'int'})
+    # keep only genes in genes.csv, as the other datasets do
+    mapped_mutation_data = mapped_mutation_data[mapped_mutation_data['entrez_id'].isin(entrez_data['entrez_id'])]
 
     return(mapped_mutation_data)
 
@@ -233,6 +235,9 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     improve_mapped_cn_df = improve_mapped_cn_df.rename(columns={'ENTREZID':'entrez_id'})
     improve_mapped_cn_df = improve_mapped_cn_df.astype({'entrez_id':'int','improve_sample_id':'int'})
     improve_mapped_cn_df = improve_mapped_cn_df[['entrez_id','copy_number','copy_call','study','source','improve_sample_id']]
+    # keep only genes in genes.csv, as the other datasets do (the segment annotation
+    # also returns non-coding genes)
+    improve_mapped_cn_df = improve_mapped_cn_df[improve_mapped_cn_df['entrez_id'].isin(entrez_data['entrez_id'])]
     
     return(improve_mapped_cn_df)
 
