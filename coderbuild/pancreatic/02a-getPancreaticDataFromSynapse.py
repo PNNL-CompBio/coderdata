@@ -50,7 +50,6 @@ mutmap = {'CODON_CHANGE_PLUS_CODON_DELETION':'In_Frame_Del', ##this isn't a grea
           'FRAME_SHIFT':'Frameshift_Variant',
           'FRAME_SHIFT+SPLICE_SITE_ACCEPTOR+SPLICE_SITE_REGION+INTRON':'Frameshift_Variant',
           'FRAME_SHIFT+SPLICE_SITE_REGION':'Frameshift_Variant',
-          'INTERGENIC':'IGR',
           'INTRON':'Intron',
           'NON_SYNONYMOUS_CODING':'Missense_Mutation',
           'NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION':'Missense_Mutation',
@@ -59,9 +58,9 @@ mutmap = {'CODON_CHANGE_PLUS_CODON_DELETION':'In_Frame_Del', ##this isn't a grea
           'SPLICE_SITE_REGION+INTRON':'Splice_Site',
           'SPLICE_SITE_REGION+NON_CODING_EXON_VARIANT':'Splice_Site',
           'SPLICE_SITE_REGION+SYNONYMOUS_CODING':'Silent',
-          'START_GAINED+UTR_5_PRIME':'Start_Codon_Ins',
-          'STOP_GAINED':'Stop_Codon_Ins',
-          'STOP_GAINED+CODON_CHANGE_PLUS_CODON_INSERTION':'Stop_Codon_Ins',
+          'START_GAINED+UTR_5_PRIME':"5'UTR",
+          'STOP_GAINED':'Nonsense_Mutation',
+          'STOP_GAINED+CODON_CHANGE_PLUS_CODON_INSERTION':'Nonsense_Mutation',
           'SYNONYMOUS_CODING':'Silent',
           'UPSTREAM':"5'Flank",
           'UTR_3_PRIME':"3'UTR",
@@ -77,6 +76,11 @@ def parseMutFile(fpath, sampid,genes):
     mutfile = mutfile.dropna(subset='SNPEFF_CDS_CHANGE')
     mutfile.columns  = ['gene_symbol','SNPEFF_EFFECT','mutation']
     fullfile = pd.merge(mutfile,pd.DataFrame({'SNPEFF_EFFECT':mutmap.keys(),'variant_classification':mutmap.values()}))
+    # Other datasets split frameshifts by indel type; HGVS dup/ins add bases, del removes them
+    frameshift = fullfile['variant_classification'] == 'Frameshift_Variant'
+    is_ins = fullfile['mutation'].astype(str).str.contains("dup|ins") & ~fullfile['mutation'].astype(str).str.contains("del")
+    fullfile.loc[frameshift & is_ins, 'variant_classification'] = 'Frame_Shift_Ins'
+    fullfile.loc[frameshift & ~is_ins, 'variant_classification'] = 'Frame_Shift_Del'
     fullfile = pd.merge(fullfile,genes)
     fullfile['improve_sample_id'] = sampid
     fullfile['source']='TiriacEtAl2018'
