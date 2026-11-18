@@ -294,6 +294,8 @@ def map_mutations_novPDX(mutation_data, improve_id_data, entrez_data):
     
     # missing entrex id's are not in genes.csv, so get rid of those rows
     mutations_only_df =  mutations_only_df[mutations_only_df['Entrez'].notna()]
+    # keep only genes in genes.csv, as the other datasets do
+    mutations_only_df = mutations_only_df[mutations_only_df['Entrez'].astype(int).isin(entrez_data['entrez_id'])]
 
     # merge improve sample names
     improve_id_data['to_merge'] = improve_id_data['common_name'].str.replace("NIBR","")

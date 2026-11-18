@@ -223,7 +223,10 @@ def map_copy_number(copy_number_data, improve_id_data, entrez_data):
     improve_mapped_cn_df = improve_mapped_cn_df.rename(columns={'Gene ID':'entrez_id'})
     improve_mapped_cn_df = improve_mapped_cn_df.astype({'entrez_id':'int','improve_sample_id':'int'})
     improve_mapped_cn_df = improve_mapped_cn_df[['entrez_id','copy_number','copy_call','study','source','improve_sample_id']]
-        
+    # keep only genes in genes.csv, as the other datasets do; this also drops the
+    # source's negative gene IDs, which aren't Entrez IDs
+    improve_mapped_cn_df = improve_mapped_cn_df[improve_mapped_cn_df['entrez_id'].isin(entrez_data['entrez_id'])]
+
     return(improve_mapped_cn_df)
 
 def map_transcriptomics(transciptomics_data, improve_id_data, entrez_data):
