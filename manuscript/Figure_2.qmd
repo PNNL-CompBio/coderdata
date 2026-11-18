@@ -42,6 +42,7 @@ library(reticulate)
 library(ggplot2)
 library(tidyr)
 library(patchwork)
+library(dplyr)
 library(GSVA) ##do to the enrichment statistics
 
 # path setupd
@@ -71,8 +72,8 @@ Note how this is done using the `reticulate` functionality to call Python functi
 
 ```{r}
 #| label: load-datasets
-#| warning: FALSE
-#| echo: FALSE
+#| warning: false
+#| echo: false
 
 
 cell_lines <- c("ccle", "ctrpv2", "gcsi",
@@ -88,23 +89,19 @@ for (name in c(cell_lines, exvivo)) {
   datasets[[name]] <- cd$load(name, local_path = data_dir)
 }
 
-# experiments <- list()
-# transcripts <- list()
-# proteomics <- list()
-
-# for (name in datasetnames) {
-
-#     transcripts[[name]] <- datasets[[name]]$format(
-#     "transcriptomics",
-#     shape = "matrix",
-#     metrics = "transcripomics"
-#   )
-#     proteomics[[name]] <- datasets[[name]]$format(
-#     "proteomics",
-#     shape = "matrix",
-#     metrics = "proteomics"
-#   )
-# }
+dataset_colors <- list(
+  hcmi = '#EE7733',
+  liver = '#004488',
+  sarcoma  ='#882288',
+  bladder = '#EE3377',
+  cptac = '#CC3311',
+  pancreatic = '#009988',
+  colorectal = '#5544AA',
+  beataml = '#6699CC',
+  mpnst = '#BBBBBB',
+  Sanger = '#999933',
+  DepMap = '#DDCC77'
+)
 ```
 
 
@@ -113,41 +110,69 @@ specific drugs that are correlated with samples that are active in those.
 
 ## Panel A: Copy number
 
-Let's plot copy number types across datasets
+Let's plot copy number types across datasets. 
 
 ```{r}
-#| label: plot-mutations
+#| label: plot-copynumber
+#| warning: false
 
 library(dplyr)
 library(tidyr)
 
+##collect copy number data from both datasets. treating
+##cell lines differently because its only really 2 datasets
 cl_cn <- do.call(rbind, lapply(cell_lines, function(ds){
-  datasets[[ds]]$copy_number |>
-    dplyr::rename(dataset = study)
-})) |>
-  distinct() #obviously this is kind of a pain and time consuming
+  datasets[[ds]]$copy_number |> 
+    left_join(datasets[[ds]]$genes) |>
+    dplyr::rename(dataset = study)|>
+    select(copy_call,dataset, improve_sample_id,gene_symbol)|>
+    distinct()
+})) #|>
+  #distinct() #obviously this is kind of a pain and time consuming
 
 ev_cn <- do.call(rbind, lapply(exvivo, function(ds){
   cv <- datasets[[ds]]$copy_number 
   if (!is.null(cv))
-    return(cv|> mutate(dataset=ds))
-})) |>
-  dplyr::select(-study)
+    return(cv|> mutate(dataset=ds)|>
+     left_join(datasets[[ds]]$genes)  |>
+     select(copy_call,dataset, improve_sample_id,gene_symbol)|>
+    distinct())
+}))
 
 comb <- rbind(cl_cn, ev_cn)
+
 ##now how can we plot these?
+##play around with counting and plotting
 tot_counts <- comb |>
-  group_by(dataset) |> summarize(total_genes = n_distinct(entrez_id))
+  group_by(dataset) |> summarize(total_genes = n_distinct(gene_symbol))
+
+scounts <- comb|>group_by(dataset)|> summarize(samples = n_distinct(improve_sample_id))
 
 print(tot_counts)
+
 var_counts <- comb |> 
   group_by(copy_call, dataset, improve_sample_id) |> 
-  summarize(genes = n_distinct(entrez_id))
+  summarize(`genes per sample` = n_distinct(gene_symbol)) |>
+  left_join(scounts)
 
-ggplot(var_counts, aes(x=genes, fill = copy_call,y=dataset, alpha = 0.5)) + 
-  ggridges::geom_density_ridges2() + 
-  scale_fill_viridis_d()
+var_counts$`Copy Call` = factor(var_counts$copy_call,levels=c('deep del','het loss','diploid','gain','amp'))
 
+count_sum <- var_counts |> 
+  group_by(`Copy Call`,dataset,samples) |>
+  summarize(`mean genes per sample` = mean(`genes per sample`))
+
+##plot all the counts
+##density seems to work? 
+ggplot(var_counts, aes(x=`genes per sample`, y =`Copy Call`,fill=dataset))+# alpha = log(samples))) + 
+  #geom_bar(stat='identity', position = 'dodge') + 
+  geom_boxplot()+
+  scale_fill_manual(values = dataset_colors)+
+  scale_color_manual(values = dataset_colors)+
+  theme_minimal(base_size=12)+
+  scale_x_log10()
+  #scale_fill_viridis_d()
+
+ggsave('fig2a_cnv.pdf',width=8)
 ```
 
 
@@ -156,20 +181,26 @@ Now we can do the same with mutation types.
 
 ```{r}
 #| label: mutations
-#| 
+
+
 cl_mu <- do.call(rbind, lapply(cell_lines, function(ds){
-  cv <- datasets[[ds]]$mutations
-  cv[,c('entrez_id','variant_classification','improve_sample_id','study')] |> 
-    dplyr::rename(dataset = study) 
-})) |>
-  distinct() #obviously this is kind of a pain and time consuming
+  cv <- datasets[[ds]]$mutations|>
+     left_join(datasets[[ds]]$genes)  |>
+     select(variant_classification,dataset = study, improve_sample_id,gene_symbol) 
+   distinct(cv)
+  #cv[,c('entrez_id','variant_classification','improve_sample_id','study')] |> 
+  #  dplyr::rename(dataset = study) 
+}) )
 
 ev_mu <- do.call(rbind, lapply(exvivo, function(ds){
   cv <- datasets[[ds]]$mutations 
   #print(paste(names(cv),collapse=','))
   if (!is.null(cv))
-    return(cv[,c('entrez_id','variant_classification','improve_sample_id')]|> 
-      mutate(dataset=ds))
+    return(cv|>
+     left_join(datasets[[ds]]$genes)  |>
+     select(variant_classification,improve_sample_id,gene_symbol) |>
+     mutate(dataset=ds)|>
+     distinct())
 })) 
 
 comb <- rbind(cl_mu, ev_mu)
@@ -179,12 +210,20 @@ comb |> group_by(variant_classification) |>
 
 comb |>  
   group_by(variant_classification, dataset, improve_sample_id) |> 
-  summarize(genes_per_sample = n_distinct(entrez_id)) |> 
-  group_by(variant_classification, dataset) |>
-  summarize(mean_genes = mean(genes_per_sample)) |>
-  ggplot(aes(x= variant_classification, y= mean_genes, fill = dataset)) + scale_y_log10()+geom_bar(stat='identity',position='dodge') + coord_flip()
+  summarize(`genes per sample` = n_distinct(gene_symbol)) |> 
+ # group_by(variant_classification, dataset) |>
+  #summarize(`Average genes per sample` = mean(genes_per_sample)) |>
+  subset(!variant_classification %in% c('IGR','De_novo_Start_OutOfFrame','De_novo_Start_InFrame','Undetermined')) |>
+  dplyr::rename(`Variant Classification`='variant_classification') |>
+  ggplot(aes(x= `Variant Classification`, y= `genes per sample`, fill = dataset)) + 
+  scale_y_log10()+
+  geom_boxplot() +
+#  geom_bar(stat='identity',position='dodge') +  
+  coord_flip() +
+  scale_fill_manual(values= dataset_colors) +
+  theme_minimal(base_size = 12)
 
-
+ggsave('fig2b_variants.pdf',width=8,height=8)
 
 ```
 
@@ -196,40 +235,50 @@ common <-  comb |> group_by(variant_classification) |>
   summarize(ndatasets=n_distinct(dataset)) |> subset(ndatasets>5)
 
 comb |> subset(variant_classification %in% common$variant_classification)|>
-  group_by(variant_classification, dataset, improve_sample_id) |> summarize(n_genes = n_distinct(entrez_id)) |> ggplot(aes(x=n_genes, y=dataset, fill=variant_classification, alpha = 0.5)) + ggridges::geom_density_ridges2() +scale_x_log10() 
+  group_by(variant_classification, dataset, improve_sample_id) |> summarize(n_genes = n_distinct(gene_symbol)) |> ggplot(aes(x=n_genes, y=dataset, fill=variant_classification, alpha = 0.5)) + ggridges::geom_density_ridges2() +scale_x_log10() 
 ```
 
 ## Panel C: Transcriptomics
-boxplot of values? 
+
+We combine the transriptomics and can do a quick sanity check to evaluate how they are 
+distributed. Typically I do this across samples in a dataset, so this is a very
+rough estimate.
 
 ```{r}
 #| label: transcriptomics
+#| warning: false
 
 cl_tr <- do.call(rbind, lapply(cell_lines, function(ds){
-  cv <- datasets[[ds]]$transcriptomics
-  cv[,c('entrez_id','transcriptomics','improve_sample_id','study')] |> 
-    dplyr::rename(dataset = study) 
-})) |>
-  distinct() #obviously this is kind of a pain and time consuming
+  cv <- datasets[[ds]]$transcriptomics|>
+     left_join(datasets[[ds]]$genes)  |>
+     select(transcriptomics,dataset = study, improve_sample_id,gene_symbol) |>
+     distinct() 
+})) 
 
 ev_tr <- do.call(rbind, lapply(exvivo, function(ds){
   #print(ds)
   cv <- datasets[[ds]]$transcriptomics 
   if (!is.null(cv))
-    return(cv[,c('entrez_id','transcriptomics','improve_sample_id')]|> 
-      mutate(dataset=ds))
+    return(cv|>
+     left_join(datasets[[ds]]$genes)  |>
+     select(transcriptomics,improve_sample_id,gene_symbol) |>
+     mutate(dataset=ds)|>
+     distinct())
 })) 
 
 comb <- rbind(cl_tr, ev_tr)
+
+comb$dataset[comb$dataset =='Sanger & Broad Cell Lines RNASeq']<-'Sanger'
 
 ggplot(comb, aes(x=dataset, y = transcriptomics))+ 
   geom_boxplot() + scale_y_log10() 
 ```
 
-Now can we make a UMAP?
+Now for the real question: how do the different samples plot? I use UMAP instead of
+PCA here because the clusters are more distinct. 
 
 ```{r}
-
+#| label: rna-umap
 #library(ggfortify)
 library(umap) 
 
@@ -237,11 +286,11 @@ nu <- comb |>
   tidyr::unite(dataset, improve_sample_id, col='sample',sep='-', remove=FALSE) 
 
 
-cmat <- nu[,c('entrez_id','transcriptomics','sample')] |> 
+cmat <- nu[,c('gene_symbol','transcriptomics','sample')] |> 
   tidyr::pivot_wider(names_from='sample',
     values_from='transcriptomics',values_fn=mean)
 
-cm <- tibble::column_to_rownames(cmat,'entrez_id') |>
+cm <- tibble::column_to_rownames(cmat,'gene_symbol') |>
   drop_na()
 
 pats <- nu[,c('sample','dataset')] |>
@@ -259,53 +308,86 @@ layout <- tumap[["layout"]]
 layout <- data.frame(layout) 
 final <- cbind(layout, subset(pats, sample%in%cols)) 
 
-ggplot(final, aes(x=X1,y=X2,col=dataset)) +geom_point() + 
-  ggtitle("UMAP of log TPM of RNA-Seq datasets")
 
+
+ggplot(final, aes(x=X1,y=X2,col=dataset,alpha=0.8)) +geom_point() + 
+  ggtitle("UMAP of log TPM of RNA-Seq datasets")+
+  theme_minimal(base_size = 12)+
+  scale_color_manual(values = dataset_colors)
+
+ggsave('fig2c_transcripts.pdf',width=8)
+
+```
+
+Should we try a PCA now that we have more data?
+
+```{r}
+library(ggfortify)
+
+pcr <- prcomp(t(cmm[,cols]))
+
+autoplot(pcr, data=subset(pats, sample%in%cols), color='dataset',alpha=0.8) +
+  scale_color_manual(values= dataset_colors)
+
+ggsave('fig2c_transcripts_pca.pdf',width=8)
 ```
 
 ## Panel D: Proteomics
 
-boxplot of values
+Lastly we can look at the proteomics values and see how they are distributed. 
 
 ```{r}
 #| label: proteomics
 
 
 cl_pr <- do.call(rbind, lapply(cell_lines, function(ds){
-  cv <- datasets[[ds]]$proteomics
-  cv[,c('entrez_id','proteomics','improve_sample_id','study')] |> 
-    dplyr::rename(dataset = study) 
-})) |>
-  distinct() #obviously this is kind of a pain and time consuming
+  cv <- datasets[[ds]]$proteomics|>
+     left_join(datasets[[ds]]$genes)  |>
+     select(proteomics,dataset = study, improve_sample_id,gene_symbol) |>
+     distinct()  
+}))  #obviously this is kind of a pain and time consuming
 
 ev_pr <- do.call(rbind, lapply(exvivo, function(ds){
   #print(ds)
   cv <- datasets[[ds]]$proteomics 
-  if (!is.null(cv))
-    return(cv[,c('entrez_id','proteomics','improve_sample_id')]|> 
-      mutate(dataset=ds))
+  if (!is.null(cv)){
+    ##lets try some corrections
+   # if(ds=='liver')
+   #   cv$proteomics = log2(2**cv$proteomics-1)
+   # else if(ds=='beataml')
+   #   cv$proteomics = 2**cv$proteomics
+    #else if(ds=='cptac')
+    #  cv$proteomics = 2**cv$proteomics
+    return(cv|>
+     left_join(datasets[[ds]]$genes)  |>
+     select(proteomics,dataset = study, improve_sample_id,gene_symbol) |>
+     distinct()|>
+    mutate(dataset=ds))
+  }
 }))
 
 comb <- rbind(cl_pr, ev_pr)
 
-ggplot(comb, aes(x=dataset, y = proteomics))+ 
-  geom_boxplot() + scale_y_log10() 
+#ggplot(comb, aes(x=dataset, y = proteomics))+ 
+#  geom_boxplot() + scale_y_log10() 
+
 ```
 
-Now try to do PCA
+We can also experiment with a UMAP for these datasets.
 
 ```{r}
+#| label: proteomics umap
+
 
 nu <- comb |>
   tidyr::unite(dataset, improve_sample_id, col='sample',sep='-', remove=FALSE) 
 
 
-cmat <- nu[,c('entrez_id','proteomics','sample')] |> 
+cmat <- nu[,c('gene_symbol','proteomics','sample')] |> 
   tidyr::pivot_wider(names_from='sample',
-    values_from='proteomics',values_fn=mean)
+    values_from='proteomics',values_fn=function(x) mean(x,na.rm=T))#values_fill=0.0)
 
-cm <- tibble::column_to_rownames(cmat,'entrez_id') |>
+cm <- tibble::column_to_rownames(cmat,'gene_symbol') |>
   drop_na()
 
 pats <- nu[,c('sample','dataset')] |>
@@ -316,15 +398,40 @@ cols <- intersect(colnames(cm),pats$sample)
 #pca <- prcomp(t(cm[,cols]))
 #autoplot(pca, data=subset(pats, sample%in%cols),color='dataset')
 
-cmm <- apply(cm,2,function(x) (x-mean(x))/sd(x))#cm#log2(cm + 1)
+cmm <- cm#a1pply(cm,2,function(x) (x-mean(x))/sd(x))#cm#log2(cm + 1)
 tumap = umap(t(cmm[,cols]), n_components = 2, random_state = 15) 
 
 layout <- tumap[["layout"]] 
 layout <- data.frame(layout) 
 final <- cbind(layout, subset(pats, sample%in%cols)) 
 
-ggplot(final, aes(x=X1,y=X2,col=dataset)) +geom_point() + 
-  ggtitle("UMAP of Proteomics datasets")
+ggplot(final, aes(x=X1,y=X2,col=dataset,alpha=0.8)) +geom_point() + 
+  ggtitle("UMAP of Z-scored Proteomics datasets")+
+  scale_color_manual(values = dataset_colors) +
+  theme_minimal(base_size = 12)
+
+ggsave('fig2d_proteomics.pdf',width=8)
+
 ```
 
 Now that we have the four figures we can assemble into a single omics QC plo
+
+
+```{r}
+#| label: proteomics pca
+#| 
+
+library(ggfortify)
+
+pcr <- prcomp(t(cm[,cols]))
+
+autoplot(pcr, data=subset(pats, sample%in%cols), color='dataset',alpha=0.8) +
+  ggtitle("PCA of un-centered proteomics")+
+  scale_color_manual(values = dataset_colors) +
+  theme_minimal(base_size = 12)
+
+ggsave('fig2c_proteomics_pca.pdf',width=8)
+
+```
+
+Anything else?
