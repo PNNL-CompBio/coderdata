@@ -363,8 +363,15 @@ def mapping_checks(directory, report):
 def validate(directory, datasets=None, previous=None):
     report = Report()
     requested = datasets
-    datasets = datasets or discover_datasets(directory)
     summary = {'datasets': {}}
+    # A missing or empty folder would otherwise check nothing and pass.
+    if not os.path.isdir(directory):
+        report.error('missing-dir', 'all', f'{directory} is not a folder')
+        return report, summary
+    datasets = datasets or discover_datasets(directory)
+    if not datasets:
+        report.error('no-datasets', 'all', f'no *_samples.csv files in {directory}, so nothing was checked')
+        return report, summary
     sample_owner = defaultdict(set)
 
     for ds in datasets:
